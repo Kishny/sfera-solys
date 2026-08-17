@@ -1,15 +1,19 @@
-SferaLuna — CLAUDE.md
+# Sfera'Solys — CLAUDE.md
 
-Site de rencontre premium français. Orientation : sécurité, authenticité, expérience féminine. Cible : femmes 28 ans et plus.
+Site de rencontre premium français. Orientation : sécurité, authenticité, expérience masculine. **Cible : hommes 28 ans et plus.**
+
+Sfera'Solys est le **pendant masculin de SferaLuna** (Solys = solaire / Luna = lunaire). C'est un **fork séparé** : repo indépendant, base MongoDB distincte, **même moteur technique**, identité visuelle propre. Garder la structure de fichiers alignée sur SferaLuna pour faciliter les cherry-picks de correctifs entre les deux projets.
+
+> ⚠️ Ce projet vient d'être forké depuis SferaLuna. Tant que le rebranding (section dédiée en bas) n'est pas terminé, du code, des libellés et des configs référencent encore « SferaLuna » / « Luna » / la base `sferaluna`. Ne jamais réutiliser les secrets de SferaLuna : toutes les clés (MongoDB, Stripe, Pusher, Cloudinary, Resend, Google, Apple) doivent être régénérées pour Sfera'Solys.
 
 ⸻
 
-Stack technique
+## Stack technique
 
 * Framework : Next.js 15 (App Router) / React 18 / TypeScript
 * Styles : Tailwind CSS 3, Framer Motion, Lucide React
 * Auth : NextAuth v4 — Google OAuth + Apple Sign In (HTTPS) + credentials (bcrypt) + vérification email (Resend)
-* BDD : MongoDB Atlas + Mongoose (base sferaluna)
+* BDD : MongoDB Atlas + Mongoose (base **`sferasolys`** — voir rebranding, l'ancienne était `sferaluna`)
 * Paiement : Stripe (abonnements mensuels) + Stripe Identity (vérification d'identité)
 * Validation : Zod + React Hook Form
 * SEO : Metadata Next.js, OpenGraph, Twitter Cards, sitemap, robots.txt, JSON-LD
@@ -20,8 +24,44 @@ Stack technique
 
 ⸻
 
-Structure du projet
+## Direction artistique — « éclipse solaire »
 
+C'est le seul volet entièrement nouveau par rapport à SferaLuna. Là où SferaLuna joue le lunaire (violets, nocturne), Sfera'Solys joue le solaire : eau profonde + soleil incandescent.
+
+Palette (tokens Tailwind) :
+
+| Token    | Hex       | Usage                              |
+|----------|-----------|------------------------------------|
+| `abyss`  | `#001724` | fond principal                     |
+| `teal`   | `#15676D` | surfaces, cartes                   |
+| `cream`  | `#FFEBD1` | texte sur fond sombre              |
+| `orange` | `#FF7A00` | accent solaire, CTA, liens         |
+| `rust`   | `#79280E` | accent profond, hover, états       |
+
+Typographie :
+
+* Display : **Archivo** (largeur expanded ~125), en bas-de-casse
+* Accent  : **Fraunces** italique (touches éditoriales / chaleur)
+* Corps   : **Instrument Sans** (400 / 500 / 600)
+
+Signature de marque :
+
+* Soleil en **éclipse** — un disque teal qui mord un disque orange (répond visuellement à la lune de SferaLuna)
+* L'apostrophe de « Sfera'Solys » rendue comme un **point solaire orange**
+
+Règles d'usage couleur :
+
+* L'orange est un accent : CTA, liens, gros éléments, icônes. **Jamais** de petit texte orange sur teal (contraste insuffisant).
+* Texte courant sur fond sombre = `cream`. Texte secondaire = cream désaturé/opacité.
+* `rust` pour les hovers du primaire et les états chauds (erreurs douces, badges).
+
+⸻
+
+## Structure du projet
+
+> Identique à SferaLuna (même moteur). Référence complète ci-dessous — inchangée par le fork sauf mentions de rebranding.
+
+```
 src/
 ├── app/
 │   ├── api/
@@ -31,527 +71,190 @@ src/
 │   │   │   ├── reports/route.ts + [id]/      ← gestion signalements
 │   │   │   └── testimonials/route.ts + [id]/ ← approuver/rejeter témoignages
 │   │   ├── circle/route.ts                   ← GET 6 profils curatés semaine
-│   │   ├── community/
-│   │   │   ├── route.ts                      ← GET/POST posts communauté
-│   │   │   └── [id]/route.ts                 ← POST like/comment, DELETE
-│   │   ├── events/
-│   │   │   ├── route.ts                      ← GET events, POST (admin)
-│   │   │   └── [id]/route.ts                 ← POST toggle inscription
+│   │   ├── community/route.ts + [id]/        ← posts communauté, like/comment
+│   │   ├── events/route.ts + [id]/           ← events + toggle inscription
 │   │   ├── likes/route.ts                    ← POST like / DELETE unlike
 │   │   ├── matches/route.ts                  ← GET liste matches
 │   │   ├── messages/[matchId]/route.ts       ← GET/POST messages d'un match
-│   │   ├── notifications/route.ts            ← GET notifications / POST mark as read
-│   │   ├── profiles/route.ts                 ← GET profils découverte (filtres)
-│   │   ├── profiles/[id]/route.ts            ← GET profil public d'une utilisatrice
+│   │   ├── notifications/route.ts            ← GET / POST mark as read
+│   │   ├── profiles/route.ts + [id]/         ← découverte + profil public
 │   │   ├── pusher/auth/route.ts              ← Auth canaux privés Pusher
-│   │   ├── upload/avatar/route.ts            ← POST upload photo profil → Cloudinary
-│   │   ├── identity-verification/route.ts   ← POST création session Stripe Identity
+│   │   ├── upload/avatar/route.ts            ← POST upload photo → Cloudinary
+│   │   ├── identity-verification/route.ts    ← POST session Stripe Identity
 │   │   ├── reports/route.ts                  ← POST signalement (hors admin)
 │   │   ├── stats/route.ts                    ← GET statistiques publiques
-│   │   ├── users/visibility/route.ts         ← PUT mise à jour visibilité profil
-│   │   ├── auth/register/route.ts            ← POST inscription email/password
-│   │   ├── auth/verify-email/route.ts        ← GET vérification email token
-│   │   ├── auth/reset-password/route.ts      ← POST reset mot de passe
-│   │   ├── subscription/
-│   │   │   ├── check/route.ts                ← vérification quotas/features/plans
-│   │   │   └── status/route.ts               ← état abonnement connecté
-│   │   ├── vibementor/
-│   │   │   ├── route.ts                      ← GET/POST questions Q&A
-│   │   │   └── [id]/route.ts                 ← POST répondre/liker question
-│   │   ├── vibeplanner/route.ts              ← GET/POST/PATCH plans rendez-vous
-│   │   ├── vibesphere/
-│   │   │   ├── route.ts                      ← GET feed, POST créer vibe
-│   │   │   └── [id]/route.ts                 ← POST toggle like, DELETE
-│   │   ├── journal/route.ts                  ← GET/POST/DELETE journal émotionnel
-│   │   ├── journal/[id]/route.ts             ← PATCH toggle ritual, DELETE entrée
-│   │   ├── visitors/route.ts                 ← GET visiteurs / POST enregistrer visite
-│   │   ├── newsletter/route.ts               ← POST abonnement newsletter (MongoDB)
-│   │   ├── testimonials/route.ts             ← GET approuvés (public) + POST (auth)
+│   │   ├── auth/register|verify-email|reset-password/route.ts
+│   │   ├── subscription/check|status/route.ts
+│   │   ├── vibementor/route.ts + [id]/       ← Q&A communauté
+│   │   ├── vibeplanner/route.ts              ← plans rendez-vous
+│   │   ├── vibesphere/route.ts + [id]/       ← feed social
+│   │   ├── journal/route.ts + [id]/          ← journal émotionnel
+│   │   ├── visitors/route.ts                 ← visites profil
+│   │   ├── newsletter/route.ts               ← abonnement newsletter
+│   │   ├── testimonials/route.ts             ← témoignages (public + auth)
 │   │   ├── stripe/
-│   │   │   ├── create-checkout-session/route.ts  ← PayPal + automatic_payment_methods
-│   │   │   ├── webhook/route.ts                  ← checkout + subscription + invoice events
-│   │   │   ├── sync/route.ts                     ← POST sync manuel abonnement Stripe → MongoDB
-│   │   │   ├── cancel/route.ts                   ← POST annuler à la fin de période
-│   │   │   ├── pause/route.ts                    ← POST mettre en pause (pause_collection)
-│   │   │   └── reactivate/route.ts               ← POST réactiver depuis pause ou annulation
-│   │   └── users/
-│   │       ├── profile/route.ts              ← GET/PUT profil connecté + protection ghostMode
-│   │       ├── update-profile/route.ts
-│   │       └── visibility/route.ts           ← PUT visibilité profil
-│   ├── admin/page.tsx                        ← Dashboard admin (stats + gestion users)
-│   ├── auth/page.tsx                         ← Login/Register NextAuth
-│   ├── auth/reset-password/page.tsx          ← Mot de passe oublié
-│   ├── circle/page.tsx                       ← Circle of Six — 6 affinités/semaine ✅
-│   ├── communaute/page.tsx                   ← Forum communauté par catégories ✅
-│   ├── contact/page.tsx                      ← Formulaire de contact
-│   ├── evenements/page.tsx                   ← Événements Luna avec inscription ✅
-│   ├── explorer/page.tsx                     ← Découverte profils + like/pass + modal match ✅
+│   │   │   ├── create-checkout-session/route.ts
+│   │   │   ├── webhook/route.ts              ← checkout + subscription + invoice
+│   │   │   ├── sync|cancel|pause|reactivate/route.ts
+│   │   └── users/profile|update-profile|visibility/route.ts
+│   ├── admin/page.tsx                        ← Dashboard admin
+│   ├── auth/page.tsx + reset-password/       ← Login/Register NextAuth
+│   ├── circle/page.tsx                       ← Circle of Six ✅
+│   ├── communaute/page.tsx                   ← Forum communauté ✅
+│   ├── contact/page.tsx
+│   ├── evenements/page.tsx                   ← Événements ✅
+│   ├── explorer/page.tsx                     ← Découverte + like/pass + match ✅
 │   ├── inscription/page.tsx                  ← Onboarding multi-étapes
 │   ├── matches/page.tsx                      ← Liste des matches ✅
-│   ├── messages/[matchId]/page.tsx           ← Chat privé entre matchés ✅
-│   ├── mode-fantome/page.tsx                 ← Toggle invisible mode premium ✅
-│   ├── mon-compte/page.tsx                   ← Dashboard compte utilisateur
+│   ├── messages/[matchId]/page.tsx           ← Chat privé ✅
+│   ├── mode-fantome/page.tsx                 ← Mode invisible premium ✅
+│   ├── mon-compte/page.tsx                   ← Dashboard compte
 │   ├── paiement/page.tsx                     ← Choix offre Stripe
-│   ├── profil/[id]/page.tsx                  ← Page profil public d'une utilisatrice ✅
-│   ├── vibementor/page.tsx                   ← Q&A mentorat communauté ✅
-│   ├── vibeplanner/page.tsx                  ← Fonctionnel ✅ : propose une idée à un match (POST) + accepte/refuse (PATCH), branché sur /api/vibeplanner + /api/matches
-│   ├── vibesphere/page.tsx                   ← Feed social mood board ✅
-│   ├── vibesphere/journal/page.tsx           ← Journal émotionnel localStorage ✅
-│   ├── sitemap.ts                            ← Sitemap SEO
-│   ├── robots.ts                             ← Robots.txt SEO
-│   ├── layout.tsx                            ← RootLayout React obligatoire
-│   ├── layout-meta.ts                        ← Helper buildMeta SEO
-│   ├── accessibilite/, confidentialite/, conditions/, cookies/
-│   └── [pages marketing] commencer, equipe, faq, fonctionnalites, guide, histoire, tarifs, valeurs
-├── components/
-│   ├── Header.tsx                            ← Session-aware
-│   ├── Footer.tsx
-│   ├── JsonLd.tsx
-│   ├── ReportModal.tsx
-│   └── UsageLimits.tsx
-├── hooks/
-│   ├── usePremium.ts                         ← Hook client isPremium, can(feature)
-│   └── useSubscription.ts                    ← Hook complet abonnement + limites + features
-├── lib/
-│   ├── db.ts                                 ← connectDB() avec cache global Mongoose
-│   ├── stripe.ts
-│   ├── premium.ts                            ← helpers premium legacy / UI
-│   ├── auth.ts                               ← getAuthSession() helper serveur (re-export authOptions)
-│   ├── cloudinary.ts                         ← client Cloudinary (CLOUDINARY_CLOUD_NAME/KEY/SECRET)
-│   ├── pusher.ts                             ← client Pusher serveur
-│   ├── pusher-client.ts                      ← client Pusher navigateur
-│   ├── resend.ts                             ← client Resend emails (RESEND_API_KEY)
-│   ├── emails.ts                             ← templates HTML emails transactionnels
-│   ├── rate-limiter.ts                       ← rate limiting par IP — distribué Upstash Redis (REST) si UPSTASH_* défini, sinon fallback mémoire ; fail-open. Câblé sur register/reset-password/newsletter
-│   ├── audit.ts                              ← createAuditLog() helper
-│   ├── utils.ts
-│   ├── guards/
-│   │   └── premium-guard.ts                  ← guard serveur premium simplifié
-│   └── subscription/
-│       ├── config.ts                         ← plans, limites, features
-│       ├── service.ts
-│       └── subscription-check.ts             ← guard serveur abonnement/features/actions
-├── models/
-│   ├── User.ts                               ← Modèle principal
-│   ├── Subscription.ts                       ← Abonnements MongoDB
-│   ├── AuditLog.ts                           ← Logs d'audit actions utilisateurs
-│   ├── Boost.ts                              ← Utilisation boosts
-│   ├── Like.ts                               ← like fromUserId → toUserId (unique)
-│   ├── Match.ts                              ← match mutuel user1Id/user2Id + lastMessageAt
-│   ├── Message.ts                            ← messages par matchId
-│   ├── ProfileVisit.ts                       ← visites profil (visitorId / visitedId)
-│   ├── VibePost.ts                           ← posts VibeSphere
-│   ├── VibePlan.ts                           ← plans rendez-vous
-│   ├── LunaEvent.ts                          ← événements Luna
-│   ├── CommunityPost.ts                      ← posts forum
-│   ├── MentorPost.ts                         ← Q&A VibeMentor
-│   ├── NewsletterSubscriber.ts               ← abonnés newsletter
-│   ├── Testimonial.ts                        ← témoignages
-│   ├── Report.ts                             ← signalements
-│   └── JournalEntry.ts                       ← entrées journal émotionnel (userId, mood, note, period)
-└── middleware/
-    └── check-limits.ts                       ← SubscriptionChecker + requireSubscription
+│   ├── profil/[id]/page.tsx                  ← Profil public ✅
+│   ├── vibementor|vibeplanner|vibesphere/page.tsx ✅
+│   ├── vibesphere/journal/page.tsx           ← Journal émotionnel ✅
+│   ├── sitemap.ts / robots.ts               ← SEO
+│   ├── layout.tsx / layout-meta.ts          ← RootLayout + helper buildMeta
+│   ├── accessibilite|confidentialite|conditions|cookies/
+│   └── [marketing] commencer, equipe, faq, fonctionnalites, guide, histoire, tarifs, valeurs
+├── components/  Header.tsx, Footer.tsx, JsonLd.tsx, ReportModal.tsx, UsageLimits.tsx
+├── hooks/       usePremium.ts, useSubscription.ts
+├── lib/         db.ts, stripe.ts, premium.ts, auth.ts, cloudinary.ts, pusher(.client).ts,
+│                resend.ts, emails.ts, rate-limiter.ts, audit.ts, utils.ts, text-moderation.ts,
+│                guards/premium-guard.ts, subscription/{config,service,subscription-check}.ts
+├── models/      User, Subscription, AuditLog, Boost, Like, Match, Message, ProfileVisit,
+│                VibePost, VibePlan, LunaEvent(→ renommer), CommunityPost, MentorPost,
+│                NewsletterSubscriber, Testimonial, Report, JournalEntry
+└── middleware/  check-limits.ts (SubscriptionChecker + requireSubscription)
+```
 
-    Modèle User.ts — référence : 
+### Modèle User.ts — types de référence (ne pas changer les valeurs)
 
-    // Plans — toujours utiliser ces valeurs exactes
-type UserPlan =
-  | "free"
-  | "essential-monthly"
-  | "premium-monthly"
-  | "elite-monthly";
+```ts
+type UserPlan = "free" | "essential-monthly" | "premium-monthly" | "elite-monthly";
+type SubscriptionStatus = "inactive" | "active" | "trialing" | "past_due" | "canceled";
+type ProfileVisibility = "public" | "matches" | "premium" | "invisible";
+```
 
-// Statuts abonnement
-type SubscriptionStatus =
-  | "inactive"
-  | "active"
-  | "trialing"
-  | "past_due"
-  | "canceled";
-
-// Visibilité profil
-type ProfileVisibility =
-  | "public"
-  | "matches"
-  | "premium"
-  | "invisible";
-
-  isPremium est auto-calculé en pre-save Mongoose (active || trialing → true). Ne jamais setter manuellement hors webhook Stripe ou logique premium contrôlée.
+`isPremium` est auto-calculé en pre-save Mongoose (`active || trialing → true`). Ne jamais le setter manuellement hors webhook Stripe ou logique premium contrôlée.
 
 ⸻
 
-Plans tarifaires Stripe : 
+## Plans tarifaires Stripe
 
-ID plan
+| ID plan             | Nom       | Prix        |
+|---------------------|-----------|-------------|
+| `free`              | Gratuit   | 0 €         |
+| `essential-monthly` | Essentiel | 9,99 €/mois |
+| `premium-monthly`   | Premium   | 19,99 €/mois|
+| `elite-monthly`     | Elite     | 34,99 €/mois|
 
-Nom
+Les Price IDs Stripe sont dans `.env.local` (`STRIPE_PRICE_ESSENTIAL_MONTHLY`, `_PREMIUM_MONTHLY`, `_ELITE_MONTHLY`). **À régénérer** : créer de nouveaux produits/prix Stripe pour Sfera'Solys, ne pas réutiliser ceux de SferaLuna.
 
-Prix
+⸻
 
-free
+## Variables d'environnement requises (.env.local)
 
-Gratuit
+> Toutes à **régénérer** pour Sfera'Solys. Ne jamais committer ce fichier.
 
-0€
-
-essential-monthly
-
-Essentiel
-
-9,99€/mois
-
-premium-monthly
-
-Premium
-
-19,99€/mois
-
-elite-monthly
-
-Elite
-
-34,99€/mois
-
-Les Price IDs Stripe sont dans .env.local :  STRIPE_PRICE_ESSENTIAL_MONTHLY=...
-STRIPE_PRICE_PREMIUM_MONTHLY=...
-STRIPE_PRICE_ELITE_MONTHLY=...
-
-Variables d’environnement requises (.env.local) :   MONGODB_URI=mongodb+srv://...
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-NEXTAUTH_URL=http://localhost:3000
+```
+MONGODB_URI=mongodb+srv://...          # nouveau cluster, base sferasolys
+GOOGLE_CLIENT_ID=... / GOOGLE_CLIENT_SECRET=...   # nouveau projet Google Cloud
+NEXTAUTH_URL=http://localhost:3000     # prod : domaine canonique Sfera'Solys
 NEXTAUTH_SECRET=...
-STRIPE_SECRET_KEY=...
-STRIPE_WEBHOOK_SECRET=...
-STRIPE_PRICE_ESSENTIAL_MONTHLY=...
-STRIPE_PRICE_PREMIUM_MONTHLY=...
-STRIPE_PRICE_ELITE_MONTHLY=...
+STRIPE_SECRET_KEY=... / STRIPE_WEBHOOK_SECRET=...
+STRIPE_PRICE_ESSENTIAL_MONTHLY=... / _PREMIUM_MONTHLY=... / _ELITE_MONTHLY=...
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-# Cloudinary (upload photos profil)
-CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
-# Pusher (temps réel messagerie)
-PUSHER_APP_ID=...
-PUSHER_KEY=...
-PUSHER_SECRET=...
-PUSHER_CLUSTER=eu
-NEXT_PUBLIC_PUSHER_KEY=...
-NEXT_PUBLIC_PUSHER_CLUSTER=eu
-# Resend (emails transactionnels)
-RESEND_API_KEY=...
-RESEND_FROM_EMAIL=...
-# Upstash Redis (rate limiting distribué — OPTIONNEL, fallback mémoire si absent)
-UPSTASH_REDIS_REST_URL=...
-UPSTASH_REDIS_REST_TOKEN=...
-
-Flux utilisateur complet :   /auth (login/register)
-  → /inscription (5 étapes profil)
-    → POST /api/users/update-profile (hasCompletedProfile = true)
-      → /paiement (choix offre)
-        → POST /api/stripe/create-checkout-session
-          → Stripe Checkout
-            → POST /api/stripe/webhook (checkout.session.completed)
-              → isPremium = true dans MongoDB
-                → /mon-compte?payment=success
-
-Découverte & match :
-  /explorer
-    → GET /api/profiles (profils filtrés, exclus déjà likés)
-    → POST /api/likes { targetUserId }
-      → si match mutuel → Match créé → modal match → /messages/[matchId]
-    → POST /api/visitors (enregistre visite automatiquement)
-
-Messagerie :
-  /messages/[matchId]
-    → GET /api/messages/[matchId] (chargement initial)
-    → POST /api/messages/[matchId] { content }
-    → Pusher canal private-match-{matchId} pour réception temps réel
-
-Notifications :
-  GET /api/notifications
-    → compte nouveaux messages, nouveaux matches, nouvelles visites
-  POST /api/notifications
-    → met à jour lastSeenNotificationsAt
-
-    Ce qui est fonctionnel ✅
-
-* Authentification Google OAuth + Apple Sign In + email/password + bcrypt.
-* Onboarding profil multi-étapes.
-* Paiement Stripe avec 3 offres, checkout, webhook et mise à jour MongoDB.
-* Page Mon Compte avec onglets principaux.
-* API profil GET/PUT.
-* Découverte profils /explorer : cards, filtres, like/pass, modal match.
-* Likes & Matches : détection match mutuel, création de Match, liste /matches.
-* Messagerie privée /messages/[matchId], temps réel via Pusher.
-* Mode Fantôme /mode-fantome, avec protection premium côté API.
-* Circle of Six /circle, 6 profils curatés/semaine.
-* VibeSphere /vibesphere, feed social mood board.
-* Journal émotionnel /vibesphere/journal, persisté en MongoDB, rituels, playlist, analyse IA simulée.
-* VibePlanner /vibeplanner — fonctionnel ✅ : page protégée qui charge les matchs (/api/matches) et les propositions (/api/vibeplanner), permet de proposer une idée de rendez-vous (catégorie/titre/description/date, POST) et à l'autre personne d'accepter ou refuser (PATCH). Modal de création, états vides gérés (aucun match / aucune proposition).
-* VibeMentor /vibementor, Q&A communauté.
-* Événements Luna /evenements, inscription/désinscription.
-* Communauté Luna /communaute, forum, posts, commentaires, likes.
-* Visiteurs de profil via ProfileVisit.
-* Notifications basées sur messages, matches et visites.
-* Dashboard admin /admin, stats, users, signalements, témoignages.
-* Newsletter via Footer.
-* Témoignages avec validation admin.
-* Signalements via ReportModal.
-* Pages légales : confidentialité, conditions, cookies, accessibilité.
-* SEO : metadata globale, helper buildMeta, sitemap, robots, JSON-LD.
-* Upload photo profil via Cloudinary (/api/upload/avatar).
-* Emails transactionnels via Resend (vérification email, reset password, etc.).
-* Temps réel via Pusher (messagerie + notifications).
-* Vérification d'identité via Stripe Identity (/api/identity-verification).
-* Rate limiting par IP (Upstash Redis distribué + fallback mémoire, fail-open ; câblé register/reset-password/newsletter).
-* Audit logs centralisés (src/lib/audit.ts + AuditLog model).
-* Page profil public /profil/[id].
-* Filtre anti-harcèlement messagerie (src/lib/text-moderation.ts) : bloque les messages abusifs + crée un signalement auto (Report) visible dans /admin.
-* Badges de vérification d'identité visibles sur /explorer, /profil/[id] et /matches (identityVerified).
-* Relances email cron protégées (/api/cron/reengagement, secret CRON_SECRET) : inactifs, dunning past_due, win-back résiliés — anti-doublon via reengagementSentAt, PAS planifié dans vercel.json (déclenchement manuel/dry-run ?dry=1).
-* Analytics : Vercel Analytics (@vercel/analytics) dans le RootLayout.
-* Consentement cookies RGPD (CookieConsent + useCookieConsent hook).
-* Tests unitaires Vitest (subscription, rate-limiter, cookie consent, premium).
-* Aperçu profil public depuis Mon Compte (/profil/[id]?preview=1).
-* Gestion abonnement Stripe : annulation fin période, pause, réactivation.
-* Webhooks invoice.payment_succeeded / invoice.payment_failed (renouvellement mensuel).
-* PayPal + Apple Pay + Google Pay via automatic_payment_methods Stripe.
-* Synchronisation manuelle abonnement (/api/stripe/sync).
-* Build Next.js validé avec succès.
+CLOUDINARY_CLOUD_NAME=... / CLOUDINARY_API_KEY=... / CLOUDINARY_API_SECRET=...
+PUSHER_APP_ID=... / PUSHER_KEY=... / PUSHER_SECRET=... / PUSHER_CLUSTER=eu
+NEXT_PUBLIC_PUSHER_KEY=... / NEXT_PUBLIC_PUSHER_CLUSTER=eu
+RESEND_API_KEY=... / RESEND_FROM_EMAIL=...
+UPSTASH_REDIS_REST_URL=... / UPSTASH_REDIS_REST_TOKEN=...   # optionnel, fallback mémoire
+```
 
 ⸻
 
-Travail effectué récemment — session du matin ✅
+## Flux utilisateur complet
 
-1. Responsive mobile global
+```
+/auth → /inscription (5 étapes) → POST /api/users/update-profile (hasCompletedProfile=true)
+  → /paiement → POST /api/stripe/create-checkout-session → Stripe Checkout
+    → POST /api/stripe/webhook (checkout.session.completed) → isPremium=true → /mon-compte?payment=success
 
-Une grosse passe a été faite sur plusieurs pages pour harmoniser le rendu mobile avec une logique commune :
+Découverte & match : /explorer → GET /api/profiles → POST /api/likes { targetUserId }
+  → si match mutuel → Match → modal → /messages/[matchId] ; POST /api/visitors (auto)
 
-* pages plus compactes ;
-* paddings réduits sur mobile ;
-* boutons pleine largeur quand nécessaire ;
-* cartes plus lisibles ;
-* sections moins hautes ;
-* accordéons pour les contenus longs ;
-* grilles desktop transformées proprement en colonnes mobile ;
-* textes plus courts et mieux hiérarchisés.
+Messagerie : /messages/[matchId] → GET/POST /api/messages/[matchId]
+  → Pusher canal private-match-{matchId} (temps réel)
 
-Pages concernées :
-
-* circle/page.tsx
-* mode-fantome/page.tsx
-* vibeplanner/page.tsx
-* vibementor/page.tsx
-* vibesphere/page.tsx
-* vibesphere/journal/page.tsx
-* commencer/page.tsx
-* guide/page.tsx
-* faq/page.tsx
-* tarifs/page.tsx
-* matches/page.tsx
-* evenements/page.tsx
-* cookies/page.tsx
-* contact/page.tsx
-* confidentialite/page.tsx
-* conditions/page.tsx
-* communaute/page.tsx
-* admin/page.tsx
-* accessibilite/page.tsx
-
-2. Protection premium / abonnement
-
-La logique premium a été renforcée autour de :  src/lib/subscription/config.ts
-src/lib/subscription/subscription-check.ts
-src/app/api/subscription/check/route.ts
-src/app/api/subscription/status/route.ts
-
-Le fichier config.ts centralise maintenant :
-
-* les plans disponibles ;
-* les limites ;
-* les features ;
-* les types PlanId, FeatureKey, LimitKey.
-
-Le fichier subscription-check.ts sert de guard serveur pour :
-
-* vérifier un plan minimum ;
-* vérifier une fonctionnalité premium ;
-* contrôler une action limitée ;
-* récupérer les infos d’abonnement connectées.
-
-Important : ce fichier utilise getServerSession, MongoDB et Mongoose. Il ne doit donc pas être utilisé dans le vrai middleware Edge Next.js à la racine du projet.
-
-3. Protection du Mode Fantôme
-
-Le mode fantôme a été sécurisé côté API.
-
-Règle attendue : visibilite: "invisible"
-
-ne doit être accepté que si l’utilisatrice a accès à : ghostMode
-
-La feature ghostMode est disponible uniquement pour : premium-monthly
-elite-monthly
-
-Elle est refusée pour : free
-essential-monthly
-
-4. Fusion propre ProfileView / ProfileVisit
-
-Il existait deux modèles très proches : ProfileView.ts
-ProfileVisit.ts
-
-La décision technique prise : garder une seule logique propre avec : src/models/ProfileVisit.ts
-
-Le modèle final utilise : visitorId
-visitedId
-
-et sert à :
-
-* enregistrer les visites de profil ;
-* afficher les visiteurs premium ;
-* calculer les quotas de visites ;
-* alimenter les notifications.
-
-ProfileView.ts a été supprimé.
-
-Les fichiers adaptés : src/app/api/visitors/route.ts
-src/app/api/notifications/route.ts
-src/lib/subscription/subscription-check.ts
-
-5. Notifications
-
-La route : src/app/api/notifications/route.ts
-
-a été consolidée pour compter :
-
-* les nouveaux messages reçus ;
-* les nouveaux matches ;
-* les nouvelles visites de profil.
-
-La lecture se base sur : user.lastSeenNotificationsAt
-
-ou, à défaut, les 7 derniers jours.
-
-POST /api/notifications marque les notifications comme lues.
-
-6. SEO global
-
-La structure SEO a été améliorée :
-
-* src/app/layout.tsx doit rester un vrai RootLayout React ;
-* src/app/layout-meta.ts contient le helper buildMeta;
-* src/app/sitemap.ts liste les pages publiques ;
-* src/app/robots.ts bloque les pages privées ;
-* JsonLd est utilisé dans le layout.
-
-Erreur corrigée : The default export is not a React Component in "/layout"
-
-Cause : le contenu de layout-meta.ts avait été mis par erreur dans layout.tsx.
-
-7. Build
-
-Le build Next.js a été relancé : Résultat : build validé avec succès.
+Notifications : GET /api/notifications (messages + matches + visites) ; POST → lastSeenNotificationsAt
+```
 
 ⸻
 
-Travail effectué récemment — session OAuth production ✅
+## Ce qui est fonctionnel ✅
 
-1. Google OAuth en production
-    * Bug `redirect_uri_mismatch` corrigé : la cause était un mismatch `www` / non-`www` (Vercel redirige `sferaluna.com` → `https://www.sferaluna.com` en 308, domaine canonique = version `www`).
-    * Ajout de `https://www.sferaluna.com` + callback associé dans Google Cloud Console, alignement de `NEXTAUTH_URL` / `NEXT_PUBLIC_APP_URL` sur `https://www.sferaluna.com`.
-    * ✅ Confirmé fonctionnel en production.
-2. Apple Sign In
-    * Domaine `www.sferaluna.com` + Return URL `https://www.sferaluna.com/api/auth/callback/apple` ajoutés dans la "Web Authentication Configuration" du Services ID Apple Developer.
-    * ✅ Configuration confirmée terminée par l'utilisateur.
-3. Suppression complète de Facebook Login
-    * Décision : retirer Facebook OAuth du site (processus de revue Meta jugé trop contraignant).
-    * Code nettoyé : `FacebookProvider` retiré de `route.ts` (NextAuth), bouton "Facebook" retiré de `/auth`, type `AuthProvider` mis à jour partout (`User.ts`, `mon-compte/page.tsx`, `next-auth.d.ts`), domaines Facebook retirés du CSP/`remotePatterns` dans `next.config.ts`, variables `FACEBOOK_CLIENT_ID`/`FACEBOOK_CLIENT_SECRET` supprimées de `.env.local`.
-    * Seules les méthodes de connexion restantes : email/mot de passe, Google OAuth, Apple Sign In.
-    * Le lien Facebook dans le Footer (icône réseau social, pas OAuth) a été conservé.
-4. Icône d'app générée
-    * Icône 1024x1024 générée à partir du logo SferaLuna (utile pour les configs OAuth/app stores nécessitant cette dimension).
+Auth (Google + Apple + email/bcrypt), onboarding multi-étapes, paiement Stripe 3 offres (checkout + webhook + MongoDB), Mon Compte, API profil GET/PUT, découverte /explorer (like/pass/match), likes & matches, messagerie temps réel Pusher, mode fantôme (premium), Circle of Six, VibeSphere, journal émotionnel MongoDB, VibePlanner, VibeMentor, événements, communauté (forum), visiteurs de profil, notifications, dashboard admin, newsletter, témoignages (validation admin), signalements, pages légales, SEO complet, upload Cloudinary, emails Resend, Stripe Identity, rate limiting Upstash, audit logs, filtre anti-harcèlement (text-moderation + Report auto), badges vérification identité, relances email cron (CRON_SECRET), Vercel Analytics, consentement cookies RGPD, tests Vitest, gestion abonnement (annulation/pause/réactivation), webhooks invoice, PayPal/Apple Pay/Google Pay, sync manuel abonnement. Build Next.js validé.
 
 ⸻
 
-Ce qui reste à faire 🚀
+## Conventions de code
 
-1. Tests
-    * Tests unitaires Vitest — ✅ setup fait, 4 suites (lancer : npm install && npm test).
-    * Tests API (vitest + fetch mock) — à faire.
-    * Tests E2E Playwright — à faire après stabilisation en prod.
-2. PayPal
-    * En attente d'approbation Stripe (paiements récurrents). Code prêt, activation automatique dès validation.
-    * Activer Google Pay dans Dashboard Stripe (Settings → Payment Methods).
-3. Vérification finale OAuth
-    * Tester la connexion Apple Sign In de bout en bout en prod (`https://www.sferaluna.com/auth`) — Google déjà confirmé fonctionnel, Facebook retiré.
-
-⸻
-
-⚠️ Dette technique connue
-
-Aucune dette bloquante connue à ce jour. Les corrections suivantes ont été appliquées :
-
-* Index dupliqués Mongoose — corrigés dans User.ts (email, stripeSubscriptionId) et Subscription.ts.
-* src/lib/auth.ts — corrigé, importe désormais authOptions depuis la route NextAuth officielle.
-* Clés premium — toutes normalisées vers profileVisits, boostsPerMonth, etc.
-* Polling messagerie — remplacé par Pusher temps réel.
-* AuditLog model — créé dans src/models/AuditLog.ts.
-* ProfileView fantôme — corrigé dans check-limits.ts (utilise désormais ProfileVisit).
-* subscription/service.ts — réécrit en Mongoose (supprimé import Prisma/types obsolètes).
-* UsageLimits.tsx — réécrit pour utiliser useSubscription hook (supprimé appel Prisma côté client).
-* rate-limiter.ts — implémentation native Map (supprimé dépendance rate-limiter-flexible manquante).
-* Journal émotionnel — migré de localStorage vers MongoDB (model JournalEntry + API /api/journal).
-* Réponse secrète — bug sanitizeUser corrigé (_doc lu avant toObject transform), calcul completion côté client corrigé (hasReponse).
-* params Next.js 15 — toutes les routes dynamiques [id] migrées vers Promise<{id}>.
-* features status — bug status/route.ts corrigé (toutes les features renvoyées à true → corrigé).
-* Stripe forceActive — webhook corrigé pour ignorer le statut "incomplete" lors du checkout.session.completed.
+* **Langue UI : français.** Communication, commits, copy produit en français.
+* Types partagés cohérents avec `src/models/User.ts`.
+* Connexion MongoDB : toujours via `connectDB()` depuis `src/lib/db.ts`.
+* Accès session serveur : `getServerSession(authOptions)`.
+* **Palette (nouvelle — éclipse solaire)** : `abyss #001724`, `teal #15676D`, `cream #FFEBD1`, `orange #FF7A00`, `rust #79280E`. (Remplace les violets/roses de SferaLuna — voir rebranding.)
+* Pages sombres : `<Footer />` reste en dehors du wrapper `text-white`/`text-cream`.
+* Padding top avec header fixe : `pt-24` minimum.
+* Mobile : réduire les gros `py`, `text-2xl`/`text-3xl`, cards compactes, longs contenus en accordéon, éviter les grilles trop larges, boutons principaux `w-full`.
+* Accessibilité : focus clavier visible, `prefers-reduced-motion` respecté, contraste suffisant (attention orange/teal).
+* `subscription-check.ts` utilise getServerSession + Mongoose → **jamais** dans le middleware Edge racine.
 
 ⸻
 
-Conventions de code
+## 🔁 Rebranding SferaLuna → Sfera'Solys (à faire)
 
-* Langue UI : français.
-* Types partagés à garder cohérents avec src/models/User.ts.
-* Connexion MongoDB : toujours via connectDB() depuis src/lib/db.ts.
-* Accès session serveur : getServerSession(authOptions).
-* Palette sombre :
-    * #1a0b2e
-    * #2d1b69
-    * #3a2a82
-    * gradients purple-600 → pink-600
-* Palette claire :
-    * #faf9ff
-    * #f0ecff
-    * #8E7AB5
-    * #5B4B8A
-* Pages sombres : <Footer /> doit rester en dehors du wrapper text-white.
-* Padding top avec header fixe : pt-24 minimum.
-* Pour les pages mobiles :
-    * réduire les gros py;
-    * utiliser text-2xl / text-3xl sur mobile ;
-    * préférer les cards compactes ;
-    * mettre les longs contenus en accordéon ;
-    * éviter les grilles trop larges ;
-    * rendre les boutons principaux en w-full sur mobile.
+- [ ] `CLAUDE.md` — fait (ce fichier)
+- [ ] `README.md` — réécrire
+- [ ] `PROMPT_APP_MOBILE.md` — adapter
+- [ ] `auth.config.backup.js` — vérifier / nettoyer / supprimer
+- [ ] `.npmrc` — retirer tout token privé hérité (commit « passe dediee » côté SferaLuna)
+- [ ] `sferaluna-app-icon-1024.png` — remplacer par l'icône Sfera'Solys (soleil éclipse)
+- [ ] **Base MongoDB** : `dbName` `sferaluna` → `sferasolys` (chercher dans `src/lib/db.ts`, `scripts/`)
+- [ ] **Palette** : remplacer `#1a0b2e / #2d1b69 / #3a2a82`, gradients `purple-600 → pink-600`, `#faf9ff / #f0ecff / #8E7AB5 / #5B4B8A` par les tokens éclipse solaire
+- [ ] **Fonts** : brancher Archivo / Fraunces / Instrument Sans (next/font/google)
+- [ ] **Modèle** `LunaEvent.ts` → `SolysEvent.ts` (+ imports, + libellés « Événements Luna »)
+- [ ] **Copy** : toute occurrence « SferaLuna » / « Luna » dans pages, métadonnées SEO, emails, OpenGraph
+- [ ] **Critère d'inscription / cible** : orienter la copy et les visuels hommes 28+
+- [ ] **OAuth** : nouveau projet Google Cloud + Services ID Apple pour le domaine Sfera'Solys (redirect URIs, `NEXTAUTH_URL` / `NEXT_PUBLIC_APP_URL` alignés sur le domaine canonique — attention au piège `www` / non-`www` vu sur SferaLuna)
+- [ ] **Domaine** : sferasolys.fr/.com + déploiement Vercel séparé
+- [ ] **Secrets** : régénérer MongoDB, Stripe (produits + prix + webhook), Pusher, Cloudinary, Resend
+
+> Vérifs utiles pendant le rebranding :
+> ```bash
+> grep -Rni "sferaluna" src public scripts *.md *.json *.js *.ts
+> grep -Rni "luna" src/models src/app | grep -vi "vibe"
+> grep -Rn "1a0b2e\|2d1b69\|3a2a82\|8E7AB5\|5B4B8A\|purple-600\|pink-600" src
+> ```
 
 ⸻
 
-Commandes utiles
+## Commandes utiles
 
-Build :  npm run build
+```bash
+npm run dev            # développement
+npm run build          # build
+npm test               # tests unitaires Vitest
+npm run test:watch     # tests watch
+npm run test:coverage  # tests + couverture
 
-Développement : npm run dev
+git add . && git commit -m "..." && git push origin main
+```
 
-Tests unitaires :  npm test
-Tests en watch :  npm run test:watch
-Tests + couverture :  npm run test:coverage
+⸻
 
-Git — commit et push :  git add .
-git commit -m "feat: cookie consent RGPD + tests unitaires Vitest"
-git push origin main
+## ⚠️ Notes
 
-Vérifier les références ProfileView / ProfileVisit :  grep -R "ProfileView" src/app src/lib src/models
-grep -R "ProfileVisit" src/app src/lib src/models
-
-Vérifier les anciennes clés premium 
+* `npm install` remonte des vulnérabilités héritées de SferaLuna (1 critique, 9 hautes au fork). **Ne pas** lancer `npm audit fix --force` à l'aveugle (risque de casser des majeures) — traiter posément après stabilisation.
+* Dette technique de SferaLuna : aucune bloquante connue au moment du fork (voir historique SferaLuna pour le détail des corrections déjà appliquées : index Mongoose, ProfileView→ProfileVisit, rate-limiter natif, journal MongoDB, params Next.js 15 en Promise, etc.).
