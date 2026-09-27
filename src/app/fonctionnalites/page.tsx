@@ -17,6 +17,7 @@ import {
   Lightbulb,
   Lock,
   MessageCircle,
+  Rocket,
   ShieldCheck,
 } from 'lucide-react';
 
@@ -33,10 +34,10 @@ import HexagonSix from '@/components/icons/HexagonSix';
  * emojis, une marque et une cible non corrigées, et une copy rédigée au
  * féminin (« Sois guidée », « Rejoins celles qui... »).
  *
- * Elle prend aussi du galon : la grille des 6 fonctionnalités a été
+ * Elle prend aussi du galon : la grille des 7 fonctionnalités a été
  * retirée de la home, donc /fonctionnalites est désormais LE point de
  * découverte du produit. La page se lit de haut en bas comme un sommaire :
- * les 6 fonctionnalités, la façon dont elles s'enchaînent, le socle
+ * les 7 fonctionnalités, la façon dont elles s'enchaînent, le socle
  * commun, quelques chiffres, les questions qui reviennent.
  *
  * Ce qui ne change pas : les fonctionnalités restantes, leurs titres, leurs
@@ -144,6 +145,19 @@ const features: FeatureItem[] = [
     details:
       'Modération, données protégées et outils de contrôle pour ton bien-être numérique. Rien à activer : ce socle est appliqué à tous les comptes, dès la vérification.',
     benefits: ['Modération active', 'Données protégées', 'Signalement rapide'],
+  },
+  {
+    id: 'boost',
+    icon: Rocket,
+    title: 'Boost de visibilité',
+    description: 'Trente minutes en tête d’Explorer, et c’est dit.',
+    details:
+      "Un boost remonte ton profil en tête d'Explorer pendant trente minutes, pour les membres qui peuvent déjà te voir. Le nombre de boosts dépend de l'offre — 1, 3 ou 10 par mois — et ta carte affiche « Mis en avant » pendant toute la durée : un profil poussé le dit, il ne se fait pas passer pour un hasard du classement.",
+    benefits: [
+      '30 minutes par boost',
+      '1, 3 ou 10 par mois selon l’offre',
+      'Mise en avant signalée sur la carte',
+    ],
   },
   {
     id: 'community',
@@ -262,7 +276,7 @@ export default function FonctionnalitesPage() {
         <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <motion.div {...fadeUp} className="mx-auto max-w-3xl py-12 text-center sm:py-16">
             <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-orange">
-              6 fonctionnalités · vérification incluse
+              7 fonctionnalités · vérification incluse
             </span>
 
             <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
@@ -295,7 +309,7 @@ export default function FonctionnalitesPage() {
           </motion.div>
         </section>
 
-        {/* Les 6 fonctionnalités */}
+        {/* Les 7 fonctionnalités */}
         <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
             <h2 className="font-display [font-stretch:125%] mb-2 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">

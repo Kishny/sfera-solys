@@ -8,6 +8,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Like } from "@/models/Like";
+import { classementBoosts, pipelineProfilsClasses } from "@/lib/boosts";
 
 /**
  * GET /api/profiles
@@ -19,7 +20,38 @@ import { Like } from "@/models/Like";
  * - limite maximale ;
  * - champs publics uniquement ;
  * - pas de payload inutile.
+ *
+ * ## Les boosts entrent dans le classement ici
+ *
+ * C'est le seul endroit du site où l'ordre d'apparition des profils est
+ * décidé — donc le seul endroit où un boost peut avoir un effet réel. Avant,
+ * le tri était `updatedAt` décroissant et rien d'autre : les boosts vendus
+ * dans les offres n'avaient littéralement aucune conséquence.
+ *
+ * Deux chemins, volontairement :
+ *
+ * - **aucun boost en cours** (le cas courant) : on garde le `find().sort()`
+ *   d'origine, qui s'appuie sur les index. Coût inchangé.
+ * - **au moins un boost en cours** : une agrégation ajoute un `scoreBoost` par
+ *   profil et trie dessus d'abord. Le tri porte sur un champ calculé, donc en
+ *   mémoire — c'est pourquoi on ne le paie que quand quelqu'un a réellement un
+ *   boost actif, et avec `allowDiskUse`.
+ *
+ * Les deux chemins renvoient exactement les mêmes champs, `miseEnAvant`
+ * compris : le client ne doit pas avoir à deviner lequel a répondu. Ce
+ * booléen est exposé volontairement, pour que l'interface puisse dire qu'un
+ * profil est mis en avant au lieu de le faire passer pour un hasard du
+ * classement.
  */
+
+/**
+ * Champs publics d'un profil dans Explorer.
+ *
+ * Une seule définition pour les deux chemins de lecture : une divergence ici
+ * se traduirait par des cartes incomplètes selon qu'un boost tourne ou non.
+ */
+const CHAMPS_PUBLICS =
+  "pseudonyme age localisation departement interets intentions visibilite image photos identityVerified createdAt updatedAt";
 
 function parsePositiveInt(value: string | null, fallback: number) {
   const parsed = Number.parseInt(value || "", 10);
@@ -202,16 +234,44 @@ export async function GET(req: NextRequest) {
       query.updatedAt = { $gte: sevenDaysAgo };
     }
 
-    const [profiles, total] = await Promise.all([
-      User.find(query)
-        .select(
-          "pseudonyme age localisation departement interets intentions visibilite image photos identityVerified createdAt updatedAt"
-        )
-        .sort({ updatedAt: -1, createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+    /**
+     * Profils actuellement mis en avant, tous membres confondus.
+     * Ensemble minuscule par nature : un boost dure trente minutes.
+     */
+    const { ids: idsBoostes, scores: scoresBoostes } = await classementBoosts();
 
+    const lireProfils = async () => {
+      if (idsBoostes.length === 0) {
+        const profils = await User.find(query)
+          .select(CHAMPS_PUBLICS)
+          .sort({ updatedAt: -1, createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean();
+
+        // Même forme de réponse que le chemin agrégé.
+        return profils.map((profil) => ({ ...profil, miseEnAvant: false }));
+      }
+
+      /**
+       * Le pipeline vit dans `lib/boosts` : la règle de classement appartient
+       * à la logique de boost, et elle y est couverte par des tests.
+       */
+      return User.aggregate(
+        pipelineProfilsClasses({
+          filtre: query,
+          champs: CHAMPS_PUBLICS,
+          ids: idsBoostes,
+          scores: scoresBoostes,
+          skip,
+          limit,
+        }),
+        { allowDiskUse: true }
+      );
+    };
+
+    const [profiles, total] = await Promise.all([
+      lireProfils(),
       User.countDocuments(query),
     ]);
 

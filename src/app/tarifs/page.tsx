@@ -76,6 +76,7 @@ const plans: Plan[] = [
     features: [
       'Tout du plan Gratuit',
       'Circle of Six hebdomadaire',
+      '1 boost de visibilité par mois',
       'Filtres avancés',
       'Événements exclusifs',
       'Badge Essentiel',
@@ -93,6 +94,7 @@ const plans: Plan[] = [
     icon: Crown,
     features: [
       'Tout du plan Essentiel',
+      '3 boosts de visibilité par mois',
       'Mode Fantôme',
       'Voir les visiteurs de ton profil',
       'Filtres premium (distance, actif…)',
@@ -111,6 +113,7 @@ const plans: Plan[] = [
     icon: Sparkles,
     features: [
       'Tout du plan Premium',
+      '10 boosts de visibilité par mois',
       'Coaching VibeMentor mensuel',
       'Cercle privé VIP',
       'Accès anticipé aux nouvelles fonctionnalités',

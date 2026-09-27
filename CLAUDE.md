@@ -707,6 +707,92 @@ interdiction de s'auto-signaler).
 Contrôle : `tsc` revient à **23 erreurs préexistantes, zéro liée aux Vibe\***,
 et `grep -rni "vibesphere\|vibeplanner\|vibepost\|journalentry"` ne renvoie rien.
 
+### 🚀 Les boosts implémentés pour de vrai (27/09/2026)
+
+Cinquième façade du site, et la plus chère : les boosts étaient **vendus** (1,
+3 ou 10 par mois selon l'offre, `boostsPerMonth` dans
+`lib/subscription/config.ts`), le modèle `Boost` existait avec ses index, le
+compteur de quota fonctionnait — et `Boost` n'apparaissait dans tout le code
+qu'à **deux endroits** : un `countDocuments` pour le quota, un `deleteMany` à
+la suppression de compte. Aucune route ne créait jamais de boost. Aucun
+classement n'en lisait un. Un membre Elite payait 34,99 € par mois pour dix
+mises en avant sans effet observable.
+
+Le tri d'Explorer (`/api/profiles`) était `updatedAt` décroissant, point. C'est
+le seul endroit du site qui décide de l'ordre d'apparition des profils, donc le
+seul endroit où un boost peut exister.
+
+**Ce qui a été construit**
+
+- `src/lib/boosts.ts` — durée (30 min), force (×2), fenêtre d'activité,
+  classement, et le pipeline d'agrégation. Tout est ici pour que l'API et
+  l'interface ne puissent pas en donner deux versions.
+- `POST /api/boosts` — le premier endroit du projet où un boost naît. Quota via
+  `canPerformAction("use_boost")`, refus si un boost tourne déjà, refus si le
+  profil est incomplet ou invisible (un boost sur un profil absent d'Explorer
+  serait consommé pour rien).
+- `GET /api/boosts` — boost en cours et quota du mois.
+- `src/components/boost/PanneauBoost.tsx` — lancement, décompte, quota restant.
+  Monté en tête d'Explorer.
+- Classement dans `/api/profiles` : `scoreBoost` calculé par agrégation, trié
+  avant `updatedAt`.
+
+**La règle qui compte** : un boost est actif *si et seulement si*
+`startsAt <= maintenant < endsAt`. La date est l'autorité, pas le champ
+`status`. Si aucune tâche planifiée ne passe jamais faire le ménage, un boost
+échu reste marqué `active` en base mais **ne classe plus rien**. Un avantage
+payant ne doit jamais dépendre d'un cron qui pourrait ne pas tourner.
+
+**Deux chemins de lecture assumés** dans `/api/profiles` : sans boost en cours
+(le cas courant), on garde le `find().sort()` indexé d'origine — coût
+inchangé ; avec au moins un boost, une agrégation trie sur un champ calculé,
+donc en mémoire. On ne paie l'agrégation que quand elle sert. Les deux chemins
+renvoient exactement les mêmes champs, `miseEnAvant` compris.
+
+**Choix produit** : un profil poussé le dit. `miseEnAvant` est exposé par l'API
+et la carte affiche « Mis en avant » pendant toute la durée du boost. Les
+boosts d'un même membre ne se cumulent pas — sinon enchaîner dix boosts
+reviendrait à acheter la première place.
+
+**La copy a dû suivre.** `/valeurs` et `/histoire` affirmaient « un abonnement
+ouvre des fonctionnalités, jamais une place devant les autres dans la file », et
+`/histoire` rangeait « la visibilité qui s'achète » parmi les refus. Rendre les
+boosts réels rendait ces phrases fausses : elles disent maintenant ce qui est
+vrai — la visibilité s'achète, plafonnée, limitée à trente minutes, et signalée.
+`/tarifs` liste enfin les boosts qu'il vendait sans les nommer, et
+`/fonctionnalites` passe à 7 fonctionnalités avec une carte dédiée.
+
+**Vérification** : 22 tests. Le pipeline a été exécuté contre un vrai `mongod`
+(mongodb-memory-server, dans le conteneur de session, hors dépôt) : profil
+boosté remonté en tête même s'il est le moins récemment actif, boostés triés
+entre eux par score, **pagination correcte à travers la frontière des boostés**,
+et aucune fuite de `scoreBoost` dans la projection. Les tests embarqués dans le
+dépôt (`src/__tests__/boosts.test.ts`) couvrent la logique et la forme du
+pipeline sans dépendance lourde.
+
+### ⚠️ Façade trouvée en chemin : les quotas quotidiens n'existent pas
+
+`subscription-check.ts` compte les likes et messages du jour via
+`user.dailyLikesCount` / `dailyLikesDate` / `dailyMessagesCount` /
+`dailySuperLikesCount`. **Ces champs n'existent pas dans `models/User.ts` et ne
+sont incrémentés nulle part.** Les compteurs renvoient donc toujours zéro,
+`canPerformAction("like")` autorise toujours, et les « 5 likes par jour » ou
+« 10 messages/jour » annoncés sur `/tarifs` **ne sont pas appliqués**. C'est le
+même mensonge commercial que les boosts, dans l'autre sens : on vend
+l'illimité comme un avantage sur une limite qui n'existe pas.
+
+En attendant, `/api/subscription/status` renvoie `null` pour
+`remainingSwipes` et `remainingMessages` — un trou visible plutôt qu'un chiffre
+inventé — et calcule pour de vrai `remainingBoosts` et
+`remainingProfileVisits`, les deux seuls adossés à une collection.
+
+À traiter avec le chantier `/explorer` + `/messages`.
+
+**Note** : `src/middleware/check-limits.ts` (938 lignes) est un doublon de
+`src/lib/subscription/subscription-check.ts` (1 027 lignes) que **personne
+n'importe**. Les deux définissent une classe `SubscriptionChecker`. Seul celui
+de `lib/` est utilisé. À supprimer.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/explorer /circle /communaute /evenements /mode-fantome /vibementor /matches /messages/[matchId] /profil/[id] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.

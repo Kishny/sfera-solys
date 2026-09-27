@@ -51,6 +51,7 @@ import {
 import { usePremium } from "@/hooks/usePremium";
 import Link from "next/link";
 import ReportModal from "@/components/ReportModal";
+import PanneauBoost from "@/components/boost/PanneauBoost";
 import { DEPARTEMENTS, getDepartementLabel } from "@/lib/locations";
 
 // ─────────────────────────────────────────────
@@ -67,6 +68,11 @@ interface Profile {
   intentions: string[];
   image?: string;
   identityVerified?: boolean;
+  /**
+   * Le profil est remonté par un boost actif, pas par l'ordre naturel.
+   * Renseigné par /api/profiles ; affiché tel quel, jamais deviné.
+   */
+  miseEnAvant?: boolean;
 }
 
 interface Filters {
@@ -637,6 +643,11 @@ export default function ExplorerPage() {
               </div>
             </div>
           </section>
+
+          {/* ─────────────────────────────
+              Boost de visibilité
+          ───────────────────────────── */}
+          <PanneauBoost onBoostLance={() => fetchProfiles(true)} />
 
           {/* Erreur globale */}
           <AnimatePresence>
@@ -1214,7 +1225,15 @@ function ProfileStackCard({
 
             {profile.identityVerified && (
               <span className="rounded-full border border-green-400/30 bg-green-500/30 px-2 py-0.5 text-[11px] font-semibold text-green-200">
-                ✓ Vérifiée
+                ✓ Vérifié
+              </span>
+            )}
+
+            {/* Un profil remonté par un boost le dit, il ne se déguise pas
+                en résultat naturel du classement. */}
+            {profile.miseEnAvant && (
+              <span className="rounded-full border border-orange-300/40 bg-orange-500/25 px-2 py-0.5 text-[11px] font-semibold text-orange-100">
+                Mis en avant
               </span>
             )}
           </div>

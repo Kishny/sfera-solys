@@ -118,7 +118,7 @@ const valeurs: Valeur[] = [
 /** Règles d'interaction, formulées comme des engagements tenables. */
 const regles = [
   "La vérification est gratuite et incluse partout, y compris dans l'offre gratuite.",
-  'Un abonnement ouvre des fonctionnalités, jamais une place devant les autres.',
+  'Un boost met un profil en tête d’Explorer pendant trente minutes, plafonné par l’offre et signalé « Mis en avant » sur la carte : la visibilité s’achète, jamais en silence.',
   "Aucune photo de banque d'images ne sert à illustrer un membre, nulle part sur le site.",
   'Les chiffres affichés viennent de la base, jamais d’une estimation.',
   'Une conversation se termine sans explication, et sans conséquence.',

@@ -6,6 +6,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { Boost } from "@/models/Boost";
+import { ProfileVisit } from "@/models/ProfileVisit";
 import {
   SUBSCRIPTION_PLANS,
   normalizePlanId,
@@ -25,6 +27,23 @@ import {
  * Important :
  * cette route ne modifie rien.
  * Elle lit simplement MongoDB et renvoie un payload propre.
+ *
+ * ## Le bloc `usage`
+ *
+ * Il affichait `remainingSwipes: limits.dailyLikes`, et pareil pour les trois
+ * autres : le « restant » était la limite elle-même, donc un compteur qui ne
+ * bougeait jamais. Deux des quatre valeurs sont désormais calculées pour de
+ * vrai, à partir des collections qui les portent — boosts (`Boost`) et visites
+ * de profil (`ProfileVisit`).
+ *
+ * Les deux autres valent `null`, volontairement. Les quotas quotidiens de
+ * likes et de messages reposent sur des champs `dailyLikesCount` /
+ * `dailyMessagesCount` du modèle `User` qui **n'existent pas** et ne sont
+ * incrémentés nulle part : le compteur lu par `subscription-check` renvoie
+ * donc toujours zéro, et ces limites ne sont en réalité pas appliquées.
+ * Renvoyer `null` plutôt qu'un nombre évite qu'une interface s'appuie sur un
+ * chiffre inventé, et rend le trou visible. À traiter avec le chantier
+ * `/explorer` et `/messages`.
  */
 
 function getPlanLabel(plan: PlanId) {
@@ -65,6 +84,37 @@ function getFeaturesObject(plan: PlanId) {
 
 function getLimits(plan: PlanId) {
   return SUBSCRIPTION_PLANS[plan].limits;
+}
+
+/**
+ * Ce qu'il reste sur un quota.
+ * `Infinity` (offre illimitée) devient `null` : `Infinity` ne survit pas au JSON.
+ */
+function restant(limite: number, utilise: number): number | null {
+  if (!Number.isFinite(limite)) return null;
+  return Math.max(0, limite - utilise);
+}
+
+/** Boosts créés depuis le 1er du mois. */
+async function compterBoostsDuMois(userId: string): Promise<number> {
+  const debut = new Date();
+  debut.setDate(1);
+  debut.setHours(0, 0, 0, 0);
+
+  try {
+    return await Boost.countDocuments({ userId, createdAt: { $gte: debut } });
+  } catch {
+    return 0;
+  }
+}
+
+/** Visites de profil effectuées par le membre, depuis toujours. */
+async function compterVisitesDeProfil(userId: string): Promise<number> {
+  try {
+    return await ProfileVisit.countDocuments({ visitorId: userId });
+  } catch {
+    return 0;
+  }
 }
 
 export const runtime = "nodejs";
@@ -137,6 +187,15 @@ const active = isSubscriptionActive({
 const features = getFeaturesObject(plan);
 const limits = getLimits(plan);
 
+    /**
+     * Usages réellement mesurables aujourd'hui.
+     * Un échec de lecture donne 0 : on n'invente pas un quota consommé.
+     */
+    const [boostsDuMois, visitesDeProfil] = await Promise.all([
+      compterBoostsDuMois(String(user._id)),
+      compterVisitesDeProfil(String(user._id)),
+    ]);
+
     return NextResponse.json(
       {
         success: true,
@@ -167,10 +226,24 @@ const limits = getLimits(plan);
           limits,
 
           usage: {
-            remainingSwipes: limits.dailyLikes,
-            remainingMessages: limits.dailyMessages,
-            remainingBoosts: limits.boostsPerMonth,
-            remainingProfileVisits: limits.profileVisits,
+            /**
+             * `null` = compteur non branché, pas « zéro restant ».
+             * Voir l'en-tête du fichier.
+             */
+            remainingSwipes: null,
+            remainingMessages: null,
+
+            remainingBoosts: restant(limits.boostsPerMonth, boostsDuMois),
+            remainingProfileVisits: restant(
+              limits.profileVisits,
+              visitesDeProfil
+            ),
+          },
+
+          /** Les usages réellement mesurés, pour affichage « x sur y ». */
+          usageMesure: {
+            boostsDuMois,
+            visitesDeProfil,
           },
         },
       },

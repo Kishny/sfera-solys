@@ -94,9 +94,9 @@ const refus = [
       "Aucun accès au produit avant qu'un document officiel ait été vérifié. Sans exception, et sans possibilité de passer devant.",
   },
   {
-    titre: 'La visibilité qui s’achète',
+    titre: 'La visibilité achetée en silence',
     texte:
-      "Un abonnement ouvre des fonctionnalités, jamais une place devant les autres dans la file.",
+      "Un boost remonte un profil en tête d'Explorer : ça existe, ça dure trente minutes, et c'est plafonné par l'offre. Ce qu'on refuse, c'est la place achetée que personne ne voit — la carte affiche « Mis en avant » pendant toute la durée.",
   },
   {
     titre: 'Les faux comptes de vitrine',
