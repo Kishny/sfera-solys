@@ -39,7 +39,7 @@ function extractPublicId(url: string): string | null {
 /**
  * DELETE /api/admin/users/[id]
  *
- * Suppression définitive d'une utilisatrice par un admin.
+ * Suppression définitive d'un utilisateur par un admin.
  * Utile notamment pour nettoyer les comptes de test, afin que les
  * statistiques publiques (/api/stats) et les compteurs (matchs, messages,
  * événements) restent cohérents.
@@ -52,7 +52,7 @@ function extractPublicId(url: string): string | null {
  * 5. Supprimer toutes les données liées : likes, matches, messages, visites
  *    de profil, vibes, posts communauté, questions/réponses VibeMentor,
  *    journal émotionnel, boosts, témoignage, et retrait des listes
- *    d'inscrits aux événements Luna.
+ *    d'inscrits aux événements Solys.
  * 6. Supprimer le document User.
  */
 export async function DELETE(
@@ -97,7 +97,7 @@ export async function DELETE(
 
     if (!target) {
       return NextResponse.json(
-        { success: false, error: "Utilisatrice introuvable." },
+        { success: false, error: "Utilisateur introuvable." },
         { status: 404 }
       );
     }

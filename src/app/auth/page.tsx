@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page d'authentification SferaLuna.
+ * Page d'authentification Sfera'Solys.
  *
  * Version optimisée mobile :
  * - formulaire plus compact ;
@@ -38,7 +38,7 @@ import {
   Gift,
   Users,
   Heart,
-  Moon,
+  Sun,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -149,12 +149,12 @@ function PremiumAuthContent() {
   const oauthError = searchParams.get("error");
   const oauthErrorMessages: Record<string, string> = {
     OAuthSignin: "Erreur lors de l'initiation de la connexion OAuth.",
-    OAuthCallback: "Erreur lors du retour OAuth. Vérifiez la configuration du provider.",
+    OAuthCallback: "Erreur lors du retour OAuth. Vérifie la configuration du provider.",
     OAuthCreateAccount: "Impossible de créer le compte via ce provider.",
     EmailCreateAccount: "Impossible de créer le compte avec cet email.",
     Callback: "Erreur de callback OAuth.",
     OAuthAccountNotLinked: "Cet email est déjà associé à une autre méthode de connexion.",
-    SessionRequired: "Vous devez être connectée pour accéder à cette page.",
+    SessionRequired: "Tu dois être connecté pour accéder à cette page.",
     Default: "Une erreur est survenue lors de la connexion.",
   };
   const oauthErrorMessage = oauthError
@@ -207,7 +207,7 @@ function PremiumAuthContent() {
    * Injection du CSS étoilé côté client.
    */
   useEffect(() => {
-    const styleId = "sferaluna-auth-stars-style";
+    const styleId = "sferasolys-auth-stars-style";
 
     if (document.getElementById(styleId)) return;
 
@@ -314,7 +314,7 @@ function PremiumAuthContent() {
     if (loginMode) {
       // En connexion : email ou pseudonyme accepté
       if (!identifier || identifier.length < 2) {
-        newErrors.email = "Saisissez votre email ou votre pseudonyme";
+        newErrors.email = "Saisis ton email ou ton pseudonyme";
       }
     } else {
       // En inscription
@@ -451,7 +451,7 @@ function PremiumAuthContent() {
 
       if (!loginResult?.ok) {
         setErrors({
-          form: "Compte créé, mais connexion automatique impossible. Connectez-vous manuellement.",
+          form: "Compte créé, mais connexion automatique impossible. Connecte-toi manuellement.",
         });
         return;
       }
@@ -533,12 +533,12 @@ function PremiumAuthContent() {
   ];
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#1a0b2e] via-[#2d1b69] to-[#3a2a82] font-sans text-white">
+    <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#001724] via-[#03202E] to-[#0C222D] font-sans text-cream">
       {/* Décor de fond */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-16 left-1/4 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl sm:h-96 sm:w-96" />
-        <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl sm:h-80 sm:w-80" />
-        <div className="absolute top-1/3 left-1/3 h-56 w-56 rounded-full bg-pink-500/10 blur-3xl sm:h-64 sm:w-64" />
+        <div className="absolute -top-16 left-1/4 h-72 w-72 rounded-full bg-orange/10 blur-3xl sm:h-96 sm:w-96" />
+        <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-lime/[0.06] blur-3xl sm:h-80 sm:w-80" />
+        <div className="absolute top-1/3 left-1/3 h-56 w-56 rounded-full bg-lime/10 blur-3xl sm:h-64 sm:w-64" />
         <OrbitGlow className="right-[-10%] top-10 h-72 w-72 sm:h-96 sm:w-96" />
         <OrbitGlow className="left-[-10%] bottom-[-5%] h-80 w-80 sm:h-[28rem] sm:w-[28rem]" />
       </div>
@@ -559,7 +559,7 @@ function PremiumAuthContent() {
         <Link
           href="/"
           aria-label="Retour à l'accueil"
-          className="group flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-gray-200 shadow-lg shadow-black/20 backdrop-blur-xl transition-all hover:bg-white/15 hover:text-white sm:h-auto sm:w-auto sm:gap-2 sm:px-3 sm:py-2"
+          className="fx-ghost group flex h-10 w-10 items-center justify-center rounded-full border border-cream/10 bg-cream/10 text-cream/80 shadow-lg shadow-black/40 backdrop-blur-xl transition-all hover:bg-cream/15 hover:text-cream sm:h-auto sm:w-auto sm:gap-2 sm:px-3 sm:py-2"
         >
           <ArrowLeft className="h-5 w-5 sm:h-5 sm:w-5" />
 
@@ -582,26 +582,26 @@ function PremiumAuthContent() {
             initial={{ opacity: 0, x: -32 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.55 }}
-            className="order-2 px-0 text-white lg:order-1 lg:px-4"
+            className="order-2 px-0 text-cream lg:order-1 lg:px-4"
           >
             <div className="mb-4 sm:mb-8">
               <div className="mb-3 flex items-center justify-center gap-2.5 lg:justify-start">
                 <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 opacity-50 blur-lg" />
-                  <Moon className="relative h-7 w-7 text-white sm:h-12 sm:w-12" />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange to-rust opacity-50 blur-lg" />
+                  <Sun className="relative h-7 w-7 text-orange sm:h-12 sm:w-12" />
                 </div>
 
-                <h1 className="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-2xl font-bold text-transparent sm:text-4xl md:text-5xl">
-                  SferaLuna
+                <h1 className="bg-gradient-to-r from-cream to-orange bg-clip-text text-2xl font-bold text-transparent sm:text-4xl md:text-5xl">
+                  Sfera'Solys
                 </h1>
               </div>
 
               <h2 className="text-center text-lg font-bold leading-tight sm:text-3xl md:text-4xl lg:text-left">
-                Rencontrez l'amour sous un{" "}
-                <span className="text-purple-300">nouvel angle</span>
+                Rencontre l'amour sous un{" "}
+                <span className="text-orange">nouvel angle</span>
               </h2>
 
-              <p className="mx-auto mt-2 max-w-xl text-center text-xs leading-relaxed text-gray-300 sm:text-base md:text-lg lg:mx-0 lg:text-left">
+              <p className="mx-auto mt-2 max-w-xl text-center text-xs leading-relaxed text-cream/70 sm:text-base md:text-lg lg:mx-0 lg:text-left">
                 Une expérience élégante, sûre et authentique pour créer des
                 rencontres plus profondes.
               </p>
@@ -618,9 +618,9 @@ function PremiumAuthContent() {
                 <motion.div
                   key={index}
                   variants={itemVariants}
-                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition-all hover:border-purple-500/30"
+                  className="flex items-center gap-3 rounded-xl border border-cream/10 bg-cream/5 p-3 backdrop-blur-sm transition-all hover:border-orange/40"
                 >
-                  <div className="text-purple-400">{feature.icon}</div>
+                  <div className="text-orange">{feature.icon}</div>
                   <span className="text-sm font-medium">{feature.text}</span>
                 </motion.div>
               ))}
@@ -631,22 +631,22 @@ function PremiumAuthContent() {
               <button
                 type="button"
                 onClick={() => setOpenMobileFeatures(!openMobileFeatures)}
-                className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left backdrop-blur-sm transition-all hover:bg-white/10"
+                className="fx-ghost flex w-full items-center justify-between rounded-2xl border border-cream/10 bg-cream/5 px-4 py-3 text-left backdrop-blur-sm transition-all hover:bg-cream/10"
                 aria-expanded={openMobileFeatures}
               >
                 <div>
-                  <p className="text-sm font-semibold text-white">
-                    Pourquoi SferaLuna ?
+                  <p className="text-sm font-semibold text-cream">
+                    Pourquoi Sfera'Solys ?
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-cream/55">
                     Profils vérifiés, sécurité, matchs compatibles...
                   </p>
                 </div>
 
                 {openMobileFeatures ? (
-                  <ChevronUp className="h-5 w-5 shrink-0 text-purple-300" />
+                  <ChevronUp className="h-5 w-5 shrink-0 text-orange" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 shrink-0 text-purple-300" />
+                  <ChevronDown className="h-5 w-5 shrink-0 text-orange" />
                 )}
               </button>
 
@@ -663,9 +663,9 @@ function PremiumAuthContent() {
                       {premiumFeatures.map((feature, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm"
+                          className="flex items-center gap-3 rounded-xl border border-cream/10 bg-cream/5 p-3 backdrop-blur-sm"
                         >
-                          <div className="text-purple-400">{feature.icon}</div>
+                          <div className="text-orange">{feature.icon}</div>
                           <span className="text-sm font-medium">
                             {feature.text}
                           </span>
@@ -678,25 +678,25 @@ function PremiumAuthContent() {
             </div>
 
             {/* Desktop : statistiques visibles */}
-            <div className="hidden rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-4 backdrop-blur-sm sm:p-6 lg:block">
+            <div className="hidden rounded-2xl border border-orange/30 bg-gradient-to-r from-orange/[0.08] to-lime/[0.05] p-4 backdrop-blur-sm sm:p-6 lg:block">
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div>
                   <div className="text-2xl font-bold sm:text-3xl">—</div>
-                  <div className="text-xs text-gray-300 sm:text-sm">
+                  <div className="text-xs text-cream/70 sm:text-sm">
                     Rencontres
                   </div>
                 </div>
 
                 <div>
                   <div className="text-2xl font-bold sm:text-3xl">—</div>
-                  <div className="text-xs text-gray-300 sm:text-sm">
+                  <div className="text-xs text-cream/70 sm:text-sm">
                     Satisfaction
                   </div>
                 </div>
 
                 <div>
                   <div className="text-2xl font-bold sm:text-3xl">24h</div>
-                  <div className="text-xs text-gray-300 sm:text-sm">
+                  <div className="text-xs text-cream/70 sm:text-sm">
                     Support
                   </div>
                 </div>
@@ -706,11 +706,11 @@ function PremiumAuthContent() {
                 {[...Array(5)].map((_, index) => (
                   <Star
                     key={index}
-                    className="h-4 w-4 fill-current text-yellow-400"
+                    className="h-4 w-4 fill-current text-orange"
                   />
                 ))}
 
-                <span className="text-xs text-gray-300 sm:text-sm">
+                <span className="text-xs text-cream/70 sm:text-sm">
                   Bientôt sur l'App Store
                 </span>
               </div>
@@ -721,22 +721,22 @@ function PremiumAuthContent() {
               <button
                 type="button"
                 onClick={() => setOpenMobileStats(!openMobileStats)}
-                className="flex w-full items-center justify-between rounded-2xl border border-purple-500/20 bg-gradient-to-r from-purple-900/30 to-pink-900/30 px-4 py-3 text-left backdrop-blur-sm transition-all hover:from-purple-900/40 hover:to-pink-900/40"
+                className="flex w-full items-center justify-between rounded-2xl border border-orange/25 bg-gradient-to-r from-orange/[0.06] to-lime/[0.04] px-4 py-3 text-left backdrop-blur-sm transition-all hover:from-orange/[0.08] hover:to-lime/[0.05]"
                 aria-expanded={openMobileStats}
               >
                 <div>
-                  <p className="text-sm font-semibold text-white">
+                  <p className="text-sm font-semibold text-cream">
                     Chiffres et avantages
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-cream/55">
                     Support, satisfaction et expérience premium
                   </p>
                 </div>
 
                 {openMobileStats ? (
-                  <ChevronUp className="h-5 w-5 shrink-0 text-purple-300" />
+                  <ChevronUp className="h-5 w-5 shrink-0 text-orange" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 shrink-0 text-purple-300" />
+                  <ChevronDown className="h-5 w-5 shrink-0 text-orange" />
                 )}
               </button>
 
@@ -749,25 +749,25 @@ function PremiumAuthContent() {
                     transition={{ duration: 0.25 }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-3 rounded-2xl border border-purple-500/20 bg-gradient-to-r from-purple-900/30 to-pink-900/30 p-4 backdrop-blur-sm">
+                    <div className="mt-3 rounded-2xl border border-orange/25 bg-gradient-to-r from-orange/[0.06] to-lime/[0.04] p-4 backdrop-blur-sm">
                       <div className="grid grid-cols-3 gap-3 text-center">
                         <div>
                           <div className="text-xl font-bold">—</div>
-                          <div className="text-[11px] text-gray-300">
+                          <div className="text-[11px] text-cream/70">
                             Rencontres
                           </div>
                         </div>
 
                         <div>
                           <div className="text-xl font-bold">—</div>
-                          <div className="text-[11px] text-gray-300">
+                          <div className="text-[11px] text-cream/70">
                             Satisfaction
                           </div>
                         </div>
 
                         <div>
                           <div className="text-xl font-bold">24h</div>
-                          <div className="text-[11px] text-gray-300">
+                          <div className="text-[11px] text-cream/70">
                             Support
                           </div>
                         </div>
@@ -777,11 +777,11 @@ function PremiumAuthContent() {
                         {[...Array(5)].map((_, index) => (
                           <Star
                             key={index}
-                            className="h-3.5 w-3.5 fill-current text-yellow-400"
+                            className="h-3.5 w-3.5 fill-current text-orange"
                           />
                         ))}
 
-                        <span className="text-xs text-gray-300">
+                        <span className="text-xs text-cream/70">
                           Bientôt sur l'App Store
                         </span>
                       </div>
@@ -800,17 +800,17 @@ function PremiumAuthContent() {
             className="order-1 flex justify-center lg:order-2"
           >
             <div className="relative w-full max-w-[360px] sm:max-w-md">
-              <div className="overflow-hidden rounded-[1.35rem] border border-white/10 bg-gradient-to-br from-gray-900/90 to-gray-800/90 shadow-2xl backdrop-blur-xl sm:rounded-3xl">
+              <div className="overflow-hidden rounded-[1.35rem] border border-cream/10 bg-gradient-to-br from-abyss/90 to-[#0C222D]/90 shadow-2xl backdrop-blur-xl sm:rounded-3xl">
                 {/* Haut du formulaire */}
-                <div className="border-b border-white/10 p-3.5 sm:p-6">
+                <div className="border-b border-cream/10 p-3.5 sm:p-6">
                   <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6">
                     <button
                       type="button"
                       onClick={() => switchMode(true)}
-                      className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all sm:py-3 sm:text-base ${
+                      className={`fx-btn flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all sm:py-3 sm:text-base ${
                         isLogin
-                          ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25"
-                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                          ? "bg-orange text-abyss shadow-lg shadow-orange/25"
+                          : "text-cream/55 hover:bg-cream/5 hover:text-cream"
                       }`}
                     >
                       <User className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -820,10 +820,10 @@ function PremiumAuthContent() {
                     <button
                       type="button"
                       onClick={() => switchMode(false)}
-                      className={`flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all sm:py-3 sm:text-base ${
+                      className={`fx-btn flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all sm:py-3 sm:text-base ${
                         !isLogin
-                          ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25"
-                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                          ? "bg-orange text-abyss shadow-lg shadow-orange/25"
+                          : "text-cream/55 hover:bg-cream/5 hover:text-cream"
                       }`}
                     >
                       <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -840,12 +840,12 @@ function PremiumAuthContent() {
                         exit={{ opacity: 0, y: -16 }}
                         className="space-y-1"
                       >
-                        <h2 className="text-lg font-bold text-white sm:text-2xl">
+                        <h2 className="text-lg font-bold text-cream sm:text-2xl">
                           Bienvenue de retour
                         </h2>
 
-                        <p className="text-xs text-gray-400 sm:text-base">
-                          Connectez-vous à votre espace SferaLuna
+                        <p className="text-xs text-cream/55 sm:text-base">
+                          Connecte-toi à ton espace Sfera'Solys
                         </p>
                       </motion.div>
                     ) : (
@@ -856,12 +856,12 @@ function PremiumAuthContent() {
                         exit={{ opacity: 0, y: -16 }}
                         className="space-y-1"
                       >
-                        <h2 className="text-lg font-bold text-white sm:text-2xl">
-                          Rejoignez l'aventure
+                        <h2 className="text-lg font-bold text-cream sm:text-2xl">
+                          Rejoins l'aventure
                         </h2>
 
-                        <p className="text-xs text-gray-400 sm:text-base">
-                          Créez votre compte en quelques secondes
+                        <p className="text-xs text-cream/55 sm:text-base">
+                          Crée ton compte en quelques secondes
                         </p>
                       </motion.div>
                     )}
@@ -908,11 +908,11 @@ function PremiumAuthContent() {
                         initial={{ opacity: 0, y: -8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="mb-3 rounded-xl border border-green-500/30 bg-green-500/10 p-3 sm:p-4"
+                        className="mb-3 rounded-xl border border-lime/30 bg-lime/10 p-3 sm:p-4"
                       >
                         <div className="flex items-center gap-3">
-                          <CheckCircle className="h-5 w-5 shrink-0 text-green-400" />
-                          <span className="text-sm text-green-300">
+                          <CheckCircle className="h-5 w-5 shrink-0 text-lime" />
+                          <span className="text-sm text-lime">
                             {success}
                           </span>
                         </div>
@@ -934,15 +934,15 @@ function PremiumAuthContent() {
                           label="Email ou pseudonyme"
                           name="email"
                           type="text"
-                          placeholder="votre@email.com ou votre pseudo"
-                          icon={<AtSign className="h-5 w-5 text-gray-500" />}
+                          placeholder="prenom@email.com ou ton pseudo"
+                          icon={<AtSign className="h-5 w-5 text-cream/55" />}
                           error={errors.email}
                         />
 
                         <PasswordInput
                           label="Mot de passe"
                           name="password"
-                          placeholder="Votre mot de passe"
+                          placeholder="Ton mot de passe"
                           showPassword={showPassword}
                           setShowPassword={setShowPassword}
                           error={errors.password}
@@ -953,16 +953,16 @@ function PremiumAuthContent() {
                             <input
                               type="checkbox"
                               name="remember"
-                              className="h-4 w-4 rounded border border-white/10 bg-white/5 checked:border-purple-500 checked:bg-purple-500 focus:ring-purple-500/20"
+                              className="h-4 w-4 rounded border border-cream/10 bg-cream/5 checked:border-orange checked:bg-orange focus:ring-orange/25"
                             />
-                            <span className="text-xs text-gray-400 sm:text-sm">
+                            <span className="text-xs text-cream/55 sm:text-sm">
                               Se souvenir de moi
                             </span>
                           </label>
 
                           <Link
                             href="/auth/reset-password"
-                            className="text-xs text-purple-400 transition-colors hover:text-purple-300 sm:text-sm"
+                            className="text-xs text-orange transition-colors hover:text-orange sm:text-sm"
                           >
                             Mot de passe oublié ?
                           </Link>
@@ -987,8 +987,8 @@ function PremiumAuthContent() {
                           label="Nom complet"
                           name="name"
                           type="text"
-                          placeholder="Votre nom et prénom"
-                          icon={<User className="h-5 w-5 text-gray-500" />}
+                          placeholder="Ton nom et prénom"
+                          icon={<User className="h-5 w-5 text-cream/55" />}
                           error={errors.name}
                         />
 
@@ -996,19 +996,19 @@ function PremiumAuthContent() {
                           label="Pseudonyme (optionnel)"
                           name="pseudonyme"
                           type="text"
-                          placeholder="Votre pseudonyme visible par les autres"
-                          icon={<AtSign className="h-5 w-5 text-gray-500" />}
+                          placeholder="Ton pseudonyme visible par les autres"
+                          icon={<AtSign className="h-5 w-5 text-cream/55" />}
                           error={errors.pseudonyme}
                           required={false}
-                          hint="Seul votre pseudonyme sera visible sur votre profil public. Vous pourrez le définir plus tard."
+                          hint="Seul ton pseudonyme sera visible sur ton profil public. Tu pourras le définir plus tard."
                         />
 
                         <AuthInput
                           label="Adresse email"
                           name="email"
                           type="email"
-                          placeholder="votre@email.com"
-                          icon={<Mail className="h-5 w-5 text-gray-500" />}
+                          placeholder="prenom@email.com"
+                          icon={<Mail className="h-5 w-5 text-cream/55" />}
                           error={errors.email}
                         />
 
@@ -1024,20 +1024,20 @@ function PremiumAuthContent() {
 
                         {passwordStrength > 0 && (
                           <div>
-                            <div className="h-1 overflow-hidden rounded-full bg-gray-700">
+                            <div className="h-1 overflow-hidden rounded-full bg-cream/10">
                               <div
                                 className={`h-full transition-all duration-300 ${
                                   passwordStrength < 50
                                     ? "bg-red-500"
                                     : passwordStrength < 75
-                                      ? "bg-yellow-500"
-                                      : "bg-green-500"
+                                      ? "bg-orange"
+                                      : "bg-lime"
                                 }`}
                                 style={{ width: `${passwordStrength}%` }}
                               />
                             </div>
 
-                            <p className="mt-1 text-xs text-gray-400">
+                            <p className="mt-1 text-xs text-cream/55">
                               {passwordStrength < 50
                                 ? "Faible"
                                 : passwordStrength < 75
@@ -1050,7 +1050,7 @@ function PremiumAuthContent() {
                         <PasswordInput
                           label="Confirmer le mot de passe"
                           name="confirmPassword"
-                          placeholder="Retapez votre mot de passe"
+                          placeholder="Retape ton mot de passe"
                           showPassword={showConfirmPassword}
                           setShowPassword={setShowConfirmPassword}
                           error={errors.confirmPassword}
@@ -1061,21 +1061,21 @@ function PremiumAuthContent() {
                             type="checkbox"
                             name="terms"
                             required
-                            className="mt-0.5 h-4 w-4 shrink-0 rounded border border-white/10 bg-white/5 checked:border-purple-500 checked:bg-purple-500 focus:ring-purple-500/20 sm:h-5 sm:w-5"
+                            className="mt-0.5 h-4 w-4 shrink-0 rounded border border-cream/10 bg-cream/5 checked:border-orange checked:bg-orange focus:ring-orange/25 sm:h-5 sm:w-5"
                           />
 
-                          <span className="text-xs leading-relaxed text-gray-400 sm:text-sm">
+                          <span className="text-xs leading-relaxed text-cream/55 sm:text-sm">
                             J'accepte les{" "}
                             <Link
                               href="/conditions"
-                              className="text-purple-400 hover:text-purple-300"
+                              className="text-orange hover:text-orange"
                             >
                               conditions d'utilisation
                             </Link>{" "}
                             et la{" "}
                             <Link
                               href="/confidentialite"
-                              className="text-purple-400 hover:text-purple-300"
+                              className="text-orange hover:text-orange"
                             >
                               politique de confidentialité
                             </Link>
@@ -1096,22 +1096,22 @@ function PremiumAuthContent() {
                     <button
                       type="button"
                       onClick={() => setOpenSocialLogin(!openSocialLogin)}
-                      className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-left transition-all hover:bg-white/10 sm:px-4 sm:py-3"
+                      className="fx-ghost flex w-full items-center justify-between rounded-xl border border-cream/10 bg-cream/5 px-3.5 py-2.5 text-left transition-all hover:bg-cream/10 sm:px-4 sm:py-3"
                       aria-expanded={openSocialLogin}
                     >
                       <div>
-                        <p className="text-xs font-medium text-white sm:text-sm">
+                        <p className="text-xs font-medium text-cream sm:text-sm">
                           Autres méthodes de connexion
                         </p>
-                        <p className="text-[11px] text-gray-400 sm:text-xs">
+                        <p className="text-[11px] text-cream/55 sm:text-xs">
                           Google ou Apple
                         </p>
                       </div>
 
                       {openSocialLogin ? (
-                        <ChevronUp className="h-5 w-5 shrink-0 text-purple-300" />
+                        <ChevronUp className="h-5 w-5 shrink-0 text-orange" />
                       ) : (
-                        <ChevronDown className="h-5 w-5 shrink-0 text-purple-300" />
+                        <ChevronDown className="h-5 w-5 shrink-0 text-orange" />
                       )}
                     </button>
 
@@ -1127,11 +1127,11 @@ function PremiumAuthContent() {
                           <div className="pt-4">
                             <div className="relative mb-4">
                               <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-white/10" />
+                                <div className="w-full border-t border-cream/10" />
                               </div>
 
                               <div className="relative flex justify-center text-sm">
-                                <span className="bg-gray-900 px-3 text-gray-500">
+                                <span className="bg-abyss px-3 text-cream/55">
                                   Ou continuer avec
                                 </span>
                               </div>
@@ -1160,26 +1160,26 @@ function PremiumAuthContent() {
                 </div>
 
                 {/* Footer du formulaire */}
-                <div className="border-t border-white/10 p-3.5 pt-3 sm:p-6 sm:pt-4">
-                  <p className="text-center text-xs text-gray-400 sm:text-sm">
+                <div className="border-t border-cream/10 p-3.5 pt-3 sm:p-6 sm:pt-4">
+                  <p className="text-center text-xs text-cream/55 sm:text-sm">
                     {isLogin ? (
                       <>
                         Pas encore de compte ?{" "}
                         <button
                           type="button"
                           onClick={() => switchMode(false)}
-                          className="font-medium text-purple-400 transition-colors hover:text-purple-300"
+                          className="font-medium text-orange transition-colors hover:text-orange"
                         >
                           S'inscrire maintenant
                         </button>
                       </>
                     ) : (
                       <>
-                        Vous avez déjà un compte ?{" "}
+                        Tu as déjà un compte ?{" "}
                         <button
                           type="button"
                           onClick={() => switchMode(true)}
-                          className="font-medium text-purple-400 transition-colors hover:text-purple-300"
+                          className="font-medium text-orange transition-colors hover:text-orange"
                         >
                           Se connecter
                         </button>
@@ -1195,9 +1195,9 @@ function PremiumAuthContent() {
                 - visible à partir de sm.
               */}
               <div className="pointer-events-none absolute -bottom-6 left-1/2 hidden w-max -translate-x-1/2 sm:block">
-                <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-gradient-to-r from-green-500/20 to-emerald-500/20 px-4 py-2 backdrop-blur-sm">
-                  <Shield className="h-4 w-4 text-green-400" />
-                  <span className="text-xs text-green-300 sm:text-sm">
+                <div className="flex items-center gap-2 rounded-full border border-lime/30 bg-gradient-to-r from-lime/10 to-lime/[0.06] px-4 py-2 backdrop-blur-sm">
+                  <Shield className="h-4 w-4 text-lime" />
+                  <span className="text-xs text-lime sm:text-sm">
                     Sécurité SSL 256-bit
                   </span>
                 </div>
@@ -1219,9 +1219,9 @@ export default function PremiumAuthPage() {
   return (
     <Suspense
       fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#1a0b2e] text-white">
+        <main className="flex min-h-screen items-center justify-center bg-[#001724] text-cream">
           <div className="flex items-center gap-3">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-cream border-t-transparent" />
             <span>Chargement...</span>
           </div>
         </main>
@@ -1261,7 +1261,7 @@ function AuthInput({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-medium text-gray-400 sm:mb-2 sm:text-sm">
+      <label className="mb-1.5 block text-xs font-medium text-cream/55 sm:mb-2 sm:text-sm">
         {label}
       </label>
 
@@ -1273,12 +1273,12 @@ function AuthInput({
           type={type}
           placeholder={placeholder}
           required={required}
-          className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-11 pr-4 text-sm text-white outline-none transition-all placeholder:text-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 sm:py-3 sm:pl-12 sm:text-base"
+          className="w-full rounded-xl border border-cream/10 bg-cream/5 py-2.5 pl-11 pr-4 text-sm text-cream outline-none transition-all placeholder:text-cream/45 focus:border-orange focus:ring-2 focus:ring-orange/25 sm:py-3 sm:pl-12 sm:text-base"
         />
       </div>
 
       {hint && !error && (
-        <p className="mt-1 text-[11px] text-gray-500 sm:text-xs">{hint}</p>
+        <p className="mt-1 text-[11px] text-cream/55 sm:text-xs">{hint}</p>
       )}
       {error && <p className="mt-1 text-xs text-red-400 sm:text-sm">{error}</p>}
     </div>
@@ -1312,12 +1312,12 @@ function PasswordInput({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-medium text-gray-400 sm:mb-2 sm:text-sm">
+      <label className="mb-1.5 block text-xs font-medium text-cream/55 sm:mb-2 sm:text-sm">
         {label}
       </label>
 
       <div className="relative">
-        <Lock className="absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-gray-500 sm:h-5 sm:w-5" />
+        <Lock className="absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-cream/55 sm:h-5 sm:w-5" />
 
         <input
           name={name}
@@ -1325,13 +1325,13 @@ function PasswordInput({
           placeholder={placeholder}
           required
           onChange={(event) => onChange?.(event.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-11 pr-11 text-sm text-white outline-none transition-all placeholder:text-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 sm:py-3 sm:pl-12 sm:pr-12 sm:text-base"
+          className="w-full rounded-xl border border-cream/10 bg-cream/5 py-2.5 pl-11 pr-11 text-sm text-cream outline-none transition-all placeholder:text-cream/45 focus:border-orange focus:ring-2 focus:ring-orange/25 sm:py-3 sm:pl-12 sm:pr-12 sm:text-base"
         />
 
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-white"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-cream/55 transition-colors hover:text-cream"
           aria-label={
             showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
           }
@@ -1367,11 +1367,11 @@ function SubmitButton({
       disabled={isLoading}
       whileHover={{ scale: isLoading ? 1 : 1.02 }}
       whileTap={{ scale: isLoading ? 1 : 0.98 }}
-      className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:py-3 sm:text-base"
+      className="fx-btn w-full rounded-xl bg-orange py-2.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-50 sm:py-3 sm:text-base"
     >
       {isLoading ? (
         <div className="flex items-center justify-center gap-2">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent sm:h-5 sm:w-5" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-abyss border-t-transparent sm:h-5 sm:w-5" />
           {loadingText}
         </div>
       ) : (
@@ -1406,7 +1406,7 @@ function SocialButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`group flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 p-2.5 text-sm transition-all hover:border-white/20 hover:bg-white/10 disabled:opacity-50 sm:p-3 ${
+      className={`group flex items-center justify-center gap-2 rounded-xl border border-cream/10 bg-cream/5 p-2.5 text-sm transition-all hover:border-cream/20 hover:bg-cream/10 disabled:opacity-50 sm:p-3 ${
         fullWidth ? "mt-3 w-full" : ""
       }`}
     >

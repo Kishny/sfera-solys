@@ -3,14 +3,14 @@
  *
  * Upload une image envoyée dans le chat.
  * Accepte un fichier multipart/form-data (champ "file").
- * Vérifie que l'utilisatrice est authentifiée.
+ * Vérifie que l'utilisateur est authentifié.
  * Retourne { success: true, url: string }
  *
  * Contraintes :
  * - Formats : JPG, PNG, WebP, GIF
  * - Taille max : 8 Mo
  * - Redimensionnement : max 1200px côté le plus long, qualité 80
- * - Dossier Cloudinary : sferaluna/chat
+ * - Dossier Cloudinary : sferasolys/chat
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
@@ -31,7 +31,7 @@ const MAX_SIZE = 8 * 1024 * 1024; // 8 Mo
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
-    return NextResponse.json({ success: false, error: 'Non authentifiée.' }, { status: 401 });
+    return NextResponse.json({ success: false, error: 'Non authentifié.' }, { status: 401 });
   }
 
   let formData: FormData;
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         cloudinary.uploader
           .upload_stream(
             {
-              folder: 'sferaluna/chat',
+              folder: 'sferasolys/chat',
               transformation: [
                 { width: 1200, height: 1200, crop: 'limit', quality: 80 },
               ],
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
           });
         }
       } catch {
-        // Le log de modération ne doit jamais empêcher de répondre à l'utilisatrice.
+        // Le log de modération ne doit jamais empêcher de répondre à l'utilisateur.
       }
       return NextResponse.json(
         { success: false, error: MODERATION_REJECTION_MESSAGE },

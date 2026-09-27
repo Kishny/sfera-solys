@@ -1,38 +1,22 @@
 // src/app/layout.tsx
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
+import AnalytiqueConsentie from "@/components/AnalytiqueConsentie";
 
 import "./globals.css";
+import { archivo, fraunces, instrumentSans } from "./fonts";
 
 import ClientProvider from "./ClientProvider";
 import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
 
 /**
- * Police principale du site.
- */
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-/**
- * Police monospace utilisée si besoin.
- */
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-/**
  * URL publique du site.
  *
  * En production, mets bien dans ton .env :
- * NEXT_PUBLIC_APP_URL=https://sferaluna.com
+ * NEXT_PUBLIC_APP_URL=https://sferasolys.fr
  */
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferaluna.com";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.fr";
 
 /**
  * Métadonnées globales du site.
@@ -44,28 +28,27 @@ export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
 
   title: {
-    default: "SferaLuna — Site de rencontres premium pour femmes",
-    template: "%s | SferaLuna",
+    default: "Sfera'Solys — Site de rencontres premium pour hommes",
+    template: "%s | Sfera'Solys",
   },
 
   description:
-    "SferaLuna est le site de rencontres premium pensé pour les femmes françaises. Sécurité, authenticité et affinités profondes. Rejoignez une communauté bienveillante.",
+    "Sfera'Solys est le site de rencontres premium pensé pour les hommes français. Sécurité, authenticité et affinités profondes. Rejoignez une communauté bienveillante.",
 
   keywords: [
     "site de rencontres",
-    "rencontres femmes",
-    "rencontres lesbiennes",
-    "rencontres WLW",
+    "rencontres hommes",
     "site de rencontres premium",
     "rencontres authentiques",
-    "SferaLuna",
+    "Sfera'Solys",
     "rencontres sécurisées",
+    "rencontres sérieuses",
     "rencontres France",
   ],
 
-  authors: [{ name: "SferaLuna", url: baseUrl }],
-  creator: "SferaLuna",
-  publisher: "SferaLuna",
+  authors: [{ name: "Sfera'Solys", url: baseUrl }],
+  creator: "Sfera'Solys",
+  publisher: "Sfera'Solys",
 
   robots: {
     index: true,
@@ -80,24 +63,30 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: [{ url: "/logo-sferaluna.png", type: "image/png" }],
-    apple: [{ url: "/logo-sferaluna.png" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/logo-icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/logo-icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 
   manifest: "/site.webmanifest",
 
   openGraph: {
-    title: "SferaLuna — Site de rencontres premium pour femmes",
+    title: "Sfera'Solys — Site de rencontres premium pour hommes",
     description:
-      "SferaLuna est le site de rencontres premium pensé pour les femmes françaises. Sécurité, authenticité et affinités profondes.",
+      "Sfera'Solys est le site de rencontres premium pensé pour les hommes français. Sécurité, authenticité et affinités profondes.",
     url: baseUrl,
-    siteName: "SferaLuna",
+    siteName: "Sfera'Solys",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "SferaLuna — Site de rencontres premium",
+        alt: "Sfera'Solys — Site de rencontres premium",
       },
     ],
     locale: "fr_FR",
@@ -106,11 +95,11 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "SferaLuna — Site de rencontres premium pour femmes",
+    title: "Sfera'Solys — Site de rencontres premium pour hommes",
     description:
-      "Rejoignez SferaLuna, la communauté de rencontres premium pensée pour les femmes françaises.",
+      "Rejoignez Sfera'Solys, la communauté de rencontres premium pensée pour les hommes français.",
     images: ["/og-image.png"],
-    creator: "@sferaluna",
+    creator: "@sferasolys",
   },
 
   alternates: {
@@ -135,12 +124,12 @@ export const metadata: Metadata = {
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "SferaLuna",
+  name: "Sfera'Solys",
   url: baseUrl,
-  logo: `${baseUrl}/logo-sferaluna.png`,
+  logo: `${baseUrl}/logo-icon-512.png`,
   description:
-    "Site de rencontres premium pensé pour les femmes françaises. Sécurité, authenticité et affinités profondes.",
-  foundingDate: "2024",
+    "Site de rencontres premium pensé pour les hommes français. Sécurité, authenticité et affinités profondes.",
+  foundingDate: "2026",
   address: {
     "@type": "PostalAddress",
     addressCountry: "FR",
@@ -154,9 +143,9 @@ const organizationJsonLd = {
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "SferaLuna",
+  name: "Sfera'Solys",
   url: baseUrl,
-  description: "Site de rencontres premium pour femmes — France",
+  description: "Site de rencontres premium pour hommes — France",
   inLanguage: "fr-FR",
   potentialAction: {
     "@type": "SearchAction",
@@ -187,10 +176,12 @@ export default function RootLayout({
         <JsonLd data={websiteJsonLd} />
       </head>
 
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${archivo.variable} ${fraunces.variable} ${instrumentSans.variable} font-sans antialiased`}
+      >
         <ClientProvider>{children}</ClientProvider>
         <CookieConsent />
-        <Analytics />
+        <AnalytiqueConsentie />
       </body>
     </html>
   );

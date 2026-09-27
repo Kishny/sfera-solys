@@ -19,7 +19,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 /**
- * Type principal d'un événement Luna.
+ * Type principal d'un événement Solys.
  * Ces données viennent de l'API /api/events.
  */
 interface LunaEvent {
@@ -284,11 +284,11 @@ export default function EvenementsPage() {
           >
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#8E7AB5]/20 bg-[#8E7AB5]/10 px-3 py-1 text-xs font-medium text-[#5B4B8A] sm:mb-4 sm:px-4 sm:py-1.5 sm:text-sm">
               <Sparkles className="h-3.5 w-3.5" />
-              LunaGather
+              rassemblements Solys
             </div>
 
             <h1 className="text-2xl font-bold text-[#2d1b69] sm:text-3xl md:text-4xl">
-              Événements Luna 🌙
+              Événements Solys 🌙
             </h1>
 
             <p className="mx-auto mt-1 max-w-xl text-xs leading-relaxed text-[#8E7AB5] sm:mt-2 sm:text-base">
@@ -316,7 +316,7 @@ export default function EvenementsPage() {
               </div>
 
               <div className="rounded-2xl bg-[#f7f0ff] px-2 py-2">
-                <p className="text-base font-bold text-[#5B4B8A]">Luna</p>
+                <p className="text-base font-bold text-[#5B4B8A]">Solys</p>
                 <p className="text-[10px] text-[#8E7AB5] sm:text-xs">
                   safe place
                 </p>

@@ -39,7 +39,7 @@ export async function POST() {
 
   if (!user) {
     return NextResponse.json(
-      { success: false, error: "Utilisatrice introuvable." },
+      { success: false, error: "Utilisateur introuvable." },
       { status: 404 }
     );
   }

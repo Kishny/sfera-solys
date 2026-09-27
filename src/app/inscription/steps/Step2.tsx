@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Étape 2 du formulaire d'inscription SferaLuna.
+ * Étape 2 du formulaire d'inscription Sfera'Solys.
  *
  * Objectif :
  * - choisir une orientation ;
@@ -70,20 +70,20 @@ export default function Step2() {
     <div className="space-y-6 sm:space-y-8">
       {/* Titre de l'étape */}
       <div>
-        <h2 className="text-xl font-bold text-purple-300 sm:text-2xl">
+        <h2 className="text-xl font-bold text-cream sm:text-2xl">
           Orientation et intentions
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-gray-300">
+        <p className="mt-2 text-sm leading-relaxed text-cream/70">
           Ces informations nous aident à proposer des rencontres plus
-          compatibles avec vos attentes.
+          compatibles avec tes attentes.
         </p>
       </div>
 
       {/* Bloc orientation */}
       <section className="space-y-4">
-        <label className="block text-sm font-semibold text-gray-100">
-          Orientation <span className="text-pink-400">*</span>
+        <label className="block text-sm font-semibold text-cream/90">
+          Orientation <span className="text-orange">*</span>
         </label>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -95,20 +95,20 @@ export default function Step2() {
                 key={orientation.value}
                 className={`flex cursor-pointer items-center rounded-xl border p-3 transition-all sm:p-4 ${
                   isSelected
-                    ? "border-pink-400 bg-pink-500/20 shadow-lg shadow-pink-500/10"
-                    : "border-white/25 bg-white/5 hover:border-purple-300 hover:bg-white/10"
+                    ? "border-orange bg-orange/15 shadow-lg shadow-orange/10"
+                    : "border-cream/15 bg-cream/5 hover:border-orange/50 hover:bg-cream/10"
                 }`}
               >
                 <input
                   type="radio"
                   {...register("orientation")}
                   value={orientation.value}
-                  className="h-4 w-4 accent-pink-500"
+                  className="h-4 w-4 accent-orange"
                 />
 
                 <span
                   className={`ml-3 text-sm font-medium ${
-                    isSelected ? "text-white" : "text-gray-100"
+                    isSelected ? "text-cream" : "text-cream/90"
                   }`}
                 >
                   {orientation.label}
@@ -128,13 +128,13 @@ export default function Step2() {
       {/* Bloc intentions */}
       <section className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-100">
-            Quelles sont vos intentions ?{" "}
-            <span className="text-pink-400">*</span>
+          <label className="block text-sm font-semibold text-cream/90">
+            Quelles sont tes intentions ?{" "}
+            <span className="text-orange">*</span>
           </label>
 
-          <p className="mt-2 text-sm text-gray-300">
-            Sélectionnez une ou plusieurs options.
+          <p className="mt-2 text-sm text-cream/70">
+            Sélectionne une ou plusieurs options.
           </p>
         </div>
 
@@ -149,24 +149,24 @@ export default function Step2() {
                 onClick={() => toggleIntention(intention.value)}
                 className={`rounded-xl border p-3 text-left transition-all sm:p-4 ${
                   isSelected
-                    ? "border-pink-400 bg-pink-500/20 shadow-lg shadow-pink-500/10"
-                    : "border-white/25 bg-white/5 hover:border-purple-300 hover:bg-white/10"
+                    ? "border-orange bg-orange/15 shadow-lg shadow-orange/10"
+                    : "border-cream/15 bg-cream/5 hover:border-orange/50 hover:bg-cream/10"
                 }`}
               >
                 <div className="flex items-center">
                   <div
                     className={`mr-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
                       isSelected
-                        ? "border-pink-500 bg-pink-500"
-                        : "border-gray-300 bg-white/5"
+                        ? "border-orange bg-orange"
+                        : "border-cream/15 bg-cream/5"
                     }`}
                   >
-                    {isSelected && <Check className="h-3.5 w-3.5 text-white" />}
+                    {isSelected && <Check className="h-3.5 w-3.5 text-abyss" />}
                   </div>
 
                   <span
                     className={`text-sm font-medium ${
-                      isSelected ? "text-white" : "text-gray-100"
+                      isSelected ? "text-cream" : "text-cream/90"
                     }`}
                   >
                     {intention.label}

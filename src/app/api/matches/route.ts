@@ -158,7 +158,7 @@ export async function GET() {
     /**
      * Messages non lus par conversation.
      *
-     * Un message est "non lu" pour l'utilisatrice connectée si :
+     * Un message est "non lu" pour l'utilisateur connectée si :
      * - il appartient à l'un de ses matches ;
      * - il a été envoyé par l'AUTRE personne (senderId != moi) ;
      * - il n'a pas encore été lu (readAt = null).

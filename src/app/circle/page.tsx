@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page Circle of Six SferaLuna.
+ * Page Circle of Six Sfera'Solys.
  *
  * Cette page affiche les 6 profils les plus compatibles de la semaine.
  *
@@ -146,7 +146,7 @@ const circleThemes = [
 
 /**
  * Retourne les initiales d'un pseudonyme.
- * Exemple : "Luna Rose" -> "LR"
+ * Exemple : "Thomas Rose" -> "LR"
  */
 function getInitials(name: string) {
   return name

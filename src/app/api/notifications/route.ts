@@ -15,7 +15,7 @@ import { User } from "@/models/User";
 /**
  * GET /api/notifications
  *
- * Retourne les notifications non lues de l'utilisatrice connectée.
+ * Retourne les notifications non lues de l'utilisateur connectée.
  *
  * Notifications comptabilisées :
  * - nouveaux messages reçus ;
@@ -48,7 +48,7 @@ export async function GET() {
       return NextResponse.json(
         {
           success: false,
-          error: "Non authentifiée.",
+          error: "Non authentifié.",
           code: "UNAUTHORIZED",
         },
         { status: 401 }
@@ -58,7 +58,7 @@ export async function GET() {
     await connectDB();
 
     /**
-     * Récupération fiable de l'utilisatrice.
+     * Récupération fiable de l'utilisateur.
      *
      * Priorité :
      * 1. id / _id depuis la session ;
@@ -96,7 +96,7 @@ export async function GET() {
     /**
      * Date de référence.
      *
-     * Si l'utilisatrice n'a jamais ouvert ses notifications,
+     * Si l'utilisateur n'a jamais ouvert ses notifications,
      * on regarde les 7 derniers jours.
      */
     const since =
@@ -222,7 +222,7 @@ export async function POST() {
       return NextResponse.json(
         {
           success: false,
-          error: "Non authentifiée.",
+          error: "Non authentifié.",
           code: "UNAUTHORIZED",
         },
         { status: 401 }

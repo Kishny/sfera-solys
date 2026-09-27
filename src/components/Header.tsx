@@ -1,192 +1,261 @@
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Menu,
   X,
   User,
-  Moon,
-  Sparkles,
   ChevronDown,
   LogOut,
   Crown,
-  Shield,
   Bell,
-  Home,
   Compass,
   Heart,
-  MessageCircle,
-  Settings,
+  Users2,
+  ShieldCheck,
+  ArrowRight,
 } from 'lucide-react';
 import { getPusherClient } from '@/lib/pusher-client';
 
 /**
- * Type d'un sous-lien dans le header.
+ * Header Sfera'Solys — nav publique, direction A (« dossier de vérification »).
+ *
+ * Restructuration (voir CLAUDE.md § Restructuration de l'architecture) :
+ * cette nav ne sert plus qu'aux pages publiques (marketing). Une fois
+ * connecté, les pages de l'espace membre migrent vers Sidebar.tsx, qui
+ * reprend le pattern « sidebar » de la direction B. Ce header garde donc
+ * un état « connecté » minimal, pour les pages pas encore migrées vers
+ * le groupe de routes (app) — pas un système de nav complet en double.
+ *
+ * Ton visuel : sobre et institutionnel plutôt que festif — mega-menus
+ * discrets, CTA en lien texte plutôt qu'en gros bouton plein, peu
+ * d'éléments au premier niveau. Cf. maquette DirA-Home dans le canvas.
+ *
+ * Accessibilité des mega-menus (corrigé le 25/09/2026) : la première
+ * version ne s'ouvrait qu'au survol — un `aria-expanded` était bien posé,
+ * mais sans `onClick`, donc un utilisateur au clavier ne pouvait jamais
+ * déplier les sous-menus. Ils s'ouvrent maintenant au survol ET au clic /
+ * à la touche Entrée, se ferment avec Échap (en rendant le focus au
+ * bouton) et au clic en dehors.
  */
+
 type HeaderSubItem = {
   label: string;
   href: string;
+  /** Courte phrase affichée sous le lien dans le mega-menu. */
+  description: string;
 };
 
-/**
- * Type d'un lien principal du header.
- */
 type HeaderLink = {
-  href: string;
   label: string;
-  icon: ReactNode;
-  mobileIcon: string;
-  badge?: string;
+  href?: string;
   subItems?: HeaderSubItem[];
+  /** Accroche affichée dans la colonne de droite du mega-menu. */
+  panelTitle?: string;
+  panelText?: string;
+  panelCta?: { label: string; href: string };
 };
 
+const links: HeaderLink[] = [
+  {
+    label: 'Découvrir',
+    subItems: [
+      {
+        label: 'Accueil',
+        href: '/',
+        description: 'La promesse, en une page',
+      },
+      {
+        label: 'Notre histoire',
+        href: '/histoire',
+        description: "Pourquoi Sfera'Solys existe",
+      },
+      {
+        label: 'Nos valeurs',
+        href: '/valeurs',
+        description: 'Ce qu’on défend, ce qu’on refuse',
+      },
+      {
+        label: 'Équipe',
+        href: '/equipe',
+        description: 'Qui vérifie les dossiers',
+      },
+    ],
+    panelTitle: 'vérification immédiate',
+    panelText:
+      'Pièce d’identité et selfie en direct, vérifiés par Stripe Identity. Le résultat tombe dans la minute.',
+    panelCta: { label: 'Constituer mon dossier', href: '/commencer' },
+  },
+  {
+    label: 'Comment ça marche',
+    subItems: [
+      {
+        label: 'Fonctionnalités',
+        href: '/fonctionnalites',
+        description: 'Circle of Six, Mode Fantôme, VibeSphere…',
+      },
+      {
+        label: 'Guide débutant',
+        href: '/guide',
+        description: 'Réussir son profil et son premier message',
+      },
+      {
+        label: 'Foire aux questions',
+        href: '/faq',
+        description: 'Vérification, confidentialité, résiliation',
+      },
+      {
+        label: 'Commencer',
+        href: '/commencer',
+        description: 'Le parcours d’inscription en détail',
+      },
+    ],
+    panelTitle: 'le parcours en 4 étapes',
+    panelText:
+      'Profil, vérification, affinités, première mise en relation encadrée.',
+    panelCta: { label: 'Voir le parcours', href: '/commencer' },
+  },
+  { label: 'Communauté', href: '/temoignages' },
+  { label: 'Tarifs', href: '/tarifs' },
+];
+
 /**
- * Header SferaLuna.
- *
- * Objectifs de cette version :
- * - header desktop conservé, mais plus propre ;
- * - header mobile beaucoup plus compact ;
- * - menu burger différent d'un menu classique ;
- * - menu mobile sous forme de panneau flottant "Luna Dock" ;
- * - sous-sections en accordéon mobile ;
- * - support utilisateur connecté / non connecté ;
- * - notifications temps réel via Pusher ;
- * - bouton retour en haut masqué tant qu'on n'a pas scrollé.
+ * Identifiant stable et sans accent pour relier un bouton de nav au
+ * panneau de mega-menu qu'il ouvre (`aria-labelledby`).
  */
+function menuTriggerId(label: string): string {
+  return `nav-${label
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/gi, '-')
+    .toLowerCase()}`;
+}
+
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
-  const [showAuthDropdown, setShowAuthDropdown] = useState(false);
+  const [openDesktopGroup, setOpenDesktopGroup] = useState<string | null>(null);
+  const [openMobileGroup, setOpenMobileGroup] = useState<string | null>(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
-
-  /**
-   * Accordéon mobile :
-   * on ouvre un seul groupe à la fois.
-   */
-  const [openMobileGroup, setOpenMobileGroup] = useState<string | null>(null);
 
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
+  const shouldReduceMotion = useReducedMotion();
 
   const isLoggedIn = status === 'authenticated' && !!session?.user;
 
   /**
-   * Liens principaux du header.
+   * Références sur les boutons de premier niveau : quand on ferme un
+   * mega-menu avec Échap, le focus doit revenir sur le bouton qui l'a
+   * ouvert, sinon l'utilisateur au clavier est perdu au début de la page.
    */
-  const links: HeaderLink[] = [
-    {
-      href: '/',
-      label: 'Luna',
-      icon: <Moon size={17} />,
-      mobileIcon: '🌙',
-      subItems: [
-        { label: 'Accueil', href: '/' },
-        { label: 'Notre histoire', href: '/histoire' },
-        { label: 'Explorer librement', href: '/explorer' },
-        { label: 'Équipe', href: '/equipe' },
-      ],
-    },
-    {
-      href: '/valeurs',
-      label: 'Valeurs',
-      icon: <Heart size={17} />,
-      mobileIcon: '💫',
-      badge: 'Essentiel',
-    },
-    {
-      href: '/fonctionnalites',
-      label: 'Fonctions',
-      icon: <Sparkles size={17} />,
-      mobileIcon: '🚀',
-      subItems: [
-        { label: 'Toutes les fonctionnalités', href: '/fonctionnalites' },
-        { label: 'Circle of Six', href: '/circle' },
-        { label: 'Mode Fantôme', href: '/mode-fantome' },
-        { label: 'VibePlanner', href: '/vibeplanner' },
-        { label: 'VibeSphere', href: '/vibesphere' },
-      ],
-    },
-    {
-      href: '/vibesphere',
-      label: 'VibeSphere',
-      icon: <Compass size={17} />,
-      mobileIcon: '🌌',
-      badge: 'Nouveau',
-    },
-    {
-      href: '/commencer',
-      label: 'Commencer',
-      icon: <Sparkles size={17} />,
-      mobileIcon: '🌟',
-      subItems: [
-        { label: 'Commencer', href: '/commencer' },
-        { label: 'Guide débutant', href: '/guide' },
-        { label: 'FAQ', href: '/faq' },
-        { label: 'Tarifs', href: '/tarifs' },
-      ],
-    },
-  ];
+  const navRef = useRef<HTMLElement | null>(null);
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   /**
-   * Détection du scroll pour rendre le header plus compact et lisible.
+   * Échap ferme le mega-menu ouvert et le menu compte, et rend le focus.
    */
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 16);
+    if (!openDesktopGroup && !showUserDropdown) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+
+      if (openDesktopGroup) {
+        const trigger = triggerRefs.current[openDesktopGroup];
+        setOpenDesktopGroup(null);
+        trigger?.focus();
+      }
+
+      setShowUserDropdown(false);
     };
 
-    handleScroll();
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [openDesktopGroup, showUserDropdown]);
 
+  /**
+   * Un clic en dehors de la nav referme le mega-menu ouvert.
+   */
+  useEffect(() => {
+    if (!openDesktopGroup) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!navRef.current?.contains(event.target as Node)) {
+        setOpenDesktopGroup(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, [openDesktopGroup]);
+
+  /**
+   * Lien d'évitement : on cible le premier `<main>` de la page plutôt qu'un
+   * id, pour que ça marche aussi sur les pages pas encore migrées (elles
+   * n'ont pas encore d'`id="contenu"`). Le href reste là comme repli si JS
+   * ne tourne pas.
+   */
+  const handleSkipToContent = (
+    event: React.MouseEvent<HTMLAnchorElement>
+  ) => {
+    const main = document.querySelector('main');
+    if (!main) return;
+
+    event.preventDefault();
+    main.setAttribute('tabindex', '-1');
+    (main as HTMLElement).focus();
+    main.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth' });
+  };
+
+  /**
+   * Légère ombre une fois qu'on a scrollé — le fond reste sombre en
+   * permanence (plus de bascule clair/sombre comme avant).
+   */
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 16);
+    handleScroll();
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   /**
-   * Ferme le menu mobile à chaque changement de route.
+   * On referme tout à chaque changement de route.
    */
   useEffect(() => {
     setOpen(false);
     setOpenMobileGroup(null);
-    setShowAuthDropdown(false);
+    setOpenDesktopGroup(null);
     setShowUserDropdown(false);
   }, [pathname]);
 
-  /**
-   * Quand le menu mobile est ouvert, on bloque le scroll du body.
-   * Ça évite les bugs de scroll derrière le menu.
-   */
   useEffect(() => {
     if (!open) return;
-
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-
     return () => {
       document.body.style.overflow = previousOverflow;
     };
   }, [open]);
 
   /**
-   * Notifications : polling toutes les 30 secondes.
+   * Notifications : polling (30s) + temps réel via Pusher sur un
+   * nouveau match. Identique à Sidebar.tsx pour garder un seul compteur
+   * cohérent, que la page utilise le header ou la sidebar.
    */
   useEffect(() => {
     if (!isLoggedIn) return;
 
     const fetchNotifs = async () => {
       try {
-        const res = await fetch('/api/notifications', {
-          cache: 'no-store',
-        });
-
+        const res = await fetch('/api/notifications', { cache: 'no-store' });
         if (!res.ok) return;
-
         const data = await res.json();
         setNotifCount(data.total || 0);
       } catch {
@@ -195,22 +264,15 @@ export default function Header() {
     };
 
     fetchNotifs();
-
     const interval = setInterval(fetchNotifs, 30_000);
-
     return () => clearInterval(interval);
   }, [isLoggedIn]);
 
-  /**
-   * Notifications temps réel via Pusher.
-   * Exemple : nouveau match.
-   */
   useEffect(() => {
     if (!isLoggedIn) return;
 
     const sessionUser = session?.user as { id?: string } | undefined;
     const userId = sessionUser?.id;
-
     if (!userId) return;
 
     const channelName = `private-user-${userId}`;
@@ -227,18 +289,6 @@ export default function Header() {
     };
   }, [isLoggedIn, session?.user]);
 
-  /**
-   * Redirection vers auth.
-   */
-  const handleAuthClick = (mode: 'login' | 'register') => {
-    router.push(`/auth?mode=${mode}`);
-    setOpen(false);
-    setShowAuthDropdown(false);
-  };
-
-  /**
-   * Déconnexion.
-   */
   const handleLogout = async () => {
     await signOut({ redirect: false });
     router.push('/');
@@ -246,175 +296,174 @@ export default function Header() {
     setOpen(false);
   };
 
-  /**
-   * Ouvre / ferme un groupe du menu mobile.
-   */
-  const toggleMobileGroup = (href: string) => {
-    setOpenMobileGroup((current) => (current === href ? null : href));
+  const toggleMobileGroup = (label: string) => {
+    setOpenMobileGroup((current) => (current === label ? null : label));
   };
 
-  /**
-   * Variants du panneau mobile.
-   */
+  const isLinkActive = (link: HeaderLink) =>
+    pathname === link.href ||
+    Boolean(link.subItems?.some((sub) => pathname === sub.href));
+
+  const focusRing =
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+
   const mobilePanelVariants = {
     closed: {
       opacity: 0,
-      y: -18,
-      scale: 0.96,
-      filter: 'blur(8px)',
-      transition: {
-        duration: 0.2,
-        ease: 'easeInOut',
-      },
+      y: shouldReduceMotion ? 0 : -18,
+      transition: { duration: shouldReduceMotion ? 0 : 0.2, ease: 'easeInOut' as const },
     },
     open: {
       opacity: 1,
       y: 0,
-      scale: 1,
-      filter: 'blur(0px)',
       transition: {
-        duration: 0.28,
-        ease: 'easeOut',
-        staggerChildren: 0.04,
-        delayChildren: 0.05,
+        duration: shouldReduceMotion ? 0 : 0.28,
+        ease: 'easeOut' as const,
+        staggerChildren: shouldReduceMotion ? 0 : 0.04,
+        delayChildren: shouldReduceMotion ? 0 : 0.05,
       },
     },
   };
 
   const mobileItemVariants = {
-    closed: { opacity: 0, y: 10 },
+    closed: { opacity: 0, y: shouldReduceMotion ? 0 : 8 },
     open: { opacity: 1, y: 0 },
   };
 
+  /** Entrée de nav dont le mega-menu est actuellement déplié. */
+  const activeMegaMenu = links.find(
+    (link) => link.label === openDesktopGroup && link.subItems
+  );
+
   return (
     <>
-      <motion.header
-        initial={{ y: -80 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? 'border-b border-white/40 bg-white/90 shadow-[0_8px_30px_rgba(80,60,120,0.08)] backdrop-blur-xl'
-            : 'bg-white/65 backdrop-blur-md'
+      {/* Lien d'évitement : premier élément focusable de la page. */}
+      <a
+        href="#contenu"
+        onClick={handleSkipToContent}
+        className="fx-btn fixed left-3 top-3 z-[70] -translate-y-20 rounded-xl bg-orange px-4 py-2.5 text-sm font-bold text-abyss transition-transform focus:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream"
+      >
+        Aller au contenu
+      </a>
+
+      <header
+        onMouseLeave={() => setOpenDesktopGroup(null)}
+        className={`fixed left-0 right-0 top-0 z-50 border-b border-cream/8 bg-abyss/97 backdrop-blur-xl transition-shadow duration-300 ${
+          scrolled ? 'shadow-[0_12px_34px_-18px_rgba(0,0,0,0.65)]' : ''
         }`}
       >
-        {/* Ligne lumineuse très fine */}
-        <motion.div
-          className="h-[2px] origin-left bg-gradient-to-r from-[#8E7AB5] via-[#D9B8FF] to-[#8E7AB5]"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1.4, ease: 'easeInOut' }}
-        />
-
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="flex h-14 items-center justify-between sm:h-16 lg:h-20">
-            {/* Logo compact mobile */}
-            <motion.div
-              className="flex shrink-0 items-center"
-              whileHover={{ scale: 1.03 }}
-              transition={{ type: 'spring', stiffness: 400 }}
-            >
-              <Link href="/" className="group relative flex items-center gap-2">
-                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#8E7AB5]/20 to-[#D9B8FF]/20 opacity-0 blur transition-opacity duration-300 group-hover:opacity-100" />
-
+          {/*
+            Hauteurs inchangées par rapport à l'ancien header (h-14 / h-16 /
+            h-20) : toutes les autres pages compensent déjà le header fixe
+            avec un pt-16 sm:pt-20. Tant qu'elles ne sont pas migrées, on
+            ne touche pas à cette hauteur sous peine de passer sous le
+            header de 4px partout.
+          */}
+          <div className="flex h-14 items-center justify-between sm:h-16 xl:h-20">
+            {/* Logo + badge de confiance */}
+            <div className="flex shrink-0 items-center">
+              <Link
+                href="/"
+                className={`group flex items-center gap-2.5 rounded-lg ${focusRing}`}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/logo-sferaluna.png"
-                  alt="SferaLuna"
-                  width={54}
-                  height={54}
-                  className="relative z-10 block h-11 w-11 shrink-0 object-contain drop-shadow-sm sm:h-14 sm:w-14 lg:h-[72px] lg:w-[72px]"
-                  style={{ background: 'transparent' }}
+                  src="/logo-icon.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="h-7 w-7 shrink-0 sm:h-8 sm:w-8"
                 />
-
-                <div className="hidden min-[380px]:block lg:hidden">
-                  <p className="text-sm font-black leading-none text-[#5B4B8A]">
-                    SferaLuna
-                  </p>
-                  <p className="text-[10px] leading-tight text-[#8E7AB5]/70">
-                    rencontre au féminin
-                  </p>
-                </div>
+                <span className="font-display text-base font-extrabold tracking-tight text-cream sm:text-lg">
+                  Sfera'Solys
+                </span>
               </Link>
 
-              {/* Badge desktop */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.25 }}
-                className="ml-3 hidden items-center gap-1.5 rounded-full border border-[#8E7AB5]/25 bg-white/60 px-3 py-1 backdrop-blur-sm xl:flex"
-              >
-                <Shield size={11} className="text-[#8E7AB5]" />
-
-                <span className="whitespace-nowrap text-[11px] font-medium tracking-wide text-[#5B4B8A]">
-                  100% féminin · sécurisé
+              <div className="ml-4 hidden items-center gap-1.5 rounded-full border border-orange/25 bg-orange/[0.08] px-3 py-1 2xl:flex">
+                <ShieldCheck size={12} className="text-orange" />
+                <span className="whitespace-nowrap text-[11px] font-medium tracking-wide text-cream/75">
+                  Hommes vérifiés 28+
                 </span>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
 
-            {/* Menu desktop */}
-            <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 lg:flex">
+            {/*
+              Nav desktop. Pas d'`overflow-hidden` ici : le panneau du
+              mega-menu est rendu en dehors de cette nav (plus bas, en
+              pleine largeur sous le header), justement pour ne pas être
+              rogné — c'était la cause du bug de liens masqués en août.
+            */}
+            <nav
+              ref={navRef}
+              aria-label="Navigation principale"
+              className="hidden min-w-0 flex-1 items-center justify-center gap-1 xl:flex"
+            >
               {links.map((link) => {
-                const isActive =
-                  pathname === link.href ||
-                  Boolean(
-                    link.subItems?.some((subItem) => pathname === subItem.href)
-                  );
+                const active = isLinkActive(link);
+                const key = link.label;
 
-                return (
-                  <div key={link.href} className="group relative">
-                    <Link
-                      href={link.href}
-                      onMouseEnter={() => setHoveredLink(link.href)}
-                      onMouseLeave={() => setHoveredLink(null)}
-                      className={`relative flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-medium transition-all duration-300 ${
-                        isActive
-                          ? 'bg-[#8E7AB5]/10 text-[#8E7AB5]'
-                          : 'text-[#5E5E5E] hover:bg-[#8E7AB5]/8 hover:text-[#8E7AB5]'
-                      }`}
-                    >
-                      <span className="text-[#8E7AB5]">{link.icon}</span>
+                if (link.subItems) {
+                  const isGroupOpen = openDesktopGroup === key;
 
-                      {link.label}
-
-                      {link.badge && (
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[10px] ${
-                            link.badge === 'Nouveau'
-                              ? 'border border-[#FF6B6B]/20 bg-[#FF6B6B]/10 text-[#FF6B6B]'
-                              : 'border border-[#8E7AB5]/20 bg-[#8E7AB5]/10 text-[#8E7AB5]'
-                          }`}
-                        >
-                          {link.badge}
-                        </span>
-                      )}
-
-                      {link.subItems && (
+                  return (
+                    <div key={key} className="relative">
+                      <button
+                        type="button"
+                        id={menuTriggerId(key)}
+                        ref={(node) => {
+                          triggerRefs.current[key] = node;
+                        }}
+                        aria-expanded={isGroupOpen}
+                        aria-haspopup="true"
+                        onMouseEnter={() => setOpenDesktopGroup(key)}
+                        onClick={() =>
+                          setOpenDesktopGroup((current) =>
+                            current === key ? null : key
+                          )
+                        }
+                        className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-medium transition-colors duration-200 ${focusRing} ${
+                          active || isGroupOpen
+                            ? 'text-orange'
+                            : 'text-cream/75 hover:text-cream'
+                        }`}
+                      >
+                        {link.label}
                         <ChevronDown
-                          size={14}
-                          className={`transition-transform duration-300 ${
-                            hoveredLink === link.href ? 'rotate-180' : ''
+                          size={12}
+                          className={`transition-transform duration-200 ${
+                            isGroupOpen ? 'rotate-180' : ''
                           }`}
                         />
+                      </button>
+
+                      {active && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute inset-x-3 -bottom-0.5 h-[2px] rounded-full bg-orange"
+                        />
                       )}
+                    </div>
+                  );
+                }
+
+                return (
+                  <div key={key} className="relative">
+                    <Link
+                      href={link.href as string}
+                      aria-current={active ? 'page' : undefined}
+                      onMouseEnter={() => setOpenDesktopGroup(null)}
+                      className={`block shrink-0 rounded-full px-3 py-2 text-[13px] font-medium transition-colors duration-200 ${focusRing} ${
+                        active ? 'text-orange' : 'text-cream/75 hover:text-cream'
+                      }`}
+                    >
+                      {link.label}
                     </Link>
 
-                    {/* Dropdown desktop */}
-                    {link.subItems && (
-                      <div className="invisible absolute left-0 top-full pt-2 opacity-0 transition-all duration-300 group-hover:visible group-hover:opacity-100">
-                        <div className="min-w-[220px] rounded-2xl border border-white/40 bg-white/95 p-2 shadow-2xl backdrop-blur-xl">
-                          {link.subItems.map((subItem) => (
-                            <Link
-                              key={subItem.href}
-                              href={subItem.href}
-                              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[#5E5E5E] transition-colors hover:bg-[#F5F3F7] hover:text-[#8E7AB5]"
-                            >
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#8E7AB5]" />
-                              {subItem.label}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
+                    {active && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-x-3 -bottom-0.5 h-[2px] rounded-full bg-orange"
+                      />
                     )}
                   </div>
                 );
@@ -422,15 +471,15 @@ export default function Header() {
             </nav>
 
             {/* Actions desktop */}
-            <div className="hidden shrink-0 items-center gap-2 lg:flex">
+            <div className="hidden shrink-0 items-center gap-6 xl:flex">
               {isLoggedIn ? (
                 <>
                   <Link
                     href="/explorer"
-                    className="flex items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-medium text-[#5E5E5E] transition-colors hover:bg-[#F5F3F7] hover:text-[#8E7AB5]"
+                    className={`flex items-center gap-1.5 text-[13px] font-medium text-cream/75 transition-colors hover:text-cream ${focusRing}`}
                   >
-                    <Sparkles size={15} className="text-[#8E7AB5]" />
-                    Explorer
+                    <Compass size={15} className="text-orange" />
+                    mon espace
                   </Link>
 
                   <div className="relative">
@@ -440,49 +489,39 @@ export default function Header() {
                         setShowUserDropdown((current) => !current);
                         setNotifCount(0);
                       }}
-                      className="flex items-center gap-2 rounded-full border border-[#8E7AB5]/20 bg-gradient-to-r from-[#8E7AB5]/10 to-[#D9B8FF]/10 px-3 py-2 text-[#5B4B8A] transition-all hover:from-[#8E7AB5]/20 hover:to-[#D9B8FF]/20"
+                      aria-expanded={showUserDropdown}
+                      className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-cream/15 text-cream/80 transition-colors hover:border-orange/40 hover:text-cream ${focusRing}`}
+                      aria-label="Mon compte"
                     >
-                      <div className="relative">
-                        {session?.user?.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={session.user.image}
-                            alt=""
-                            className="h-6 w-6 rounded-full object-cover"
-                          />
-                        ) : (
-                          <User size={16} />
-                        )}
+                      {session?.user?.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={session.user.image}
+                          alt=""
+                          className="h-9 w-9 rounded-full object-cover"
+                        />
+                      ) : (
+                        <User size={16} />
+                      )}
 
-                        {notifCount > 0 && (
-                          <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold leading-none text-white">
-                            {notifCount > 9 ? '9+' : notifCount}
-                          </span>
-                        )}
-                      </div>
-
-                      <span className="max-w-24 truncate text-sm font-medium">
-                        {session?.user?.name || 'Mon compte'}
-                      </span>
-
-                      <ChevronDown
-                        size={13}
-                        className={`transition-transform ${
-                          showUserDropdown ? 'rotate-180' : ''
-                        }`}
-                      />
+                      {notifCount > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-lime px-1 text-[10px] font-extrabold leading-none text-abyss">
+                          {notifCount > 9 ? '9+' : notifCount}
+                        </span>
+                      )}
                     </button>
 
                     <AnimatePresence>
                       {showUserDropdown && (
                         <motion.div
-                          initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                          className="absolute right-0 top-full z-50 mt-2 min-w-[220px] rounded-2xl border border-white/40 bg-white/95 p-2 shadow-2xl backdrop-blur-xl"
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: shouldReduceMotion ? 0 : 0.16 }}
+                          className="absolute right-0 top-full z-50 mt-2 min-w-[210px] rounded-2xl border border-cream/10 bg-[#0C222D] p-2 shadow-[0_18px_44px_-14px_rgba(0,0,0,0.55)]"
                         >
-                          <div className="mb-1 border-b border-[#F0F0F0] px-3 py-2">
-                            <p className="truncate text-xs font-semibold text-[#8E7AB5]">
+                          <div className="mb-1 border-b border-cream/10 px-3 py-2">
+                            <p className="truncate text-xs font-semibold text-cream/60">
                               {session?.user?.email}
                             </p>
                           </div>
@@ -490,39 +529,30 @@ export default function Header() {
                           <Link
                             href="/mon-compte"
                             onClick={() => setShowUserDropdown(false)}
-                            className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-[#5E5E5E] transition-colors hover:bg-[#F5F3F7] hover:text-[#8E7AB5]"
+                            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-cream/75 transition-colors hover:bg-cream/5 hover:text-cream ${focusRing}`}
                           >
                             <User size={15} />
-                            Mon compte
+                            mon dossier
                           </Link>
 
                           <Link
                             href="/mon-compte?tab=premium"
                             onClick={() => setShowUserDropdown(false)}
-                            className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-[#5E5E5E] transition-colors hover:bg-[#F5F3F7] hover:text-[#8E7AB5]"
+                            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-cream/75 transition-colors hover:bg-cream/5 hover:text-cream ${focusRing}`}
                           >
                             <Crown size={15} />
-                            Premium
+                            premium
                           </Link>
 
-                          <Link
-                            href="/matches"
-                            onClick={() => setShowUserDropdown(false)}
-                            className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-[#5E5E5E] transition-colors hover:bg-[#F5F3F7] hover:text-[#8E7AB5]"
-                          >
-                            <MessageCircle size={15} />
-                            Messages
-                          </Link>
-
-                          <div className="my-1 h-px bg-[#F0F0F0]" />
+                          <div className="my-1 h-px bg-cream/10" />
 
                           <button
                             type="button"
                             onClick={handleLogout}
-                            className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-[#999] transition-colors hover:bg-red-50 hover:text-red-500"
+                            className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-cream/55 transition-colors hover:bg-red-500/10 hover:text-red-400 ${focusRing}`}
                           >
                             <LogOut size={15} />
-                            Déconnexion
+                            déconnexion
                           </button>
                         </motion.div>
                       )}
@@ -531,75 +561,32 @@ export default function Header() {
                 </>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    className="rounded-full p-2 transition-colors hover:bg-[#F5F3F7]"
-                    aria-label="Mode nuit"
+                  <Link
+                    href="/auth?mode=login"
+                    className={`text-[13px] font-medium text-cream/65 transition-colors hover:text-cream ${focusRing}`}
                   >
-                    <Moon size={20} className="text-[#5E5E5E]" />
-                  </button>
+                    se connecter
+                  </Link>
 
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowAuthDropdown((current) => !current)
-                      }
-                      className="flex items-center gap-2 rounded-full px-4 py-2 text-[#5E5E5E] transition-colors hover:bg-[#F5F3F7]"
-                    >
-                      <User size={18} />
-                      <span>Connexion</span>
-
-                      <ChevronDown
-                        size={14}
-                        className={`transition-transform ${
-                          showAuthDropdown ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence>
-                      {showAuthDropdown && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                          className="absolute right-0 top-full z-50 mt-2 min-w-[190px] rounded-2xl border border-white/40 bg-white/95 p-2 shadow-2xl backdrop-blur-xl"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => handleAuthClick('login')}
-                            className="w-full rounded-xl px-4 py-3 text-left font-medium text-[#5E5E5E] transition-colors hover:bg-[#F5F3F7] hover:text-[#8E7AB5]"
-                          >
-                            Se connecter
-                          </button>
-
-                          <div className="my-1 h-px bg-gradient-to-r from-transparent via-[#8E7AB5]/20 to-transparent" />
-
-                          <button
-                            type="button"
-                            onClick={() => handleAuthClick('register')}
-                            className="w-full rounded-xl bg-gradient-to-r from-[#8E7AB5] to-[#A68BC9] px-4 py-3 text-left font-medium text-white transition-all duration-300 hover:shadow-lg"
-                          >
-                            S’inscrire gratuitement
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
+                  <Link
+                    href="/auth?mode=register"
+                    className={`fx-link flex items-center gap-1.5 rounded-lg text-[13px] font-bold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+                  >
+                    rejoindre
+                    <ArrowRight size={14} />
+                  </Link>
                 </>
               )}
             </div>
 
-            {/* Actions mobile compactes */}
-            <div className="flex items-center gap-1.5 lg:hidden">
-              {/* Notifications ou accès compte */}
+            {/* Actions mobile */}
+            <div className="flex items-center gap-1.5 xl:hidden">
               <button
                 type="button"
                 onClick={() =>
                   router.push(isLoggedIn ? '/mon-compte' : '/auth?mode=login')
                 }
-                className="relative flex h-10 w-10 items-center justify-center rounded-full border border-[#8E7AB5]/10 bg-white/70 text-[#5B4B8A] shadow-sm backdrop-blur transition-colors hover:bg-[#F5F3F7]"
+                className={`relative flex h-10 w-10 items-center justify-center rounded-full border border-cream/15 text-cream/80 transition-colors hover:border-orange/40 ${focusRing}`}
                 aria-label={isLoggedIn ? 'Mon compte' : 'Connexion'}
               >
                 {isLoggedIn && session?.user?.image ? (
@@ -614,43 +601,38 @@ export default function Header() {
                 )}
 
                 {isLoggedIn && notifCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-lime px-1 text-[9px] font-extrabold text-abyss">
                     {notifCount > 9 ? '9+' : notifCount}
                   </span>
                 )}
               </button>
 
-              {/* Burger original : pastille lunaire */}
               <button
                 type="button"
                 onClick={() => setOpen((current) => !current)}
-                className={`relative z-[60] flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border shadow-sm transition-all ${
+                className={`relative z-[60] flex h-10 w-10 items-center justify-center rounded-full border transition-colors ${focusRing} ${
                   open
-                    ? 'border-[#8E7AB5]/30 bg-[#1a0b2e] text-white'
-                    : 'border-[#8E7AB5]/15 bg-white/80 text-[#8E7AB5] backdrop-blur'
+                    ? 'border-orange/40 bg-orange/10 text-orange'
+                    : 'border-cream/15 text-cream/80'
                 }`}
                 aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
               >
-                <span className="absolute inset-0 bg-gradient-to-br from-[#8E7AB5]/10 to-[#D9B8FF]/20" />
-
                 <AnimatePresence mode="wait">
                   {open ? (
                     <motion.span
                       key="close"
-                      initial={{ rotate: -90, opacity: 0, scale: 0.7 }}
-                      animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                      exit={{ rotate: 90, opacity: 0, scale: 0.7 }}
-                      className="relative z-10"
+                      initial={{ opacity: 0, rotate: shouldReduceMotion ? 0 : -70 }}
+                      animate={{ opacity: 1, rotate: 0 }}
+                      exit={{ opacity: 0, rotate: shouldReduceMotion ? 0 : 70 }}
                     >
                       <X size={20} />
                     </motion.span>
                   ) : (
                     <motion.span
                       key="menu"
-                      initial={{ rotate: 90, opacity: 0, scale: 0.7 }}
-                      animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                      exit={{ rotate: -90, opacity: 0, scale: 0.7 }}
-                      className="relative z-10"
+                      initial={{ opacity: 0, rotate: shouldReduceMotion ? 0 : 70 }}
+                      animate={{ opacity: 1, rotate: 0 }}
+                      exit={{ opacity: 0, rotate: shouldReduceMotion ? 0 : -70 }}
                     >
                       <Menu size={20} />
                     </motion.span>
@@ -660,43 +642,119 @@ export default function Header() {
             </div>
           </div>
         </div>
-      </motion.header>
 
-      {/* Menu mobile : Luna Dock */}
+        {/*
+          Panneau du mega-menu, en pleine largeur sous le header. Rendu ici,
+          en dehors de la nav, pour deux raisons : il n'est pas rogné par le
+          conteneur de la nav, et il donne l'allure « institutionnelle »
+          voulue par la direction A plutôt qu'une petite liste flottante.
+        */}
+        <AnimatePresence>
+          {activeMegaMenu && (
+            <motion.div
+              key={activeMegaMenu.label}
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -8 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.18, ease: 'easeOut' }}
+              aria-labelledby={menuTriggerId(activeMegaMenu.label)}
+              className="absolute inset-x-0 top-full hidden border-b border-cream/10 bg-[#0C222D] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] xl:block"
+            >
+              <div className="mx-auto max-w-7xl px-8 py-7">
+                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
+                  <ul className="grid gap-1 sm:grid-cols-2">
+                    {activeMegaMenu.subItems?.map((sub) => {
+                      const subActive = pathname === sub.href;
+
+                      return (
+                        <li key={sub.href}>
+                          <Link
+                            href={sub.href}
+                            aria-current={subActive ? 'page' : undefined}
+                            onClick={() => setOpenDesktopGroup(null)}
+                            className={`block rounded-xl px-3 py-2.5 transition-colors ${focusRing} ${
+                              subActive
+                                ? 'bg-orange/[0.08] text-orange'
+                                : 'text-cream hover:bg-cream/5'
+                            }`}
+                          >
+                            <span className="block text-sm font-semibold">
+                              {sub.label}
+                            </span>
+                            <span
+                              className={
+                                subActive
+                                  ? 'mt-0.5 block text-[12px] leading-snug text-orange/70'
+                                  : 'mt-0.5 block text-[12px] leading-snug text-cream/55'
+                              }
+                            >
+                              {sub.description}
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+
+                  {activeMegaMenu.panelTitle && (
+                    <div className="lg:border-l lg:border-cream/8 lg:pl-7">
+                      <p className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-lime">
+                        <ShieldCheck size={12} />
+                        {activeMegaMenu.panelTitle}
+                      </p>
+
+                      <p className="mt-2 text-[13px] leading-relaxed text-cream/60">
+                        {activeMegaMenu.panelText}
+                      </p>
+
+                      {activeMegaMenu.panelCta && (
+                        <Link
+                          href={activeMegaMenu.panelCta.href}
+                          onClick={() => setOpenDesktopGroup(null)}
+                          className={`fx-link mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+                        >
+                          {activeMegaMenu.panelCta.label}
+                          <ArrowRight size={14} />
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* Panneau mobile */}
       <AnimatePresence>
         {open && (
           <>
-            {/* Overlay */}
             <motion.button
               type="button"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setOpen(false)}
-              className="fixed inset-0 z-40 bg-[#1a0b2e]/35 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-40 bg-abyss/70 backdrop-blur-sm xl:hidden"
               aria-label="Fermer le menu"
             />
 
-            {/* Panneau flottant compact, pas un tiroir classique */}
             <motion.div
               variants={mobilePanelVariants}
               initial="closed"
               animate="open"
               exit="closed"
-              className="fixed left-3 right-3 top-[4.15rem] z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-[2rem] border border-white/40 bg-white/92 shadow-[0_24px_80px_rgba(53,35,92,0.28)] backdrop-blur-2xl lg:hidden"
+              className="fixed left-3 right-3 top-[4.15rem] z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-[1.75rem] border border-cream/10 bg-[#0C222D] shadow-[0_24px_80px_rgba(0,0,0,0.5)] xl:hidden"
             >
-              {/* Décor intérieur */}
-              <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#D9B8FF]/40 blur-3xl" />
-              <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-[#8E7AB5]/25 blur-3xl" />
-
-              <div className="relative max-h-[calc(100dvh-5rem)] overflow-y-auto p-3">
-                {/* Capsule utilisateur compacte */}
+              <div className="max-h-[calc(100dvh-5rem)] overflow-y-auto p-3">
+                {/* Carte identité */}
                 <motion.div
                   variants={mobileItemVariants}
-                  className="mb-3 rounded-[1.5rem] border border-[#8E7AB5]/15 bg-gradient-to-r from-[#F5F0FF] to-white p-3"
+                  className="mb-3 rounded-[1.25rem] border border-cream/10 bg-abyss/60 p-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#8E7AB5] to-[#D9B8FF] text-white shadow-md">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange text-abyss">
                       {isLoggedIn && session?.user?.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -705,26 +763,25 @@ export default function Header() {
                           className="h-full w-full rounded-2xl object-cover"
                         />
                       ) : (
-                        <Moon size={21} />
+                        <User size={20} />
                       )}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-black text-[#1C1C1C]">
+                      <p className="truncate text-sm font-bold text-cream">
                         {isLoggedIn
-                          ? session?.user?.name || 'Mon espace Luna'
-                          : 'Bienvenue sur SferaLuna'}
+                          ? session?.user?.name || 'mon espace'
+                          : "bienvenue sur Sfera'Solys"}
                       </p>
-
-                      <p className="truncate text-xs text-[#6E6385]">
+                      <p className="truncate text-xs text-cream/55">
                         {isLoggedIn
                           ? session?.user?.email
-                          : 'Menu rapide, compact et sécurisé'}
+                          : 'une communauté vérifiée, dossier par dossier'}
                       </p>
                     </div>
 
                     {isLoggedIn && notifCount > 0 && (
-                      <div className="flex items-center gap-1 rounded-full bg-red-500 px-2 py-1 text-[10px] font-bold text-white">
+                      <div className="flex items-center gap-1 rounded-full bg-lime px-2 py-1 text-[10px] font-bold text-abyss">
                         <Bell size={11} />
                         {notifCount > 9 ? '9+' : notifCount}
                       </div>
@@ -732,155 +789,114 @@ export default function Header() {
                   </div>
                 </motion.div>
 
-                {/* Dock rapide */}
+                {/* Accès rapides */}
                 <motion.div
                   variants={mobileItemVariants}
-                  className="mb-3 grid grid-cols-4 gap-2"
+                  className="mb-3 grid grid-cols-3 gap-2"
                 >
                   {[
-                    { label: 'Accueil', href: '/', icon: <Home size={17} /> },
+                    { label: 'Accueil', href: '/', icon: <ShieldCheck size={16} /> },
+                    { label: 'Explorer', href: '/explorer', icon: <Compass size={16} /> },
                     {
-                      label: 'Explorer',
-                      href: '/explorer',
-                      icon: <Compass size={17} />,
-                    },
-                    {
-                      label: 'Matches',
-                      href: '/matches',
-                      icon: <Heart size={17} />,
-                    },
-                    {
-                      label: 'Compte',
-                      href: isLoggedIn ? '/mon-compte' : '/auth?mode=login',
-                      icon: <User size={17} />,
+                      label: isLoggedIn ? 'matches' : 'inscription',
+                      href: isLoggedIn ? '/matches' : '/auth?mode=register',
+                      icon: isLoggedIn ? <Heart size={16} /> : <Users2 size={16} />,
                     },
                   ].map((item) => (
                     <Link
                       key={item.label}
                       href={item.href}
                       onClick={() => setOpen(false)}
-                      className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-[#8E7AB5]/10 bg-white/75 px-2 py-2.5 text-[#5B4B8A] shadow-sm transition hover:bg-[#F5F0FF]"
+                      className={`fx-ghost flex flex-col items-center justify-center gap-1 rounded-2xl border border-cream/10 bg-abyss/40 px-2 py-2.5 text-cream/80 transition hover:border-orange/30 ${focusRing}`}
                     >
                       {item.icon}
-                      <span className="text-[10px] font-semibold">
-                        {item.label}
-                      </span>
+                      <span className="text-[10px] font-semibold">{item.label}</span>
                     </Link>
                   ))}
                 </motion.div>
 
-                {/* Navigation accordéon */}
+                {/* Nav accordéon */}
                 <div className="space-y-1.5">
                   {links.map((link) => {
-                    const isOpen = openMobileGroup === link.href;
-                    const isActive =
-                      pathname === link.href ||
-                      Boolean(
-                        link.subItems?.some(
-                          (subItem) => pathname === subItem.href
-                        )
+                    const key = link.label;
+                    const active = isLinkActive(link);
+
+                    if (link.subItems) {
+                      const isOpen = openMobileGroup === key;
+                      return (
+                        <motion.div
+                          key={key}
+                          variants={mobileItemVariants}
+                          className={`overflow-hidden rounded-2xl border ${
+                            active ? 'border-orange/25 bg-orange/[0.06]' : 'border-cream/8 bg-abyss/30'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => toggleMobileGroup(key)}
+                            aria-expanded={isOpen}
+                            className={`fx-link flex w-full items-center justify-between px-3.5 py-3 text-left text-sm font-semibold ${focusRing} ${
+                              active ? 'text-orange' : 'text-cream/85'
+                            }`}
+                          >
+                            {link.label}
+                            <ChevronDown
+                              size={16}
+                              className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                            />
+                          </button>
+
+                          <AnimatePresence initial={false}>
+                            {isOpen && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="space-y-0.5 border-t border-cream/8 px-3 pb-3 pt-2">
+                                  {link.subItems.map((sub) => (
+                                    <Link
+                                      key={sub.href}
+                                      href={sub.href}
+                                      onClick={() => setOpen(false)}
+                                      className={`flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] text-cream/60 transition hover:bg-cream/5 hover:text-cream ${focusRing}`}
+                                    >
+                                      <span className="h-1.5 w-1.5 rounded-full bg-orange" />
+                                      {sub.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
                       );
+                    }
 
                     return (
-                      <motion.div
-                        key={link.href}
-                        variants={mobileItemVariants}
-                        className={`overflow-hidden rounded-2xl border transition-colors ${
-                          isActive
-                            ? 'border-[#8E7AB5]/25 bg-[#8E7AB5]/10'
-                            : 'border-[#8E7AB5]/10 bg-white/60'
-                        }`}
-                      >
-                        <div className="flex items-center">
-                          <Link
-                            href={link.href}
-                            onClick={() => {
-                              if (!link.subItems) setOpen(false);
-                            }}
-                            className="flex min-w-0 flex-1 items-center gap-2.5 px-3 py-2.5"
-                          >
-                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#8E7AB5]/10 text-lg">
-                              {link.mobileIcon}
-                            </span>
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1.5">
-                                <span className="truncate text-sm font-bold text-[#5B4B8A]">
-                                  {link.label}
-                                </span>
-
-                                {link.badge && (
-                                  <span
-                                    className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
-                                      link.badge === 'Nouveau'
-                                        ? 'bg-red-100 text-red-500'
-                                        : 'bg-[#8E7AB5]/10 text-[#8E7AB5]'
-                                    }`}
-                                  >
-                                    {link.badge}
-                                  </span>
-                                )}
-                              </div>
-
-                              {link.subItems && (
-                                <p className="truncate text-[10px] text-[#7A718A]">
-                                  {link.subItems.length} sous-sections
-                                </p>
-                              )}
-                            </div>
-                          </Link>
-
-                          {link.subItems && (
-                            <button
-                              type="button"
-                              onClick={() => toggleMobileGroup(link.href)}
-                              className="mr-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#8E7AB5] transition hover:bg-[#8E7AB5]/10"
-                              aria-label={`Ouvrir ${link.label}`}
-                            >
-                              <ChevronDown
-                                size={17}
-                                className={`transition-transform ${
-                                  isOpen ? 'rotate-180' : ''
-                                }`}
-                              />
-                            </button>
-                          )}
-                        </div>
-
-                        <AnimatePresence initial={false}>
-                          {link.subItems && isOpen && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.22, ease: 'easeOut' }}
-                              className="overflow-hidden"
-                            >
-                              <div className="space-y-1 border-t border-[#8E7AB5]/10 px-3 pb-3 pt-2">
-                                {link.subItems.map((subItem) => (
-                                  <Link
-                                    key={subItem.href}
-                                    href={subItem.href}
-                                    onClick={() => setOpen(false)}
-                                    className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-[#6E6385] transition hover:bg-white hover:text-[#8E7AB5]"
-                                  >
-                                    <span className="h-1.5 w-1.5 rounded-full bg-[#8E7AB5]" />
-                                    {subItem.label}
-                                  </Link>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                      <motion.div key={key} variants={mobileItemVariants}>
+                        <Link
+                          href={link.href as string}
+                          onClick={() => setOpen(false)}
+                          className={`flex items-center rounded-2xl border px-3.5 py-3 text-sm font-semibold transition ${focusRing} ${
+                            active
+                              ? 'border-orange/25 bg-orange/[0.06] text-orange'
+                              : 'border-cream/8 bg-abyss/30 text-cream/85 hover:border-cream/20'
+                          }`}
+                        >
+                          {link.label}
+                        </Link>
                       </motion.div>
                     );
                   })}
                 </div>
 
-                {/* Actions mobile */}
+                {/* Actions */}
                 <motion.div
                   variants={mobileItemVariants}
-                  className="mt-3 border-t border-[#8E7AB5]/10 pt-3"
+                  className="mt-3 border-t border-cream/8 pt-3"
                 >
                   {isLoggedIn ? (
                     <div className="grid grid-cols-2 gap-2">
@@ -890,49 +906,47 @@ export default function Header() {
                           router.push('/mon-compte');
                           setOpen(false);
                         }}
-                        className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#8E7AB5] to-[#A68BC9] px-4 py-3 text-sm font-bold text-white shadow-lg"
+                        className={`fx-btn flex items-center justify-center gap-2 rounded-2xl bg-orange px-4 py-3 text-sm font-bold text-abyss ${focusRing}`}
                       >
                         <User size={16} />
-                        Compte
+                        mon compte
                       </button>
 
                       <button
                         type="button"
                         onClick={handleLogout}
-                        className="flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-500"
+                        className={`flex items-center justify-center gap-2 rounded-2xl border border-red-400/25 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-400 ${focusRing}`}
                       >
                         <LogOut size={16} />
-                        Quitter
+                        quitter
                       </button>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2 min-[390px]:grid-cols-2">
-                      <button
-                        type="button"
-                        onClick={() => handleAuthClick('login')}
-                        className="flex items-center justify-center gap-2 rounded-2xl border border-[#8E7AB5]/15 bg-white px-4 py-3 text-sm font-bold text-[#5B4B8A]"
+                      <Link
+                        href="/auth?mode=login"
+                        onClick={() => setOpen(false)}
+                        className={`fx-ghost flex items-center justify-center gap-2 rounded-2xl border border-cream/15 px-4 py-3 text-sm font-bold text-cream/85 ${focusRing}`}
                       >
-                        <User size={16} />
-                        Connexion
-                      </button>
+                        se connecter
+                      </Link>
 
-                      <button
-                        type="button"
-                        onClick={() => handleAuthClick('register')}
-                        className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#8E7AB5] to-[#A68BC9] px-4 py-3 text-sm font-bold text-white shadow-lg"
+                      <Link
+                        href="/auth?mode=register"
+                        onClick={() => setOpen(false)}
+                        className={`fx-btn flex items-center justify-center gap-2 rounded-2xl bg-orange px-4 py-3 text-sm font-bold text-abyss ${focusRing}`}
                       >
-                        <Sparkles size={16} />
-                        Inscription
-                      </button>
+                        rejoindre <ArrowRight size={15} />
+                      </Link>
                     </div>
                   )}
                 </motion.div>
 
                 <motion.p
                   variants={mobileItemVariants}
-                  className="mt-3 text-center text-[10px] text-[#8A819A]"
+                  className="mt-3 text-center text-[10px] text-cream/55"
                 >
-                  SferaLuna · Une communauté bienveillante pour femmes 💜
+                  Sfera'Solys · vérification immédiate · hommes 28+
                 </motion.p>
               </div>
             </motion.div>
@@ -940,7 +954,7 @@ export default function Header() {
         )}
       </AnimatePresence>
 
-      {/* Bouton retour haut compact */}
+      {/* Retour en haut */}
       <motion.div
         className="fixed bottom-5 right-4 z-40 lg:hidden"
         animate={{ y: scrolled ? 0 : 90, opacity: scrolled ? 1 : 0 }}
@@ -949,7 +963,7 @@ export default function Header() {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-[#8E7AB5] to-[#D9B8FF] text-white shadow-lg"
+          className={`flex h-11 w-11 items-center justify-center rounded-full bg-orange text-abyss shadow-lg ${focusRing}`}
           aria-label="Remonter en haut"
         >
           <ChevronDown size={20} className="rotate-180" />
@@ -958,16 +972,3 @@ export default function Header() {
     </>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

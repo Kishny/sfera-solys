@@ -3,16 +3,16 @@
 "use client";
 
 /**
- * Journal émotionnel SferaLuna.
+ * Journal émotionnel Sfera'Solys.
  *
  * Cette page gère :
  * - la saisie d'une humeur ;
  * - la saisie d'une note personnelle ;
  * - le mode jour / nuit ;
- * - une analyse IA simulée ;
+ * - un mot d'accompagnement choisi selon l'humeur (voir motPourHumeur) ;
  * - une timeline émotionnelle persistée en MongoDB (via /api/journal) ;
  * - des rituels quotidiens ;
- * - une playlist Luna selon l'humeur ;
+ * - une playlist Solys selon l'humeur ;
  * - des statistiques.
  *
  * Version mobile-first :
@@ -168,7 +168,21 @@ function getYouTubeId(url: string): string {
   return match ? match[1] : "";
 }
 
-function simulateAiAnalysis(mood: string): string {
+/**
+ * Un mot d'accompagnement par humeur.
+ *
+ * ⚠️ Ce n'est PAS une analyse, et surtout pas une analyse par IA. C'est une
+ * table de six phrases indexée sur l'humeur que la personne a elle-même
+ * cochée ; la note qu'elle écrit n'est jamais lue. La version précédente
+ * affichait pourtant un « Analyse IA en cours… » pendant 1,2 seconde
+ * artificielle, puis présentait le résultat sous un titre « Analyse IA »
+ * avec un emoji de cerveau. Le texte n'a pas changé — seul l'habillage
+ * mensonger a été retiré.
+ *
+ * Si une vraie analyse est branchée un jour, c'est ici que ça se passe, et
+ * le titre pourra redevenir explicite.
+ */
+function motPourHumeur(mood: string): string {
   const responses: Record<string, string> = {
     Apaisé:
       "Tu sembles en harmonie. Prends ce moment pour te reconnecter à toi-même 🌿",
@@ -248,7 +262,7 @@ export default function JournalPage() {
   const [period, setPeriod] = useState<Period>("jour");
 
   const [selectedMood, setSelectedMood] = useState("");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
 
   const [error, setError] = useState("");
@@ -399,17 +413,15 @@ export default function JournalPage() {
     }
 
     setError("");
-    setIsAnalyzing(true);
+    setIsSaving(true);
 
     if (mood) {
       playMoodSound(mood);
     }
 
-    // Simuler l'analyse IA (délai visuel 1,2s)
-    await new Promise((resolve) => window.setTimeout(resolve, 1200));
-
+    // Pas d'attente artificielle : la phrase est disponible immédiatement.
     const analysis = mood
-      ? simulateAiAnalysis(mood)
+      ? motPourHumeur(mood)
       : "Aucune humeur détectée. Ta note reste précieuse 💫";
 
     setAiAnalysis(analysis);
@@ -442,7 +454,7 @@ export default function JournalPage() {
     setMood("");
     setNote("");
     setSelectedMood("");
-    setIsAnalyzing(false);
+    setIsSaving(false);
     setTimelineOpen(true);
   };
 
@@ -628,7 +640,7 @@ export default function JournalPage() {
 
             <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-[#8E7AB5]/30 bg-white/35 px-3 py-1.5 text-xs text-[#8E7AB5] backdrop-blur">
               <Sparkles className="h-3.5 w-3.5" />
-              Espace intime Luna
+              Espace intime Solys
             </div>
 
             <h1 className={`text-2xl font-black leading-tight sm:text-4xl ${titleClass}`}>
@@ -660,7 +672,7 @@ export default function JournalPage() {
               mood={mood}
               note={note}
               selectedMood={selectedMood}
-              isAnalyzing={isAnalyzing}
+              isSaving={isSaving}
               aiAnalysis={aiAnalysis}
               error={error}
               textPrimary={textPrimary}
@@ -807,7 +819,7 @@ export default function JournalPage() {
                           }`}
                         >
                           <p className={`text-xs italic leading-relaxed ${textSecondary}`}>
-                            🧠 {entry.aiAnalysis}
+                            {entry.aiAnalysis}
                           </p>
                         </div>
                       )}
@@ -820,7 +832,7 @@ export default function JournalPage() {
 
           {/* Playlist accordéon */}
           <AccordionSection
-            title="Playlist Luna"
+            title="Playlist Solys"
             icon="🎵"
             isOpen={playlistOpen}
             setIsOpen={setPlaylistOpen}
@@ -1100,7 +1112,7 @@ function JournalForm({
   mood,
   note,
   selectedMood,
-  isAnalyzing,
+  isSaving,
   aiAnalysis,
   error,
   textPrimary,
@@ -1119,7 +1131,7 @@ function JournalForm({
   mood: string;
   note: string;
   selectedMood: string;
-  isAnalyzing: boolean;
+  isSaving: boolean;
   aiAnalysis: string | null;
   error: string;
   textPrimary: string;
@@ -1158,7 +1170,7 @@ function JournalForm({
       {/* Moods */}
       <div className="mb-4">
         <p className={`mb-2 text-xs font-semibold sm:text-sm ${textPrimary}`}>
-          Choisis ton humeur Luna
+          Choisis ton humeur Solys
         </p>
 
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
@@ -1229,13 +1241,13 @@ function JournalForm({
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={isAnalyzing}
+          disabled={isSaving}
           className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#8E7AB5] px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isAnalyzing ? (
+          {isSaving ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Analyse...
+              Enregistrement...
             </>
           ) : (
             <>
@@ -1254,14 +1266,8 @@ function JournalForm({
         </button>
       </div>
 
-      {isAnalyzing && (
-        <p className="mt-3 animate-pulse text-center text-xs italic text-[#8E7AB5] sm:text-sm">
-          Analyse IA en cours...
-        </p>
-      )}
-
       <AnimatePresence>
-        {aiAnalysis && !isAnalyzing && (
+        {aiAnalysis && !isSaving && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1270,7 +1276,7 @@ function JournalForm({
           >
             <h3 className={`mb-1 flex items-center gap-2 text-sm font-semibold ${textPrimary}`}>
               <Sparkles className="h-4 w-4 text-[#8E7AB5]" />
-              Analyse IA
+              Un mot pour cette humeur
             </h3>
 
             <p className={`text-xs leading-relaxed sm:text-sm ${textSecondary}`}>

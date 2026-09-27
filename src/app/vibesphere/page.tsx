@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page VibeSphere SferaLuna.
+ * Page VibeSphere Sfera'Solys.
  *
  * Cette page gère :
  * - l'affichage du feed communautaire des vibes ;
@@ -733,7 +733,7 @@ export default function VibespherePage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
                           <span className="truncate text-sm font-semibold text-white sm:text-base">
-                            {author?.pseudonyme ?? "Membre SferaLuna"}
+                            {author?.pseudonyme ?? "Membre Sfera'Solys"}
                           </span>
 
                           {author?.identityVerified && (

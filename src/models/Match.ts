@@ -3,7 +3,7 @@
 import mongoose, { Schema, Document, Model, models } from "mongoose";
 
 /**
- * Modèle Match SferaLuna.
+ * Modèle Match Sfera'Solys.
  *
  * Un match représente une connexion mutuelle entre deux utilisateurs :
  * - A like B

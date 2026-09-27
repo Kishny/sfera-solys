@@ -5,7 +5,7 @@ import mongoose, { Schema, Document, Model, models, model } from "mongoose";
 /**
  * Modèle ProfileVisit
  * -------------------
- * Enregistre les visites de profil sur SferaLuna.
+ * Enregistre les visites de profil sur Sfera'Solys.
  *
  * Vocabulaire officiel du projet :
  * - visitorId : utilisatrice qui visite / regarde le profil
@@ -103,7 +103,7 @@ ProfileVisitSchema.index({
 
 /**
  * Index secondaire :
- * permet de compter rapidement les profils visités par une utilisatrice.
+ * permet de compter rapidement les profils visités par un utilisateur.
  *
  * Exemple :
  * ProfileVisit.countDocuments({ visitorId })

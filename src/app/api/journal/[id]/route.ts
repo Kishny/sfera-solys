@@ -30,7 +30,7 @@ async function getUserAndEntry(email: string, id: string) {
 export async function PATCH(req: NextRequest, { params }: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
-    return NextResponse.json({ success: false, error: "Non authentifiée." }, { status: 401 });
+    return NextResponse.json({ success: false, error: "Non authentifié." }, { status: 401 });
   }
 
   const { id } = await params;
@@ -61,7 +61,7 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 export async function DELETE(req: NextRequest, { params }: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
-    return NextResponse.json({ success: false, error: "Non authentifiée." }, { status: 401 });
+    return NextResponse.json({ success: false, error: "Non authentifié." }, { status: 401 });
   }
 
   const { id } = await params;

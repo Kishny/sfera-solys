@@ -143,7 +143,7 @@ export async function GET(req: NextRequest) {
         const user = usersById.get(visit._id.toString());
 
         /**
-         * Si une utilisatrice a été supprimée entre-temps,
+         * Si un utilisateur a été supprimée entre-temps,
          * on évite de renvoyer une entrée cassée.
          */
         if (!user) return null;
@@ -188,7 +188,7 @@ export async function GET(req: NextRequest) {
  *
  * Enregistre une visite de profil.
  *
- * Appelé quand une utilisatrice consulte un profil :
+ * Appelé quand un utilisateur consulte un profil :
  * - depuis Explorer ;
  * - depuis Matches ;
  * - depuis une page profil publique ;
@@ -293,7 +293,7 @@ export async function POST(req: NextRequest) {
 
     /**
      * Mode Fantôme :
-     * si l'utilisatrice est invisible, on ne laisse pas de trace.
+     * si l'utilisateur est invisible, on ne laisse pas de trace.
      *
      * C'est logique :
      * - elle navigue discrètement ;
@@ -316,7 +316,7 @@ export async function POST(req: NextRequest) {
      * toute nouvelle visite (première de la journée pour ce couple
      * visiteuse/visitée) ou d'une simple mise à jour d'une visite déjà
      * comptabilisée aujourd'hui. Seule une vraie nouvelle visite doit
-     * déclencher une notification push — sinon une utilisatrice qui
+     * déclencher une notification push — sinon un utilisateur qui
      * recharge plusieurs fois le même profil recevrait un push à chaque fois.
      */
     const existingVisitToday = await ProfileVisit.exists({
@@ -366,7 +366,7 @@ export async function POST(req: NextRequest) {
      * "profileVisitors" — savoir qui a visité son profil — est réservée à
      * premium-monthly et elite-monthly, comme le mode Fantôme. On vérifie
      * donc le plan de la PERSONNE VISITÉE (pas celle qui visite) avant
-     * d'envoyer le push, pour ne jamais notifier une utilisatrice qui n'a
+     * d'envoyer le push, pour ne jamais notifier un utilisateur qui n'a
      * pas accès à cette fonctionnalité de toute façon.
      *
      * Silencieux en cas d'échec — une notification ratée ne doit jamais

@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Étape 1 du formulaire d'inscription SferaLuna.
+ * Étape 1 du formulaire d'inscription Sfera'Solys.
  *
  * Objectif :
  * - récupérer les informations de base du profil ;
@@ -29,13 +29,13 @@ export default function Step1() {
     <div className="space-y-6 sm:space-y-8">
       {/* Titre de l'étape */}
       <div>
-        <h2 className="text-xl font-bold text-purple-300 sm:text-2xl">
+        <h2 className="text-xl font-bold text-cream sm:text-2xl">
           Informations de base
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-gray-300">
-          Commençons par créer votre identité SferaLuna. Ces informations
-          seront utilisées pour configurer votre profil.
+        <p className="mt-2 text-sm leading-relaxed text-cream/70">
+          On commence par créer ton identité Sfera'Solys. Ces informations
+          seront utilisées pour configurer ton profil.
         </p>
       </div>
 
@@ -51,7 +51,7 @@ export default function Step1() {
             type="text"
             autoComplete="nickname"
             className="input-step"
-            placeholder="Choisissez un pseudonyme unique"
+            placeholder="Choisis un pseudonyme unique"
           />
         </Field>
 
@@ -66,14 +66,14 @@ export default function Step1() {
             {...register("email")}
             autoComplete="email"
             className="input-step"
-            placeholder="votre@email.com"
+            placeholder="prenom@email.com"
           />
         </Field>
 
         {/* Mot de passe optionnel */}
         <Field
           label="Mot de passe"
-          helper="Optionnel si vous vous êtes connecté avec Google ou Apple."
+          helper="Optionnel si tu t’es connecté avec Google ou Apple."
           error={errors.password?.message as string | undefined}
         >
           <input
@@ -89,7 +89,7 @@ export default function Step1() {
         <Field
           label="Âge"
           required
-          helper="Vous devez avoir au moins 28 ans."
+          helper="Tu dois avoir au moins 28 ans."
           error={errors.age?.message as string | undefined}
         >
           <input
@@ -154,13 +154,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-gray-100">
-        {label} {required && <span className="text-pink-400">*</span>}
+      <label className="mb-2 block text-sm font-semibold text-cream/90">
+        {label} {required && <span className="text-orange">*</span>}
       </label>
 
       {children}
 
-      {helper && <p className="mt-2 text-sm text-gray-300">{helper}</p>}
+      {helper && <p className="mt-2 text-sm text-cream/70">{helper}</p>}
 
       {error && <p className="mt-2 text-sm text-red-300">{error}</p>}
     </div>

@@ -13,7 +13,7 @@ import { pusher } from "@/lib/pusher";
 import { sendNewMatchPush } from "@/lib/push";
 
 /**
- * Route Likes SferaLuna.
+ * Route Likes Sfera'Solys.
  *
  * POST /api/likes :
  * - like un profil ;

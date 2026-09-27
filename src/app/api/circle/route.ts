@@ -47,11 +47,11 @@ export async function GET() {
     const currentUserId = currentUser._id as mongoose.Types.ObjectId;
     const userIsPremium = currentUser.isPremium === true;
 
-    // IDs déjà likés par l'utilisatrice
+    // IDs déjà likés par l'utilisateur
     const alreadyLiked = await Like.find({ fromUserId: currentUserId }).select("toUserId").lean();
     const likedIds = alreadyLiked.map((l) => l.toUserId);
 
-    // IDs qui ont déjà liké l'utilisatrice (signal de réciprocité)
+    // IDs qui ont déjà liké l'utilisateur (signal de réciprocité)
     const likedMeBack = await Like.find({ toUserId: currentUserId }).select("fromUserId").lean();
     const likedMeIds = new Set(likedMeBack.map((l) => l.fromUserId.toString()));
 
@@ -70,7 +70,7 @@ export async function GET() {
       .limit(200)
       .lean();
 
-    // Données de l'utilisatrice courante
+    // Données de l'utilisateur courante
     const myInterets: string[]   = Array.isArray(currentUser.interets)   ? currentUser.interets   : [];
     const myIntentions: string[] = Array.isArray(currentUser.intentions) ? currentUser.intentions : [];
     const myAge: number | null   = typeof currentUser.age === "number" ? currentUser.age : null;

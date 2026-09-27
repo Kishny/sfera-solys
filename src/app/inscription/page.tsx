@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page d'onboarding / inscription profil SferaLuna.
+ * Page d'onboarding / inscription profil Sfera'Solys.
  *
  * Cette page gère :
  * - la complétion du profil après inscription ou connexion OAuth ;
@@ -67,7 +67,7 @@ const optionalString = z.preprocess(
 );
 
 /**
- * Schéma principal du formulaire d'inscription SferaLuna.
+ * Schéma principal du formulaire d'inscription Sfera'Solys.
  *
  * Important :
  * - cette page ne gère plus le choix du plan Stripe ;
@@ -88,34 +88,34 @@ const formSchema = z.object({
     .number({
       message: "L'âge est obligatoire",
     })
-    .min(28, "Vous devez avoir au moins 28 ans")
+    .min(28, "Tu dois avoir au moins 28 ans")
     .max(120, "Âge invalide"),
 
-  orientation: z.string().min(1, "Veuillez sélectionner votre orientation"),
+  orientation: z.string().min(1, "Sélectionne ton orientation"),
 
   intentions: z
     .array(z.string())
-    .min(1, "Veuillez choisir au moins une intention"),
+    .min(1, "Choisis au moins une intention"),
 
-  localisation: z.string().min(2, "Veuillez renseigner votre localisation"),
+  localisation: z.string().min(2, "Renseigne ta localisation"),
 
   departement: z.string().optional(),
 
-  rayon: z.string().min(1, "Veuillez choisir un rayon de recherche"),
+  rayon: z.string().min(1, "Choisis un rayon de recherche"),
 
-  question: z.string().min(1, "Veuillez choisir une question de sécurité"),
+  question: z.string().min(1, "Choisis une question de sécurité"),
 
   reponse: z
     .string()
-    .min(2, "Votre réponse est trop courte")
-    .max(200, "Votre réponse ne doit pas dépasser 200 caractères"),
+    .min(2, "Ta réponse est trop courte")
+    .max(200, "Ta réponse ne doit pas dépasser 200 caractères"),
 
   interets: z
     .array(z.string())
-    .min(3, "Choisissez au moins 3 centres d'intérêt")
-    .max(5, "Choisissez au maximum 5 centres d'intérêt"),
+    .min(3, "Choisis au moins 3 centres d'intérêt")
+    .max(5, "Choisis au maximum 5 centres d'intérêt"),
 
-  visibilite: z.string().min(1, "Veuillez choisir une visibilité"),
+  visibilite: z.string().min(1, "Choisis une visibilité"),
 
   consentement: z.boolean().refine((val) => val === true, {
     message: "Le consentement est obligatoire.",
@@ -179,23 +179,23 @@ const finalHighlights = [
     icon: <Zap className="h-5 w-5" />,
     title: "Profil prêt",
     description:
-      "Votre profil est configuré pour recevoir de meilleures suggestions.",
+      "Ton profil est configuré pour recevoir de meilleures suggestions.",
   },
   {
     icon: <Users className="h-5 w-5" />,
     title: "Rencontres ciblées",
     description:
-      "Vos intentions et préférences servent à améliorer la compatibilité.",
+      "Tes intentions et préférences servent à améliorer la compatibilité.",
   },
   {
     icon: <Lock className="h-5 w-5" />,
     title: "Sécurité renforcée",
-    description: "Votre compte est associé à votre session sécurisée.",
+    description: "Ton compte est associé à ta session sécurisée.",
   },
   {
     icon: <Star className="h-5 w-5" />,
     title: "Offres flexibles",
-    description: "Vous choisissez ensuite Essentiel, Premium ou Elite.",
+    description: "Tu choisis ensuite Essentiel, Premium ou Elite.",
   },
 ];
 
@@ -248,10 +248,10 @@ function OrbitGlow({ className = "" }: { className?: string }) {
  * Palette tournante pour les cartes "finalHighlights" de l'écran final.
  */
 const highlightBars = [
-  "from-[#9D4EDD] to-[#C77DFF]",
-  "from-[#4ECDC4] to-[#8FE9E0]",
-  "from-[#FF6B9D] to-[#FF8E53]",
-  "from-[#667EEA] to-[#764BA2]",
+  "from-[#FF4103] to-[#FF4103]",
+  "from-[#B6FF00] to-[#B6FF00]",
+  "from-[#FF4103] to-[#FF4103]",
+  "from-[#0C222D] to-[#6B1B02]",
 ];
 
 function InscriptionPageContent() {
@@ -279,7 +279,7 @@ function InscriptionPageContent() {
 
   /**
    * Profil déjà enregistré en base (hasCompletedProfile).
-   * Permet de savoir si l'utilisatrice revient sur cette page
+   * Permet de savoir si l'utilisateur revient sur cette page
    * uniquement pour finaliser la vérification d'identité.
    */
   const [isProfileSaved, setIsProfileSaved] = useState(false);
@@ -418,7 +418,7 @@ function InscriptionPageContent() {
   };
 
   /**
-   * Si l'utilisatrice a déjà un profil complété (ex: retour après
+   * Si l'utilisateur a déjà un profil complété (ex: retour après
    * vérification d'identité), on l'amène directement à l'écran final
    * au lieu de lui refaire remplir les 5 étapes.
    */
@@ -515,7 +515,7 @@ function InscriptionPageContent() {
 
     if (!isValid) {
       setSubmitError(
-        "Veuillez compléter les champs obligatoires de cette étape."
+        "Complète les champs obligatoires de cette étape."
       );
       return;
     }
@@ -543,7 +543,7 @@ function InscriptionPageContent() {
       | undefined;
 
     setSubmitError(
-      "Certains champs du profil sont incomplets ou invalides. Revenez aux étapes précédentes pour les corriger."
+      "Certains champs du profil sont incomplets ou invalides. Reviens aux étapes précédentes pour les corriger."
     );
 
     if (firstErrorKey) {
@@ -566,7 +566,7 @@ function InscriptionPageContent() {
    *
    * Important : elle ne redirige plus automatiquement vers /paiement.
    * La vérification d'identité est désormais obligatoire avant tout accès
-   * au compte (gratuit ou payant) — l'utilisatrice reste sur cet écran
+   * au compte (gratuit ou payant) — l'utilisateur reste sur cet écran
    * pour la réaliser.
    */
   const onSubmit = async (data: FormData) => {
@@ -628,7 +628,7 @@ function InscriptionPageContent() {
       setStep(getStepFromErrors(currentErrors));
 
       setSubmitError(
-        "Certains champs sont incomplets. Corrigez l’étape indiquée puis réessayez."
+        "Certains champs sont incomplets. Corrige l’étape indiquée puis réessaie."
       );
 
       return;
@@ -691,11 +691,11 @@ function InscriptionPageContent() {
    */
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1a0b2e] via-[#2d1b69] to-[#3a2a82] px-4 text-white">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#001724] via-[#0C222D] to-[#0C222D] px-4 text-cream">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-          <p className="text-sm text-gray-300 sm:text-base">
-            Chargement de votre espace SferaLuna...
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-cream/20 border-t-white" />
+          <p className="text-sm text-cream/70 sm:text-base">
+            Chargement de ton espace Sfera'Solys...
           </p>
         </div>
       </div>
@@ -703,12 +703,12 @@ function InscriptionPageContent() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#1a0b2e] via-[#2d1b69] to-[#3a2a82] font-sans text-white">
+    <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#001724] via-[#0C222D] to-[#0C222D] font-sans text-cream">
       {/* Éléments décoratifs de fond */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl sm:h-96 sm:w-96" />
-        <div className="absolute left-1/3 top-1/3 h-64 w-64 rounded-full bg-pink-500/10 blur-3xl" />
+        <div className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-orange/10 blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 h-80 w-80 rounded-full bg-lime/[0.06] blur-3xl sm:h-96 sm:w-96" />
+        <div className="absolute left-1/3 top-1/3 h-64 w-64 rounded-full bg-orange/10 blur-3xl" />
         <OrbitGlow className="right-[-10%] top-16 h-72 w-72 sm:h-96 sm:w-96" />
         <OrbitGlow className="left-[-10%] top-[60%] h-80 w-80 sm:h-[28rem] sm:w-[28rem]" />
       </div>
@@ -721,7 +721,7 @@ function InscriptionPageContent() {
         <div className="mb-5 sm:mb-6">
           <button
             onClick={() => router.push("/")}
-            className="group flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-gray-300 transition-all duration-200 hover:border-purple-400/50 hover:bg-white/10 hover:text-white sm:px-4"
+            className="group flex items-center gap-2 rounded-full border border-cream/10 bg-cream/5 px-3 py-2 text-sm text-cream/70 transition-all duration-200 hover:border-orange/40 hover:bg-cream/10 hover:text-cream sm:px-4"
           >
             <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1" />
             Retour à l&apos;accueil
@@ -731,34 +731,34 @@ function InscriptionPageContent() {
         {/* En-tête */}
         <section className="mb-6 text-center sm:mb-8">
           <div className="mb-3 flex items-center justify-center gap-2 sm:mb-4">
-            <Crown className="h-7 w-7 text-yellow-400 sm:h-8 sm:w-8" />
+            <Crown className="h-7 w-7 text-orange sm:h-8 sm:w-8" />
 
-            <h1 className="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-2xl font-bold leading-tight text-transparent sm:text-4xl">
-              Création du profil SferaLuna
+            <h1 className="bg-gradient-to-r from-orange to-cream bg-clip-text text-2xl font-bold leading-tight text-transparent sm:text-4xl">
+              Création du profil Sfera'Solys
             </h1>
           </div>
 
-          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-gray-300 sm:text-lg">
-            Complétez votre profil, puis choisissez l'offre qui correspond à
-            votre expérience.
+          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-cream/70 sm:text-lg">
+            Complète ton profil, puis choisis l'offre qui correspond à
+            ton expérience.
           </p>
         </section>
 
         {/* Barre de progression */}
         <section className="mx-auto mb-6 max-w-3xl sm:mb-8">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs text-gray-300 sm:text-sm">
+            <span className="text-xs text-cream/70 sm:text-sm">
               Étape {step + 1} sur {totalScreens}
             </span>
 
-            <span className="text-xs text-gray-300 sm:text-sm">
+            <span className="text-xs text-cream/70 sm:text-sm">
               {Math.round(progress)}%
             </span>
           </div>
 
-          <div className="h-2 overflow-hidden rounded-full bg-gray-700">
+          <div className="h-2 overflow-hidden rounded-full bg-cream/10">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
+              className="h-full rounded-full bg-gradient-to-r from-orange to-rust transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -767,7 +767,7 @@ function InscriptionPageContent() {
         <section className="mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
           {/* Colonne principale */}
           <div className="lg:col-span-2">
-            <div className="rounded-2xl border border-gray-700/50 bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-4 shadow-2xl backdrop-blur-sm sm:p-6 lg:p-8">
+            <div className="rounded-2xl border border-cream/10 bg-gradient-to-br from-abyss/80 to-[#0C222D]/80 p-4 shadow-2xl backdrop-blur-sm sm:p-6 lg:p-8">
               {/* Erreur globale */}
               {submitError && (
                 <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 sm:mb-6">
@@ -784,9 +784,9 @@ function InscriptionPageContent() {
                   >
                     {/* Badge étape */}
                     <div className="mb-4 sm:mb-6">
-                      <div className="inline-flex items-center rounded-full border border-purple-500/30 bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-4 py-2">
-                        <Star className="mr-2 h-4 w-4 text-yellow-400" />
-                        <span className="text-sm font-medium text-white">
+                      <div className="inline-flex items-center rounded-full border border-orange/25 bg-gradient-to-r from-orange/15 to-rust/15 px-4 py-2">
+                        <Star className="mr-2 h-4 w-4 text-orange" />
+                        <span className="text-sm font-medium text-cream">
                           Étape profil
                         </span>
                       </div>
@@ -795,12 +795,12 @@ function InscriptionPageContent() {
                     <StepComponent />
 
                     {/* Navigation entre étapes */}
-                    <div className="mt-6 flex flex-col-reverse gap-3 border-t border-gray-700 pt-5 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:pt-6">
+                    <div className="mt-6 flex flex-col-reverse gap-3 border-t border-cream/10 pt-5 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:pt-6">
                       {step > 0 ? (
                         <button
                           type="button"
                           onClick={onBack}
-                          className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-600 px-6 py-3 text-gray-300 transition-colors hover:bg-gray-800 hover:text-white sm:w-auto"
+                          className="flex w-full items-center justify-center gap-2 rounded-lg border border-cream/12 px-6 py-3 text-cream/70 transition-colors hover:bg-cream/10 hover:text-cream sm:w-auto"
                         >
                           <ArrowLeft className="h-4 w-4" />
                           Retour
@@ -812,7 +812,7 @@ function InscriptionPageContent() {
                       <button
                         type="button"
                         onClick={onNext}
-                        className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-3 font-medium text-white transition-all hover:from-purple-700 hover:to-pink-700 sm:w-auto"
+                        className="fx-btn w-full rounded-lg bg-orange px-8 py-3 font-bold text-abyss transition-colors hover:bg-orange/90 sm:w-auto"
                       >
                         Continuer
                       </button>
@@ -823,18 +823,18 @@ function InscriptionPageContent() {
                 <FormProvider {...methods}>
                   <div className="space-y-6 sm:space-y-8">
                     <div className="text-center">
-                      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-green-400/30 bg-green-500/20">
-                        <Check className="h-8 w-8 text-green-300" />
+                      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-lime/30 bg-lime/10">
+                        <Check className="h-8 w-8 text-lime" />
                       </div>
 
-                      <h2 className="mb-3 text-2xl font-bold text-white sm:text-3xl">
-                        Votre profil est prêt
+                      <h2 className="mb-3 text-2xl font-bold text-cream sm:text-3xl">
+                        Ton profil est prêt
                       </h2>
 
-                      <p className="text-sm leading-relaxed text-gray-300 sm:text-base">
-                        Dernière étape : enregistrez votre profil, puis
-                        vérifiez votre identité. C&apos;est obligatoire pour
-                        accéder à votre compte — gratuit ou payant.
+                      <p className="text-sm leading-relaxed text-cream/70 sm:text-base">
+                        Dernière étape : enregistre ton profil, puis
+                        vérifie ton identité. C&apos;est obligatoire pour
+                        accéder à ton compte — gratuit ou payant.
                       </p>
                     </div>
 
@@ -846,21 +846,21 @@ function InscriptionPageContent() {
                         return (
                           <div
                             key={item.title}
-                            className="relative overflow-hidden rounded-xl border border-white/10 bg-white/5 p-5"
+                            className="relative overflow-hidden rounded-xl border border-cream/10 bg-cream/5 p-5"
                           >
                             <div
                               className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${bar}`}
                             />
 
-                            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-                              <div className="text-purple-300">{item.icon}</div>
+                            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-orange/15 to-rust/15">
+                              <div className="text-cream">{item.icon}</div>
                             </div>
 
-                            <h3 className="font-bold text-white">
+                            <h3 className="font-bold text-cream">
                               {item.title}
                             </h3>
 
-                            <p className="mt-1 text-sm text-gray-400">
+                            <p className="mt-1 text-sm text-cream/55">
                               {item.description}
                             </p>
                           </div>
@@ -872,22 +872,22 @@ function InscriptionPageContent() {
                     <div
                       className={`rounded-xl border p-5 sm:p-6 ${
                         identityStatus === "verified"
-                          ? "border-green-500/30 bg-gradient-to-r from-green-900/30 to-emerald-900/20"
-                          : "border-purple-700/30 bg-gradient-to-r from-purple-900/30 to-pink-900/30"
+                          ? "border-lime/30 bg-gradient-to-r from-lime/[0.06] to-lime/[0.03]"
+                          : "border-orange/25 bg-gradient-to-r from-rust/20 to-orange/10"
                       }`}
                     >
                       <div className="mb-3 flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/20 text-xl">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange/15 text-xl">
                           🪪
                         </div>
 
                         <div>
-                          <h3 className="text-lg font-bold text-white">
+                          <h3 className="text-lg font-bold text-cream">
                             Vérification d&apos;identité
                           </h3>
 
-                          <p className="text-xs font-semibold text-pink-300">
-                            Obligatoire — requise pour accéder à votre compte
+                          <p className="text-xs font-semibold text-orange">
+                            Obligatoire — requise pour accéder à ton compte
                           </p>
                         </div>
                       </div>
@@ -895,14 +895,14 @@ function InscriptionPageContent() {
                       {/* Avertissement navigateur in-app (Instagram, Facebook,
                           TikTok…) : la caméra y est souvent bloquée. */}
                       {isInAppBrowser && identityStatus !== "verified" && (
-                        <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+                        <div className="mb-4 flex items-start gap-2 rounded-lg border border-orange/30 bg-orange/10 px-4 py-3 text-sm text-cream/80">
                           <span className="shrink-0 text-base">⚠️</span>
                           <span>
-                            Vous semblez naviguer depuis l&apos;application
+                            Tu sembles naviguer depuis l&apos;application
                             d&apos;un réseau social. La caméra peut y être
                             bloquée et faire échouer la vérification.{" "}
                             <strong className="font-semibold">
-                              Ouvrez plutôt cette page dans Safari ou Chrome
+                              Ouvre plutôt cette page dans Safari ou Chrome
                             </strong>{" "}
                             (menu « … » → « Ouvrir dans le navigateur ») avant de
                             lancer la vérification.
@@ -911,16 +911,16 @@ function InscriptionPageContent() {
                       )}
 
                       {identityStatus === "verified" ? (
-                        <div className="flex items-center gap-2 rounded-lg border border-green-400/30 bg-green-500/10 px-4 py-3 text-sm text-green-200">
+                        <div className="flex items-center gap-2 rounded-lg border border-lime/30 bg-lime/10 px-4 py-3 text-sm text-lime">
                           <Check className="h-4 w-4 shrink-0" />
                           <span>
-                            Identité vérifiée. Vous pouvez maintenant accéder
-                            à votre compte.
+                            Identité vérifiée. Tu peux maintenant accéder
+                            à ton compte.
                           </span>
                         </div>
                       ) : identityStatus === "pending" ? (
                         <>
-                          <div className="mb-4 flex items-center gap-2 rounded-lg border border-yellow-400/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-100">
+                          <div className="mb-4 flex items-center gap-2 rounded-lg border border-orange/30 bg-orange/10 px-4 py-3 text-sm text-cream/80">
                             <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
                             <span>
                               Vérification en cours de traitement. Cela peut
@@ -932,7 +932,7 @@ function InscriptionPageContent() {
                             type="button"
                             onClick={refreshIdentityStatus}
                             disabled={isCheckingIdentity}
-                            className="w-full rounded-xl border border-white/20 bg-white/5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-60"
+                            className="w-full rounded-xl border border-cream/12 bg-cream/5 py-3 text-sm font-semibold text-cream transition hover:bg-cream/10 disabled:opacity-60"
                           >
                             {isCheckingIdentity
                               ? "Vérification du statut..."
@@ -942,8 +942,8 @@ function InscriptionPageContent() {
                           {/* Filet de sécurité : permettre de relancer une
                               nouvelle vérification si la personne est bloquée
                               (page fermée, caméra refusée, souci technique…). */}
-                          <div className="mt-3 border-t border-white/10 pt-3">
-                            <p className="mb-2 text-center text-xs text-white/50">
+                          <div className="mt-3 border-t border-cream/10 pt-3">
+                            <p className="mb-2 text-center text-xs text-cream/55">
                               Un problème, une fenêtre fermée ou un blocage
                               technique pendant la vérification ?
                             </p>
@@ -952,7 +952,7 @@ function InscriptionPageContent() {
                               type="button"
                               onClick={handleStartIdentityVerification}
                               disabled={isLaunchingVerification}
-                              className="w-full rounded-xl border border-purple-400/40 bg-purple-500/15 py-3 text-sm font-semibold text-purple-100 transition hover:bg-purple-500/25 disabled:opacity-60"
+                              className="w-full rounded-xl border border-orange/40 bg-orange/12 py-3 text-sm font-semibold text-cream/90 transition hover:bg-orange/20 disabled:opacity-60"
                             >
                               {isLaunchingVerification
                                 ? "Préparation..."
@@ -962,9 +962,9 @@ function InscriptionPageContent() {
                         </>
                       ) : (
                         <>
-                          <p className="mb-4 text-sm leading-relaxed text-gray-300">
+                          <p className="mb-4 text-sm leading-relaxed text-cream/70">
                             Pour la sécurité de toutes les utilisatrices,
-                            SferaLuna exige une pièce d&apos;identité officielle
+                            Sfera'Solys exige une pièce d&apos;identité officielle
                             et une photo prise en direct correspondant au
                             visage sur la pièce. Sans cette vérification,
                             l&apos;inscription n&apos;est pas validée et l&apos;accès au
@@ -981,7 +981,7 @@ function InscriptionPageContent() {
                             type="button"
                             onClick={handleStartIdentityVerification}
                             disabled={isLaunchingVerification || !isProfileSaved}
-                            className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="fx-btn w-full rounded-xl bg-orange py-3 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {isLaunchingVerification
                               ? "Préparation..."
@@ -991,8 +991,8 @@ function InscriptionPageContent() {
                           </button>
 
                           {!isProfileSaved && (
-                            <p className="mt-2 text-center text-xs text-white/40">
-                              Enregistrez d&apos;abord votre profil ci-dessous
+                            <p className="mt-2 text-center text-xs text-cream/55">
+                              Enregistre d&apos;abord ton profil ci-dessous
                               pour lancer la vérification.
                             </p>
                           )}
@@ -1001,34 +1001,34 @@ function InscriptionPageContent() {
                     </div>
 
                     {/* Bloc Stripe — paiement optionnel, possible plus tard */}
-                    <div className="rounded-xl border border-blue-700/30 bg-gradient-to-r from-blue-900/30 to-purple-900/30 p-5 sm:p-6">
+                    <div className="rounded-xl border border-cream/10 bg-gradient-to-r from-[#0C222D] to-rust/20 p-5 sm:p-6">
                       <div className="mb-3 flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/20">
-                          <ShieldCheck className="h-5 w-5 text-blue-400" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cream/10">
+                          <ShieldCheck className="h-5 w-5 text-cream/70" />
                         </div>
 
-                        <h3 className="text-lg font-bold text-white">
+                        <h3 className="text-lg font-bold text-cream">
                           Paiement — facultatif pour le moment
                         </h3>
                       </div>
 
-                      <p className="text-sm leading-relaxed text-gray-300 sm:text-base">
-                        Une fois votre identité vérifiée, vous pouvez accéder
-                        gratuitement à votre compte avec les fonctionnalités
-                        de base. Vous pourrez choisir une offre Essentiel,
+                      <p className="text-sm leading-relaxed text-cream/70 sm:text-base">
+                        Une fois ton identité vérifiée, tu peux accéder
+                        gratuitement à ton compte avec les fonctionnalités
+                        de base. Tu pourras choisir une offre Essentiel,
                         Premium ou Elite à tout moment depuis Mon Compte.
                       </p>
                     </div>
 
                     {/* Boutons finaux */}
-                    <div className="flex flex-col gap-3 border-t border-gray-700 pt-5 sm:pt-6">
+                    <div className="flex flex-col gap-3 border-t border-cream/10 pt-5 sm:pt-6">
                       {!isProfileSaved ? (
                         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <button
                             type="button"
                             onClick={() => setStep(steps.length - 1)}
                             disabled={isSubmittingProfile}
-                            className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-600 px-6 py-3 text-gray-300 transition-colors hover:bg-gray-800 hover:text-white disabled:opacity-50 sm:w-auto"
+                            className="flex w-full items-center justify-center gap-2 rounded-lg border border-cream/12 px-6 py-3 text-cream/70 transition-colors hover:bg-cream/10 hover:text-cream disabled:opacity-50 sm:w-auto"
                           >
                             <ArrowLeft className="h-4 w-4" />
                             Retour
@@ -1038,7 +1038,7 @@ function InscriptionPageContent() {
                             type="button"
                             onClick={handleSaveProfile}
                             disabled={isSubmittingProfile}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-purple-500/25 transition-all hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:text-lg"
+                            className="fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-orange px-8 py-4 text-base font-bold text-abyss shadow-lg shadow-orange/20 transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:text-lg"
                           >
                             {isSubmittingProfile ? (
                               <>
@@ -1058,7 +1058,7 @@ function InscriptionPageContent() {
                           <button
                             type="button"
                             onClick={handleGoToOffers}
-                            className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-600 px-6 py-3 text-gray-300 transition-colors hover:bg-gray-800 hover:text-white sm:w-auto"
+                            className="flex w-full items-center justify-center gap-2 rounded-lg border border-cream/12 px-6 py-3 text-cream/70 transition-colors hover:bg-cream/10 hover:text-cream sm:w-auto"
                           >
                             <Star className="h-4 w-4" />
                             Voir les offres Premium
@@ -1067,16 +1067,16 @@ function InscriptionPageContent() {
                           <button
                             type="button"
                             onClick={handleAccessFreeAccount}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-purple-500/25 transition-all hover:from-purple-700 hover:to-pink-700 sm:w-auto sm:text-lg"
+                            className="fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-orange px-8 py-4 text-base font-bold text-abyss shadow-lg shadow-orange/20 transition-colors hover:bg-orange/90 sm:w-auto sm:text-lg"
                           >
                             <Sparkles className="h-5 w-5" />
                             Accéder à mon compte gratuit
                           </button>
                         </div>
                       ) : (
-                        <p className="text-center text-sm text-gray-400">
-                          Vérifiez votre identité ci-dessus pour débloquer
-                          l&apos;accès à votre compte.
+                        <p className="text-center text-sm text-cream/55">
+                          Vérifie ton identité ci-dessus pour débloquer
+                          l&apos;accès à ton compte.
                         </p>
                       )}
                     </div>
@@ -1090,34 +1090,34 @@ function InscriptionPageContent() {
           <aside className="lg:col-span-1">
             <div className="space-y-5 lg:sticky lg:top-8 lg:space-y-6">
               {/* Avantages */}
-              <div className="rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-900/40 to-pink-900/40 p-5 backdrop-blur-sm sm:p-6">
+              <div className="rounded-2xl border border-orange/25 bg-gradient-to-br from-rust/25 to-orange/15 p-5 backdrop-blur-sm sm:p-6">
                 <div className="mb-5 flex items-center gap-3 sm:mb-6">
-                  <Crown className="h-6 w-6 text-yellow-400" />
+                  <Crown className="h-6 w-6 text-orange" />
 
-                  <h3 className="text-lg font-bold text-white sm:text-xl">
-                    Avantages SferaLuna
+                  <h3 className="text-lg font-bold text-cream sm:text-xl">
+                    Avantages Sfera'Solys
                   </h3>
                 </div>
 
                 <ul className="space-y-3 sm:space-y-4">
                   {lunaBenefits.map((feature) => (
                     <li key={feature} className="flex items-center gap-3">
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-500/20">
-                        <Check className="h-3 w-3 text-green-400" />
+                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-lime/10">
+                        <Check className="h-3 w-3 text-lime" />
                       </div>
 
-                      <span className="text-sm text-gray-200">{feature}</span>
+                      <span className="text-sm text-cream/80">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="mt-5 border-t border-purple-500/30 pt-5 sm:mt-6 sm:pt-6">
+                <div className="mt-5 border-t border-orange/25 pt-5 sm:mt-6 sm:pt-6">
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-sm text-gray-300">
-                      Matches créés sur SferaLuna :
+                    <span className="text-sm text-cream/70">
+                      Matches créés sur Sfera'Solys :
                     </span>
 
-                    <span className="font-bold text-white">
+                    <span className="font-bold text-cream">
                       {liveStats ? liveStats.matchs : "—"}
                     </span>
                   </div>
@@ -1126,14 +1126,14 @@ function InscriptionPageContent() {
 
               {/* Témoignage — uniquement des témoignages réels et approuvés */}
               {latestTestimonial && (
-                <div className="rounded-2xl border border-gray-700 bg-gray-900/60 p-5 backdrop-blur-sm sm:p-6">
+                <div className="rounded-2xl border border-cream/10 bg-abyss/60 p-5 backdrop-blur-sm sm:p-6">
                   <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
-                      <Users className="h-6 w-6 text-white" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-orange to-rust">
+                      <Users className="h-6 w-6 text-cream" />
                     </div>
 
                     <div>
-                      <h4 className="font-bold text-white">
+                      <h4 className="font-bold text-cream">
                         {latestTestimonial.authorName}
                         {latestTestimonial.age
                           ? `, ${latestTestimonial.age} ans`
@@ -1144,31 +1144,31 @@ function InscriptionPageContent() {
                         {[...Array(5)].map((_, index) => (
                           <Star
                             key={index}
-                            className="h-4 w-4 fill-current text-yellow-400"
+                            className="h-4 w-4 fill-current text-orange"
                           />
                         ))}
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-sm italic leading-relaxed text-gray-300 sm:text-base">
+                  <p className="text-sm italic leading-relaxed text-cream/70 sm:text-base">
                     “{latestTestimonial.content}”
                   </p>
                 </div>
               )}
 
               {/* Compteur — données réelles, mises à jour automatiquement */}
-              <div className="rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-blue-900/40 to-cyan-900/40 p-5 backdrop-blur-sm sm:p-6">
+              <div className="rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-[#0C222D] to-cyan-900/40 p-5 backdrop-blur-sm sm:p-6">
                 <div className="text-center">
                   <div className="mb-2 text-sm font-medium text-cyan-400">
                     MEMBRES INSCRITS
                   </div>
 
-                  <div className="mb-2 text-3xl font-bold text-white sm:text-4xl">
+                  <div className="mb-2 text-3xl font-bold text-cream sm:text-4xl">
                     {liveStats ? liveStats.membres : "—"}
                   </div>
 
-                  <div className="text-sm text-gray-300">
+                  <div className="text-sm text-cream/70">
                     {liveStats ? liveStats.messages : "—"} messages échangés
                   </div>
                 </div>
@@ -1179,7 +1179,7 @@ function InscriptionPageContent() {
 
         {/* Footer sécurisé */}
         <footer className="mx-auto mt-8 max-w-3xl text-center">
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-400">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-cream/55">
             <div className="flex items-center gap-2">
               <Lock className="h-4 w-4" />
               <span>Paiement 100% sécurisé</span>
@@ -1209,11 +1209,11 @@ export default function InscriptionPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1a0b2e] via-[#2d1b69] to-[#3a2a82] px-4 text-white">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#001724] via-[#0C222D] to-[#0C222D] px-4 text-cream">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-            <p className="text-sm text-gray-300 sm:text-base">
-              Chargement de votre espace SferaLuna...
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-cream/20 border-t-white" />
+            <p className="text-sm text-cream/70 sm:text-base">
+              Chargement de ton espace Sfera'Solys...
             </p>
           </div>
         </div>

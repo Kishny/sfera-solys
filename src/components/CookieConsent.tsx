@@ -2,7 +2,7 @@
 //
 // Bandeau de consentement cookies RGPD.
 // Apparaît à la première visite, en bas de page.
-// L'utilisatrice peut :
+// L'utilisateur peut :
 //   - Tout accepter
 //   - Tout refuser
 //   - Personnaliser ses préférences par catégorie
@@ -76,16 +76,16 @@ function Toggle({
       aria-checked={checked}
       disabled={disabled}
       onClick={() => !disabled && onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange ${
         disabled
-          ? "cursor-not-allowed bg-purple-400 opacity-60"
+          ? "cursor-not-allowed bg-orange/50 opacity-60"
           : checked
-          ? "bg-purple-500"
-          : "bg-white/20"
+          ? "bg-orange"
+          : "bg-cream/20"
       }`}
     >
       <span
-        className={`inline-block h-4 w-4 translate-x-1 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+        className={`inline-block h-4 w-4 translate-x-1 rounded-full bg-cream shadow-sm transition-transform duration-200 ${
           checked ? "translate-x-6" : ""
         }`}
       />
@@ -121,7 +121,7 @@ function PreferencesModal({
       <button
         type="button"
         aria-label="Fermer"
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-abyss/70 backdrop-blur-sm"
         onClick={onClose}
       />
 
@@ -130,23 +130,23 @@ function PreferencesModal({
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 60, opacity: 0 }}
         transition={{ type: "spring", stiffness: 320, damping: 26 }}
-        className="relative z-10 w-full max-w-lg rounded-2xl border border-white/10 bg-gradient-to-br from-[#1a0b2e] to-[#2d1b69] p-6 shadow-2xl"
+        className="relative z-10 w-full max-w-lg rounded-2xl border border-cream/10 bg-gradient-to-br from-abyss to-teal p-6 shadow-2xl"
       >
         {/* Header */}
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-base font-bold text-white sm:text-lg">
+            <h2 className="text-base font-bold text-cream sm:text-lg">
               Gérer mes préférences
             </h2>
-            <p className="mt-1 text-xs text-white/50">
+            <p className="mt-1 text-xs text-cream/50">
               Les cookies essentiels sont toujours actifs — ils garantissent le bon
-              fonctionnement de SferaLuna.
+              fonctionnement de Sfera'Solys.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-white/40 transition hover:bg-white/10 hover:text-white"
+            className="rounded-lg p-1.5 text-cream/40 transition hover:bg-cream/10 hover:text-cream"
             aria-label="Fermer"
           >
             <X className="h-4 w-4" />
@@ -154,15 +154,15 @@ function PreferencesModal({
         </div>
 
         {/* Essentiels (toujours actifs) */}
-        <div className="mb-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+        <div className="mb-2 rounded-xl border border-cream/10 bg-cream/5 px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 shrink-0 text-purple-300" />
-              <span className="text-sm font-medium text-white">Essentiels</span>
+              <ShieldCheck className="h-4 w-4 shrink-0 text-orange" />
+              <span className="text-sm font-medium text-cream">Essentiels</span>
             </div>
             <Toggle checked disabled onChange={() => {}} />
           </div>
-          <p className="mt-1.5 text-xs text-white/40">
+          <p className="mt-1.5 text-xs text-cream/40">
             Authentification, session, sécurité — toujours requis.
           </p>
         </div>
@@ -172,15 +172,15 @@ function PreferencesModal({
           {CATEGORIES.map(({ key, icon: Icon, label, description }) => (
             <div
               key={key}
-              className="rounded-xl border border-white/10 bg-white/5"
+              className="rounded-xl border border-cream/10 bg-cream/5"
             >
               <div className="flex items-center gap-3 px-4 py-3">
-                <Icon className="h-4 w-4 shrink-0 text-purple-300" />
-                <span className="flex-1 text-sm font-medium text-white">{label}</span>
+                <Icon className="h-4 w-4 shrink-0 text-orange" />
+                <span className="flex-1 text-sm font-medium text-cream">{label}</span>
                 <button
                   type="button"
                   onClick={() => setExpanded(expanded === key ? null : key)}
-                  className="rounded p-0.5 text-white/40 transition hover:text-white"
+                  className="rounded p-0.5 text-cream/40 transition hover:text-cream"
                   aria-label={`Détails ${label}`}
                 >
                   <ChevronDown
@@ -201,7 +201,7 @@ function PreferencesModal({
                     transition={{ duration: 0.18 }}
                     className="overflow-hidden"
                   >
-                    <p className="px-4 pb-3 text-xs text-white/40">{description}</p>
+                    <p className="px-4 pb-3 text-xs text-cream/40">{description}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -214,14 +214,14 @@ function PreferencesModal({
           <button
             type="button"
             onClick={() => onSave(prefs)}
-            className="flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+            className="flex-1 rounded-xl bg-gradient-to-r from-orange to-rust px-4 py-2.5 text-sm font-semibold text-cream transition hover:opacity-90"
           >
             Enregistrer mes choix
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl border border-white/10 px-4 py-2.5 text-sm text-white/60 transition hover:bg-white/5 hover:text-white"
+            className="flex-1 rounded-xl border border-cream/10 px-4 py-2.5 text-sm text-cream/60 transition hover:bg-cream/5 hover:text-cream"
           >
             Annuler
           </button>
@@ -261,21 +261,21 @@ export default function CookieConsent() {
             role="region"
             aria-label="Consentement cookies"
           >
-            <div className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-gradient-to-r from-[#1a0b2e]/95 to-[#2d1b69]/95 p-4 shadow-2xl backdrop-blur-md sm:p-5">
+            <div className="mx-auto max-w-4xl rounded-2xl border border-cream/10 bg-gradient-to-r from-abyss/95 to-teal/95 p-4 shadow-2xl backdrop-blur-md sm:p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                 {/* Texte */}
                 <div className="flex min-w-0 flex-1 items-start gap-3">
-                  <Cookie className="mt-0.5 h-5 w-5 shrink-0 text-purple-300" />
+                  <Cookie className="mt-0.5 h-5 w-5 shrink-0 text-orange" />
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-white">
-                      SferaLuna utilise des cookies 🍪
+                    <p className="text-sm font-semibold text-cream">
+                      Sfera'Solys utilise des cookies 🍪
                     </p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-white/50">
+                    <p className="mt-0.5 text-xs leading-relaxed text-cream/50">
                       Nous utilisons des cookies essentiels au fonctionnement du site et, avec
                       ton accord, des cookies optionnels pour améliorer ton expérience.{" "}
                       <Link
                         href="/cookies"
-                        className="underline hover:text-white/80"
+                        className="underline hover:text-cream/80"
                         target="_blank"
                       >
                         En savoir plus
@@ -289,7 +289,7 @@ export default function CookieConsent() {
                   <button
                     type="button"
                     onClick={() => setShowModal(true)}
-                    className="flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-2 text-xs text-white/60 transition hover:bg-white/10 hover:text-white"
+                    className="flex items-center gap-1.5 rounded-xl border border-cream/15 px-3 py-2 text-xs text-cream/60 transition hover:bg-cream/10 hover:text-cream"
                   >
                     <Settings className="h-3.5 w-3.5" />
                     Personnaliser
@@ -298,7 +298,7 @@ export default function CookieConsent() {
                   <button
                     type="button"
                     onClick={rejectAll}
-                    className="rounded-xl border border-white/15 px-3 py-2 text-xs text-white/60 transition hover:bg-white/10 hover:text-white"
+                    className="rounded-xl border border-cream/15 px-3 py-2 text-xs text-cream/60 transition hover:bg-cream/10 hover:text-cream"
                   >
                     Refuser
                   </button>
@@ -306,7 +306,7 @@ export default function CookieConsent() {
                   <button
                     type="button"
                     onClick={acceptAll}
-                    className="rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+                    className="rounded-xl bg-gradient-to-r from-orange to-rust px-4 py-2 text-xs font-semibold text-cream transition hover:opacity-90"
                   >
                     Tout accepter
                   </button>

@@ -1,7 +1,7 @@
 // src/lib/subscription/config.ts
 
 /**
- * Configuration centrale des abonnements SferaLuna.
+ * Configuration centrale des abonnements Sfera'Solys.
  *
  * Ce fichier définit :
  * - les plans disponibles ;
@@ -15,7 +15,7 @@ export const SUBSCRIPTION_PLANS = {
     id: "free",
     name: "Gratuit",
     price: 0,
-    description: "Découvre SferaLuna gratuitement",
+    description: "Découvre Sfera'Solys gratuitement",
 
     limits: {
       dailyLikes: 5,
@@ -79,7 +79,7 @@ export const SUBSCRIPTION_PLANS = {
     id: "premium-monthly",
     name: "Premium",
     price: 19.99,
-    description: "L’expérience SferaLuna complète",
+    description: "L’expérience Sfera'Solys complète",
 
     limits: {
       dailyLikes: Infinity,

@@ -1,6 +1,6 @@
 // src/hooks/useCookieConsent.ts
 //
-// Hook pour lire et écrire les préférences cookies de l'utilisatrice.
+// Hook pour lire et écrire les préférences cookies de l'utilisateur.
 // Les préférences sont stockées dans localStorage (cookie-consent key).
 
 "use client";
@@ -17,12 +17,12 @@ export interface CookiePreferences {
 }
 
 export interface CookieConsentState {
-  hasConsented: boolean;     // l'utilisatrice a fait un choix
+  hasConsented: boolean;     // l'utilisateur a fait un choix
   preferences: CookiePreferences;
   consentedAt: string | null;
 }
 
-const STORAGE_KEY = "sferaluna-cookie-consent";
+const STORAGE_KEY = "sferasolys-cookie-consent";
 
 const DEFAULT_PREFERENCES: CookiePreferences = {
   essential: true,
@@ -56,9 +56,26 @@ function readFromStorage(): CookieConsentState {
   }
 }
 
+/**
+ * Événement diffusé à chaque changement de consentement.
+ *
+ * Nécessaire parce que `useCookieConsent` garde son état dans un `useState`
+ * local : deux composants qui appellent le hook ont deux états séparés, et
+ * celui qui n'a pas fait l'écriture ne saurait jamais qu'elle a eu lieu.
+ * Sans ce signal, un script conditionné au consentement ne se couperait
+ * qu'au rechargement suivant.
+ */
+export const EVENEMENT_CONSENTEMENT = "sferasolys:consentement-cookies";
+
+function diffuserChangement() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(EVENEMENT_CONSENTEMENT));
+}
+
 function writeToStorage(state: CookieConsentState) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  diffuserChangement();
 }
 
 export function useCookieConsent() {
@@ -126,6 +143,7 @@ export function useCookieConsent() {
     };
     setState(next);
     window.localStorage.removeItem(STORAGE_KEY);
+    diffuserChangement();
   }, []);
 
   const hasCategory = useCallback(

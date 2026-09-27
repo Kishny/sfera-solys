@@ -1,8 +1,8 @@
 import { buildMeta } from '@/app/layout-meta';
 
 export const metadata = buildMeta(
-  'Notre histoire — Comment SferaLuna est née',
-  "L'histoire de SferaLuna : pourquoi nous avons créé un site de rencontres premium pensé exclusivement pour les femmes françaises.",
+  "Notre histoire — Comment Sfera'Solys est née",
+  "L'histoire de Sfera'Solys : pourquoi nous avons créé un site de rencontres premium à identité vérifiée, pensé pour les hommes de 28 ans et plus.",
   '/histoire'
 );
 

@@ -3,7 +3,7 @@
  *
  * Route dédiée à l'authentification OAuth native (iOS / Android).
  * Accepte un token Google (id_token) ou Apple (identityToken),
- * le vérifie côté serveur, trouve ou crée l'utilisatrice dans MongoDB,
+ * le vérifie côté serveur, trouve ou crée l'utilisateur dans MongoDB,
  * puis forge un cookie de session NextAuth valide.
  *
  * Body JSON :

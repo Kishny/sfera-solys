@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page Mon Compte SferaLuna.
+ * Page Mon Compte Sfera'Solys.
  *
  * Cette page gère :
  * - l'affichage du profil connecté ;
@@ -208,7 +208,7 @@ interface MatchItem {
 
 const emptyUser: LunaUser = {
   email: "",
-  pseudonyme: "Utilisateur Luna",
+  pseudonyme: "Membre Solys",
   name: "",
   image: "",
   photos: [],
@@ -484,7 +484,7 @@ function normalizeUser(rawUser: any, sessionUser?: any): LunaUser {
     id: rawUser?.id || rawUser?._id || "",
 
     email: rawUser?.email || sessionUser?.email || "",
-    pseudonyme: rawUser?.pseudonyme || sessionUser?.name || "Utilisateur Luna",
+    pseudonyme: rawUser?.pseudonyme || sessionUser?.name || "Membre Solys",
     name: rawUser?.name || sessionUser?.name || "",
     image: rawUser?.image || sessionUser?.image || "",
     photos: Array.isArray(rawUser?.photos) ? rawUser.photos : [],
@@ -615,7 +615,7 @@ function MonCompteContent() {
 
   /**
    * Marque les notifications comme lues et éteint la pastille.
-   * Déclenché quand l'utilisatrice ouvre l'onglet Intéractions.
+   * Déclenché quand l'utilisateur ouvre l'onglet Intéractions.
    */
   const markNotificationsSeen = useCallback(async () => {
     setNotifCount(0);
@@ -823,7 +823,7 @@ function MonCompteContent() {
           departement: draftUser.departement,
           rayon: draftUser.rayon,
           question: draftUser.question,
-          // N'envoyer reponse que si l'utilisatrice a tapé quelque chose.
+          // N'envoyer reponse que si l'utilisateur a tapé quelque chose.
           // Une chaîne vide ne doit jamais écraser une réponse déjà en BDD.
           ...(draftUser.reponse?.trim() ? { reponse: draftUser.reponse.trim() } : {}),
           interets: draftUser.interets,
@@ -930,7 +930,7 @@ function MonCompteContent() {
           </div>
 
           <p className="text-sm text-white/60">
-            Chargement de votre espace Luna…
+            Chargement de votre espace Solys…
           </p>
         </motion.div>
       </div>
@@ -961,13 +961,13 @@ function MonCompteContent() {
             className="group flex min-w-0 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 transition-all duration-200 hover:border-purple-400/40 hover:bg-white/10 sm:px-3"
           >
             <img
-              src="/logo-sferaluna.png"
-              alt="SferaLuna"
+              src="/logo-sferasolys.png"
+              alt="Sfera'Solys"
               className="h-6 w-6 shrink-0 rounded-full object-cover"
             />
 
             <span className="truncate text-xs font-semibold text-white transition-colors group-hover:text-purple-200 sm:text-sm">
-              SferaLuna
+              Sfera'Solys
             </span>
 
             <ArrowLeft className="hidden h-3.5 w-3.5 text-white/40 transition-all duration-200 group-hover:-translate-x-0.5 group-hover:text-purple-300 sm:block" />
@@ -1345,7 +1345,7 @@ function MonCompteContent() {
           animation: msg-pulse 1.4s ease-in-out infinite;
         }
 
-        .input-luna {
+        .input-solys {
           width: 100%;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1359,23 +1359,23 @@ function MonCompteContent() {
           outline: none;
         }
 
-        .input-luna:focus {
+        .input-solys:focus {
           border-color: rgba(167, 139, 250, 0.5);
           background: rgba(255, 255, 255, 0.08);
         }
 
-        .input-luna:disabled {
+        .input-solys:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
 
-        .input-luna option {
+        .input-solys option {
           background: #1a0b2e;
           color: white;
         }
 
         @media (max-width: 420px) {
-          .input-luna {
+          .input-solys {
             padding: 0.55rem 0.75rem;
             font-size: 0.8125rem;
           }
@@ -1504,7 +1504,7 @@ function DashboardTab({
         </h2>
 
         <p className="text-sm text-white/50">
-          Voici un aperçu de votre espace SferaLuna.
+          Voici un aperçu de votre espace Sfera'Solys.
         </p>
       </div>
 
@@ -1811,7 +1811,7 @@ function ProfilTab({
           disabled={!isEditing}
           value={user.bio || ""}
           onChange={(event) => updateDraft("bio", event.target.value)}
-          className="input-luna h-24 resize-none"
+          className="input-solys h-24 resize-none"
           placeholder="Décrivez-vous en quelques mots… vos passions, ce que vous recherchez…"
           maxLength={500}
         />
@@ -1827,13 +1827,13 @@ function ProfilTab({
             disabled={!isEditing}
             value={user.pseudonyme || ""}
             onChange={(event) => updateDraft("pseudonyme", event.target.value)}
-            className="input-luna"
+            className="input-solys"
           />
           <CooldownInfo changedAt={user.pseudonymeChangedAt} />
         </Field>
 
         <Field label="Email 📧">
-          <input disabled value={user.email || ""} className="input-luna" />
+          <input disabled value={user.email || ""} className="input-solys" />
         </Field>
 
         <Field label="Âge 🎂">
@@ -1844,7 +1844,7 @@ function ProfilTab({
             max={99}
             value={user.age || 28}
             onChange={(event) => updateDraft("age", Number(event.target.value))}
-            className="input-luna"
+            className="input-solys"
           />
         </Field>
 
@@ -1853,7 +1853,7 @@ function ProfilTab({
             disabled={!isEditing}
             value={user.departement || ""}
             onChange={(event) => updateDraft("departement", event.target.value)}
-            className="input-luna"
+            className="input-solys"
           >
             <option value="">Non renseigné</option>
             <optgroup label="France métropolitaine">
@@ -1878,7 +1878,7 @@ function ProfilTab({
             disabled={!isEditing}
             value={user.localisation || ""}
             onChange={(event) => updateDraft("localisation", event.target.value)}
-            className="input-luna"
+            className="input-solys"
             placeholder="Paris, Fort-de-France, Saint-Denis…"
           />
         </Field>
@@ -1888,7 +1888,7 @@ function ProfilTab({
             disabled={!isEditing}
             value={user.rayon || "departement"}
             onChange={(event) => updateDraft("rayon", event.target.value)}
-            className="input-luna"
+            className="input-solys"
           >
             <option value="departement">Mon département</option>
             <option value="region">Ma région</option>
@@ -1903,7 +1903,7 @@ function ProfilTab({
             onChange={(event) =>
               updateDraft("interets", splitToArray(event.target.value))
             }
-            className="input-luna"
+            className="input-solys"
             placeholder="voyage, musique, sport…"
           />
         </Field>
@@ -1913,7 +1913,7 @@ function ProfilTab({
             disabled={!isEditing}
             value={user.question || ""}
             onChange={(event) => updateDraft("question", event.target.value)}
-            className="input-luna"
+            className="input-solys"
             placeholder="Votre question secrète"
           />
         </Field>
@@ -1924,7 +1924,7 @@ function ProfilTab({
             type={isEditing ? "text" : "password"}
             value={user.reponse || ""}
             onChange={(event) => updateDraft("reponse", event.target.value)}
-            className="input-luna"
+            className="input-solys"
             placeholder={
               user.hasReponse && !isEditing
                 ? "••••••••"
@@ -2060,7 +2060,7 @@ function PreferencesTab({
             disabled={!isEditing}
             value={user.orientation || ""}
             onChange={(event) => updateDraft("orientation", event.target.value)}
-            className="input-luna"
+            className="input-solys"
           >
             <option value="">Sélectionner</option>
 
@@ -2091,7 +2091,7 @@ function PreferencesTab({
                 })
               )
             }
-            className="input-luna"
+            className="input-solys"
             placeholder="rencontre-serieuse, amitie…"
           />
         </Field>
@@ -2103,7 +2103,7 @@ function PreferencesTab({
             onChange={(event) =>
               updateDraft("visibilite", event.target.value as ProfileVisibility)
             }
-            className="input-luna"
+            className="input-solys"
           >
             {Object.entries(visibilityLabels).map(([key, value]) => (
               <option key={key} value={key}>
@@ -2209,7 +2209,7 @@ function PremiumTab({
 
   const featuresByPlan: Record<LunaPlan, string[]> = {
     free: ["🌙 Profil public", "💌 5 likes / jour"],
-    "essential-monthly": ["⭐ Likes illimités", "📅 VibePlanner", "🎪 Événements Luna", "💬 Support prioritaire"],
+    "essential-monthly": ["⭐ Likes illimités", "📅 VibePlanner", "🎪 Événements Solys", "💬 Support prioritaire"],
     "premium-monthly": ["💎 Circle of Six", "👻 Mode invisible", "📊 Visiteurs de profil", "🔍 Filtres avancés", "✨ VibeSphere avancé"],
     "elite-monthly": ["👑 Toutes les fonctionnalités", "⚡ 10 boosts / mois", "🎯 Filtres ultra-précis", "🛡️ Badge VIP", "💬 Support 24/7", "🏆 VibeMentor coaching"],
   };
@@ -2218,7 +2218,7 @@ function PremiumTab({
     <div className="space-y-5 sm:space-y-6">
       <div>
         <h2 className="mb-1 text-lg font-bold sm:text-xl">👑 Mon abonnement</h2>
-        <p className="text-sm text-white/50">Gérez votre plan SferaLuna.</p>
+        <p className="text-sm text-white/50">Gérez votre plan Sfera'Solys.</p>
       </div>
 
       {/* Carte statut */}
@@ -2354,7 +2354,7 @@ function PremiumTab({
             <span key={m} className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/60">{m}</span>
           ))}
         </div>
-        <p className="mt-2 text-xs text-white/30">Transactions sécurisées par Stripe. SferaLuna ne stocke aucune donnée bancaire.</p>
+        <p className="mt-2 text-xs text-white/30">Transactions sécurisées par Stripe. Sfera'Solys ne stocke aucune donnée bancaire.</p>
       </div>
 
       {user.plan !== "elite-monthly" && active && (
@@ -2424,7 +2424,7 @@ function IdentityVerificationBlock({ user }: { user: LunaUser }) {
 
       <p className="text-sm text-white/60">
         Vérifiez votre identité avec une pièce d&apos;identité officielle pour
-        obtenir le badge &quot;Profil vérifié&quot; sur SferaLuna.
+        obtenir le badge &quot;Profil vérifié&quot; sur Sfera'Solys.
       </p>
 
       {status === "pending" && (
@@ -2486,7 +2486,7 @@ function SecurityTab({ user }: { user: LunaUser }) {
         </h2>
 
         <p className="text-sm text-white/50">
-          État de sécurité de votre espace SferaLuna.
+          État de sécurité de votre espace Sfera'Solys.
         </p>
       </div>
 
@@ -2601,7 +2601,7 @@ function ConnexionsTab({ user }: { user: LunaUser }) {
       .catch(() => {});
   }, []);
 
-  // On invite à témoigner une fois la membre "active" (au moins 1 match).
+  // On invite à témoigner une fois le membre "active" (au moins 1 match).
   const showTestimonialBanner =
     !loadingMatches && matches.length > 0 && hasTestimonial === false;
 
@@ -2657,7 +2657,7 @@ function ConnexionsTab({ user }: { user: LunaUser }) {
                 <span className="text-2xl">💜</span>
                 <div>
                   <p className="text-sm font-bold text-white">
-                    Tu vis l&apos;aventure SferaLuna ?
+                    Tu vis l&apos;aventure Sfera'Solys ?
                   </p>
                   <p className="text-xs text-white/60">
                     Partage ton expérience pour rassurer les nouvelles membres.

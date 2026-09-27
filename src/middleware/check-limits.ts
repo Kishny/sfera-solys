@@ -2,7 +2,7 @@
 // ou src/lib/subscription-check.ts
 
 /**
- * SferaLuna — Subscription Checker
+ * Sfera'Solys — Subscription Checker
  * --------------------------------
  * Ce fichier centralise toute la logique liée aux abonnements :
  *
@@ -47,7 +47,7 @@ import { Subscription } from "@/models/Subscription";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
 
 /**
- * Plans réellement utilisés dans ton projet SferaLuna.
+ * Plans réellement utilisés dans ton projet Sfera'Solys.
  *
  * IMPORTANT :
  * Cette liste doit correspondre à ton fichier :
@@ -165,7 +165,7 @@ export type RequireSubscriptionResult =
     };
 
 /**
- * Vérifie si une valeur est un plan valide connu par SferaLuna.
+ * Vérifie si une valeur est un plan valide connu par Sfera'Solys.
  */
 function isValidPlan(plan: unknown): plan is PlanId {
   return typeof plan === "string" && PLAN_HIERARCHY.includes(plan as PlanId);

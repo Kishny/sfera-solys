@@ -77,13 +77,13 @@ export default function TestimonialsCarousel({
 
   if (count === 0) {
     return (
-      <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-[#E8E0FF] bg-white px-4 py-8 text-center">
-        <div className="mb-3 text-4xl">💜</div>
-        <p className="text-base font-semibold text-[#5B4B8A]">
+      <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-orange/20 bg-white px-4 py-8 text-center">
+        <div className="mb-3 text-4xl">☀️</div>
+        <p className="text-base font-semibold text-rust">
           Les premiers témoignages arrivent bientôt
         </p>
-        <p className="mt-1 text-sm text-[#666]">
-          Sois parmi les premières à partager ton expérience.
+        <p className="mt-1 text-sm text-abyss/50">
+          Sois parmi les premiers à partager ton expérience.
         </p>
       </div>
     );
@@ -98,7 +98,7 @@ export default function TestimonialsCarousel({
         <button
           type="button"
           onClick={goPrev}
-          className="rounded-full border border-[#E8E0FF] bg-white p-2 text-[#8E7AB5] transition-colors hover:border-[#8E7AB5]"
+          className="rounded-full border border-orange/20 bg-white p-2 text-rust transition-colors hover:border-orange"
           aria-label="Témoignage précédent"
         >
           <ChevronLeft size={18} />
@@ -111,7 +111,7 @@ export default function TestimonialsCarousel({
               type="button"
               onClick={() => setIdx(i)}
               className={`h-2 rounded-full transition-all ${
-                i === idx % count ? "w-5 bg-[#8E7AB5]" : "w-2 bg-[#D9B8FF]"
+                i === idx % count ? "w-5 bg-orange" : "w-2 bg-orange/25"
               }`}
               aria-label={`Voir le témoignage ${i + 1}`}
             />
@@ -121,7 +121,7 @@ export default function TestimonialsCarousel({
         <button
           type="button"
           onClick={goNext}
-          className="rounded-full border border-[#E8E0FF] bg-white p-2 text-[#8E7AB5] transition-colors hover:border-[#8E7AB5]"
+          className="rounded-full border border-orange/20 bg-white p-2 text-rust transition-colors hover:border-orange"
           aria-label="Témoignage suivant"
         >
           <ChevronRight size={18} />
@@ -179,7 +179,7 @@ export default function TestimonialsCarousel({
         <div className="mt-6 text-center sm:mt-8">
           <Link
             href={ctaHref}
-            className="inline-flex items-center gap-2 rounded-full border border-[#8E7AB5] px-5 py-2.5 text-sm font-semibold text-[#8E7AB5] transition-all hover:bg-[#8E7AB5] hover:text-white"
+            className="inline-flex items-center gap-2 rounded-full border border-rust px-5 py-2.5 text-sm font-semibold text-rust transition-all hover:bg-rust hover:text-cream"
           >
             {ctaLabel}
             <ArrowRight size={16} />

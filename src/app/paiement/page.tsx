@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page de paiement SferaLuna.
+ * Page de paiement Sfera'Solys.
  *
  * Cette page permet :
  * - de choisir une offre payante ;
@@ -126,7 +126,7 @@ const plans: PlanConfig[] = [
     name: "Essentiel",
     price: "9,99€",
     subtitle: "/ mois",
-    description: "Pour découvrir SferaLuna en douceur.",
+    description: "Pour découvrir Sfera'Solys en douceur.",
     features: [
       "Profil visible",
       "Suggestions compatibles",
@@ -142,7 +142,7 @@ const plans: PlanConfig[] = [
     subtitle: "/ mois",
     badge: "Plus populaire",
     highlighted: true,
-    description: "L’offre idéale pour profiter pleinement de SferaLuna.",
+    description: "L’offre idéale pour profiter pleinement de Sfera'Solys.",
     features: [
       "Likes illimités",
       "Messages prioritaires",
@@ -334,7 +334,7 @@ export default function PaiementPage() {
           </div>
 
           <h1 className="bg-gradient-to-r from-purple-200 via-pink-200 to-yellow-100 bg-clip-text text-3xl font-bold leading-tight text-transparent sm:text-4xl md:text-5xl">
-            Choisissez votre offre SferaLuna
+            Choisissez votre offre Sfera'Solys
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-gray-300 sm:mt-5 sm:text-lg">
@@ -458,7 +458,7 @@ export default function PaiementPage() {
                 <p className="mt-1 text-sm leading-relaxed text-blue-100/80">
                   Vous serez redirigé vers Stripe Checkout pour finaliser votre
                   abonnement. Aucune donnée bancaire n’est stockée sur
-                  SferaLuna.
+                  Sfera'Solys.
                 </p>
               </div>
             </div>
@@ -480,7 +480,7 @@ export default function PaiementPage() {
               <p className="text-sm text-gray-300">Formule sélectionnée</p>
 
               <h3 className="mt-1 text-xl font-bold sm:text-2xl">
-                SferaLuna {selectedOffer.name}
+                Sfera'Solys {selectedOffer.name}
               </h3>
 
               <p className="mt-4 text-3xl font-bold sm:text-4xl">

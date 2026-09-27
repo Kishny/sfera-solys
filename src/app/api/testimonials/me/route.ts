@@ -9,7 +9,7 @@ import { Testimonial } from "@/models/Testimonial";
 /**
  * GET /api/testimonials/me
  *
- * Retourne le témoignage de la membre connectée (ou null si aucun).
+ * Retourne le témoignage de le membre connecté (ou null si aucun).
  * Sert à :
  * - savoir s'il faut afficher la bannière d'incitation ;
  * - pré-remplir le formulaire si elle modifie son témoignage.

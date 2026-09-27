@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 
 /**
- * Hook SferaLuna pour récupérer l'état réel de l'abonnement.
+ * Hook Sfera'Solys pour récupérer l'état réel de l'abonnement.
  *
  * Il utilise :
  * - GET  /api/subscription/status

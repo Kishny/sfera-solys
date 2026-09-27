@@ -108,7 +108,7 @@ function badJsonRequest(): NextRequest {
   } as unknown as NextRequest;
 }
 
-const sessionWithEmail = (email = "moi@sferaluna.test") => ({
+const sessionWithEmail = (email = "moi@sferasolys.test") => ({
   user: { email },
 });
 
@@ -124,7 +124,7 @@ describe("POST /api/likes", () => {
     vi.clearAllMocks();
   });
 
-  it("retourne 401 si l'utilisatrice n'est pas connectée", async () => {
+  it("retourne 401 si l'utilisateur n'est pas connecté", async () => {
     getServerSession.mockResolvedValue(null);
 
     const res = await POST(
@@ -271,7 +271,7 @@ describe("DELETE /api/likes", () => {
     vi.clearAllMocks();
   });
 
-  it("retourne 401 si l'utilisatrice n'est pas connectée", async () => {
+  it("retourne 401 si l'utilisateur n'est pas connecté", async () => {
     getServerSession.mockResolvedValue(null);
 
     const res = await DELETE(

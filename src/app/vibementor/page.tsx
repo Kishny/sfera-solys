@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page VibeMentor SferaLuna.
+ * Page VibeMentor Sfera'Solys.
  *
  * Cette page permet :
  * - de consulter les questions de coaching / conseils relationnels ;
@@ -836,7 +836,7 @@ export default function VibeMentorPage() {
                         <div className="min-w-0 flex-1">
                           <div className="mb-1 flex items-center gap-1.5">
                             <span className="truncate text-sm font-bold text-[#2d1b69]">
-                              {post.userId?.pseudonyme ?? "Membre Luna"}
+                              {post.userId?.pseudonyme ?? "Membre Solys"}
                             </span>
 
                             <span
@@ -930,7 +930,7 @@ export default function VibeMentorPage() {
                                     <div className="flex-1 rounded-2xl border border-[#e8e0f5] bg-white px-3 py-2">
                                       <span className="text-xs font-bold text-[#5B4B8A]">
                                         {answer.userId?.pseudonyme ??
-                                          "Membre Luna"}
+                                          "Membre Solys"}
                                       </span>
 
                                       <p className="mt-0.5 text-xs leading-relaxed text-[#2d1b69] sm:text-sm">

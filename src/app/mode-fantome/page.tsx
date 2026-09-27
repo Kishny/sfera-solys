@@ -3,9 +3,9 @@
 "use client";
 
 /**
- * Page Mode Fantôme SferaLuna.
+ * Page Mode Fantôme Sfera'Solys.
  *
- * Cette page permet à une utilisatrice Premium :
+ * Cette page permet à un utilisateur Premium :
  * - d'activer le mode invisible ;
  * - de désactiver le mode invisible ;
  * - de comprendre ce que ce mode change dans l'expérience.
@@ -354,7 +354,7 @@ export default function ModeFantomePage() {
             </h1>
 
             <p className="mx-auto mt-2 max-w-xl text-xs leading-relaxed text-white/55 sm:text-base">
-              Naviguez en toute discrétion sur SferaLuna. Vous choisissez quand
+              Naviguez en toute discrétion sur Sfera'Solys. Vous choisissez quand
               être visible, et quand rester dans l&apos;ombre.
             </p>
           </motion.section>
@@ -457,7 +457,7 @@ export default function ModeFantomePage() {
 
                 <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-white/55">
                   {isInvisible
-                    ? "Votre profil est masqué dans les recherches et dans Explorer. Vous pouvez continuer à utiliser SferaLuna discrètement."
+                    ? "Votre profil est masqué dans les recherches et dans Explorer. Vous pouvez continuer à utiliser Sfera'Solys discrètement."
                     : "Votre profil peut apparaître dans les résultats, les suggestions et la page Explorer."}
                 </p>
 

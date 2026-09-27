@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page VibePlanner SferaLuna — version fonctionnelle.
+ * Page VibePlanner Sfera'Solys — version fonctionnelle.
  *
  * Branchée sur :
  * - GET  /api/matches       → liste des matchs actifs (pour choisir avec qui)

@@ -142,7 +142,7 @@ export async function GET(req: NextRequest) {
         await Promise.all(
           candidates.map(async (u) => {
             try {
-              await senders[bucket](u.email, u.pseudonyme || "membre Luna");
+              await senders[bucket](u.email, u.pseudonyme || "membre Solys");
               await User.updateOne(
                 { _id: u._id },
                 { $set: { reengagementSentAt: new Date() } }

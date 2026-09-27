@@ -1,25 +1,49 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import {
-  ChevronDown,
-  Heart,
-  MessageCircle,
-  Moon,
-  Shield,
-  Sparkles,
-  Star,
-  Users,
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Ban, IdCard, MessageCircle, ShieldCheck, Users } from 'lucide-react';
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Link from 'next/link';
+import EclipseMark from '@/components/brand/EclipseMark';
 
 /**
- * Statistiques dynamiques affichées dans la page.
- * Ces données viennent de /api/stats.
+ * Page « Notre histoire » — direction A (« dossier de vérification »).
+ *
+ * Réécriture complète, et pas une simple recoloration : la page racontait
+ * encore, mot pour mot, l'histoire de la plateforme d'origine — « pourquoi
+ * les femmes mériteraient moins bien », « pensée pour l'expérience
+ * féminine » — avec une chronologie datée (« Printemps 2024 », « Été
+ * 2024 »…) qui appartient à ce projet-là, pas à celui-ci.
+ *
+ * ## Ce qui a été retiré, et pourquoi
+ *
+ * **La chronologie datée.** Inventer des jalons (« Été 2024 : la
+ * construction ») aurait été fabriquer un passé. Le récit tient donc sans
+ * dates : un constat, un parti pris, et ce qu'on a refusé de faire. Le
+ * porteur du projet pourra rétablir une vraie chronologie quand il y aura
+ * des faits à y mettre.
+ *
+ * **Les quatre tuiles à emojis** (🛡️ 💜 🌙 ✨) dont l'une portait la lune,
+ * symbole de la marque d'origine.
+ *
+ * ## Ce qui a été gardé
+ *
+ * Les statistiques : elles sont réelles, alimentées par `/api/stats`. Seule
+ * différence, la bande ne s'affiche plus quand tous les compteurs sont à
+ * zéro — avant le lancement, annoncer « 0 membre » sur la page qui raconte
+ * l'histoire du site dessert plus qu'elle ne sert.
+ *
+ * ## À relire
+ *
+ * Tout le texte de cette page est une proposition. Elle ne contient aucune
+ * affirmation vérifiable qui ne soit pas déjà tenue ailleurs sur le site
+ * (vérification obligatoire par Stripe Identity, Circle of Six, critère
+ * 28+), mais le ton et le récit appartiennent au porteur du projet.
  */
+
 interface SiteStats {
   membres: number;
   matchs: number;
@@ -27,759 +51,298 @@ interface SiteStats {
   evenements: number;
 }
 
-/**
- * Type d'un élément de timeline.
- */
-interface TimelineItem {
-  period: string;
-  title: string;
-  description: string;
-  icon: string;
-  color: string;
-}
-
-/**
- * Type d'une valeur SferaLuna.
- */
-interface ValueItem {
-  icon: ReactNode;
-  mobileIcon: string;
-  title: string;
-  description: string;
-  color: string;
-  bg: string;
-}
-
-/**
- * Motif "orbites" discret en arrière-plan — fait écho au nom "Sfera"
- * et casse le fond plat des sections. `variant="light"` s'utilise sur
- * fond sombre (hero, citation, CTA), `variant="default"` sur fond clair.
- */
-function OrbitGlow({
-  className = '',
-  variant = 'default',
-}: {
-  className?: string;
-  variant?: 'default' | 'light';
-}) {
-  const primary = variant === 'light' ? '#FFFFFF' : '#8E7AB5';
-  const secondary = variant === 'light' ? '#FFFFFF' : '#5B4B8A';
-  const opacityClass = variant === 'light' ? 'opacity-[0.12]' : 'opacity-[0.16]';
-
-  return (
-    <svg
-      viewBox="0 0 400 400"
-      className={`pointer-events-none absolute ${opacityClass} ${className}`}
-      fill="none"
-    >
-      <circle cx="200" cy="200" r="190" stroke={primary} strokeWidth="2" />
-      <circle
-        cx="200"
-        cy="200"
-        r="140"
-        stroke={primary}
-        strokeWidth="2"
-        strokeDasharray="8 12"
-      />
-      <circle cx="200" cy="200" r="90" stroke={secondary} strokeWidth="2" />
-      <circle cx="200" cy="200" r="5" fill={secondary} />
-      <circle cx="390" cy="200" r="6" fill={primary} />
-      <circle cx="60" cy="90" r="5" fill={primary} />
-      <circle cx="310" cy="320" r="4.5" fill={secondary} />
-    </svg>
-  );
-}
-
-/**
- * Formate les statistiques pour éviter les gros chiffres bruts.
- *
- * Exemples :
- * 1200 -> 1.2K+
- * 1000 -> 1K+
- * 0 -> —
- */
 function formatStat(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(1).replace('.0', '')}K+`;
   if (n === 0) return '—';
   return n.toString();
 }
 
-/**
- * Page Histoire SferaLuna.
- *
- * Objectif de cette version :
- * - garder le contenu existant ;
- * - améliorer fortement le mobile-first ;
- * - compacter les grosses sections sur mobile ;
- * - transformer timeline + valeurs en accordéons sur mobile ;
- * - conserver une mise en page riche sur tablette / desktop ;
- * - éviter les grands blocs qui prennent tout l'écran du téléphone.
- */
+/** Anneau de focus commun à toutes les pages migrées. */
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+
+const constats = [
+  {
+    icon: Users,
+    titre: 'Le volume tient lieu de promesse',
+    texte:
+      "Des milliers de profils à portée de pouce, et le sentiment tenace de n'avoir rencontré personne. La quantité ne remplace pas la certitude d'avoir en face quelqu'un de réel.",
+  },
+  {
+    icon: ShieldCheck,
+    titre: 'On ne sait pas à qui on parle',
+    texte:
+      "Une photo, un prénom, et rien derrière. Sur la plupart des plateformes, personne n'a jamais vérifié que la personne existe — et c'est le membre qui porte le risque.",
+  },
+  {
+    icon: MessageCircle,
+    titre: 'Personne ne dit ce qu’il cherche',
+    texte:
+      "Les intentions restent floues des semaines durant. On perd du temps, des deux côtés, faute d'avoir posé la question au départ.",
+  },
+];
+
+const refus = [
+  {
+    titre: 'Le défilement sans fin',
+    texte:
+      'Six profils par semaine, renouvelés le lundi. Assez pour choisir, trop peu pour consommer.',
+  },
+  {
+    titre: 'Les profils non vérifiés',
+    texte:
+      "Aucun accès au produit avant qu'un document officiel ait été vérifié. Sans exception, et sans possibilité de passer devant.",
+  },
+  {
+    titre: 'La visibilité qui s’achète',
+    texte:
+      "Un abonnement ouvre des fonctionnalités, jamais une place devant les autres dans la file.",
+  },
+  {
+    titre: 'Les faux comptes de vitrine',
+    texte:
+      "Même les aperçus d'interface du site n'affichent aucun visage : on ne vend pas la vérification avec des profils inventés.",
+  },
+];
+
 export default function HistoirePage() {
   const [siteStats, setSiteStats] = useState<SiteStats | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
-  /**
-   * Accordéon mobile de la timeline.
-   * null = aucun bloc ouvert.
-   */
-  const [openTimelineIndex, setOpenTimelineIndex] = useState<number | null>(0);
-
-  /**
-   * Accordéon mobile des valeurs.
-   * null = aucun bloc ouvert.
-   */
-  const [openValueIndex, setOpenValueIndex] = useState<number | null>(null);
-
-  /**
-   * Chargement des statistiques dynamiques.
-   * Si l'API échoue, la page reste fonctionnelle.
-   */
   useEffect(() => {
-    fetch('/api/stats', { cache: 'no-store' })
-      .then((res) => res.json())
+    fetch('/api/stats')
+      .then((response) => response.json())
       .then((data) => {
         if (data.success) setSiteStats(data.stats);
       })
-      .catch(() => {
-        // On ignore volontairement l'erreur pour ne pas bloquer l'affichage.
-      });
+      .catch(() => {});
   }, []);
 
   /**
-   * Timeline de l'histoire SferaLuna.
+   * Avant le lancement, tous les compteurs valent zéro. Afficher une bande
+   * de tirets donnerait l'impression d'un site vide ; on la masque tant
+   * qu'il n'y a rien à montrer.
    */
-  const timeline: TimelineItem[] = [
-    {
-      period: 'Printemps 2024',
-      title: 'Le déclic',
-      description:
-        "Tout part d'un constat simple et douloureux : les applications de rencontres ne sont pas conçues pour les femmes. Elles sont pensées pour le volume, pas pour la qualité. Pour la vitesse, pas pour la profondeur. SferaLuna naît de cette frustration — et de la conviction qu'on peut faire bien mieux.",
-      icon: '💡',
-      color: 'from-[#8E7AB5] to-[#D9B8FF]',
-    },
-    {
-      period: 'Été 2024',
-      title: 'La construction',
-      description:
-        "Des mois de travail, de réflexion, de tests. Chaque fonctionnalité est pensée avec une seule question en tête : est-ce que ça aide vraiment les femmes à rencontrer des personnes qui leur correspondent ? Le Circle of Six, le VibeSphere, le Mode Fantôme — tout est conçu pour mettre la femme au centre.",
-      icon: '🔨',
-      color: 'from-[#FF6B6B] to-[#FF8E8E]',
-    },
-    {
-      period: 'Automne 2024',
-      title: 'Les premières vagues',
-      description:
-        "Les premières utilisatrices arrivent. Leurs retours sont précieux, parfois brutaux, toujours utiles. On écoute, on ajuste, on améliore. La messagerie se perfectionne. Les matchs commencent à se former. Les premières histoires d'amour naissent sur SferaLuna.",
-      icon: '🌊',
-      color: 'from-[#4ECDC4] to-[#44A08D]',
-    },
-    {
-      period: 'Hiver 2024 – 2025',
-      title: "La communauté s'éveille",
-      description:
-        "SferaLuna grandit au-delà des rencontres. VibeMentor, les Événements Luna, la Communauté — autant d'espaces où les femmes échangent, s'entraident et construisent quelque chose ensemble. Ce n'est plus seulement une app de rencontres. C'est un refuge.",
-      icon: '✨',
-      color: 'from-[#FFD166] to-[#FF9A3C]',
-    },
-    {
-      period: "Aujourd'hui",
-      title: 'Le voyage continue',
-      description:
-        "SferaLuna évolue chaque jour. Notifications en temps réel, upload de photos, vérification des profils, nouvelles fonctionnalités premium — chaque mise à jour a un seul objectif : vous offrir l'expérience de rencontres que vous méritez vraiment.",
-      icon: '🌙',
-      color: 'from-[#5B4B8A] to-[#8E7AB5]',
-    },
-  ];
+  const aDesChiffres =
+    siteStats !== null &&
+    siteStats.membres + siteStats.matchs + siteStats.messages + siteStats.evenements > 0;
 
-  /**
-   * Valeurs fortes de la plateforme.
-   */
-  const values: ValueItem[] = [
-    {
-      icon: <Shield className="h-7 w-7" />,
-      mobileIcon: '🛡️',
-      title: "La sécurité d'abord",
-      description:
-        'Modération active, signalement, Mode Fantôme, vérification email — chaque décision technique est guidée par la sécurité des femmes sur la plateforme.',
-      color: 'text-[#8E7AB5]',
-      bg: 'bg-purple-50',
-    },
-    {
-      icon: <Heart className="h-7 w-7" />,
-      mobileIcon: '💜',
-      title: "L'authenticité toujours",
-      description:
-        'Pas de swipe frénétique. Pas de filtre artificiel. SferaLuna valorise ce que tu es vraiment — tes valeurs, tes envies, ta vibe.',
-      color: 'text-[#FF6B6B]',
-      bg: 'bg-red-50',
-    },
-    {
-      icon: <Users className="h-7 w-7" />,
-      mobileIcon: '👭',
-      title: 'Une communauté réelle',
-      description:
-        "SferaLuna n'est pas qu'une app. C'est un espace où les femmes s'entraident, échangent et se retrouvent — même au-delà des rencontres romantiques.",
-      color: 'text-[#4ECDC4]',
-      bg: 'bg-teal-50',
-    },
-    {
-      icon: <Sparkles className="h-7 w-7" />,
-      mobileIcon: '✨',
-      title: "L'expérience féminine",
-      description:
-        'Conçu par et pour les femmes. Chaque parcours, chaque couleur, chaque mot a été pensé pour que tu te sentes enfin à ta place.',
-      color: 'text-[#FFD166]',
-      bg: 'bg-yellow-50',
-    },
-  ];
+  const chiffres = siteStats
+    ? [
+        { valeur: formatStat(siteStats.membres), label: 'Profils vérifiés' },
+        { valeur: formatStat(siteStats.matchs), label: 'Mises en relation' },
+        { valeur: formatStat(siteStats.messages), label: 'Messages échangés' },
+        { valeur: formatStat(siteStats.evenements), label: 'Événements organisés' },
+      ]
+    : [];
 
-  /**
-   * Thème couleur par carte de valeur (desktop) — contour/fond lumineux
-   * distinct pour chacune, aligné sur les teintes déjà utilisées par
-   * `value.bg` / `value.color` (purple, rouge corail, teal, jaune).
-   */
-  const valueThemes = [
-    {
-      shadowBase:
-        'shadow-[0_0_0_1.5px_rgba(142,122,181,0.4),0_14px_32px_-10px_rgba(142,122,181,0.28)]',
-      shadowHover:
-        'hover:shadow-[0_0_0_2px_rgba(142,122,181,0.4),0_22px_48px_-12px_rgba(142,122,181,0.45)]',
-      overlay: 'from-purple-100 via-white to-white',
-      iconBg: 'bg-purple-50',
-      bar: 'from-violet-500 to-purple-500',
-    },
-    {
-      shadowBase:
-        'shadow-[0_0_0_1.5px_rgba(255,107,107,0.4),0_14px_32px_-10px_rgba(255,107,107,0.28)]',
-      shadowHover:
-        'hover:shadow-[0_0_0_2px_rgba(255,107,107,0.4),0_22px_48px_-12px_rgba(255,107,107,0.45)]',
-      overlay: 'from-red-100 via-white to-white',
-      iconBg: 'bg-red-50',
-      bar: 'from-red-400 to-rose-500',
-    },
-    {
-      shadowBase:
-        'shadow-[0_0_0_1.5px_rgba(78,205,196,0.4),0_14px_32px_-10px_rgba(78,205,196,0.28)]',
-      shadowHover:
-        'hover:shadow-[0_0_0_2px_rgba(78,205,196,0.4),0_22px_48px_-12px_rgba(78,205,196,0.45)]',
-      overlay: 'from-teal-100 via-white to-white',
-      iconBg: 'bg-teal-50',
-      bar: 'from-teal-400 to-cyan-500',
-    },
-    {
-      shadowBase:
-        'shadow-[0_0_0_1.5px_rgba(255,209,102,0.4),0_14px_32px_-10px_rgba(255,209,102,0.28)]',
-      shadowHover:
-        'hover:shadow-[0_0_0_2px_rgba(255,209,102,0.4),0_22px_48px_-12px_rgba(255,209,102,0.45)]',
-      overlay: 'from-yellow-100 via-white to-white',
-      iconBg: 'bg-yellow-50',
-      bar: 'from-amber-400 to-yellow-500',
-    },
-  ];
-
-  const proofItems = [
-    {
-      emoji: '🛡️',
-      text: 'Sécurité des femmes avant tout',
-    },
-    {
-      emoji: '💜',
-      text: 'Connexions par valeurs',
-    },
-    {
-      emoji: '🌙',
-      text: 'Espace bienveillant',
-    },
-    {
-      emoji: '✨',
-      text: 'Communauté évolutive',
-    },
-  ];
-
-  const stats = [
-    {
-      stat: siteStats ? formatStat(siteStats.membres) : '…',
-      label: 'Membres',
-      icon: <Users className="h-4 w-4 sm:h-5 sm:w-5" />,
-    },
-    {
-      stat: siteStats ? formatStat(siteStats.matchs) : '…',
-      label: 'Matchs',
-      icon: <Heart className="h-4 w-4 sm:h-5 sm:w-5" />,
-    },
-    {
-      stat: siteStats ? formatStat(siteStats.messages) : '…',
-      label: 'Messages',
-      icon: <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />,
-    },
-    {
-      stat: siteStats ? formatStat(siteStats.evenements) : '…',
-      label: 'Events',
-      icon: <Star className="h-4 w-4 sm:h-5 sm:w-5" />,
-    },
-  ];
+  const fadeUp = {
+    initial: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: '-80px' },
+    transition: { duration: shouldReduceMotion ? 0 : 0.5, ease: 'easeOut' as const },
+  };
 
   return (
     <>
       <Header />
 
-      <main className="min-h-screen overflow-hidden bg-[#faf9ff] pt-14 text-[#1C1C1C] sm:pt-16 lg:pt-20">
-        {/* ─────────────────────────────
-            HERO COMPACT MOBILE
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden px-4 py-7 sm:px-6 sm:py-14 md:py-16">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a0b2e] via-[#2d1b69] to-[#3a2a82]" />
-
-          {/* Orbes décoratifs réduits sur mobile */}
+      <main id="contenu" className="bg-abyss text-cream">
+        {/* Hero */}
+        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <motion.div
-            animate={{
-              scale: [1, 1.12, 1],
-              opacity: [0.25, 0.45, 0.25],
-            }}
-            transition={{ duration: 8, repeat: Infinity }}
-            className="absolute left-1/4 top-12 h-44 w-44 rounded-full bg-purple-500/20 blur-3xl sm:h-72 sm:w-72"
-          />
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: 'easeOut' }}
+            className="mx-auto max-w-3xl py-12 text-center sm:py-16"
+          >
+            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-orange">
+              Notre histoire
+            </span>
 
-          <motion.div
-            animate={{
-              scale: [1.1, 1, 1.1],
-              opacity: [0.15, 0.35, 0.15],
-            }}
-            transition={{ duration: 10, repeat: Infinity }}
-            className="absolute bottom-0 right-1/4 h-52 w-52 rounded-full bg-pink-500/15 blur-3xl sm:h-96 sm:w-96"
-          />
+            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+              Pourquoi ce site existe.
+            </h1>
 
-          <OrbitGlow
-            variant="light"
-            className="right-[-6%] top-1/2 h-72 w-72 -translate-y-1/2 sm:h-96 sm:w-96"
-          />
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/70 sm:text-base">
+              Sfera&apos;Solys n&apos;est pas né d&apos;une envie de faire une
+              application de rencontre de plus. Il est né d&apos;un agacement
+              précis, et d&apos;une décision qui coûte cher :{' '}
+              <span className="text-cream">
+                personne n&apos;entre sans avoir prouvé qui il est.
+              </span>
+            </p>
+          </motion.div>
+        </section>
 
-          <div className="relative z-10 mx-auto max-w-4xl text-center text-white">
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55 }}
-            >
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs backdrop-blur-sm sm:mb-8 sm:px-4 sm:py-2 sm:text-sm">
-                <Moon className="h-3.5 w-3.5 text-purple-300 sm:h-4 sm:w-4" />
-
-                <span className="text-purple-100">
-                  Née en 2024 · Made in France
-                </span>
-              </div>
-
-              <h1 className="mb-3 text-3xl font-black leading-tight sm:mb-6 sm:text-5xl md:text-7xl">
-                Notre{' '}
-                <span className="bg-gradient-to-r from-[#D9B8FF] to-[#FFB3D9] bg-clip-text text-transparent">
-                  histoire
-                </span>
-              </h1>
-
-              <p className="mx-auto max-w-2xl text-sm leading-relaxed text-white/75 sm:text-lg md:text-xl">
-                Tout a commencé par une question : pourquoi les femmes
-                mériteraient moins bien dans les rencontres en ligne ?
+        {/* Le constat */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-6xl">
+            <motion.div {...fadeUp}>
+              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+                Le constat
+              </h2>
+              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+                Trois choses reviennent, toujours les mêmes, dans ce que les
+                gens reprochent aux applications de rencontre.
               </p>
             </motion.div>
+
+            <div className="grid gap-4 sm:grid-cols-3 sm:gap-5">
+              {constats.map((constat, index) => {
+                const Icone = constat.icon;
+
+                return (
+                  <motion.article
+                    key={constat.titre}
+                    {...fadeUp}
+                    transition={{
+                      duration: shouldReduceMotion ? 0 : 0.5,
+                      delay: shouldReduceMotion ? 0 : index * 0.08,
+                      ease: 'easeOut',
+                    }}
+                    className="rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange/15">
+                      <Icone size={18} className="text-orange" aria-hidden="true" />
+                    </span>
+
+                    <h3 className="font-display [font-stretch:125%] mt-4 text-[17px] font-bold text-cream">
+                      {constat.titre}
+                    </h3>
+
+                    <p className="mt-2 text-[14px] leading-relaxed text-cream/65">
+                      {constat.texte}
+                    </p>
+                  </motion.article>
+                );
+              })}
+            </div>
           </div>
         </section>
 
-        {/* ─────────────────────────────
-            INTRO COMPACTE
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden px-4 py-5 sm:px-6 sm:py-14">
-          <OrbitGlow className="left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 sm:h-[34rem] sm:w-[34rem]" />
+        {/* Le parti pris */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-14">
+            <motion.div {...fadeUp}>
+              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+                Le parti pris
+              </h2>
 
-          <div className="relative z-10 mx-auto max-w-4xl">
+              <p className="mt-4 text-[15px] leading-relaxed text-cream/70">
+                Il n&apos;y en a qu&apos;un, et tout le reste en découle :{' '}
+                <span className="text-cream">
+                  aucun compte ne s&apos;ouvre sans document officiel vérifié
+                </span>
+                . Carte d&apos;identité, passeport ou permis, comparés à un
+                selfie pris en direct — pas une photo choisie dans une galerie.
+              </p>
+
+              <p className="mt-4 text-[15px] leading-relaxed text-cream/70">
+                Le contrôle passe par Stripe Identity et prend quelques
+                instants. Ce qu&apos;il coûte n&apos;est donc pas du temps, mais
+                des inscriptions : une partie des visiteurs referme la page au
+                moment de sortir une pièce d&apos;identité. On garde
+                l&apos;exigence parce que c&apos;est exactement elle qui manque
+                ailleurs.
+              </p>
+
+              <p className="font-accent mt-5 text-[17px] italic leading-relaxed text-orange">
+                Un site de rencontre ne vaut que ce que vaut la certitude
+                d&apos;avoir en face quelqu&apos;un de réel.
+              </p>
+            </motion.div>
+
             <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="grid gap-5 md:grid-cols-2 md:items-center md:gap-12"
+              {...fadeUp}
+              className="rounded-[1.75rem] border border-cream/10 bg-[#0C222D] p-6 sm:p-8"
             >
-              <div>
-                <h2 className="mb-3 text-xl font-black leading-tight text-[#1C1C1C] sm:mb-6 sm:text-3xl md:text-4xl">
-                  Pourquoi{' '}
-                  <span className="text-[#8E7AB5]">SferaLuna</span> existe
-                </h2>
+              <span className="text-[11px] font-bold uppercase tracking-wide text-cream/55">
+                Ce que ça coûte
+              </span>
 
-                {/* Texte mobile raccourci visuellement par tailles + spacing compact */}
-                <div className="space-y-3 text-sm leading-relaxed text-[#555] sm:text-base">
-                  <p>
-                    En 2024, on a regardé les applications de rencontres et on a
-                    vu le même problème : trop de volume, trop peu de vraie
-                    qualité.
-                  </p>
-
-                  <p>
-                    Les femmes y subissent trop souvent des interactions non
-                    désirées, un manque de sécurité et des algorithmes centrés
-                    sur l’apparence.
-                  </p>
-
-                  <p>
-                    SferaLuna est notre réponse : une plateforme premium,
-                    sécurisée, authentique et pensée pour l’expérience féminine.
-                  </p>
+              <dl className="mt-5 space-y-5">
+                <div className="flex items-start gap-3">
+                  <IdCard size={17} className="mt-0.5 shrink-0 text-orange" aria-hidden="true" />
+                  <div>
+                    <dt className="text-[14px] font-semibold text-cream">
+                      Une pièce d&apos;identité à sortir
+                    </dt>
+                    <dd className="mt-1 text-[13px] leading-relaxed text-cream/60">
+                      C&apos;est le vrai coût : la démarche rebute, et elle
+                      écarte d&apos;emblée ceux qui ne voulaient pas être
+                      identifiables. C&apos;est aussi tout l&apos;intérêt.
+                    </dd>
+                  </div>
                 </div>
-              </div>
 
-              {/* Cartes preuves : compactes sur mobile */}
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-1 md:gap-4">
-                {proofItems.map((item, index) => (
-                  <motion.div
-                    key={item.text}
-                    initial={{ opacity: 0, x: 18 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.06 }}
-                    className="flex items-center gap-3 rounded-2xl border border-[#f0ecff] bg-white px-3 py-2.5 shadow-sm sm:p-4"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#8E7AB5]/10 text-lg sm:text-2xl">
-                      {item.emoji}
-                    </span>
+                <div className="flex items-start gap-3">
+                  <Users size={17} className="mt-0.5 shrink-0 text-orange" aria-hidden="true" />
+                  <div>
+                    <dt className="text-[14px] font-semibold text-cream">
+                      Une communauté qui grandit lentement
+                    </dt>
+                    <dd className="mt-1 text-[13px] leading-relaxed text-cream/60">
+                      Chaque vérification a un coût, à notre charge et jamais à
+                      la tienne. Ça interdit la course au volume — et ça donne
+                      un annuaire où chaque profil tient debout.
+                    </dd>
+                  </div>
+                </div>
 
-                    <span className="text-sm font-semibold text-[#444] sm:text-base">
-                      {item.text}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
+                <div className="flex items-start gap-3">
+                  <ShieldCheck size={17} className="mt-0.5 shrink-0 text-lime" aria-hidden="true" />
+                  <div>
+                    <dt className="text-[14px] font-semibold text-cream">
+                      Ce que ça rapporte
+                    </dt>
+                    <dd className="mt-1 text-[13px] leading-relaxed text-cream/60">
+                      Une seule chose, mais elle change tout : personne
+                      n&apos;a besoin de se demander si l&apos;autre existe.
+                    </dd>
+                  </div>
+                </div>
+              </dl>
             </motion.div>
           </div>
         </section>
 
-        {/* ─────────────────────────────
-            TIMELINE
-            Mobile = accordéon compact
-            Desktop = timeline complète
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden bg-white px-4 py-5 sm:px-6 sm:py-14">
-          <OrbitGlow className="left-[-8%] top-1/4 h-80 w-80 sm:h-[28rem] sm:w-[28rem]" />
-          <OrbitGlow className="right-[-8%] bottom-0 h-72 w-72 sm:h-[26rem] sm:w-[26rem]" />
-
-          <div className="relative z-10 mx-auto max-w-5xl">
-            <div className="mb-4 text-center sm:mb-10">
-              <h2 className="mb-1 text-xl font-black text-[#1C1C1C] sm:mb-4 sm:text-4xl">
-                Le <span className="text-[#8E7AB5]">parcours</span>
+        {/* Les refus */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-6xl">
+            <motion.div {...fadeUp}>
+              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+                Ce qu&apos;on a choisi de ne pas faire
               </h2>
-
-              <p className="text-xs text-[#666] sm:text-lg">
-                De l’idée à la plateforme.
+              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+                Un produit se définit autant par ce qu&apos;il refuse que par
+                ce qu&apos;il propose.
               </p>
-            </div>
+            </motion.div>
 
-            {/* Mobile : accordéon */}
-            <div className="space-y-2 sm:hidden">
-              {timeline.map((item, index) => {
-                const isOpen = openTimelineIndex === index;
-
-                return (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.04 }}
-                    className="overflow-hidden rounded-2xl border border-[#f0ecff] bg-[#faf9ff] shadow-sm"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenTimelineIndex(isOpen ? null : index)
-                      }
-                      className="flex w-full items-center gap-3 px-3 py-2.5 text-left"
-                    >
-                      <span
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r ${item.color} text-lg text-white shadow-sm`}
-                      >
-                        {item.icon}
-                      </span>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[10px] font-bold uppercase tracking-wide text-[#8E7AB5]">
-                          {item.period}
-                        </p>
-
-                        <h3 className="truncate text-sm font-black text-[#1C1C1C]">
-                          {item.title}
-                        </h3>
-                      </div>
-
-                      <ChevronDown
-                        className={`h-4 w-4 shrink-0 text-[#8E7AB5] transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: 'easeOut' }}
-                          className="overflow-hidden"
-                        >
-                          <div className="border-t border-[#f0ecff] px-3 pb-3 pt-2">
-                            <p className="text-xs leading-relaxed text-[#666]">
-                              {item.description}
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Desktop / tablette : timeline complète */}
-            <div className="relative hidden sm:block">
-              {/* Ligne verticale */}
-              <div className="absolute bottom-0 left-1/2 top-0 w-px -translate-x-1/2 bg-gradient-to-b from-[#D9B8FF] via-[#8E7AB5] to-[#D9B8FF]" />
-
-              {timeline.map((item, index) => (
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
+              {refus.map((item, index) => (
                 <motion.div
-                  key={item.title}
-                  initial={{
-                    opacity: 0,
-                    x: index % 2 === 0 ? -36 : 36,
+                  key={item.titre}
+                  {...fadeUp}
+                  transition={{
+                    duration: shouldReduceMotion ? 0 : 0.5,
+                    delay: shouldReduceMotion ? 0 : index * 0.06,
+                    ease: 'easeOut',
                   }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.12 }}
-                  className={`relative mb-8 flex items-center gap-6 ${
-                    index % 2 !== 0 ? 'flex-row-reverse' : ''
-                  }`}
+                  className="flex items-start gap-4 rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6"
                 >
-                  {/* Point central */}
-                  <div className="absolute left-1/2 z-10 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border-2 border-[#8E7AB5] bg-white text-lg shadow-md">
-                    {item.icon}
-                  </div>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cream/10 bg-abyss">
+                    <Ban size={16} className="text-cream/55" aria-hidden="true" />
+                  </span>
 
-                  {/* Carte */}
-                  <div
-                    className={`w-5/12 ${
-                      index % 2 === 0
-                        ? 'pr-12 text-right'
-                        : 'pl-12 text-left'
-                    }`}
-                  >
-                    <div className="rounded-2xl border border-[#f0ecff] bg-[#faf9ff] p-6 shadow-sm transition-shadow hover:shadow-md">
-                      <div
-                        className={`mb-3 inline-block rounded-full bg-gradient-to-r ${item.color} px-3 py-1 text-xs font-semibold text-white`}
-                      >
-                        {item.period}
-                      </div>
-
-                      <h3 className="mb-3 text-xl font-bold text-[#1C1C1C]">
-                        {item.title}
-                      </h3>
-
-                      <p className="text-sm leading-relaxed text-[#666]">
-                        {item.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Espace opposé */}
-                  <div className="w-5/12" />
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─────────────────────────────
-            VALEURS
-            Mobile = accordéon compact
-            Desktop = cards
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden bg-[#faf9ff] px-4 py-5 sm:px-6 sm:py-14">
-          <OrbitGlow className="left-1/2 top-1/2 h-[32rem] w-[32rem] -translate-x-1/2 -translate-y-1/2 sm:h-[40rem] sm:w-[40rem]" />
-
-          <div className="relative z-10 mx-auto max-w-6xl">
-            <div className="mb-4 text-center sm:mb-10">
-              <h2 className="mb-1 text-xl font-black text-[#1C1C1C] sm:mb-4 sm:text-4xl">
-                Ce qui nous <span className="text-[#8E7AB5]">guide</span>
-              </h2>
-
-              <p className="text-xs text-[#666] sm:text-lg">
-                Les valeurs au cœur de chaque décision.
-              </p>
-            </div>
-
-            {/* Mobile : accordéon compact */}
-            <div className="space-y-2 sm:hidden">
-              {values.map((value, index) => {
-                const isOpen = openValueIndex === index;
-
-                return (
-                  <motion.div
-                    key={value.title}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.04 }}
-                    className="overflow-hidden rounded-2xl border border-[#f0ecff] bg-white shadow-sm"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setOpenValueIndex(isOpen ? null : index)}
-                      className="flex w-full items-center gap-3 px-3 py-2.5 text-left"
-                    >
-                      <span
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${value.bg} text-lg`}
-                      >
-                        {value.mobileIcon}
-                      </span>
-
-                      <span className="min-w-0 flex-1 truncate text-sm font-black text-[#1C1C1C]">
-                        {value.title}
-                      </span>
-
-                      <ChevronDown
-                        className={`h-4 w-4 shrink-0 text-[#8E7AB5] transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: 'easeOut' }}
-                          className="overflow-hidden"
-                        >
-                          <div className="border-t border-[#f0ecff] px-3 pb-3 pt-2">
-                            <p className="text-xs leading-relaxed text-[#666]">
-                              {value.description}
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Desktop / tablette : cards complètes, contour lumineux par couleur */}
-            <div className="hidden gap-6 sm:grid md:grid-cols-2 lg:grid-cols-4">
-              {values.map((value, index) => {
-                const theme = valueThemes[index] ?? valueThemes[0];
-
-                return (
-                  <motion.div
-                    key={value.title}
-                    initial={{ opacity: 0, y: 22 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.08 }}
-                    className={`group relative overflow-hidden rounded-2xl border border-[#f0ecff] bg-white p-6 text-center transition-shadow duration-300 ${theme.shadowBase} ${theme.shadowHover}`}
-                  >
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${theme.overlay} opacity-40 transition-opacity duration-300 group-hover:opacity-80`}
-                    />
-
-                    <div className="relative">
-                      <div
-                        className={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl ${theme.iconBg} ${value.color}`}
-                      >
-                        {value.icon}
-                      </div>
-
-                      <h3 className="mb-2 font-bold text-[#1C1C1C]">
-                        {value.title}
-                      </h3>
-
-                      <p className="text-sm leading-relaxed text-[#666]">
-                        {value.description}
-                      </p>
-                    </div>
-
-                    <div
-                      className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r ${theme.bar} opacity-70 transition-opacity duration-300 group-hover:opacity-100`}
-                    />
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* ─────────────────────────────
-            CITATION COMPACTE
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-[#1a0b2e] to-[#2d1b69] px-4 py-7 sm:px-6 sm:py-14">
-          <OrbitGlow
-            variant="light"
-            className="left-1/2 top-1/2 h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 sm:h-[34rem] sm:w-[34rem]"
-          />
-
-          <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-            >
-              <div className="mb-3 text-3xl sm:mb-8 sm:text-5xl">🌙</div>
-
-              <blockquote className="mb-4 text-base font-light italic leading-relaxed text-white sm:mb-8 sm:text-2xl">
-                “SferaLuna n&apos;est pas juste une application. C&apos;est la
-                conviction que les femmes méritent un espace où elles peuvent
-                rencontrer, vibrer et s&apos;épanouir — à leur rythme, selon
-                leurs termes.”
-              </blockquote>
-
-              <p className="text-xs text-purple-300 sm:text-sm">
-                — L&apos;équipe SferaLuna
-              </p>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* ─────────────────────────────
-            IMPACT / STATS COMPACTES
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden bg-white px-4 py-5 sm:px-6 sm:py-14">
-          <OrbitGlow className="right-[-10%] top-0 h-72 w-72 sm:h-96 sm:w-96" />
-
-          <div className="relative z-10 mx-auto max-w-5xl">
-            <div className="mb-4 text-center sm:mb-8">
-              <h2 className="mb-1 text-xl font-black text-[#1C1C1C] sm:mb-4 sm:text-4xl">
-                Notre <span className="text-[#8E7AB5]">impact</span>
-              </h2>
-
-              <p className="text-xs text-[#666] sm:text-base">
-                Données réelles, mises à jour en continu.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2 sm:gap-6">
-              {stats.map((item, index) => (
-                <motion.div
-                  key={item.label}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.06 }}
-                  className="rounded-2xl border border-[#f0ecff] bg-gradient-to-b from-[#faf9ff] to-white px-2 py-3 text-center shadow-sm sm:p-6"
-                >
-                  <div className="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-xl bg-purple-50 text-[#8E7AB5] sm:mb-3 sm:h-10 sm:w-10">
-                    {item.icon}
-                  </div>
-
-                  <div className="mb-0.5 text-lg font-black text-[#5B4B8A] sm:mb-1 sm:text-4xl">
-                    {item.stat}
-                  </div>
-
-                  <div className="text-[10px] text-[#666] sm:text-sm">
-                    {item.label}
+                  <div className="min-w-0">
+                    <h3 className="font-display [font-stretch:125%] text-[16px] font-bold text-cream">
+                      {item.titre}
+                    </h3>
+                    <p className="mt-1.5 text-[14px] leading-relaxed text-cream/65">
+                      {item.texte}
+                    </p>
                   </div>
                 </motion.div>
               ))}
@@ -787,51 +350,100 @@ export default function HistoirePage() {
           </div>
         </section>
 
-        {/* ─────────────────────────────
-            CTA FINAL COMPACT MOBILE
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden px-4 py-7 sm:px-6 sm:py-12">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#8E7AB5] via-[#A68BC9] to-[#D9B8FF]" />
-
+        {/* Le nom */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <motion.div
-            animate={{ scale: [1, 1.16, 1] }}
-            transition={{ duration: 8, repeat: Infinity }}
-            className="absolute inset-0 bg-gradient-to-tr from-pink-500/10 to-transparent"
-          />
+            {...fadeUp}
+            className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center sm:flex-row sm:gap-10 sm:text-left"
+          >
+            {/*
+              `EclipseMark` peint avec `currentColor`. Sans couleur explicite,
+              il héritait du crème du `<main>` et ressortait blanc — un soleil
+              délavé au lieu de la signature solaire. Ailleurs sur le site il
+              sert de décor en fond à très faible opacité ; ici il est au
+              premier plan, donc en orange plein.
+            */}
+            <EclipseMark
+              id="histoire-eclipse"
+              withCorona
+              className="h-20 w-20 shrink-0 text-orange sm:h-24 sm:w-24"
+            />
 
-          <OrbitGlow
-            variant="light"
-            className="left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 sm:h-[36rem] sm:w-[36rem]"
-          />
+            <div>
+              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+                Le nom
+              </h2>
+              <p className="mt-3 text-[15px] leading-relaxed text-cream/70">
+                <span className="text-cream">Solys</span>, pour le soleil. Le
+                symbole est une éclipse : un disque qui en mord un autre et
+                laisse un anneau. On y a vu ce que fait la vérification —
+                cacher juste ce qu&apos;il faut pour que le reste devienne
+                regardable. L&apos;apostrophe du nom est ce point solaire.
+              </p>
+            </div>
+          </motion.div>
+        </section>
 
-          <div className="relative z-10 mx-auto max-w-3xl text-center text-white">
-            <h2 className="mb-3 text-2xl font-black leading-tight sm:mb-6 sm:text-4xl md:text-5xl">
-              Écris ta propre{' '}
-              <span className="text-[#FFD166]">histoire</span>
+        {/* Les chiffres — uniquement s'il y a quelque chose à montrer */}
+        {aDesChiffres && (
+          <section className="border-b border-cream/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
+            <div className="mx-auto max-w-6xl">
+              <h2 className="font-display [font-stretch:125%] text-center text-[13px] font-bold uppercase tracking-wide text-cream/55">
+                Là où on en est
+              </h2>
+
+              <dl className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
+                {chiffres.map((chiffre) => (
+                  <div
+                    key={chiffre.label}
+                    className="rounded-2xl border border-cream/10 bg-[#0C222D] p-5 text-center"
+                  >
+                    <dt className="sr-only">{chiffre.label}</dt>
+                    <dd>
+                      <span className="font-display [font-stretch:125%] block text-2xl font-extrabold text-orange sm:text-3xl">
+                        {chiffre.valeur}
+                      </span>
+                      <span className="mt-1 block text-[12px] text-cream/60">
+                        {chiffre.label}
+                      </span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </section>
+        )}
+
+        {/* CTA */}
+        <section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-16">
+          <motion.div {...fadeUp} className="mx-auto max-w-2xl text-center">
+            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[28px]">
+              La suite s&apos;écrit avec ceux qui entrent.
             </h2>
 
-            <p className="mb-5 text-sm leading-relaxed text-white/90 sm:mb-10 sm:text-xl">
-              SferaLuna n&apos;est pas que notre histoire — c&apos;est la
-              tienne aussi.
+            <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-cream/65">
+              Le dossier prend dix minutes, la vérification quelques instants.
+              Rien ne t&apos;est demandé de plus que ce qui sert à te croire sur
+              parole.
             </p>
 
-            <div className="flex flex-col justify-center gap-2.5 sm:flex-row sm:gap-4">
+            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
-                href="/auth?mode=register"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-[#8E7AB5] shadow-xl transition-all duration-300 hover:scale-105 sm:px-8 sm:py-4 sm:text-lg"
+                href="/inscription"
+                className={`fx-btn inline-flex items-center justify-center gap-2 rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
               >
-                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
-                Rejoindre SferaLuna
+                Constituer mon dossier
+                <ArrowRight size={16} aria-hidden="true" />
               </Link>
 
               <Link
                 href="/valeurs"
-                className="rounded-full border-2 border-white px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/10 sm:px-8 sm:py-4 sm:text-lg"
+                className={`fx-ghost inline-flex items-center justify-center rounded-xl border border-cream/15 px-7 py-3.5 text-sm font-bold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
               >
                 Nos valeurs
               </Link>
             </div>
-          </div>
+          </motion.div>
         </section>
       </main>
 

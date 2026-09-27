@@ -15,6 +15,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import { Logo } from '@/components/ui/Logo';
 
 /**
  * Icône TikTok (non incluse dans lucide-react).
@@ -46,7 +47,7 @@ type FooterGroup = {
 };
 
 /**
- * Footer SferaLuna.
+ * Footer Sfera'Solys.
  *
  * Objectifs :
  * - footer desktop élégant et complet ;
@@ -59,12 +60,12 @@ export default function Footer() {
   /**
    * Accordéon mobile.
    */
-  const [openGroup, setOpenGroup] = useState<string | null>('SferaLuna');
+  const [openGroup, setOpenGroup] = useState<string | null>("Sfera'Solys");
 
   const footerGroups: FooterGroup[] = [
     {
-      title: 'SferaLuna',
-      icon: '🌙',
+      title: "Sfera'Solys",
+      icon: '☀️',
       links: [
         { label: 'Accueil', href: '/' },
         { label: 'Notre histoire', href: '/histoire' },
@@ -85,7 +86,7 @@ export default function Footer() {
     },
     {
       title: 'Communauté',
-      icon: '💜',
+      icon: '🧡',
       links: [
         { label: 'Événements', href: '/evenements' },
         { label: 'VibeMentor', href: '/vibementor' },
@@ -110,77 +111,79 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative overflow-hidden border-t border-[#8E7AB5]/10 bg-[#12091f] text-white">
+    <footer className="relative overflow-hidden border-t border-cream/10 bg-abyss text-cream">
       {/* Décor léger */}
-      <div className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-[#8E7AB5]/20 blur-3xl" />
-      <div className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-[#D9B8FF]/15 blur-3xl" />
+      <div className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-orange/15 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-rust/15 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         {/* Haut du footer */}
         <div className="grid gap-5 lg:grid-cols-[1.2fr_2fr] lg:gap-10">
           {/* Branding compact */}
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-4 backdrop-blur-sm sm:p-5">
+          <div className="rounded-[1.75rem] border border-cream/10 bg-cream/[0.04] p-4 backdrop-blur-sm sm:p-5">
             <Link href="/" className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logo-sferaluna.png"
-                alt="SferaLuna"
-                className="h-12 w-12 object-contain sm:h-14 sm:w-14"
+                src="/logo-icon.png"
+                alt=""
+                aria-hidden="true"
+                className="h-12 w-12 shrink-0 sm:h-14 sm:w-14"
               />
 
               <div>
-                <p className="text-lg font-black leading-none text-white">
-                  SferaLuna
-                </p>
-                <p className="mt-1 text-xs text-white/55">
-                  Rencontrer au féminin, librement.
+                <Logo href={null} size="sm" />
+                <p className="mt-1 text-xs text-cream/55">
+                  Rencontrer au masculin, librement.
                 </p>
               </div>
             </Link>
 
-            <p className="mt-4 text-sm leading-relaxed text-white/60">
-              Une plateforme pensée pour les femmes qui veulent des rencontres
+            <p className="mt-4 text-sm leading-relaxed text-cream/60">
+              Une plateforme pensée pour les hommes qui veulent des rencontres
               sincères, sûres et alignées avec leur vibe.
             </p>
 
             {/* Badges rassurance */}
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <div className="flex items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-2 text-xs text-white/70">
-                <Shield size={14} className="text-[#D9B8FF]" />
+              <div className="flex items-center gap-2 rounded-2xl border border-cream/10 bg-cream/[0.04] px-3 py-2 text-xs text-cream/70">
+                <Shield size={14} className="text-orange" />
                 Sécurité
               </div>
 
-              <div className="flex items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-2 text-xs text-white/70">
-                <Heart size={14} className="text-pink-300" />
+              <div className="flex items-center gap-2 rounded-2xl border border-cream/10 bg-cream/[0.04] px-3 py-2 text-xs text-cream/70">
+                <Heart size={14} className="text-orange" />
                 Bienveillance
               </div>
             </div>
 
             {/* Réseaux sociaux */}
+            {/* TODO rebranding : remplacer par les vrais comptes sociaux
+                Sfera'Solys une fois créés (les URLs ci-dessous sont encore
+                celles de Sfera'Solys — pointées vers '#' en attendant). */}
             <div className="mt-4 flex items-center gap-2">
               {[
                 {
                   label: 'Instagram',
-                  href: 'https://www.instagram.com/sferaluna.co/',
-                  external: true,
+                  href: '#',
+                  external: false,
                   icon: <Instagram size={16} />,
                 },
                 {
                   label: 'TikTok',
-                  href: 'https://www.tiktok.com/@sfer_aluna',
-                  external: true,
+                  href: '#',
+                  external: false,
                   icon: <TikTokIcon />,
                 },
                 {
                   label: 'X (Twitter)',
-                  href: 'https://x.com/sferaluna',
-                  external: true,
+                  href: '#',
+                  external: false,
                   icon: <Twitter size={16} />,
                 },
                 {
                   label: 'Facebook',
-                  href: 'https://www.facebook.com/profile.php?id=61590343876021',
-                  external: true,
+                  href: '#',
+                  external: false,
                   icon: <Facebook size={16} />,
                 },
                 {
@@ -197,7 +200,7 @@ export default function Footer() {
                   {...(item.external
                     ? { target: '_blank', rel: 'noopener noreferrer' }
                     : {})}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/65 transition hover:border-[#D9B8FF]/40 hover:bg-[#8E7AB5]/20 hover:text-white"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-cream/10 bg-cream/[0.04] text-cream/65 transition hover:border-orange/40 hover:bg-orange/15 hover:text-cream"
                 >
                   {item.icon}
                 </Link>
@@ -213,24 +216,24 @@ export default function Footer() {
               return (
                 <div
                   key={group.title}
-                  className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
+                  className="overflow-hidden rounded-2xl border border-cream/10 bg-cream/[0.04]"
                 >
                   <button
                     type="button"
                     onClick={() => toggleGroup(group.title)}
                     className="flex w-full items-center gap-3 px-4 py-3 text-left"
                   >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cream/10 text-lg">
                       {group.icon}
                     </span>
 
-                    <span className="flex-1 text-sm font-bold text-white">
+                    <span className="flex-1 text-sm font-bold text-cream">
                       {group.title}
                     </span>
 
                     <ChevronDown
                       size={17}
-                      className={`text-[#D9B8FF] transition-transform ${
+                      className={`text-orange transition-transform ${
                         isOpen ? 'rotate-180' : ''
                       }`}
                     />
@@ -245,14 +248,14 @@ export default function Footer() {
                         transition={{ duration: 0.22, ease: 'easeOut' }}
                         className="overflow-hidden"
                       >
-                        <div className="space-y-1 border-t border-white/10 px-4 pb-3 pt-2">
+                        <div className="space-y-1 border-t border-cream/10 px-4 pb-3 pt-2">
                           {group.links.map((link) => (
                             <Link
                               key={link.href}
                               href={link.href}
-                              className="flex items-center gap-2 rounded-xl px-2 py-2 text-xs font-medium text-white/60 transition hover:bg-white/5 hover:text-white"
+                              className="flex items-center gap-2 rounded-xl px-2 py-2 text-xs font-medium text-cream/60 transition hover:bg-cream/5 hover:text-cream"
                             >
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#D9B8FF]" />
+                              <span className="h-1.5 w-1.5 rounded-full bg-orange" />
                               {link.label}
                             </Link>
                           ))}
@@ -271,7 +274,7 @@ export default function Footer() {
               <div key={group.title}>
                 <div className="mb-4 flex items-center gap-2">
                   <span className="text-lg">{group.icon}</span>
-                  <h3 className="text-sm font-bold text-white">
+                  <h3 className="text-sm font-bold text-cream">
                     {group.title}
                   </h3>
                 </div>
@@ -281,7 +284,7 @@ export default function Footer() {
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className="text-sm text-white/55 transition hover:text-[#D9B8FF]"
+                        className="text-sm text-cream/55 transition hover:text-orange"
                       >
                         {link.label}
                       </Link>
@@ -294,14 +297,14 @@ export default function Footer() {
         </div>
 
         {/* CTA compact */}
-        <div className="mt-5 rounded-[1.5rem] border border-[#D9B8FF]/20 bg-gradient-to-r from-[#8E7AB5]/25 to-[#D9B8FF]/15 p-4 sm:mt-8 sm:flex sm:items-center sm:justify-between sm:gap-4">
+        <div className="mt-5 rounded-[1.5rem] border border-orange/20 bg-gradient-to-r from-orange/20 to-rust/15 p-4 sm:mt-8 sm:flex sm:items-center sm:justify-between sm:gap-4">
           <div>
-            <p className="flex items-center gap-2 text-sm font-bold text-white">
-              <Sparkles size={15} className="text-[#D9B8FF]" />
-              Prête à rejoindre la vibe ?
+            <p className="flex items-center gap-2 text-sm font-bold text-cream">
+              <Sparkles size={15} className="text-orange" />
+              Prêt à rejoindre la vibe ?
             </p>
 
-            <p className="mt-1 text-xs text-white/60">
+            <p className="mt-1 text-xs text-cream/60">
               Crée ton profil et découvre une nouvelle façon de rencontrer.
             </p>
           </div>
@@ -309,14 +312,14 @@ export default function Footer() {
           <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-0 sm:flex">
             <Link
               href="/auth?mode=register"
-              className="flex items-center justify-center rounded-full bg-white px-4 py-2.5 text-xs font-bold text-[#8E7AB5] transition hover:scale-[1.02]"
+              className="flex items-center justify-center rounded-full bg-cream px-4 py-2.5 text-xs font-bold text-rust transition hover:scale-[1.02]"
             >
               S’inscrire
             </Link>
 
             <Link
               href="/contact"
-              className="flex items-center justify-center gap-1.5 rounded-full border border-white/20 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-white/10"
+              className="flex items-center justify-center gap-1.5 rounded-full border border-cream/20 px-4 py-2.5 text-xs font-bold text-cream transition hover:bg-cream/10"
             >
               <MessageCircle size={14} />
               Contact
@@ -325,14 +328,14 @@ export default function Footer() {
         </div>
 
         {/* Newsletter */}
-        <div className="mt-4 rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-4 sm:mt-6 sm:p-5">
+        <div className="mt-4 rounded-[1.5rem] border border-cream/10 bg-cream/[0.04] p-4 sm:mt-6 sm:p-5">
           <div className="sm:flex sm:items-center sm:justify-between sm:gap-6">
             <div className="mb-3 sm:mb-0">
-              <p className="flex items-center gap-2 text-sm font-bold text-white">
-                <Mail size={15} className="text-[#D9B8FF]" />
-                La newsletter SferaLuna
+              <p className="flex items-center gap-2 text-sm font-bold text-cream">
+                <Mail size={15} className="text-orange" />
+                La newsletter Sfera'Solys
               </p>
-              <p className="mt-1 text-xs text-white/60">
+              <p className="mt-1 text-xs text-cream/60">
                 Conseils, événements et nouveautés en avant-première.
               </p>
             </div>
@@ -342,11 +345,11 @@ export default function Footer() {
         </div>
 
         {/* Bas du footer */}
-        <div className="mt-5 flex flex-col gap-2 border-t border-white/10 pt-4 text-center text-[11px] text-white/40 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:text-left">
-          <p>© {new Date().getFullYear()} SferaLuna. Tous droits réservés.</p>
+        <div className="mt-5 flex flex-col gap-2 border-t border-cream/10 pt-4 text-center text-[11px] text-cream/40 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+          <p>© {new Date().getFullYear()} Sfera'Solys. Tous droits réservés.</p>
 
           <p>
-            Fait avec <span className="text-pink-300">♥</span> pour des
+            Fait avec <span className="text-orange">♥</span> pour des
             connexions plus vraies.
           </p>
         </div>

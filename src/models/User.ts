@@ -13,7 +13,7 @@ import mongoose, { Schema, Document, Model, models } from "mongoose";
 export type AuthProvider = "credentials" | "google" | "apple";
 
 /**
- * Rôles disponibles sur SferaLuna.
+ * Rôles disponibles sur Sfera'Solys.
  *
  * user : utilisateur classique
  * admin : administrateur de la plateforme
@@ -21,7 +21,7 @@ export type AuthProvider = "credentials" | "google" | "apple";
 export type UserRole = "user" | "admin";
 
 /**
- * Plans disponibles sur SferaLuna.
+ * Plans disponibles sur Sfera'Solys.
  *
  * Ces valeurs doivent rester synchronisées avec :
  * - src/app/paiement/page.tsx
@@ -70,7 +70,7 @@ export type IdentityVerificationStatus =
   | "failed";
 
 /**
- * Interface TypeScript principale de l'utilisateur SferaLuna.
+ * Interface TypeScript principale de l'utilisateur Sfera'Solys.
  *
  * Elle décrit les champs que l'on manipule côté TypeScript.
  * Le schéma Mongoose plus bas décrit comment ces champs sont stockés dans MongoDB.
@@ -158,7 +158,7 @@ export interface IUser extends Document {
 }
 
 /**
- * Schéma MongoDB de l'utilisateur SferaLuna.
+ * Schéma MongoDB de l'utilisateur Sfera'Solys.
  *
  * Points importants :
  * - email est unique et normalisé en minuscules.
@@ -185,12 +185,12 @@ const UserSchema = new Schema<IUser>(
     },
 
     /**
-     * Nom public affiché sur SferaLuna.
+     * Nom public affiché sur Sfera'Solys.
      */
     pseudonyme: {
       type: String,
       required: [true, "Le pseudonyme est obligatoire."],
-      default: "Utilisateur Luna",
+      default: "Membre Solys",
       trim: true,
       minlength: [2, "Le pseudonyme doit contenir au moins 2 caractères."],
       maxlength: [50, "Le pseudonyme ne doit pas dépasser 50 caractères."],
@@ -265,7 +265,7 @@ const UserSchema = new Schema<IUser>(
     /**
      * Âge de l'utilisateur.
      *
-     * SferaLuna vise les femmes de 28 ans et plus.
+     * Sfera'Solys vise les femmes de 28 ans et plus.
      * On aligne donc MongoDB avec la validation frontend.
      */
     age: {

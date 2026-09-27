@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     // Si aucun pseudonyme n'a été renseigné, on retombe sur la même valeur
     // par défaut que le modèle Mongoose — jamais de chaîne vide, qui ferait
     // échouer la validation "required" lors d'un futur save() (ex: paiement).
-    const finalPseudonyme = trimmedPseudo.length > 0 ? trimmedPseudo : "Utilisateur Luna";
+    const finalPseudonyme = trimmedPseudo.length > 0 ? trimmedPseudo : "Membre Solys";
 
     await User.create({
       email: normalizedEmail,

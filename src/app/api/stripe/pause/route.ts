@@ -25,7 +25,7 @@ export async function POST() {
   const user = await User.findOne({ email: session.user.email.toLowerCase().trim() });
 
   if (!user) {
-    return NextResponse.json({ success: false, error: "Utilisatrice introuvable." }, { status: 404 });
+    return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
   }
 
   if (!user.stripeSubscriptionId) {

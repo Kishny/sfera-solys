@@ -3,7 +3,7 @@
 import mongoose, { Schema, Document, Model, models } from "mongoose";
 
 /**
- * Modèle Message SferaLuna.
+ * Modèle Message Sfera'Solys.
  *
  * Un message privé appartient toujours à un Match.
  * Il est envoyé par l'un des deux utilisateurs du match.

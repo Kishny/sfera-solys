@@ -11,7 +11,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 
 /**
- * Configuration NextAuth SferaLuna.
+ * Configuration NextAuth Sfera'Solys.
  *
  * Objectif mobile-first :
  * - session légère ;
@@ -263,7 +263,7 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user._id.toString(),
           email: user.email,
-          name: user.pseudonyme || user.name || "Utilisateur Luna",
+          name: user.pseudonyme || user.name || "Membre Solys",
           image: user.image || "",
         };
       },
@@ -299,7 +299,7 @@ export const authOptions: NextAuthOptions = {
         if (!existingUser) {
           await User.create({
             email,
-            pseudonyme: user.name || "Utilisateur Luna",
+            pseudonyme: user.name || "Membre Solys",
             name: user.name || "",
             image: user.image || "",
             provider: oauthProvider,
@@ -365,10 +365,10 @@ export const authOptions: NextAuthOptions = {
       token._id = dbUser._id.toString();
 
       token.email = dbUser.email;
-      token.name = dbUser.pseudonyme || dbUser.name || "Utilisateur Luna";
+      token.name = dbUser.pseudonyme || dbUser.name || "Membre Solys";
       token.picture = dbUser.image || token.picture || "";
 
-      token.pseudonyme = dbUser.pseudonyme || "Utilisateur Luna";
+      token.pseudonyme = dbUser.pseudonyme || "Membre Solys";
       token.role = dbUser.role || "user";
       token.provider = dbUser.provider || "credentials";
 

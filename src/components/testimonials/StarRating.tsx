@@ -4,10 +4,15 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 
 /**
- * Note en étoiles SferaLuna.
+ * Note en étoiles Sfera'Solys.
  *
  * - Mode lecture (readOnly) : affiche simplement la note.
  * - Mode édition : étoiles cliquables avec survol, pour le formulaire.
+ *
+ * `variant` : "light" (par défaut, pages au fond clair pas encore migrées)
+ * ou "dark" (pages passées à l'identité sombre de la direction A). Sur fond
+ * sombre, les étoiles vides doivent virer au crème : un `text-abyss` sur un
+ * fond `bg-abyss` serait purement invisible.
  */
 export default function StarRating({
   value,
@@ -15,14 +20,17 @@ export default function StarRating({
   size = 18,
   readOnly = false,
   className = "",
+  variant = "light",
 }: {
   value: number;
   onChange?: (value: number) => void;
   size?: number;
   readOnly?: boolean;
   className?: string;
+  variant?: "light" | "dark";
 }) {
   const [hover, setHover] = useState<number | null>(null);
+  const emptyStarClass = variant === "dark" ? "text-cream/35" : "text-abyss/15";
 
   const stars = [1, 2, 3, 4, 5];
   const active = hover ?? value;
@@ -41,7 +49,7 @@ export default function StarRating({
             <Star
               key={star}
               size={size}
-              className={filled ? "text-amber-400" : "text-[#E0D8F0]"}
+              className={filled ? "text-orange" : emptyStarClass}
               fill={filled ? "currentColor" : "none"}
             />
           );
@@ -59,7 +67,7 @@ export default function StarRating({
           >
             <Star
               size={size}
-              className={filled ? "text-amber-400" : "text-[#D8CEEC]"}
+              className={filled ? "text-orange" : emptyStarClass}
               fill={filled ? "currentColor" : "none"}
             />
           </button>

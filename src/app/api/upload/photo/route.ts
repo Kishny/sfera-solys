@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ success: false, error: "Non autorisée." }, { status: 401 });
+      return NextResponse.json({ success: false, error: "Non autorisé." }, { status: 401 });
     }
 
     const formData = await req.formData();
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     const user = await User.findOne({ email }).select("photos");
 
     if (!user) {
-      return NextResponse.json({ success: false, error: "Utilisatrice introuvable." }, { status: 404 });
+      return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
     }
     if ((user.photos ?? []).length >= MAX_PHOTOS) {
       return NextResponse.json(
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         cloudinary.uploader
           .upload_stream(
             {
-              folder: "sferaluna/photos",
+              folder: "sferasolys/photos",
               transformation: [
                 { width: 800, height: 1000, crop: "fill", gravity: "face" },
               ],
@@ -124,7 +124,7 @@ export async function DELETE(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ success: false, error: "Non autorisée." }, { status: 401 });
+      return NextResponse.json({ success: false, error: "Non autorisé." }, { status: 401 });
     }
 
     const url = req.nextUrl.searchParams.get("url");
@@ -142,7 +142,7 @@ export async function DELETE(req: NextRequest) {
     ).select("photos");
 
     if (!updatedUser) {
-      return NextResponse.json({ success: false, error: "Utilisatrice introuvable." }, { status: 404 });
+      return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
     }
 
     // Supprimer sur Cloudinary (silencieux si échec)
@@ -169,8 +169,8 @@ export async function DELETE(req: NextRequest) {
 
 /**
  * Extrait le public_id Cloudinary depuis une secure_url.
- * Ex: https://res.cloudinary.com/demo/image/upload/v123/sferaluna/photos/abc.jpg
- *   → sferaluna/photos/abc
+ * Ex: https://res.cloudinary.com/demo/image/upload/v123/sferasolys/photos/abc.jpg
+ *   → sferasolys/photos/abc
  */
 function extractCloudinaryPublicId(url: string): string | null {
   try {

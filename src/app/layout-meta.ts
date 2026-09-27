@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 
 /**
- * Helper SEO SferaLuna.
+ * Helper SEO Sfera'Solys.
  *
  * Ce fichier permet de générer des métadonnées cohérentes
  * pour toutes les pages publiques du site :
@@ -16,8 +16,8 @@ import type { Metadata } from "next";
  * Exemple d'utilisation dans une page ou un layout :
  *
  * export const metadata = buildMeta(
- *   "Notre histoire — Comment SferaLuna est née",
- *   "Découvre l'histoire de SferaLuna, le site de rencontres premium pensé pour les femmes.",
+ *   "Notre histoire — Comment Sfera'Solys est née",
+ *   "Découvre l'histoire de Sfera'Solys, le site de rencontres premium pensé pour les hommes de 28 ans et plus.",
  *   "/histoire"
  * );
  */
@@ -27,15 +27,15 @@ import type { Metadata } from "next";
  *
  * Important :
  * NEXT_PUBLIC_APP_URL doit idéalement être :
- * https://sferaluna.com
+ * https://sferasolys.com
  *
  * Sans slash final.
  */
-const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferaluna.com";
+const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.com";
 
 /**
  * Nettoie l'URL de base pour éviter :
- * https://sferaluna.com//histoire
+ * https://sferasolys.com//histoire
  */
 const baseUrl = rawBaseUrl.replace(/\/$/, "");
 
@@ -50,16 +50,16 @@ const defaultOgImage = "/og-image.png";
 /**
  * Nom officiel du site.
  */
-const siteName = "SferaLuna";
+const siteName = "Sfera'Solys";
 
 /**
  * Construit une URL absolue propre.
  *
  * Exemples :
- * buildAbsoluteUrl("") => https://sferaluna.com
- * buildAbsoluteUrl("/") => https://sferaluna.com
- * buildAbsoluteUrl("/histoire") => https://sferaluna.com/histoire
- * buildAbsoluteUrl("histoire") => https://sferaluna.com/histoire
+ * buildAbsoluteUrl("") => https://sferasolys.com
+ * buildAbsoluteUrl("/") => https://sferasolys.com
+ * buildAbsoluteUrl("/histoire") => https://sferasolys.com/histoire
+ * buildAbsoluteUrl("histoire") => https://sferasolys.com/histoire
  */
 function buildAbsoluteUrl(path: string = "") {
   if (!path || path === "/") return baseUrl;

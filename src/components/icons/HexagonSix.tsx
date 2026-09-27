@@ -2,7 +2,7 @@
 // Icône custom Circle of Six — hexagone avec 6 points aux sommets
 
 interface HexagonSixProps {
-  size?: number;
+  size?: number | string;
   className?: string;
 }
 

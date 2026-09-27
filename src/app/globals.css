@@ -2,195 +2,199 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 
-  Variables globales du thème.
-  Elles servent de base générale, même si certaines pages LunaVibe
-  utilisent leurs propres backgrounds en Tailwind.
+/*
+  Feuille de style globale Sfera'Solys.
+
+  Ce fichier était le dernier angle mort du rebranding : il n'avait jamais
+  été touché et pilotait pourtant l'apparence de TOUTES les pages — fond de
+  document violet-noir (#0a0614), texte lavande, sélection rose, barre de
+  défilement violette, variables nommées `--lunavibe-*`, et un fond étoilé
+  (motif lunaire) encore utilisé sur /auth, /inscription et /paiement.
+
+  Supprimé au passage, après vérification d'un usage nul dans tout le dépôt :
+  `.input`, `.tag`, `.input-luna` (la page /mon-compte définit son propre
+  `.input-solys` en style local) et les quatre animations `.animate-fade-in`,
+  `.animate-fade-slide-down`, `.animate-pulse-alt`, `.animate-float`.
 */
+
 :root {
-  --background: #0a0614;
-  --foreground: #f8f5ff;
-  --lunavibe-purple: #8e7ab5;
-  --lunavibe-pink: #ec4899;
-  --lunavibe-dark: #1a0b2e;
+  /* Miroir des tokens Tailwind, pour le CSS qui ne passe pas par Tailwind. */
+  --abyss: #001724;
+  --surface: #0c222d;
+  --cream: #ffebd1;
+  --orange: #ff4103;
+  --rust: #6b1b02;
+  --lime: #b6ff00;
+
+  --background: var(--abyss);
+  --foreground: var(--cream);
+
+  /*
+    Indique au navigateur que l'interface est sombre : il adapte les
+    contrôles natifs (select, date, champs auto-remplis) et les barres de
+    défilement overlay de macOS, qui sinon restent claires sur fond sombre.
+  */
+  color-scheme: dark;
 }
 
-/*
-  Style global du document.
-  On garde un fond sombre par défaut pour éviter les flashs blancs
-  lors des changements de page.
-*/
 html {
   scroll-behavior: smooth;
+
+  /*
+    Réserve la gouttière de la barre de défilement en permanence : sans ça,
+    passer d'une page courte à une page longue décale toute la mise en page
+    de la largeur de la barre.
+  */
+  scrollbar-gutter: stable;
 }
 
 body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+  /*
+    La police réelle vient de next/font, appliquée via la classe `font-sans`
+    posée sur <body> dans layout.tsx — une classe l'emporte sur ce sélecteur
+    d'élément. Ce qui suit n'est donc qu'une pile de repli, le temps que la
+    police se charge. L'ancienne valeur (`Arial, Helvetica`) n'avait aucun
+    rapport avec la charte.
+  */
+  font-family: var(--font-instrument-sans), ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /*
-  Sélection de texte personnalisée.
+  Sélection de texte : un voile vulcanico plutôt que le rose d'origine.
+  L'opacité reste basse pour que le texte sélectionné demeure lisible.
 */
 ::selection {
-  background: rgba(236, 72, 153, 0.35);
-  color: white;
+  background: rgba(255, 65, 3, 0.3);
+  color: var(--cream);
 }
 
 /*
-  Améliore légèrement le rendu des inputs sur iOS / Safari.
+  Filet de sécurité pour la navigation au clavier : si un composant oublie
+  son propre anneau de focus, celui-ci prend le relais au lieu de laisser
+  l'utilisateur sans repère.
 */
-input,
-textarea,
-select,
-button {
-  font: inherit;
+:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   Barre de défilement
+   ────────────────────────────────────────────────────────────────────── */
+
+/* Firefox */
+/*
+  Valeurs littérales et non `var(--orange)` : les pseudo-éléments de barre de
+  défilement de WebKit ont un historique de mauvais support des variables CSS
+  (ils sont peints par un chemin de rendu distinct). Sur un élément décoratif
+  on s'en remettrait au hasard ; ici une variable non résolue rendrait la
+  barre invisible. Les valeurs sont celles des tokens : orange #FF4103,
+  rust #6B1B02, lime #B6FF00.
+*/
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ff4103 transparent;
+}
+
+/* WebKit / Chromium */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /*
-  Classe input simple utilisée sur certaines anciennes pages.
-  Pour les pages sombres LunaVibe, préfère .input-luna.
+  Le pouce fait 12px de large mais porte une bordure transparente de 3px :
+  avec `background-clip: padding-box`, la couleur ne remplit que l'intérieur.
+  Résultat, une pilule fine de 6px qui flotte dans sa gouttière au lieu de
+  coller aux bords — et une zone de préhension qui reste large au pointeur.
 */
-.input {
-  @apply w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8E7AB5];
+::-webkit-scrollbar-thumb {
+  background-color: #ff4103;
+  background-image: linear-gradient(180deg, #ff4103, #6b1b02);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+  border-radius: 999px;
 }
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #ff5c26;
+  background-image: linear-gradient(180deg, #ff5c26, #ff4103);
+  background-clip: padding-box;
+}
+
+/* Au glissé, une pointe de lime : le même accent que les badges. */
+::-webkit-scrollbar-thumb:active {
+  background-color: #b6ff00;
+  background-image: linear-gradient(180deg, #b6ff00, #ff4103);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   Indicateur de progression de lecture
+   ────────────────────────────────────────────────────────────────────── */
 
 /*
-  Message d'erreur générique.
+  Un filet de 2px en haut de l'écran, qui se remplit à mesure qu'on descend.
+  Entièrement en CSS : l'animation est pilotée par le défilement, pas par une
+  minuterie, donc zéro JavaScript et aucun écouteur d'événement.
+
+  Sous `@supports`, car les animations pilotées par le défilement ne sont pas
+  encore universelles : là où elles manquent, il ne se passe simplement rien.
 */
-.error {
-  @apply text-sm text-red-500;
-}
-
-/*
-  Tag clair générique pour les pages à fond clair.
-*/
-.tag {
-  @apply px-4 py-2 border border-gray-300 rounded-full text-sm cursor-pointer transition hover:bg-[#f5f3f7];
-}
-
-/*
-  Input spécial LunaVibe pour les pages sombres :
-  /mon-compte, /inscription, /paiement, etc.
-*/
-.input-luna {
-  width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.08);
-  padding: 0.75rem 1rem;
-  color: white;
-  outline: none;
-  transition: 0.2s ease;
-}
-
-.input-luna::placeholder {
-  color: rgba(209, 213, 219, 0.7);
-}
-
-.input-luna:focus {
-  border-color: rgba(244, 114, 182, 0.8);
-  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.25);
-}
-
-.input-luna:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/*
-  Pour les options de select sur fond sombre.
-*/
-.input-luna option {
-  background: #111827;
-  color: white;
-}
-
-/*
-  Animation fade-in simple.
-*/
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-in-out both;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@supports (animation-timeline: scroll()) {
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 2px;
+    z-index: 60;
+    background: linear-gradient(90deg, #ff4103, #b6ff00);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    animation: solys-lecture linear;
+    animation-timeline: scroll(root block);
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/*
-  Animation fade + slide down.
-*/
-.animate-fade-slide-down {
-  animation: fadeSlideDown 1s ease-out forwards;
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-@keyframes fadeSlideDown {
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  @keyframes solys-lecture {
+    to {
+      transform: scaleX(1);
+    }
   }
 }
 
-/*
-  Animation pulse alternative.
-*/
-.animate-pulse-alt {
-  animation: pulseAlt 3s ease-in-out infinite;
-}
-
-@keyframes pulseAlt {
-  0%,
-  80%,
-  100% {
-    opacity: 0;
-  }
-
-  40% {
-    opacity: 1;
-  }
-}
+/* ──────────────────────────────────────────────────────────────────────
+   Poussière solaire
+   ────────────────────────────────────────────────────────────────────── */
 
 /*
-  Animation flottante douce.
-*/
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
+  Anciennement « fond étoilé » : des points blancs sur fond violet, soit un
+  motif de nuit — la signature de la marque d'origine. Retourné en poussière
+  solaire, des particules crème et vulcanico en suspension.
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/*
-  Fond étoilé LunaVibe.
-  Utilisé avec :
-  <div className="stars" />
+  Toujours utilisé via <div className="stars" /> sur /auth, /inscription et
+  /paiement ; le nom de classe est conservé pour ne pas casser ces pages.
 */
 .stars {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.65;
+  opacity: 0.5;
 }
 
 .stars::before,
@@ -203,49 +207,213 @@ button {
 
 .stars::before {
   background-image:
-    radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
-    radial-gradient(1px 1px at 40px 70px, rgba(255, 255, 255, 0.6), transparent),
-    radial-gradient(1px 1px at 50px 160px, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.6), transparent);
+    radial-gradient(1px 1px at 20px 30px, rgba(255, 235, 209, 0.75), transparent),
+    radial-gradient(1px 1px at 40px 70px, rgba(255, 235, 209, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 50px 160px, rgba(255, 65, 3, 0.55), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255, 235, 209, 0.55), transparent);
   background-size: 200px 200px;
 }
 
 .stars::after {
   background-image:
-    radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1px 1px at 160px 120px, rgba(255, 255, 255, 0.4), transparent),
-    radial-gradient(1px 1px at 200px 60px, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1px 1px at 240px 90px, rgba(255, 255, 255, 0.6), transparent);
+    radial-gradient(1px 1px at 130px 80px, rgba(255, 235, 209, 0.45), transparent),
+    radial-gradient(1.5px 1.5px at 160px 120px, rgba(255, 65, 3, 0.45), transparent),
+    radial-gradient(1px 1px at 200px 60px, rgba(255, 235, 209, 0.6), transparent),
+    radial-gradient(1px 1px at 240px 90px, rgba(182, 255, 0, 0.35), transparent);
   background-size: 300px 300px;
-  animation: starsTwinkle 8s ease-in-out infinite alternate;
+  animation: solys-poussiere 9s ease-in-out infinite alternate;
 }
 
-@keyframes starsTwinkle {
+@keyframes solys-poussiere {
   from {
-    opacity: 0.35;
+    opacity: 0.3;
   }
 
   to {
-    opacity: 0.9;
+    opacity: 0.85;
   }
 }
 
+/* ──────────────────────────────────────────────────────────────────────
+   Interactions — survol, appui, focus
+   ────────────────────────────────────────────────────────────────────── */
+
 /*
-  Scrollbar custom discrète.
+  Ces classes existent en CSS plutôt qu'en chaînes Tailwind répétées dans
+  chaque fichier : un effet d'interaction doit être identique partout, et
+  réglable en un seul endroit. On les ajoute à côté des classes Tailwind
+  existantes, qui continuent de porter la couleur et l'espacement.
+
+  Rôle des deux accents, appliqué ici :
+  — orange = l'action (le fond des boutons, la couleur des liens) ;
+  — lime  = la validation (le liseré qui apparaît au survol, la fin du
+    dégradé de soulignement). Le lime ne se montre donc pas au repos, il
+    répond. C'est ce qui lui rend une présence sans qu'il écrase l'orange,
+    trois fois moins lumineux que lui sur fond abyss.
 */
-::-webkit-scrollbar {
-  width: 10px;
+
+@layer components {
+  /* Bouton plein ------------------------------------------------------ */
+  .fx-btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1),
+      box-shadow 0.25s ease,
+      background-color 0.2s ease;
+  }
+
+  /*
+    Balayage de lumière : une bande diagonale qui traverse le bouton au
+    survol. `z-index: -1` avec `isolation: isolate` la maintient sous le
+    libellé sans créer de contexte d'empilement qui fuirait dans la page.
+  */
+  .fx-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      115deg,
+      transparent 20%,
+      rgba(255, 235, 209, 0.4) 45%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+
+  .fx-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 14px 30px -10px rgba(255, 65, 3, 0.55),
+      0 0 0 1px rgba(182, 255, 0, 0.4);
+  }
+
+  .fx-btn:hover::after {
+    transform: translateX(120%);
+  }
+
+  /* L'appui doit être franc et court : le bouton s'enfonce et l'ombre retombe. */
+  .fx-btn:active {
+    transform: translateY(0) scale(0.985);
+    box-shadow:
+      0 4px 12px -6px rgba(255, 65, 3, 0.5),
+      0 0 0 1px rgba(182, 255, 0, 0.65);
+    transition-duration: 0.06s;
+  }
+
+  /* Bouton secondaire / contour --------------------------------------- */
+  .fx-ghost {
+    transition:
+      transform 0.18s cubic-bezier(0.2, 0.7, 0.3, 1),
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.25s ease;
+  }
+
+  .fx-ghost:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 65, 3, 0.55);
+    background-color: rgba(255, 65, 3, 0.07);
+    box-shadow: 0 12px 26px -14px rgba(0, 0, 0, 0.9);
+  }
+
+  .fx-ghost:active {
+    transform: translateY(0) scale(0.985);
+    border-color: rgba(182, 255, 0, 0.55);
+    transition-duration: 0.06s;
+  }
+
+  /* Lien texte -------------------------------------------------------- */
+  /*
+    Soulignement qui se déploie depuis la gauche et se replie vers la
+    droite quand on s'en va — le trait suit le mouvement du regard au lieu
+    de disparaître d'un coup. Le dégradé finit en lime : le lien se
+    « valide » sous le curseur.
+  */
+  .fx-link {
+    position: relative;
+    transition: color 0.2s ease;
+  }
+
+  .fx-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #ff4103, #b6ff00);
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 0.32s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+
+  .fx-link:hover::after,
+  .fx-link:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+
+  .fx-link:active {
+    opacity: 0.7;
+  }
+
+  /* Les flèches de fin de lien avancent avec le curseur. */
+  .fx-link svg {
+    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+
+  .fx-link:hover svg {
+    transform: translateX(3px);
+  }
+
+  /* Carte cliquable --------------------------------------------------- */
+  .fx-card {
+    transition:
+      transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1),
+      border-color 0.22s ease,
+      box-shadow 0.3s ease;
+  }
+
+  .fx-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 65, 3, 0.35);
+    box-shadow:
+      0 26px 50px -24px rgba(0, 0, 0, 0.95),
+      0 0 0 1px rgba(182, 255, 0, 0.2);
+  }
+
+  .fx-card:active {
+    transform: translateY(-1px) scale(0.995);
+    transition-duration: 0.08s;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: #10091f;
-}
+/* ──────────────────────────────────────────────────────────────────────
+   Mouvement réduit
+   ────────────────────────────────────────────────────────────────────── */
 
-::-webkit-scrollbar-thumb {
-  background: rgba(142, 122, 181, 0.65);
-  border-radius: 999px;
-}
+/*
+  Règle du projet : `prefers-reduced-motion` doit être respecté. Les
+  composants le font déjà individuellement via `useReducedMotion()` de
+  framer-motion ; ceci couvre tout ce qui vient du CSS, y compris le
+  scintillement de la poussière et le défilement fluide.
+*/
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(236, 72, 153, 0.75);
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

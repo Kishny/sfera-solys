@@ -42,7 +42,7 @@ export class SubscriptionService {
   }
 
   /**
-   * Retourne le plan actif de l'utilisatrice.
+   * Retourne le plan actif de l'utilisateur.
    */
   async getCurrentPlan(): Promise<PlanId> {
     await connectDB();

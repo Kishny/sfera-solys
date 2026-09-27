@@ -79,6 +79,6 @@ export function evaluateModeration(uploadResult: unknown): ModerationVerdict {
   return { approved: true };
 }
 
-/** Message affiché à l'utilisatrice quand sa photo est rejetée. */
+/** Message affiché à l'utilisateur quand sa photo est rejetée. */
 export const MODERATION_REJECTION_MESSAGE =
   "Cette photo ne respecte pas nos règles de contenu (nudité ou contenu inapproprié détecté). Merci d'en choisir une autre.";

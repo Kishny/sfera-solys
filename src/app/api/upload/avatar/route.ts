@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         cloudinary.uploader
           .upload_stream(
             {
-              folder: "sferaluna/avatars",
+              folder: "sferasolys/avatars",
               transformation: [
                 { width: 400, height: 400, crop: "fill", gravity: "face" },
               ],

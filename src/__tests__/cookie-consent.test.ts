@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-const STORAGE_KEY = "sferaluna-cookie-consent";
+const STORAGE_KEY = "sferasolys-cookie-consent";
 
 // Mock localStorage
 const localStorageMock = (() => {

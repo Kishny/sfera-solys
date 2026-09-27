@@ -15,7 +15,7 @@ export const revalidate = 300;
  * Retourne les témoignages approuvés (public).
  *
  * Champs publics retournés : auteur, âge, ville, note, contenu, avatar
- * (uniquement si la membre a explicitement consenti via showAvatar).
+ * (uniquement si le membre a explicitement consenti via showAvatar).
  */
 export async function GET() {
   try {
@@ -107,12 +107,12 @@ export async function POST(req: Request) {
       dbUser?.pseudonyme ||
       sessionUser.name ||
       dbUser?.name ||
-      "Membre Luna"
+      "Membre Solys"
     ).slice(0, 50);
 
     const finalCity = (city || dbUser?.localisation || "").toString().slice(0, 60);
 
-    // Upsert — remplace si l'utilisatrice avait déjà soumis un témoignage
+    // Upsert — remplace si l'utilisateur avait déjà soumis un témoignage
     await Testimonial.findOneAndUpdate(
       { userId: sessionUser.id },
       {

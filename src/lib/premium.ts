@@ -3,7 +3,7 @@
 import type { IUser, UserPlan } from "@/models/User";
 
 /**
- * Fonctionnalités disponibles par plan SferaLuna.
+ * Fonctionnalités disponibles par plan Sfera'Solys.
  *
  * Règle : toujours s'aligner avec les vrais plans définis dans User.ts.
  */

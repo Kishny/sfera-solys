@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page de conversation SferaLuna.
+ * Page de conversation Sfera'Solys.
  *
  * Cette page gère :
  * - le chargement des messages d'un match ;

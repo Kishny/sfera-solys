@@ -442,7 +442,7 @@ export async function PUT(req: NextRequest) {
      * Règle :
      * - passer en "invisible" nécessite la feature premium "ghostMode" ;
      * - repasser en "public", "matches" ou "premium" reste autorisé ;
-     * - cela évite de bloquer une utilisatrice qui veut désactiver le mode fantôme.
+     * - cela évite de bloquer un utilisateur qui veut désactiver le mode fantôme.
      */
     if (data.visibilite === "invisible") {
       const ghostAccess = await canUseGhostMode(user._id.toString());
@@ -584,7 +584,7 @@ export async function PUT(req: NextRequest) {
       updateData.question = data.question;
     }
 
-    // Ne sauvegarder reponse que si l'utilisatrice a tapé quelque chose.
+    // Ne sauvegarder reponse que si l'utilisateur a tapé quelque chose.
     // Une chaîne vide ne doit JAMAIS écraser une réponse déjà sauvegardée.
     if (data.reponse !== undefined && data.reponse.trim() !== "") {
       updateData.reponse = data.reponse.trim();

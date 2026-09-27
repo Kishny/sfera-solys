@@ -40,7 +40,7 @@ const planLabels: Record<CheckoutPlan, string> = {
 };
 
 /**
- * Vérifie qu'une valeur reçue est bien un plan SferaLuna valide.
+ * Vérifie qu'une valeur reçue est bien un plan Sfera'Solys valide.
  */
 function isCheckoutPlan(plan: unknown): plan is CheckoutPlan {
   return typeof plan === "string" && allowedPlans.includes(plan as CheckoutPlan);
@@ -222,11 +222,11 @@ export async function POST(req: NextRequest) {
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: user.email,
-        name: user.pseudonyme || user.name || "Utilisateur SferaLuna",
+        name: user.pseudonyme || user.name || "Utilisateur Sfera'Solys",
         metadata: {
           userId: user._id.toString(),
           email: user.email,
-          source: "sferaluna",
+          source: "sferasolys",
         },
       });
 
@@ -280,7 +280,7 @@ export async function POST(req: NextRequest) {
 
       // Désactiver la collecte d'identifiant fiscal (TVA / numéro fiscal).
       // Stripe le demande parfois pour PayPal en Europe — on le désactive
-      // car SferaLuna est un service B2C grand public, pas B2B.
+      // car Sfera'Solys est un service B2C grand public, pas B2B.
       tax_id_collection: { enabled: false },
 
       allow_promotion_codes: true,

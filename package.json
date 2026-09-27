@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3454",
     "build": "next build",
     "seed": "ts-node scripts/seed.ts",
     "fix:plans": "node scripts/fix-plan-drift.mjs",
-    "start": "next start",
+    "start": "next start -p 3454",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

@@ -1,34 +1,48 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import {
-  AnimatePresence,
-  motion,
-  useScroll,
-  useTransform,
-} from 'framer-motion';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import {
-  Sparkles,
-  CheckCircle,
-  Users,
-  Lock,
-  Heart,
-  Star,
-  ChevronRight,
   ArrowRight,
-  Shield,
-  Moon,
-  Zap,
+  Check,
   ChevronDown,
+  Clock,
+  CreditCard,
+  IdCard,
+  Lock,
+  MessageCircle,
+  Shield,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Users,
+  Zap,
 } from 'lucide-react';
 
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+
 /**
- * Type des statistiques dynamiques affichées sur la page.
- * Ces données viennent de /api/stats.
+ * Page /commencer Sfera'Solys — direction A (« dossier de vérification »).
+ *
+ * Restructuration + rebranding (voir CLAUDE.md § Restructuration) :
+ * cette page n'avait jamais été rebrandée — dégradé violet plein écran,
+ * orbes animées (`OrbitGlow`), parallax sur le hero, emojis décoratifs,
+ * quatre dégradés différents par bloc, ancien nom de marque partout, et
+ * une copy au féminin qui présumait en plus l'orientation du lecteur.
+ *
+ * Ce qui change ici : fond abyss, un seul accent (vulcanico), lime réservé
+ * aux puces de validation, hiérarchie institutionnelle. Le survol en
+ * 4 étapes reste sur la home ; ici on donne le détail concret de chaque
+ * étape (onglets pilotables au clavier) et on met la vérification
+ * obligatoire — Stripe Identity, immédiate, gratuite — au centre de la page.
+ *
+ * Ce qui ne change pas : le parcours d'inscription, les bénéfices, la FAQ,
+ * le chargement de /api/stats et les destinations des CTA (l'inscription
+ * elle-même se fait sur /auth?mode=register).
  */
+
 interface SiteStats {
   membres: number;
   matchs: number;
@@ -38,10 +52,7 @@ interface SiteStats {
 
 /**
  * Formate les gros chiffres pour un affichage plus propre.
- * Exemple :
- * 1200 => 1.2K+
- * 1000 => 1K+
- * 0 => —
+ * 1200 => 1.2K+ · 1000 => 1K+ · 0 => —
  */
 function formatStat(n: number): string {
   if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'K+';
@@ -49,113 +60,169 @@ function formatStat(n: number): string {
   return n.toString();
 }
 
-/**
- * Motif orbite décoratif (cercles concentriques + points d'accent),
- * écho visuel du nom "Sfera".
- */
-function OrbitGlow({
-  className = '',
-  variant = 'default',
-}: {
-  className?: string;
-  variant?: 'default' | 'light';
-}) {
-  const stroke = variant === 'light' ? '#FFFFFF' : '#8E7AB5';
-  const dot = variant === 'light' ? '#FFFFFF' : '#5B4B8A';
+type JourneyStep = {
+  number: number;
+  title: string;
+  duration: string;
+  summary: string;
+  details: string;
+  checklist: string[];
+  icon: React.ComponentType<{ size?: number | string; className?: string }>;
+};
 
-  return (
-    <svg
-      viewBox="0 0 200 200"
-      className={`pointer-events-none absolute opacity-[0.14] ${className}`}
-      aria-hidden="true"
-    >
-      <circle cx="100" cy="100" r="90" fill="none" stroke={stroke} strokeWidth="1" />
-      <circle
-        cx="100"
-        cy="100"
-        r="62"
-        fill="none"
-        stroke={stroke}
-        strokeWidth="1"
-        strokeDasharray="4 6"
-      />
-      <circle cx="100" cy="100" r="34" fill="none" stroke={stroke} strokeWidth="1" />
-      <circle cx="100" cy="10" r="3" fill={dot} />
-      <circle cx="190" cy="100" r="3" fill={dot} />
-      <circle cx="100" cy="190" r="3" fill={dot} />
-      <circle cx="10" cy="100" r="3" fill={dot} />
-    </svg>
-  );
-}
-
-/**
- * Barres d'accent associées aux avantages (même index que `benefits`).
- */
-const benefitBars = [
-  'from-[#8E7AB5] to-[#D9B8FF]',
-  'from-[#FF6B6B] to-[#FF8E8E]',
-  'from-[#4ECDC4] to-[#44A08D]',
-  'from-[#FFD166] to-[#FF9A3C]',
+/** Le parcours d'inscription, détaillé — l'ordre suit le stepper de la home. */
+const journey: JourneyStep[] = [
+  {
+    number: 1,
+    title: 'Créer ton profil',
+    duration: '10 minutes',
+    summary: 'Partage ce qui te définit vraiment.',
+    details:
+      "Tu renseignes tes centres d'intérêt, tes valeurs et ce que tu recherches. Pas de questionnaire interminable : dix minutes suffisent, et tu peux compléter ton profil plus tard.",
+    checklist: [
+      "Tes centres d'intérêt, tes valeurs et tes intentions",
+      'Trois photos récentes minimum, non retouchées',
+      'Ta VibeSphere : ambiance, playlist, couleurs de ton espace',
+    ],
+    icon: Users,
+  },
+  {
+    number: 2,
+    title: "Vérifier ton identité",
+    duration: 'immédiat',
+    summary: 'Document officiel et selfie en direct, comparés aussitôt.',
+    details:
+      "Tu photographies ta pièce d'identité, puis ton visage en direct. Stripe Identity compare les deux et répond dans la foulée : ton profil s'active sans attente. La vérification est gratuite et obligatoire — c'est elle qui rend la plateforme fiable. L'inscription est réservée aux hommes de 28 ans et plus.",
+    checklist: [
+      "Une pièce d'identité en cours de validité",
+      'Un selfie de contrôle, jamais publié sur ton profil',
+      'Une réponse immédiate, sans frais',
+    ],
+    icon: IdCard,
+  },
+  {
+    number: 3,
+    title: 'Découvrir ton Circle of Six',
+    duration: 'chaque semaine',
+    summary: 'Six profils vérifiés qui te correspondent.',
+    details:
+      "Dès ton dossier validé, l'algorithme d'affinité te présente six profils vérifiés alignés avec tes valeurs et ton rythme de vie. Moins de swipe, plus de sens.",
+    checklist: [
+      'Six profils vérifiés proposés par semaine',
+      'Une sélection basée sur les valeurs, pas sur le volume',
+      'Des filtres pour affiner (distance, disponibilité…)',
+    ],
+    icon: Sparkles,
+  },
+  {
+    number: 4,
+    title: 'Lancer la première conversation',
+    duration: 'quand tu veux',
+    summary: 'Un premier échange encadré, à ton rythme.',
+    details:
+      "Tu envoies ton premier message avec une amorce guidée, pensée pour désamorcer la gêne, ou tu rejoins un événement de la communauté Solys. Le Mode Fantôme te laisse garder la main sur ta visibilité à tout moment.",
+    checklist: [
+      'Une amorce de conversation guidée',
+      'Les événements de la communauté Solys',
+      'Le Mode Fantôme pour contrôler ta visibilité',
+    ],
+    icon: MessageCircle,
+  },
 ];
 
-/**
- * Thèmes cycliques pour les cards FAQ (pas de couleur propre dans la donnée).
- */
-const faqAccentThemes = [
-  'from-[#8E7AB5] to-[#D9B8FF]',
-  'from-[#FF6B6B] to-[#FF8E8E]',
-  'from-[#4ECDC4] to-[#44A08D]',
-  'from-[#FFD166] to-[#FF9A3C]',
+/** Les trois faits à retenir sur la vérification — le cœur de la promesse. */
+const verificationFacts = [
+  {
+    icon: Clock,
+    title: 'Quelques instants',
+    description:
+      "Le contrôle est automatisé : tu connais le résultat avant d'avoir quitté la page. Aucun dossier ne reste en attente.",
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Un document officiel',
+    description:
+      "Carte d'identité, passeport ou permis, comparés à un selfie pris en direct — pas une photo choisie dans ta galerie.",
+  },
+  {
+    icon: CreditCard,
+    title: 'Gratuite, toujours',
+    description:
+      "Vérifié ne se paie pas. La vérification est incluse dans toutes les offres, gratuite comprise.",
+  },
 ];
+
+/** Bénéfices de la plateforme — repris tels quels de l'ancienne page. */
+const benefits = [
+  {
+    icon: Shield,
+    title: 'Sécurité maximale',
+    description: 'Modération 24/7 et données protégées.',
+  },
+  {
+    icon: Lock,
+    title: 'Contrôle total',
+    description: 'Gère ta visibilité comme tu le souhaites.',
+  },
+  {
+    icon: Zap,
+    title: 'Matching intelligent',
+    description: 'Basé sur les valeurs et les vibes, pas juste les photos.',
+  },
+  {
+    icon: Star,
+    title: 'Expérience premium',
+    description: 'Interface élégante et expérience fluide.',
+  },
+];
+
+const faqs = [
+  {
+    question: "L'inscription est-elle vraiment gratuite ?",
+    answer:
+      "Oui. L'inscription est gratuite, vérification d'identité comprise. Le compte gratuit est limité : 5 likes par jour, 3 matchs et 10 messages par jour. Les plans payants lèvent ces limites.",
+  },
+  {
+    question: "Combien de temps prend la vérification d'identité ?",
+    answer:
+      "Quelques instants. Le contrôle passe par Stripe Identity : tu photographies ta pièce d'identité puis ton visage, et la réponse arrive aussitôt. C'est gratuit, quelle que soit ton offre.",
+  },
+  {
+    question: 'Comment fonctionne le Circle of Six ?',
+    answer:
+      'Chaque semaine, notre algorithme te présente 6 profils vérifiés qui correspondent à tes valeurs et intérêts. Moins de swipe, plus de sens.',
+  },
+  {
+    question: 'Mes données sont-elles protégées ?',
+    answer:
+      "Oui. Sfera'Solys te donne un contrôle fort sur ta visibilité, tes informations et ton expérience sur la plateforme.",
+  },
+  {
+    question: "Puis-je utiliser Sfera'Solys discrètement ?",
+    answer:
+      'Oui. Le Mode Fantôme permet de contrôler ta visibilité, de naviguer plus discrètement et de garder le contrôle sur ton rythme.',
+  },
+];
+
+/** Anneau de focus clavier, identique partout dans la direction A. */
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
 
 export default function CommencerPage() {
   /**
-   * Étape active animée automatiquement sur desktop.
+   * Étape affichée dans le détail du parcours. L'ancienne page faisait
+   * tourner cet état automatiquement toutes les 4s ; on l'a retiré (un
+   * onglet qui change tout seul est ingérable au clavier et au lecteur
+   * d'écran). L'utilisateur pilote, à la souris ou aux flèches.
    */
   const [step, setStep] = useState(1);
-
-  /**
-   * Animation des boutons du hero.
-   */
-  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
-
-  /**
-   * Statistiques dynamiques.
-   */
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [siteStats, setSiteStats] = useState<SiteStats | null>(null);
 
-  /**
-   * Accordéons mobile.
-   * Sur mobile, on affiche uniquement les titres par défaut pour gagner de la place.
-   */
-  const [openStepIndex, setOpenStepIndex] = useState<number | null>(0);
-  const [openBenefitIndex, setOpenBenefitIndex] = useState<number | null>(null);
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const shouldReduceMotion = useReducedMotion();
 
-  const { scrollYProgress } = useScroll();
-
-  /**
-   * Effets légers liés au scroll.
-   * Sur mobile, le hero reste compact grâce aux classes Tailwind.
-   */
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0.3]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
-
-  /**
-   * Rotation automatique des étapes pour l'indicateur visuel desktop.
-   */
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setStep((prev) => (prev % 4) + 1);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  /**
-   * Récupération des statistiques.
-   * En cas d'erreur, on garde simplement les placeholders.
-   */
+  /** Statistiques dynamiques — même source que le reste du site. */
   useEffect(() => {
     fetch('/api/stats')
       .then((r) => r.json())
@@ -165,668 +232,306 @@ export default function CommencerPage() {
       .catch(() => {});
   }, []);
 
-  /**
-   * Étapes du parcours utilisateur.
-   */
-  const steps = [
-    {
-      number: 1,
-      title: 'Création du profil',
-      description: 'Partage ce qui te définit vraiment',
-      icon: <Users className="h-5 w-5 sm:h-6 sm:w-6" />,
-      details: 'Ajoute tes intérêts, tes valeurs et ce que tu recherches.',
-      color: 'from-[#8E7AB5] to-[#D9B8FF]',
-      emoji: '👤',
-    },
-    {
-      number: 2,
-      title: 'Découverte du Circle of Six',
-      description: 'Rencontre 6 femmes qui te correspondent',
-      icon: <Heart className="h-5 w-5 sm:h-6 sm:w-6" />,
-      details:
-        'Notre algorithme te présente 6 profils alignés avec ta vibe.',
-      color: 'from-[#FF6B6B] to-[#FF8E8E]',
-      emoji: '💜',
-    },
-    {
-      number: 3,
-      title: 'Personnalisation de ton VibeSphere',
-      description: 'Crée ton espace émotionnel unique',
-      icon: <Moon className="h-5 w-5 sm:h-6 sm:w-6" />,
-      details: 'Choisis ta playlist, tes couleurs et ton ambiance.',
-      color: 'from-[#4ECDC4] to-[#44A08D]',
-      emoji: '🌙',
-    },
-    {
-      number: 4,
-      title: 'Première connexion',
-      description: 'Commence à vibrer avec ta communauté',
-      icon: <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />,
-      details: 'Participe à un événement ou envoie ton premier message.',
-      color: 'from-[#FFD166] to-[#FF9A3C]',
-      emoji: '✨',
-    },
-  ];
+  const activeStep = journey.find((item) => item.number === step) ?? journey[0];
+  const ActiveStepIcon = activeStep.icon;
 
-  /**
-   * Avantages principaux de la plateforme.
-   */
-  const benefits = [
-    {
-      icon: <Shield className="h-5 w-5 sm:h-6 sm:w-6" />,
-      title: 'Sécurité maximale',
-      description: 'Modération 24/7 et données protégées.',
-      color: 'text-[#8E7AB5]',
-      emoji: '🛡️',
-    },
-    {
-      icon: <Lock className="h-5 w-5 sm:h-6 sm:w-6" />,
-      title: 'Contrôle total',
-      description: 'Gère ta visibilité comme tu le souhaites.',
-      color: 'text-[#FF6B6B]',
-      emoji: '🔒',
-    },
-    {
-      icon: <Zap className="h-5 w-5 sm:h-6 sm:w-6" />,
-      title: 'Matching intelligent',
-      description: 'Basé sur les valeurs et les vibes, pas juste les photos.',
-      color: 'text-[#4ECDC4]',
-      emoji: '⚡',
-    },
-    {
-      icon: <Star className="h-5 w-5 sm:h-6 sm:w-6" />,
-      title: 'Expérience premium',
-      description: 'Interface élégante et expérience fluide.',
-      color: 'text-[#FFD166]',
-      emoji: '⭐',
-    },
-  ];
+  /** Navigation aux flèches entre les onglets d'étape (pattern tablist). */
+  function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    const last = journey.length - 1;
+    let target: number | null = null;
 
-  /**
-   * Questions fréquentes.
-   */
-  const faqs = [
-    {
-      question: "L'inscription est-elle vraiment gratuite ?",
-      answer:
-        "Oui. L'inscription est gratuite. Le compte gratuit est limité : 5 likes par jour, 3 matchs et 10 messages par jour. Les plans payants lèvent ces limites.",
-    },
-    {
-      question: 'Comment fonctionne le Circle of Six ?',
-      answer:
-        'Chaque semaine, notre algorithme te présente 6 profils qui correspondent à tes valeurs et intérêts. Moins de swipe, plus de sens.',
-    },
-    {
-      question: 'Mes données sont-elles protégées ?',
-      answer:
-        'Oui. SferaLuna te donne un contrôle fort sur ta visibilité, tes informations et ton expérience sur la plateforme.',
-    },
-    {
-      question: 'Puis-je utiliser SferaLuna discrètement ?',
-      answer:
-        'Oui. Le Mode Fantôme permet de contrôler ta visibilité, de naviguer plus discrètement et de garder le contrôle sur ton rythme.',
-    },
-  ];
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      target = index === last ? 0 : index + 1;
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      target = index === 0 ? last : index - 1;
+    } else if (event.key === 'Home') {
+      target = 0;
+    } else if (event.key === 'End') {
+      target = last;
+    }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.15,
-      },
-    },
-  };
+    if (target === null) return;
 
-  const itemVariants = {
-    hidden: { y: 24, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.45, ease: 'easeOut' },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { scale: 0.96, opacity: 0 },
-    visible: (i: number) => ({
-      scale: 1,
-      opacity: 1,
-      transition: {
-        delay: i * 0.08,
-        duration: 0.4,
-        ease: 'easeOut',
-      },
-    }),
-    hover: {
-      y: -8,
-      scale: 1.02,
-      transition: { duration: 0.25 },
-    },
-  };
+    event.preventDefault();
+    setStep(journey[target].number);
+    tabRefs.current[target]?.focus();
+  }
 
   return (
     <>
       <Header />
 
-      <main className="min-h-screen overflow-hidden bg-gradient-to-b from-[#F5F3F7] to-white text-[#1C1C1C]">
-        {/* Hero Section compact mobile */}
-        <section className="relative overflow-hidden px-4 pb-6 pt-20 sm:px-6 sm:pb-12 sm:pt-28 md:pb-14">
-          {/* Fond animé */}
-          <motion.div
-            className="absolute inset-0"
-            style={{ opacity: heroOpacity, scale: heroScale }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#8E7AB5] via-[#A68BC9] to-[#D9B8FF]" />
+      <main id="contenu" className="bg-abyss text-cream">
+        {/* Hero */}
+        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+          <div className="mx-auto max-w-3xl py-12 text-center sm:py-16">
+            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-orange">
+              Inscription gratuite · vérification immédiate
+            </span>
 
-            {/* Orbes décoratives réduites sur mobile */}
-            <motion.div
-              animate={{
-                scale: [1, 1.15, 1],
-                rotate: [0, 180, 360],
-              }}
-              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-              className="absolute left-1/4 top-1/4 h-40 w-40 rounded-full bg-gradient-to-r from-white/10 to-white/5 blur-3xl sm:h-64 sm:w-64"
-            />
+            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+              Quatre étapes, un dossier vérifié.
+            </h1>
 
-            <motion.div
-              animate={{
-                scale: [1.15, 1, 1.15],
-                rotate: [360, 180, 0],
-              }}
-              transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-              className="absolute bottom-1/4 right-1/4 h-52 w-52 rounded-full bg-gradient-to-r from-white/5 to-transparent blur-3xl sm:h-96 sm:w-96"
-            />
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/60 sm:text-base">
+              Tu constitues ton dossier, Stripe Identity vérifie ton identité
+              dans la foulée, et ton profil s&apos;active. Aucun paiement demandé
+              pour être vérifié — l&apos;inscription est ouverte aux hommes de
+              28 ans et plus.
+            </p>
 
-            <OrbitGlow
-              variant="light"
-              className="left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 sm:h-[32rem] sm:w-[32rem]"
-            />
+            <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <Link
+                href="/auth?mode=register"
+                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+              >
+                constituer mon dossier
+              </Link>
 
-            {/* Motif discret */}
-            <div className="absolute inset-0 opacity-10">
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                  backgroundSize: '60px 60px',
-                }}
-              />
+              <Link
+                href="/guide"
+                className={`fx-ghost rounded-xl border border-cream/15 px-7 py-3.5 text-sm font-bold text-cream/85 transition-colors hover:border-cream/30 ${focusRing}`}
+              >
+                lire le guide
+              </Link>
             </div>
-          </motion.div>
 
-          <div className="relative z-10 mx-auto max-w-6xl">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-              className="text-center text-white"
+            <p className="mt-5 text-[13px] text-cream/55">
+              {siteStats
+                ? `${formatStat(siteStats.membres)} profils vérifiés à ce jour`
+                : 'des centaines de profils vérifiés à ce jour'}
+            </p>
+          </div>
+        </section>
+
+        {/* Le parcours, étape par étape */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              Le parcours en détail
+            </h2>
+
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+              Choisis une étape pour voir exactement ce qu&apos;on te demande,
+              ce qu&apos;on en fait, et combien de temps ça prend.
+            </p>
+
+            <div
+              role="tablist"
+              aria-label="Étapes du parcours d'inscription"
+              className="mt-8 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-4"
             >
-              {/* Badge compact */}
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.15, type: 'spring' }}
-                className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/20 px-3 py-1.5 text-xs backdrop-blur-sm sm:mb-8 sm:px-4 sm:py-2 sm:text-sm"
-              >
-                <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-white sm:h-2 sm:w-2" />
-                <span className="font-medium">✨ Commence ton voyage</span>
-              </motion.div>
+              {journey.map((item, index) => {
+                const isActive = item.number === step;
 
-              <motion.h1
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25, duration: 0.7 }}
-                className="mb-3 text-3xl font-black leading-tight sm:mb-6 sm:text-5xl md:text-7xl"
-              >
-                <span>Prête à rejoindre</span>
-                <br />
-                <span className="bg-gradient-to-r from-white to-[#F9F5FF] bg-clip-text text-transparent">
-                  SferaLuna ?
-                </span>
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.7 }}
-                className="mx-auto mb-5 max-w-2xl text-sm leading-relaxed opacity-90 sm:mb-8 sm:text-xl"
-              >
-                Inscris-toi gratuitement et découvre une manière de rencontrer
-                plus douce, plus consciente, plus libre.
-              </motion.p>
-
-              {/* Boutons hero compact */}
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55, duration: 0.6 }}
-                className="flex flex-col items-center justify-center gap-2.5 sm:flex-row sm:gap-4"
-              >
-                <Link
-                  href="/auth?mode=register"
-                  onMouseEnter={() => setHoveredButton('register')}
-                  onMouseLeave={() => setHoveredButton(null)}
-                  className="group relative w-full sm:w-auto"
-                >
-                  <button className="relative w-full overflow-hidden rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#8E7AB5] shadow-2xl transition-all duration-300 hover:shadow-3xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
-                    <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
-                      Créer mon compte gratuit
-                      <motion.span
-                        animate={{
-                          rotate: hoveredButton === 'register' ? 360 : 0,
-                        }}
-                        transition={{ duration: 0.5 }}
-                        className="transition-transform group-hover:scale-110"
-                      >
-                        ✨
-                      </motion.span>
+                return (
+                  <button
+                    key={item.number}
+                    ref={(el) => {
+                      tabRefs.current[index] = el;
+                    }}
+                    type="button"
+                    role="tab"
+                    id={`etape-onglet-${item.number}`}
+                    aria-selected={isActive}
+                    aria-controls={`etape-panneau-${item.number}`}
+                    tabIndex={isActive ? 0 : -1}
+                    onClick={() => setStep(item.number)}
+                    onKeyDown={(event) => handleTabKeyDown(event, index)}
+                    className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-colors ${focusRing} ${
+                      isActive
+                        ? 'border-orange/40 bg-[#0C222D] ring-1 ring-orange/20'
+                        : 'border-cream/8 bg-[#0C222D] hover:border-cream/20'
+                    }`}
+                  >
+                    <span
+                      className={`font-display flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[14px] font-extrabold ${
+                        isActive ? 'bg-orange text-abyss' : 'bg-cream/8 text-cream/55'
+                      }`}
+                    >
+                      {item.number}
                     </span>
 
-                    <span className="animate-shimmer absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                  </button>
-                </Link>
-
-                <Link
-                  href="/"
-                  onMouseEnter={() => setHoveredButton('home')}
-                  onMouseLeave={() => setHoveredButton(null)}
-                  className="w-full sm:w-auto"
-                >
-                  <button className="group flex w-full items-center justify-center gap-2 rounded-full border-2 border-white px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/10 sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
-                    Découvrir l’accueil
-                    <ArrowRight
-                      size={16}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
-                  </button>
-                </Link>
-              </motion.div>
-
-              {/* Statistiques compactes */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.75, duration: 0.8 }}
-                className="mx-auto mt-5 grid max-w-3xl grid-cols-4 gap-2 sm:mt-12 sm:gap-6"
-              >
-                {[
-                  { value: '48h', label: '1ère co.' },
-                  {
-                    value: siteStats ? formatStat(siteStats.membres) : '…',
-                    label: 'Membres',
-                  },
-                  {
-                    value: siteStats ? formatStat(siteStats.matchs) : '…',
-                    label: 'Matchs',
-                  },
-                  {
-                    value: siteStats ? formatStat(siteStats.evenements) : '…',
-                    label: 'Events',
-                  },
-                ].map((stat) => (
-                  <div key={stat.label} className="text-center">
-                    <div className="text-lg font-bold text-white sm:text-3xl">
-                      {stat.value}
-                    </div>
-
-                    <div className="mt-0.5 text-[10px] text-white/80 sm:mt-1 sm:text-sm">
-                      {stat.label}
-                    </div>
-                  </div>
-                ))}
-              </motion.div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Étapes du parcours */}
-        <section className="relative overflow-hidden bg-white px-4 py-5 sm:px-6 sm:py-16 lg:py-20">
-          <OrbitGlow className="right-[-8%] top-10 h-72 w-72 sm:h-96 sm:w-96" />
-          <OrbitGlow className="left-[-10%] top-[55%] h-64 w-64 sm:h-80 sm:w-80" />
-
-          <div className="relative z-10 mx-auto max-w-6xl">
-            <motion.div
-              initial={{ opacity: 0, y: 22 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              className="mb-4 text-center sm:mb-10"
-            >
-              <h2 className="text-xl font-bold text-[#1C1C1C] sm:text-4xl md:text-5xl">
-                Ton parcours en <span className="text-[#8E7AB5]">4 étapes</span>
-              </h2>
-
-              <p className="mx-auto mt-1 max-w-3xl text-xs leading-relaxed text-[#666] sm:mt-4 sm:text-xl">
-                Un processus simple pour te connecter avec des femmes
-                authentiques.
-              </p>
-            </motion.div>
-
-            {/* Mobile : accordéons compacts */}
-            <div className="space-y-2 sm:hidden">
-              {steps.map((stepItem, index) => {
-                const isOpen = openStepIndex === index;
-
-                return (
-                  <motion.div
-                    key={stepItem.title}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.04 }}
-                    className="relative overflow-hidden rounded-2xl border border-[#E9E3F5] bg-white shadow-sm"
-                  >
-                    <div
-                      className={`absolute inset-y-0 left-0 w-1 bg-gradient-to-b ${stepItem.color}`}
-                    />
-
-                    <button
-                      type="button"
-                      onClick={() => setOpenStepIndex(isOpen ? null : index)}
-                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left"
-                    >
+                    <span className="min-w-0">
                       <span
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r ${stepItem.color} text-xs font-bold text-white`}
+                        className={`font-display [font-stretch:125%] block text-[15px] font-bold ${
+                          isActive ? 'text-cream' : 'text-cream/70'
+                        }`}
                       >
-                        {stepItem.number}
+                        {item.title}
                       </span>
-
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate text-sm font-bold text-[#5B4B8A]">
-                          {stepItem.title}
-                        </h3>
-
-                        <p className="truncate text-[11px] text-[#666]">
-                          {stepItem.description}
-                        </p>
-                      </div>
-
-                      <ChevronDown
-                        className={`h-4 w-4 shrink-0 text-[#8E7AB5] transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: 'easeOut' }}
-                          className="overflow-hidden"
-                        >
-                          <div className="border-t border-[#F0ECFA] px-3 pb-3 pt-2">
-                            <p className="text-xs font-medium leading-relaxed text-[#1C1C1C]">
-                              {stepItem.description}
-                            </p>
-
-                            <p className="mt-1.5 text-xs leading-relaxed text-[#666]">
-                              {stepItem.details}
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
+                      <span className="mt-0.5 block text-[12px] text-cream/55">
+                        {item.duration}
+                      </span>
+                    </span>
+                  </button>
                 );
               })}
             </div>
 
-            {/* Tablette / desktop : cards complètes */}
-            <div className="relative hidden sm:block">
-              {/* Ligne de progression desktop */}
-              <div className="absolute left-0 right-0 top-12 h-1 bg-gradient-to-r from-[#8E7AB5] via-[#A68BC9] to-[#8E7AB5] opacity-20" />
-
+            <div
+              role="tabpanel"
+              id={`etape-panneau-${activeStep.number}`}
+              aria-labelledby={`etape-onglet-${activeStep.number}`}
+              tabIndex={0}
+              className={`mt-3 rounded-2xl border border-cream/8 bg-[#0C222D] p-6 sm:p-8 ${focusRing}`}
+            >
               <motion.div
-                className="absolute left-0 top-12 h-1 bg-gradient-to-r from-[#8E7AB5] to-[#D9B8FF]"
-                initial={{ width: 0 }}
-                whileInView={{ width: '100%' }}
-                viewport={{ once: true }}
-                transition={{ duration: 2, ease: 'easeInOut' }}
-              />
+                key={activeStep.number}
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
+                className="grid gap-7 lg:grid-cols-2 lg:gap-12"
+              >
+                <div>
+                  <ActiveStepIcon size={20} className="text-orange" />
 
-              <div className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {steps.map((stepItem, index) => (
-                  <motion.div
-                    key={stepItem.title}
-                    custom={index}
-                    variants={cardVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    whileHover="hover"
-                    viewport={{ once: true }}
-                    className="relative"
-                  >
-                    <div className="relative overflow-hidden rounded-3xl border border-[#F0F0F0] bg-gradient-to-b from-white to-[#F9F7FC] p-6 shadow-lg transition-all duration-300 hover:shadow-2xl">
-                      <div
-                        className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${stepItem.color}`}
-                      />
+                  <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold tracking-tight text-cream">
+                    Étape {activeStep.number} — {activeStep.title}
+                  </h3>
 
-                      <div className="absolute -top-4 left-8 flex h-16 w-16 items-center justify-center rounded-full border border-[#F0F0F0] bg-gradient-to-r from-white to-[#F9F7FC]">
-                        <div
-                          className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r ${stepItem.color} text-xl font-bold text-white`}
-                        >
-                          {stepItem.number}
-                        </div>
-                      </div>
+                  <p className="mt-1.5 text-sm font-semibold text-cream/85">
+                    {activeStep.summary}
+                  </p>
 
-                      <div className="pt-8">
-                        <div className="mb-6 text-[#8E7AB5]">
-                          {stepItem.icon}
-                        </div>
+                  <p className="mt-3 text-[13px] leading-relaxed text-cream/70">
+                    {activeStep.details}
+                  </p>
+                </div>
 
-                        <h3 className="mb-3 text-2xl font-semibold text-[#1C1C1C]">
-                          {stepItem.title}
-                        </h3>
+                <div className="border-t border-cream/8 pt-6 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-cream/55">
+                    Concrètement
+                  </p>
 
-                        <p className="mb-4 text-lg font-medium text-[#4B4B4B]">
-                          {stepItem.description}
-                        </p>
-
-                        <p className="text-[#666]">{stepItem.details}</p>
-                      </div>
-
-                      {step === stepItem.number && (
-                        <motion.div
-                          layoutId="activeStep"
-                          className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-gradient-to-r from-[#FF6B6B] to-[#FF8E8E]"
-                          animate={{ scale: [1, 1.5, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        />
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                  <ul className="mt-4 space-y-2.5">
+                    {activeStep.checklist.map((entry) => (
+                      <li key={entry} className="flex items-start gap-2.5">
+                        <Check size={14} className="mt-[3px] shrink-0 text-lime" />
+                        <span className="text-[13px] leading-relaxed text-cream/70">
+                          {entry}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>
 
-        {/* Avantages */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-[#F9F7FC] to-white px-4 py-5 sm:px-6 sm:py-16 lg:py-20">
-          <OrbitGlow className="right-[-10%] top-0 h-72 w-72 sm:h-96 sm:w-96" />
+        {/* La vérification, en clair */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              La vérification, en clair
+            </h2>
 
-          <div className="relative z-10 mx-auto max-w-6xl">
-            <motion.div
-              initial={{ opacity: 0, y: 22 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              className="mb-4 text-center sm:mb-10"
-            >
-              <h2 className="text-xl font-bold text-[#1C1C1C] sm:text-4xl md:text-5xl">
-                Pourquoi choisir{' '}
-                <span className="text-[#8E7AB5]">SferaLuna</span> ?
-              </h2>
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+              C&apos;est l&apos;étape qui prend le plus de temps, et c&apos;est
+              volontaire : chaque dossier est ouvert et relu par une personne
+              avant l&apos;activation du profil.
+            </p>
 
-              <p className="mx-auto mt-1 max-w-3xl text-xs leading-relaxed text-[#666] sm:mt-4 sm:text-xl">
-                Une expérience repensée pour les femmes qui aiment les femmes.
-              </p>
-            </motion.div>
-
-            {/* Mobile : accordéons compacts */}
-            <div className="space-y-2 sm:hidden">
-              {benefits.map((benefit, index) => {
-                const isOpen = openBenefitIndex === index;
-
-                return (
-                  <motion.div
-                    key={benefit.title}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.04 }}
-                    className="relative overflow-hidden rounded-2xl border border-[#E9E3F5] bg-white shadow-sm"
-                  >
-                    <div
-                      className={`absolute inset-y-0 left-0 w-1 bg-gradient-to-b ${benefitBars[index % benefitBars.length]}`}
-                    />
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenBenefitIndex(isOpen ? null : index)
-                      }
-                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left"
-                    >
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#8E7AB5]/10 text-xl">
-                        {benefit.emoji}
-                      </span>
-
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate text-sm font-bold text-[#5B4B8A]">
-                          {benefit.title}
-                        </h3>
-
-                        <p className="truncate text-[11px] text-[#666]">
-                          {benefit.description}
-                        </p>
-                      </div>
-
-                      <ChevronDown
-                        className={`h-4 w-4 shrink-0 text-[#8E7AB5] transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: 'easeOut' }}
-                          className="overflow-hidden"
-                        >
-                          <div className="border-t border-[#F0ECFA] px-3 pb-3 pt-2">
-                            <p className="text-xs leading-relaxed text-[#666]">
-                              {benefit.description}
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            {/* Desktop : cards complètes */}
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="hidden grid-cols-1 gap-6 sm:grid md:grid-cols-2 lg:grid-cols-4"
-            >
-              {benefits.map((benefit, index) => (
-                <motion.div
-                  key={benefit.title}
-                  variants={itemVariants}
-                  whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                  className="group relative"
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              {verificationFacts.map(({ icon: Icon, title, description }) => (
+                <div
+                  key={title}
+                  className="rounded-2xl border border-cream/8 bg-[#0C222D] p-5 sm:p-6"
                 >
-                  <div className="relative overflow-hidden rounded-2xl border border-[#F0F0F0] bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-2xl">
-                    <div
-                      className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${benefitBars[index % benefitBars.length]}`}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-white to-[#F9F7FC] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <Icon size={20} className="text-orange" />
 
-                    <div className={`relative z-10 mb-6 ${benefit.color}`}>
-                      {benefit.icon}
-                    </div>
+                  <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold tracking-tight text-cream">
+                    {title}
+                  </h3>
 
-                    <h3 className="relative z-10 mb-3 text-xl font-semibold text-[#1C1C1C]">
-                      {benefit.title}
-                    </h3>
-
-                    <p className="relative z-10 text-[#666]">
-                      {benefit.description}
-                    </p>
-
-                    <div className="absolute bottom-6 right-6 opacity-0 transition-opacity group-hover:opacity-100">
-                      <CheckCircle className="text-[#8E7AB5]" />
-                    </div>
-                  </div>
-                </motion.div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-cream/70">
+                    {description}
+                  </p>
+                </div>
               ))}
-            </motion.div>
+            </div>
+
+            <p className="mt-6 text-[13px] text-cream/55">
+              {siteStats
+                ? `${formatStat(siteStats.matchs)} mises en relation depuis l'ouverture de la plateforme.`
+                : 'Des mises en relation chaque semaine, entre profils vérifiés uniquement.'}
+            </p>
           </div>
         </section>
 
-        {/* FAQ rapide */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-white to-[#F9F7FC] px-4 py-5 sm:px-6 sm:py-16 lg:py-20">
-          <OrbitGlow className="left-1/2 top-0 h-72 w-72 -translate-x-1/2 sm:h-96 sm:w-96" />
+        {/* Bénéfices */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              Ce que tu y gagnes
+            </h2>
 
-          <div className="relative z-10 mx-auto max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 22 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-4 text-center sm:mb-10"
-            >
-              <h2 className="text-xl font-bold text-[#1C1C1C] sm:text-4xl md:text-5xl">
-                Questions <span className="text-[#8E7AB5]">fréquentes</span>
-              </h2>
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+              Une plateforme de rencontres pensée pour les hommes de 28 ans et
+              plus, où chaque profil en face de toi a passé le même contrôle que
+              le tien.
+            </p>
 
-              <p className="mx-auto mt-1 max-w-2xl text-xs leading-relaxed text-[#666] sm:mt-4 sm:text-xl">
-                Tout ce que tu dois savoir avant de commencer.
-              </p>
-            </motion.div>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {benefits.map(({ icon: Icon, title, description }) => (
+                <div
+                  key={title}
+                  className="rounded-2xl border border-cream/8 bg-[#0C222D] p-5 sm:p-6"
+                >
+                  <Icon size={18} className="text-orange" />
 
-            <div className="space-y-2 sm:space-y-4">
+                  <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold tracking-tight text-cream">
+                    {title}
+                  </h3>
+
+                  <p className="mt-2 text-[13px] leading-relaxed text-cream/70">
+                    {description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-6 text-[13px] text-cream/55">
+              Besoin du détail fonctionnalité par fonctionnalité ?{' '}
+              <Link
+                href="/fonctionnalites"
+                className={`fx-link font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+              >
+                Voir toutes les fonctionnalités
+              </Link>
+            </p>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              Avant de commencer
+            </h2>
+
+            <div className="space-y-1.5">
               {faqs.map((faq, index) => {
                 const isOpen = openFaqIndex === index;
 
                 return (
-                  <motion.div
+                  <div
                     key={faq.question}
-                    initial={{ opacity: 0, x: -16 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.06 }}
-                    className="relative overflow-hidden rounded-2xl border border-[#F0F0F0] bg-white transition-all hover:border-[#8E7AB5]/30"
+                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#0C222D]"
                   >
-                    <div
-                      className={`absolute inset-y-0 left-0 w-1 bg-gradient-to-b ${faqAccentThemes[index % faqAccentThemes.length]}`}
-                    />
-
                     <button
                       type="button"
-                      onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                      className="flex w-full items-center gap-3 px-3 py-3 text-left sm:px-6 sm:py-5"
+                      onClick={() =>
+                        setOpenFaqIndex((current) => (current === index ? null : index))
+                      }
+                      aria-expanded={isOpen}
+                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-cream sm:px-5 ${focusRing}`}
                     >
-                      <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-[#8E7AB5]" />
-
-                      <h3 className="min-w-0 flex-1 text-sm font-semibold text-[#1C1C1C] sm:text-lg">
-                        {faq.question}
-                      </h3>
-
+                      {faq.question}
                       <ChevronDown
-                        className={`h-4 w-4 shrink-0 text-[#8E7AB5] transition-transform ${
+                        size={16}
+                        className={`shrink-0 text-cream/55 transition-transform ${
                           isOpen ? 'rotate-180' : ''
                         }`}
                       />
@@ -838,135 +543,66 @@ export default function CommencerPage() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: 'easeOut' }}
+                          transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="border-t border-[#F0ECFA] px-3 pb-3 pt-2 sm:px-6 sm:pb-5 sm:pt-0">
-                            <p className="text-xs leading-relaxed text-[#666] sm:text-base">
-                              {faq.answer}
-                            </p>
-                          </div>
+                          <p className="border-t border-cream/8 px-4 py-4 text-[13px] leading-relaxed text-cream/60 sm:px-5">
+                            {faq.answer}
+                          </p>
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
+
+            <p className="mt-6 text-center text-[13px] text-cream/55">
+              Une autre question ?{' '}
+              <Link
+                href="/faq"
+                className={`fx-link font-semibold text-orange hover:text-orange/80 ${focusRing}`}
+              >
+                voir la FAQ complète
+              </Link>
+            </p>
           </div>
         </section>
 
-        {/* Call to Action final compact */}
-        <section className="relative overflow-hidden px-4 py-7 sm:px-6 sm:py-16">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#8E7AB5] via-[#A68BC9] to-[#D9B8FF]" />
-
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-            className="absolute -left-1/2 -top-1/2 h-full w-full bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1)_0%,transparent_50%)]"
-          />
-
-          <OrbitGlow
-            variant="light"
-            className="right-[-10%] top-[-15%] h-72 w-72 sm:h-96 sm:w-96"
-          />
-
-          <div className="relative z-10 mx-auto max-w-4xl text-center text-white">
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-5 sm:mb-10"
-            >
-              <h2 className="mb-2 text-2xl font-bold leading-tight sm:mb-6 sm:text-4xl md:text-6xl">
-                Commence ton <span className="text-white">voyage</span>{' '}
-                aujourd’hui
+        {/* CTA final */}
+        <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#0C222D] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+            <div>
+              <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
+                Ton dossier commence maintenant.
               </h2>
-
-              <p className="mx-auto max-w-2xl text-sm leading-relaxed opacity-90 sm:text-xl">
-                Rejoins des femmes qui ont déjà trouvé leur communauté
-                bienveillante.
+              <p className="text-sm text-cream/60">
+                Dix minutes pour le constituer, quelques instants pour la
+                vérification. Gratuit, sans engagement, sans carte bancaire.
               </p>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="flex flex-col justify-center gap-2.5 sm:flex-row sm:gap-4"
-            >
-              <Link href="/auth?mode=register" className="group w-full sm:w-auto">
-                <button className="flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#8E7AB5] shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl sm:w-auto sm:px-12 sm:py-4 sm:text-lg">
-                  <span>Créer mon compte gratuit</span>
-                  <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </button>
+            <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
+              <Link
+                href="/auth?mode=register"
+                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+              >
+                constituer mon dossier
               </Link>
 
-              <Link href="/tarifs" className="w-full sm:w-auto">
-                <button className="w-full rounded-full border-2 border-white px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/10 sm:px-12 sm:py-4 sm:text-lg">
-                  Découvrir les offres
-                </button>
+              <Link
+                href="/tarifs"
+                className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+              >
+                voir les offres
+                <ArrowRight size={14} />
               </Link>
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="mt-4 text-xs text-white/80 sm:mt-8 sm:text-base"
-            >
-              <span className="font-semibold">Inscription gratuite</span> ·
-              Accès immédiat · Annulation à tout moment
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6 }}
-              className="mt-5 grid grid-cols-1 gap-2 text-xs sm:mt-10 sm:flex sm:flex-wrap sm:justify-center sm:gap-4 sm:text-sm"
-            >
-              <div className="flex items-center justify-center gap-2">
-                <CheckCircle size={15} />
-                <span>Profils vérifiés</span>
-              </div>
-
-              <div className="flex items-center justify-center gap-2">
-                <CheckCircle size={15} />
-                <span>Modération 24h/24</span>
-              </div>
-
-              <div className="flex items-center justify-center gap-2">
-                <CheckCircle size={15} />
-                <span>Support dédié</span>
-              </div>
-            </motion.div>
+            </div>
           </div>
         </section>
       </main>
 
-      {/* Footer masqué sur mobile pour garder une navigation plus compacte */}
-      <div className="hidden sm:block">
-        <Footer />
-      </div>
-
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-
-          100% {
-            transform: translateX(100%);
-          }
-        }
-
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-      `}</style>
+      <Footer />
     </>
   );
 }

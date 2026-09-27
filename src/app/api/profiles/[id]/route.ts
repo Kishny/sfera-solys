@@ -11,7 +11,7 @@ import { User } from "@/models/User";
 /**
  * GET /api/profiles/[id]
  *
- * Retourne le profil public d'une utilisatrice.
+ * Retourne le profil public d'un utilisateur.
  *
  * Sécurité :
  * - nécessite une session ;
@@ -40,7 +40,7 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          error: "Non authentifiée.",
+          error: "Non authentifié.",
           code: "UNAUTHORIZED",
         },
         { status: 401 }

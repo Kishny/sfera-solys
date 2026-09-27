@@ -15,7 +15,7 @@ import { sendNewMessagePush } from "@/lib/push";
 import { moderateText } from "@/lib/text-moderation";
 
 /**
- * API Messages SferaLuna.
+ * API Messages Sfera'Solys.
  *
  * GET /api/messages/[matchId]
  * - récupère les messages d'un match ;

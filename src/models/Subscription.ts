@@ -9,7 +9,7 @@ import type {
 /**
  * Modèle Subscription
  * -------------------
- * Stocke l'abonnement actif ou historique d'une utilisatrice.
+ * Stocke l'abonnement actif ou historique d'un utilisateur.
  *
  * Ce modèle est prévu pour fonctionner avec Stripe, mais il peut aussi
  * fonctionner temporairement sans Stripe si tu veux activer un plan à la main.
@@ -24,7 +24,7 @@ export interface ISubscription {
   userId: mongoose.Types.ObjectId;
 
   /**
-   * Plan SferaLuna.
+   * Plan Sfera'Solys.
    */
   plan: SubscriptionPlanId;
 
@@ -163,7 +163,7 @@ const SubscriptionSchema = new Schema<ISubscription>(
 
 /**
  * Index utiles :
- * - retrouver rapidement l'abonnement actif d'une utilisatrice ;
+ * - retrouver rapidement l'abonnement actif d'un utilisateur ;
  * - éviter les doublons Stripe.
  */
 SubscriptionSchema.index({ userId: 1, status: 1 });

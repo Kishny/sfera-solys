@@ -12,7 +12,7 @@ import { Message } from "@/models/Message";
 import { Report } from "@/models/Report";
 
 /**
- * API de signalement SferaLuna.
+ * API de signalement Sfera'Solys.
  *
  * POST /api/reports
  *

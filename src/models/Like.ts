@@ -3,7 +3,7 @@
 import mongoose, { Schema, Document, Model, models } from "mongoose";
 
 /**
- * Modèle Like SferaLuna.
+ * Modèle Like Sfera'Solys.
  *
  * Un like représente une action simple :
  * - fromUserId aime toUserId.

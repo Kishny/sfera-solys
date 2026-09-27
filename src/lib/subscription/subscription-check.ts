@@ -1,10 +1,10 @@
 // src/lib/subscription/subscription-check.ts
 
 /**
- * Guard / helper d'abonnement SferaLuna.
+ * Guard / helper d'abonnement Sfera'Solys.
  *
  * Ce fichier sert à :
- * - vérifier si une utilisatrice est connectée ;
+ * - vérifier si un utilisateur est connectée ;
  * - récupérer son abonnement actif ;
  * - déterminer son plan actuel ;
  * - vérifier ses droits premium ;

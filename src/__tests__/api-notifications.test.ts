@@ -78,7 +78,7 @@ function queryChain<T>(value: T) {
   return chain;
 }
 
-const sessionWithId = (id: string, email = "moi@sferaluna.test") => ({
+const sessionWithId = (id: string, email = "moi@sferasolys.test") => ({
   user: { id, email },
 });
 
@@ -103,7 +103,7 @@ describe("GET /api/notifications", () => {
     expect(data.code).toBe("UNAUTHORIZED");
   });
 
-  it("retourne 404 si l'utilisatrice n'existe plus en base", async () => {
+  it("retourne 404 si l'utilisateur n'existe plus en base", async () => {
     getServerSession.mockResolvedValue(sessionWithId(userId.toString()));
     userMocks.findById.mockReturnValue(queryChain(null));
     userMocks.findOne.mockReturnValue(queryChain(null));
@@ -142,7 +142,7 @@ describe("GET /api/notifications", () => {
     expect(data.total).toBe(5 + 1 + 0);
   });
 
-  it("ne compte pas les messages si l'utilisatrice n'a aucun match actif", async () => {
+  it("ne compte pas les messages si l'utilisateur n'a aucun match actif", async () => {
     getServerSession.mockResolvedValue(sessionWithId(userId.toString()));
 
     userMocks.findById.mockReturnValue(
@@ -204,7 +204,7 @@ describe("POST /api/notifications", () => {
     );
   });
 
-  it("retourne 404 si aucune utilisatrice ne correspond", async () => {
+  it("retourne 404 si aucun utilisateur ne correspond", async () => {
     getServerSession.mockResolvedValue(sessionWithId(userId.toString()));
     userMocks.findByIdAndUpdate.mockReturnValue(queryChain(null));
     userMocks.findOneAndUpdate.mockReturnValue(queryChain(null));

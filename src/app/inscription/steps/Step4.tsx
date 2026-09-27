@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Étape 4 du formulaire d'inscription SferaLuna.
+ * Étape 4 du formulaire d'inscription Sfera'Solys.
  *
  * Objectif :
  * - définir une question de sécurité ;
@@ -25,23 +25,23 @@ import { Check } from "lucide-react";
 const questionsSecurite = [
   {
     value: "nom-animal",
-    label: "Quel était le nom de votre premier animal de compagnie ?",
+    label: "Quel était le nom de ton premier animal de compagnie ?",
   },
   {
     value: "ville-naissance",
-    label: "Dans quelle ville êtes-vous né(e) ?",
+    label: "Dans quelle ville es-tu né ?",
   },
   {
     value: "film-prefere",
-    label: "Quel est votre film préféré ?",
+    label: "Quel est ton film préféré ?",
   },
   {
     value: "prof-reve",
-    label: "Quel était le métier de vos rêves quand vous étiez enfant ?",
+    label: "Quel était le métier de tes rêves quand tu étais enfant ?",
   },
   {
     value: "livre-prefere",
-    label: "Quel est votre livre préféré ?",
+    label: "Quel est ton livre préféré ?",
   },
 ];
 
@@ -107,49 +107,49 @@ export default function Step4() {
     <div className="space-y-8 sm:space-y-10">
       {/* Titre de l'étape */}
       <div>
-        <h2 className="text-xl font-bold text-purple-300 sm:text-2xl">
+        <h2 className="text-xl font-bold text-cream sm:text-2xl">
           Sécurité et centres d’intérêt
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-gray-300">
-          Ajoutez une question de sécurité et choisissez quelques centres
-          d’intérêt pour améliorer vos suggestions SferaLuna.
+        <p className="mt-2 text-sm leading-relaxed text-cream/70">
+          Ajoute une question de sécurité et choisis quelques centres
+          d’intérêt pour améliorer tes suggestions Sfera'Solys.
         </p>
       </div>
 
       {/* Bloc question de sécurité */}
       <section className="space-y-5">
         <div>
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className="text-lg font-semibold text-cream">
             Question de sécurité
           </h3>
 
-          <p className="mt-2 text-sm text-gray-300">
-            Cette question pourra être utilisée si vous oubliez votre mot de
+          <p className="mt-2 text-sm text-cream/70">
+            Cette question pourra être utilisée si tu oublies ton mot de
             passe.
           </p>
         </div>
 
         {/* Question */}
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-gray-100">
-            Sélectionnez une question{" "}
-            <span className="text-pink-400">*</span>
+          <label className="block text-sm font-semibold text-cream/90">
+            Sélectionne une question{" "}
+            <span className="text-orange">*</span>
           </label>
 
           <select
             {...register("question")}
-            className="w-full rounded-xl border border-white/25 bg-white/10 px-4 py-3 text-white outline-none transition-all focus:border-pink-400 focus:ring-2 focus:ring-pink-500/30"
+            className="w-full rounded-xl border border-cream/15 bg-cream/10 px-4 py-3 text-cream outline-none transition-all focus:border-orange focus:ring-2 focus:ring-orange/25"
           >
-            <option value="" className="bg-gray-900 text-white">
-              Choisissez une question
+            <option value="" className="bg-abyss text-cream">
+              Choisis une question
             </option>
 
             {questionsSecurite.map((question) => (
               <option
                 key={question.value}
                 value={question.value}
-                className="bg-gray-900 text-white"
+                className="bg-abyss text-cream"
               >
                 {question.label}
               </option>
@@ -165,26 +165,26 @@ export default function Step4() {
 
         {/* Réponse */}
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-gray-100">
-            Votre réponse <span className="text-pink-400">*</span>
+          <label className="block text-sm font-semibold text-cream/90">
+            Ta réponse <span className="text-orange">*</span>
           </label>
 
           <input
             {...register("reponse")}
             type="text"
-            placeholder="Votre réponse, maximum 200 caractères"
+            placeholder="Ta réponse, maximum 200 caractères"
             maxLength={200}
-            className="w-full rounded-xl border border-white/25 bg-white/10 px-4 py-3 text-white placeholder:text-gray-400 outline-none transition-all focus:border-pink-400 focus:ring-2 focus:ring-pink-500/30"
+            className="w-full rounded-xl border border-cream/15 bg-cream/10 px-4 py-3 text-cream placeholder:text-cream/55 outline-none transition-all focus:border-orange focus:ring-2 focus:ring-orange/25"
           />
 
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-cream/55">
               Cette réponse doit rester personnelle et facile à retenir.
             </p>
 
             <p
               className={`text-xs ${
-                reponse.length > 180 ? "text-pink-300" : "text-gray-400"
+                reponse.length > 180 ? "text-orange" : "text-cream/55"
               }`}
             >
               {reponse.length}/200
@@ -200,15 +200,14 @@ export default function Step4() {
       </section>
 
       {/* Bloc centres d'intérêt */}
-      <section className="space-y-5 border-t border-white/10 pt-6">
+      <section className="space-y-5 border-t border-cream/10 pt-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">
-            Centres d’intérêt <span className="text-pink-400">*</span>
+          <h3 className="text-lg font-semibold text-cream">
+            Centres d’intérêt <span className="text-orange">*</span>
           </h3>
 
-          <p className="mt-2 text-sm text-gray-300">
-            Sélectionnez entre 3 et 5 centres d’intérêt pour personnaliser votre
-            expérience.
+          <p className="mt-2 text-sm text-cream/70">
+            Sélectionne entre 3 et 5 centres d’intérêt pour personnaliser ton expérience.
           </p>
         </div>
 
@@ -225,21 +224,21 @@ export default function Step4() {
                 disabled={isDisabled}
                 className={`rounded-xl border p-3 text-left transition-all ${
                   isSelected
-                    ? "border-pink-400 bg-pink-500/20 text-white"
+                    ? "border-orange bg-orange/15 text-cream"
                     : isDisabled
-                      ? "cursor-not-allowed border-white/10 bg-white/5 text-gray-500"
-                      : "border-white/20 bg-white/10 text-gray-200 hover:border-purple-300/50 hover:bg-white/15"
+                      ? "cursor-not-allowed border-cream/10 bg-cream/5 text-cream/55"
+                      : "border-cream/12 bg-cream/10 text-cream/80 hover:border-orange/50 hover:bg-cream/15"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
                       isSelected
-                        ? "border-pink-400 bg-pink-500"
-                        : "border-white/30"
+                        ? "border-orange bg-orange"
+                        : "border-cream/20"
                     }`}
                   >
-                    {isSelected && <Check className="h-3 w-3 text-white" />}
+                    {isSelected && <Check className="h-3 w-3 text-abyss" />}
                   </div>
 
                   <span className="text-sm font-medium">{interet.label}</span>
@@ -252,14 +251,14 @@ export default function Step4() {
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <p
             className={`text-sm ${
-              selectedInterets.length < 3 ? "text-pink-300" : "text-gray-300"
+              selectedInterets.length < 3 ? "text-orange" : "text-cream/70"
             }`}
           >
             {selectedInterets.length}/5 sélectionnés — minimum 3
           </p>
 
           {selectedInterets.length >= 5 && (
-            <p className="text-sm text-pink-300">Maximum atteint</p>
+            <p className="text-sm text-orange">Maximum atteint</p>
           )}
         </div>
 

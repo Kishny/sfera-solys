@@ -1,9 +1,9 @@
 // src/lib/emails.ts
-// Templates HTML pour les emails transactionnels SferaLuna
+// Templates HTML pour les emails transactionnels Sfera'Solys
 
 import { resend, FROM_EMAIL } from "./resend";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://sferaluna.com";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://sferasolys.com";
 
 // ─── Helpers de layout ────────────────────────────────────────────────────────
 
@@ -13,25 +13,25 @@ function emailWrapper(content: string): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SferaLuna</title>
+  <title>Sfera'Solys</title>
 </head>
-<body style="margin:0;padding:0;background:#f5f3f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f3f7;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f4f2ef;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f2ef;padding:40px 16px;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
         <!-- Header -->
         <tr>
-          <td style="background:linear-gradient(135deg,#5B4B8A,#8E7AB5);padding:32px 40px;text-align:center;">
-            <span style="font-size:28px;">🌙</span>
-            <h1 style="color:#ffffff;margin:8px 0 0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">SferaLuna</h1>
+          <td style="background:linear-gradient(135deg,#001724,#0C222D);padding:32px 40px;text-align:center;">
+            <span style="font-size:28px;">☀️</span>
+            <h1 style="color:#FFEBD1;margin:8px 0 0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">Sfera'Solys</h1>
           </td>
         </tr>
         <!-- Content -->
         <tr><td style="padding:40px;">${content}</td></tr>
         <!-- Footer -->
         <tr>
-          <td style="background:#faf9ff;padding:24px 40px;text-align:center;border-top:1px solid #f0ecff;">
-            <p style="color:#999;font-size:12px;margin:0;">© ${new Date().getFullYear()} SferaLuna · Rencontrer au féminin, librement.</p>
+          <td style="background:#f7f5f2;padding:24px 40px;text-align:center;border-top:1px solid #ebe8e3;">
+            <p style="color:#999;font-size:12px;margin:0;">© ${new Date().getFullYear()} Sfera'Solys · Chaque rencontre commence par un dossier vérifié.</p>
             <p style="color:#bbb;font-size:11px;margin:8px 0 0;">Si tu n'es pas à l'origine de cette action, ignore cet email.</p>
           </td>
         </tr>
@@ -44,7 +44,7 @@ function emailWrapper(content: string): string {
 
 function primaryButton(text: string, url: string): string {
   return `<div style="text-align:center;margin:32px 0;">
-    <a href="${url}" style="display:inline-block;background:linear-gradient(135deg,#5B4B8A,#8E7AB5);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:50px;font-weight:600;font-size:16px;">${text}</a>
+    <a href="${url}" style="display:inline-block;background:#FF4103;color:#001724;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:700;font-size:16px;">${text}</a>
   </div>`;
 }
 
@@ -58,7 +58,7 @@ export async function sendVerificationEmail(
   const verifyUrl = `${APP_URL}/api/auth/verify-email?token=${token}`;
 
   const html = emailWrapper(`
-    <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Bienvenue sur SferaLuna, ${pseudonyme} 🌸</h2>
+    <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Bienvenue sur Sfera'Solys, ${pseudonyme} ☀️</h2>
     <p style="color:#666;line-height:1.6;margin:0 0 24px;">
       Ton compte a bien été créé ! Il ne reste qu'une étape : confirmer ton adresse email pour activer ton profil.
     </p>
@@ -66,14 +66,14 @@ export async function sendVerificationEmail(
     <p style="color:#999;font-size:13px;text-align:center;margin:0;">
       Ce lien expire dans <strong>24 heures</strong>.<br/>
       Si le bouton ne fonctionne pas, copie ce lien : <br/>
-      <span style="color:#8E7AB5;word-break:break-all;">${verifyUrl}</span>
+      <span style="color:#6B1B02;word-break:break-all;">${verifyUrl}</span>
     </p>
   `);
 
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "🌙 Confirme ton adresse email — SferaLuna",
+    subject: "☀️ Confirme ton adresse email — Sfera'Solys",
     html,
   });
 }
@@ -103,7 +103,7 @@ export async function sendResetPasswordEmail(
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "🔐 Réinitialisation de ton mot de passe — SferaLuna",
+    subject: "🔐 Réinitialisation de ton mot de passe — Sfera'Solys",
     html,
   });
 }
@@ -117,7 +117,7 @@ export async function sendWelcomeEmail(
   const html = emailWrapper(`
     <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Ton email est confirmé ✨</h2>
     <p style="color:#666;line-height:1.6;margin:0 0 24px;">
-      Bienvenue dans la communauté SferaLuna, ${pseudonyme} ! Ton profil est maintenant actif.
+      Bienvenue dans la communauté Sfera'Solys, ${pseudonyme} ! Ton profil est maintenant actif.
       Complète-le pour commencer à rencontrer des profils qui te correspondent vraiment.
     </p>
     ${primaryButton("Compléter mon profil", `${APP_URL}/inscription`)}
@@ -126,7 +126,7 @@ export async function sendWelcomeEmail(
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "✨ Bienvenue sur SferaLuna !",
+    subject: "✨ Bienvenue sur Sfera'Solys !",
     html,
   });
 }
@@ -157,10 +157,10 @@ export async function sendPaymentSuccessEmail(
   const nextDate = formatDateFr(periodEnd);
 
   const html = emailWrapper(`
-    <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Paiement confirmé 💜</h2>
+    <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Paiement confirmé 🧡</h2>
     <p style="color:#666;line-height:1.6;margin:0 0 16px;">Bonjour ${pseudonyme},</p>
     <p style="color:#666;line-height:1.6;margin:0 0 16px;">
-      Ton abonnement <strong>${planLabel}</strong> est actif. Merci de faire partie de la communauté SferaLuna !
+      Ton abonnement <strong>${planLabel}</strong> est actif. Merci de faire partie de la communauté Sfera'Solys !
     </p>
     ${
       nextDate
@@ -178,7 +178,7 @@ export async function sendPaymentSuccessEmail(
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "💜 Ton abonnement SferaLuna est confirmé",
+    subject: "🧡 Ton abonnement Sfera'Solys est confirmé",
     html,
   });
 }
@@ -193,7 +193,7 @@ export async function sendPaymentFailedEmail(
     <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Souci avec ton paiement ⚠️</h2>
     <p style="color:#666;line-height:1.6;margin:0 0 16px;">Bonjour ${pseudonyme},</p>
     <p style="color:#666;line-height:1.6;margin:0 0 16px;">
-      Nous n'avons pas pu prélever le renouvellement de ton abonnement SferaLuna. Cela arrive souvent
+      Nous n'avons pas pu prélever le renouvellement de ton abonnement Sfera'Solys. Cela arrive souvent
       pour une carte expirée ou un plafond atteint.
     </p>
     <p style="color:#666;line-height:1.6;margin:0 0 8px;">
@@ -206,7 +206,7 @@ export async function sendPaymentFailedEmail(
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "⚠️ Paiement de ton abonnement SferaLuna — action requise",
+    subject: "⚠️ Paiement de ton abonnement Sfera'Solys — action requise",
     html,
   });
 }
@@ -224,7 +224,7 @@ export async function sendSubscriptionCanceledEmail(
     <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Résiliation prise en compte</h2>
     <p style="color:#666;line-height:1.6;margin:0 0 16px;">Bonjour ${pseudonyme},</p>
     <p style="color:#666;line-height:1.6;margin:0 0 16px;">
-      Ton abonnement SferaLuna ne se renouvellera plus.
+      Ton abonnement Sfera'Solys ne se renouvellera plus.
       ${
         untilDate
           ? `Tu conserves l'accès Premium jusqu'au <strong>${untilDate}</strong>.`
@@ -240,7 +240,7 @@ export async function sendSubscriptionCanceledEmail(
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "Ton abonnement SferaLuna a été résilié",
+    subject: "Ton abonnement Sfera'Solys a été résilié",
     html,
   });
 }
@@ -263,7 +263,7 @@ export async function sendRenewalReminderEmail(
       ${dateStr ? `le <strong>${dateStr}</strong>` : "très bientôt"}.
     </p>
     <p style="color:#666;line-height:1.6;margin:0 0 8px;">
-      Tu n'as rien à faire pour continuer à profiter de SferaLuna. Si tu préfères ne pas renouveler,
+      Tu n'as rien à faire pour continuer à profiter de Sfera'Solys. Si tu préfères ne pas renouveler,
       tu peux résilier en un clic depuis ton compte avant cette date.
     </p>
     ${primaryButton("Gérer mon abonnement", ACCOUNT_URL)}
@@ -272,7 +272,7 @@ export async function sendRenewalReminderEmail(
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "🔄 Ton abonnement SferaLuna se renouvelle bientôt",
+    subject: "🔄 Ton abonnement Sfera'Solys se renouvelle bientôt",
     html,
   });
 }
@@ -284,21 +284,21 @@ export async function sendReengagementEmail(
   pseudonyme: string
 ): Promise<void> {
   const html = emailWrapper(`
-    <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Tu nous manques, ${pseudonyme} 🌙</h2>
+    <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Tu nous manques, ${pseudonyme} ☀️</h2>
     <p style="color:#666;line-height:1.6;margin:0 0 16px;">
-      La communauté SferaLuna continue de grandir et de nouvelles personnes t'attendent peut-être.
+      La communauté Sfera'Solys continue de grandir et de nouvelles personnes t'attendent peut-être.
     </p>
     <p style="color:#666;line-height:1.6;margin:0 0 24px;">
       Reviens jeter un œil : de nouveaux profils, de nouvelles affinités, et toujours le même espace sûr et bienveillant.
     </p>
-    ${primaryButton("Revenir sur SferaLuna", `${APP_URL}/explorer`)}
-    <p style="color:#999;font-size:13px;text-align:center;margin:0;">À très vite 💜</p>
+    ${primaryButton("Revenir sur Sfera'Solys", `${APP_URL}/explorer`)}
+    <p style="color:#999;font-size:13px;text-align:center;margin:0;">À très vite 🧡</p>
   `);
 
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "🌙 On t'a gardé une place sur SferaLuna",
+    subject: "☀️ On t'a gardé une place sur Sfera'Solys",
     html,
   });
 }
@@ -312,7 +312,7 @@ export async function sendDunningEmail(
   const html = emailWrapper(`
     <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Un souci avec ton paiement, ${pseudonyme}</h2>
     <p style="color:#666;line-height:1.6;margin:0 0 16px;">
-      Le renouvellement de ton abonnement SferaLuna n'a pas pu être prélevé. Ton accès premium risque d'être suspendu.
+      Le renouvellement de ton abonnement Sfera'Solys n'a pas pu être prélevé. Ton accès premium risque d'être suspendu.
     </p>
     <p style="color:#666;line-height:1.6;margin:0 0 24px;">
       Mets à jour ton moyen de paiement en quelques secondes pour ne rien perdre.
@@ -326,7 +326,7 @@ export async function sendDunningEmail(
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "⚠️ Ton paiement SferaLuna n'a pas abouti",
+    subject: "⚠️ Ton paiement Sfera'Solys n'a pas abouti",
     html,
   });
 }
@@ -340,19 +340,19 @@ export async function sendWinbackEmail(
   const html = emailWrapper(`
     <h2 style="color:#1C1C1C;font-size:22px;margin:0 0 8px;">Et si on se retrouvait, ${pseudonyme} ?</h2>
     <p style="color:#666;line-height:1.6;margin:0 0 16px;">
-      Ton abonnement premium s'est terminé, mais ta place dans la communauté SferaLuna reste ouverte.
+      Ton abonnement premium s'est terminé, mais ta place dans la communauté Sfera'Solys reste ouverte.
     </p>
     <p style="color:#666;line-height:1.6;margin:0 0 24px;">
       Réactive ton accès premium quand tu veux pour retrouver toutes tes fonctionnalités : visibilité, mode fantôme, et bien plus.
     </p>
     ${primaryButton("Réactiver mon premium", `${APP_URL}/tarifs`)}
-    <p style="color:#999;font-size:13px;text-align:center;margin:0;">On serait ravies de te revoir 💜</p>
+    <p style="color:#999;font-size:13px;text-align:center;margin:0;">On serait ravies de te revoir 🧡</p>
   `);
 
   await resend.emails.send({
     from: FROM_EMAIL,
     to,
-    subject: "💜 Ta place t'attend sur SferaLuna",
+    subject: "🧡 Ta place t'attend sur Sfera'Solys",
     html,
   });
 }

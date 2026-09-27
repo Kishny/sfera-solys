@@ -18,14 +18,14 @@ export async function POST(req: NextRequest) {
   const user = session?.user as { id?: string; email?: string } | undefined;
 
   if (!user?.id) {
-    return NextResponse.json({ error: "Non authentifiée." }, { status: 401 });
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
   }
 
   await connectDB();
 
   const dbUser = await User.findById(user.id);
   if (!dbUser) {
-    return NextResponse.json({ error: "Utilisatrice introuvable." }, { status: 404 });
+    return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
   }
 
   if (dbUser.identityVerified) {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferaluna.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.com";
 
   const verificationSession = await stripe.identity.verificationSessions.create({
     type: "document",
@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
   const user = session?.user as { id?: string } | undefined;
 
   if (!user?.id) {
-    return NextResponse.json({ error: "Non authentifiée." }, { status: 401 });
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
   }
 
   await connectDB();
@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
   );
 
   if (!dbUser) {
-    return NextResponse.json({ error: "Utilisatrice introuvable." }, { status: 404 });
+    return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
   }
 
   return NextResponse.json({

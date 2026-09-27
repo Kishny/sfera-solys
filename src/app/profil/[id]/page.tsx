@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page de détail d'un profil SferaLuna.
+ * Page de détail d'un profil Sfera'Solys.
  *
  * Cette page permet :
  * - d'afficher le profil public d'un utilisateur ;
@@ -285,7 +285,7 @@ function ProfilContent() {
                       {profile.image ? (
                         <img
                           src={profile.image}
-                          alt={profile.pseudonyme || "Luna"}
+                          alt={profile.pseudonyme || "Membre"}
                           className="h-full w-full object-cover"
                         />
                       ) : (
@@ -297,7 +297,7 @@ function ProfilContent() {
                     <div className="min-w-0 flex-1 pb-1">
                       <div className="mb-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                         <h1 className="max-w-full truncate text-2xl font-bold sm:text-3xl">
-                          {profile.pseudonyme || "Luna"}
+                          {profile.pseudonyme || "Membre"}
                         </h1>
 
                         {profile.identityVerified && (
@@ -345,7 +345,7 @@ function ProfilContent() {
                         >
                           <img
                             src={photoUrl}
-                            alt={`Photo de ${profile.pseudonyme || "Luna"} ${i + 1}`}
+                            alt={`Photo de ${profile.pseudonyme || "Membre"} ${i + 1}`}
                             className="h-full w-full object-cover"
                           />
                         </div>
@@ -441,7 +441,7 @@ function ProfilContent() {
                 <div className="flex items-center justify-center gap-2 text-center text-xs text-white/35">
                   <Sparkles className="h-4 w-4 text-purple-300/70" />
                   Les profils vérifiés aident à renforcer la confiance sur
-                  SferaLuna.
+                  Sfera'Solys.
                 </div>
               </motion.div>
             )}

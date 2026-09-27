@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page Explorer SferaLuna.
+ * Page Explorer Sfera'Solys.
  *
  * Cette page gère :
  * - l'affichage des profils à découvrir ;
@@ -49,8 +49,6 @@ import {
   User,
 } from "lucide-react";
 import { usePremium } from "@/hooks/usePremium";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import ReportModal from "@/components/ReportModal";
 import { DEPARTEMENTS, getDepartementLabel } from "@/lib/locations";
@@ -108,7 +106,7 @@ const ORIENTATION_OPTIONS = [
 ];
 
 // ─────────────────────────────────────────────
-// Accent visuel par tier (reflète le plan de l'utilisatrice qui explore)
+// Accent visuel par tier (reflète le plan de l'utilisateur qui explore)
 // ─────────────────────────────────────────────
 
 const planAccent: Record<
@@ -453,7 +451,10 @@ export default function ExplorerPage() {
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] via-[#2d1b69] to-[#3a2a82] text-white">
-        <Header />
+        {/* TODO restructuration : ce fond dégradé violet/rose est encore
+            celui de Sfera'Solys, non rebrandé — cf. CLAUDE.md « reste à
+            faire ». Header retiré : cette page vit maintenant dans le
+            groupe de routes (app), avec Sidebar.tsx comme nav. */}
 
         {/* ─────────────────────────────
             Modal Match
@@ -511,7 +512,7 @@ export default function ExplorerPage() {
                     transition={{ delay: 0.3, type: "spring" }}
                     className="mb-5 bg-gradient-to-r from-pink-300 to-purple-200 bg-clip-text text-2xl font-bold text-transparent sm:mb-6 sm:text-3xl"
                   >
-                    💞 {matchModal.profile.pseudonyme || "Luna"}
+                    💞 {matchModal.profile.pseudonyme || "Membre"}
                   </motion.h2>
 
                   <motion.div
@@ -527,7 +528,7 @@ export default function ExplorerPage() {
                     {matchModal.profile.image ? (
                       <img
                         src={matchModal.profile.image}
-                        alt={matchModal.profile.pseudonyme || "Luna"}
+                        alt={matchModal.profile.pseudonyme || "Membre"}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -586,7 +587,7 @@ export default function ExplorerPage() {
           )}
         </AnimatePresence>
 
-        <main className="mx-auto flex min-h-screen max-w-2xl flex-col px-3 pb-6 pt-16 sm:px-4 sm:pb-10 sm:pt-24">
+        <main className="mx-auto flex min-h-screen max-w-2xl flex-col px-3 pb-6 pt-6 sm:px-4 sm:pb-10 sm:pt-8">
           {/* ─────────────────────────────
               Header page compact
           ───────────────────────────── */}
@@ -988,10 +989,6 @@ export default function ExplorerPage() {
         </main>
       </div>
 
-      {/* Footer masqué sur mobile pour garder l'expérience Explorer très app-like. */}
-      <div className="hidden sm:block">
-        <Footer />
-      </div>
 
       {/* Modale signalement profil */}
       <ReportModal
@@ -1179,7 +1176,7 @@ function ProfileStackCard({
         {profile.image ? (
           <img
             src={profile.image}
-            alt={profile.pseudonyme || "Luna"}
+            alt={profile.pseudonyme || "Membre"}
             className="h-full w-full object-cover"
             draggable={false}
           />
@@ -1211,7 +1208,7 @@ function ProfileStackCard({
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="max-w-[220px] truncate text-2xl font-black text-white sm:max-w-none sm:text-3xl">
-              {profile.pseudonyme || "Luna"}
+              {profile.pseudonyme || "Membre"}
               {profile.age ? `, ${profile.age}` : ""}
             </h2>
 

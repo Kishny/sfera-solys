@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Page Mes Matches SferaLuna.
+ * Page Mes Matches Sfera'Solys.
  *
  * Cette page gère :
  * - l'affichage des matches de l'utilisateur connecté ;
@@ -320,7 +320,7 @@ export default function MatchesPage() {
               <div className="min-w-0">
                 <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-pink-400/20 bg-pink-500/10 px-2.5 py-1 text-[11px] font-medium text-pink-200 sm:hidden">
                   <Heart className="h-3.5 w-3.5" />
-                  Connexions Luna
+                  Connexions Solys
                 </div>
 
                 <h1 className="truncate bg-gradient-to-r from-purple-200 to-pink-200 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl">

@@ -10,14 +10,21 @@ import TestimonialForm, { TestimonialFormInitial } from "./TestimonialForm";
 /**
  * Section "Partager mon expérience" (session-aware).
  *
- * - Visiteuse non connectée : invitation à se connecter.
- * - Membre connectée : bouton qui révèle le formulaire partagé, pré-rempli
- *   si elle a déjà témoigné (modification).
+ * - Visiteur non connecté : invitation à se connecter.
+ * - Membre connecté : bouton qui révèle le formulaire partagé, pré-rempli
+ *   s'il a déjà témoigné (modification).
  *
- * Réutilisée sur /valeurs et /temoignages.
+ * Réutilisée sur /valeurs (variante claire) et /temoignages (variante
+ * sombre). `variant` vaut "light" par défaut pour ne rien casser sur les
+ * pages pas encore migrées vers l'identité sombre.
  */
-export default function TestimonialSubmitSection() {
+export default function TestimonialSubmitSection({
+  variant = "light",
+}: {
+  variant?: "light" | "dark";
+}) {
   const { data: session, status } = useSession();
+  const isDark = variant === "dark";
   const sessionUser = session?.user as { id?: string } | undefined;
 
   const [open, setOpen] = useState(false);
@@ -56,10 +63,20 @@ export default function TestimonialSubmitSection() {
 
   if (!sessionUser?.id) {
     return (
-      <p className="mt-4 text-center text-xs text-[#999] sm:mt-6 sm:text-sm">
+      <p
+        className={
+          isDark
+            ? "mt-4 text-center text-xs text-cream/55 sm:mt-6 sm:text-sm"
+            : "mt-4 text-center text-xs text-[#999] sm:mt-6 sm:text-sm"
+        }
+      >
         <Link
           href="/auth?mode=login"
-          className="text-[#8E7AB5] underline underline-offset-2 hover:text-[#5B4B8A]"
+          className={
+            isDark
+              ? "font-semibold text-orange underline underline-offset-2 hover:text-orange/80"
+              : "text-[#8E7AB5] underline underline-offset-2 hover:text-[#5B4B8A]"
+          }
         >
           Connecte-toi
         </Link>{" "}
@@ -75,7 +92,11 @@ export default function TestimonialSubmitSection() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full border border-[#E8E0FF] bg-white px-5 py-2.5 text-sm font-medium text-[#5B4B8A] transition-all hover:border-[#8E7AB5] hover:shadow-md sm:px-6 sm:py-3"
+            className={
+              isDark
+                ? "inline-flex items-center gap-2 rounded-xl border border-cream/15 px-5 py-2.5 text-sm font-semibold text-cream/85 transition-colors hover:border-orange/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss sm:px-6 sm:py-3"
+                : "inline-flex items-center gap-2 rounded-full border border-[#E8E0FF] bg-white px-5 py-2.5 text-sm font-medium text-[#5B4B8A] transition-all hover:border-[#8E7AB5] hover:shadow-md sm:px-6 sm:py-3"
+            }
           >
             <MessageSquarePlus size={16} />
             {alreadySubmitted ? "Modifier mon témoignage" : "Partager mon expérience"}
@@ -89,6 +110,7 @@ export default function TestimonialSubmitSection() {
           <TestimonialForm
             profileImage={profileImage}
             initial={initial}
+            variant={variant}
             onCancel={() => setOpen(false)}
           />
         </motion.div>

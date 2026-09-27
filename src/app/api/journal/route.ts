@@ -1,6 +1,6 @@
 // src/app/api/journal/route.ts
 //
-// GET  /api/journal          → liste des entrées de l'utilisatrice connectée
+// GET  /api/journal          → liste des entrées de l'utilisateur connectée
 // POST /api/journal          → créer une nouvelle entrée
 // DELETE /api/journal        → supprimer toutes les entrées (reset journal)
 
@@ -23,12 +23,12 @@ async function getUser(email: string) {
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
-    return NextResponse.json({ success: false, error: "Non authentifiée." }, { status: 401 });
+    return NextResponse.json({ success: false, error: "Non authentifié." }, { status: 401 });
   }
 
   const user = await getUser(session.user.email);
   if (!user) {
-    return NextResponse.json({ success: false, error: "Utilisatrice introuvable." }, { status: 404 });
+    return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
   }
 
   const entries = await JournalEntry.find({ userId: user._id })
@@ -55,12 +55,12 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
-    return NextResponse.json({ success: false, error: "Non authentifiée." }, { status: 401 });
+    return NextResponse.json({ success: false, error: "Non authentifié." }, { status: 401 });
   }
 
   const user = await getUser(session.user.email);
   if (!user) {
-    return NextResponse.json({ success: false, error: "Utilisatrice introuvable." }, { status: 404 });
+    return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
   }
 
   const body = await req.json().catch(() => null);
@@ -97,12 +97,12 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
-    return NextResponse.json({ success: false, error: "Non authentifiée." }, { status: 401 });
+    return NextResponse.json({ success: false, error: "Non authentifié." }, { status: 401 });
   }
 
   const user = await getUser(session.user.email);
   if (!user) {
-    return NextResponse.json({ success: false, error: "Utilisatrice introuvable." }, { status: 404 });
+    return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
   }
 
   await JournalEntry.deleteMany({ userId: user._id });

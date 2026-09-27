@@ -51,3 +51,10 @@ next-env.d.ts
 .fuse_hidden*
 settings.json
 .history/
+
+# Dossiers de travail temporaires — ne jamais commiter.
+# _to_delete/ contient notamment une sauvegarde de .env.local.
+_to_delete/
+_migrated-out-of-app-router/
+*.bak
+*.bak.[0-9]*

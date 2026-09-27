@@ -3,7 +3,7 @@
 import type { MetadataRoute } from "next";
 
 /**
- * Sitemap officiel SferaLuna.
+ * Sitemap officiel Sfera'Solys.
  *
  * Ce fichier indique aux moteurs de recherche
  * quelles pages publiques doivent être explorées et indexées.
@@ -19,11 +19,11 @@ import type { MetadataRoute } from "next";
  * Le sitemap doit rester orienté SEO public.
  */
 
-const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferaluna.com";
+const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.com";
 
 /**
  * Nettoie l'URL de base pour éviter :
- * https://sferaluna.com//tarifs
+ * https://sferasolys.com//tarifs
  */
 const baseUrl = rawBaseUrl.replace(/\/$/, "");
 

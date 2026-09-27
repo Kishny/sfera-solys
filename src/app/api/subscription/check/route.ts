@@ -19,10 +19,10 @@ import {
 } from "@/lib/subscription/config";
 
 /**
- * Route de vérification abonnement SferaLuna.
+ * Route de vérification abonnement Sfera'Solys.
  *
  * Cette API permet de vérifier :
- * - le plan actuel de l'utilisatrice ;
+ * - le plan actuel de l'utilisateur ;
  * - les fonctionnalités disponibles ;
  * - les limites du plan ;
  * - si une action est autorisée ;

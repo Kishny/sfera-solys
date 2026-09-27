@@ -156,7 +156,7 @@ export async function sendMorningDigestPush(params: {
 
   await sendPushNotification({
     to: token,
-    title: "🌙 De nouvelles arrivantes sur SferaLuna",
+    title: "🌙 De nouvelles arrivantes sur Sfera'Solys",
     body: `${label} compatible${params.newProfilesCount > 1 ? "s" : ""} avec toi depuis hier.`,
     data: { type: "morning_digest" },
     sound: "default",

@@ -3,7 +3,7 @@
 // POST /api/stripe/cancel
 //
 // Annule l'abonnement Stripe à la fin de la période en cours.
-// L'utilisatrice garde l'accès premium jusqu'à premiumExpiresAt.
+// L'utilisateur garde l'accès premium jusqu'à premiumExpiresAt.
 // À la date d'expiration, le webhook customer.subscription.deleted prend le relais.
 
 import { NextResponse } from "next/server";
@@ -26,7 +26,7 @@ export async function POST() {
   const user = await User.findOne({ email: session.user.email.toLowerCase().trim() });
 
   if (!user) {
-    return NextResponse.json({ success: false, error: "Utilisatrice introuvable." }, { status: 404 });
+    return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
   }
 
   if (!user.stripeSubscriptionId) {
@@ -52,7 +52,7 @@ export async function POST() {
     try {
       await sendSubscriptionCanceledEmail(
         user.email,
-        user.pseudonyme || "membre Luna",
+        user.pseudonyme || "membre Solys",
         periodEnd ?? user.premiumExpiresAt ?? null
       );
     } catch (mailErr) {

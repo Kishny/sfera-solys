@@ -3,7 +3,7 @@
 import type { MetadataRoute } from "next";
 
 /**
- * Robots.txt officiel SferaLuna.
+ * Robots.txt officiel Sfera'Solys.
  *
  * Objectif :
  * - autoriser l'indexation des pages publiques marketing ;
@@ -12,7 +12,7 @@ import type { MetadataRoute } from "next";
  */
 
 export default function robots(): MetadataRoute.Robots {
-  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferaluna.com";
+  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.com";
 
   /**
    * Évite les doubles slashs si NEXT_PUBLIC_APP_URL finit par "/".

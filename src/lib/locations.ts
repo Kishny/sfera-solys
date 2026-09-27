@@ -1,7 +1,7 @@
 // src/lib/locations.ts
 
 /**
- * Référence géographique SferaLuna.
+ * Référence géographique Sfera'Solys.
  *
  * Couvre la France métropolitaine ET les départements d'outre-mer
  * (971 Guadeloupe, 972 Martinique, 973 Guyane, 974 La Réunion, 976 Mayotte).

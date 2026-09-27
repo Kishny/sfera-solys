@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 
 /**
- * Dashboard Admin SferaLuna — design premium sombre + données réelles.
+ * Dashboard Admin Sfera'Solys — design premium sombre + données réelles.
  *
  * Shell : sidebar fixe (desktop) + nav scrollable (mobile) + header.
  * Sections : Dashboard (overview branché sur /api/admin/stats), Utilisateurs,
@@ -974,7 +974,7 @@ export default function AdminPage() {
             </div>
             <div>
               <p className="text-base font-bold leading-none tracking-tight">
-                Sfera<span className="text-amber-300">Luna</span>
+                Sfera<span className="text-amber-300">&apos;Solys</span>
               </p>
               <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-white/35">
                 Admin
@@ -2208,7 +2208,7 @@ export default function AdminPage() {
                           onClick={() =>
                             handleBan(
                               report.targetId!._id,
-                              report.targetId?.pseudonyme || "cette utilisatrice"
+                              report.targetId?.pseudonyme || "cet utilisateur"
                             )
                           }
                           disabled={actionLoading === "ban-" + report.targetId._id}
@@ -2287,7 +2287,7 @@ export default function AdminPage() {
                     type="text"
                     value={nlSubject}
                     onChange={(e) => setNlSubject(e.target.value)}
-                    placeholder="Les nouveautés du mois sur SferaLuna 💜"
+                    placeholder="Les nouveautés du mois sur Sfera'Solys 💜"
                     maxLength={120}
                     className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 text-sm text-white placeholder-white/30 outline-none focus:border-purple-400/50"
                   />
@@ -2397,7 +2397,7 @@ export default function AdminPage() {
           )}
 
           <p className="mt-8 text-center text-[11px] text-white/25">
-            SferaLuna · Dashboard admin
+            Sfera'Solys · Dashboard admin
           </p>
         </main>
       </div>

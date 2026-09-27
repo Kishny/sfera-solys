@@ -10,7 +10,7 @@ import mongoose, { Schema, Document, Model, models } from "mongoose";
  * humain (signalement → file d'attente admin → review → adminNotes), avec
  * une contrainte unique (reporterId, targetType, targetId) qui n'a pas de
  * sens ici puisqu'il n'y a pas de "reporterId" (c'est le système qui agit,
- * pas une utilisatrice) et qu'une même personne peut tenter plusieurs
+ * pas un utilisateur) et qu'une même personne peut tenter plusieurs
  * uploads rejetés successifs (utile justement pour détecter un pattern
  * d'abus répété).
  *

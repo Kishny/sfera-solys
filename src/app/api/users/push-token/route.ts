@@ -2,7 +2,7 @@
  * PUT /api/users/push-token
  *
  * Enregistre ou met à jour le token Expo Push Notifications
- * de l'utilisatrice connectée dans MongoDB.
+ * de l'utilisateur connectée dans MongoDB.
  * Appelé par l'app mobile au démarrage (lib/notifications.ts).
  *
  * Body : { pushToken: string }
@@ -17,7 +17,7 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 export async function PUT(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Non authentifiée." }, { status: 401 });
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));

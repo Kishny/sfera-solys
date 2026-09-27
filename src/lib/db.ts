@@ -57,7 +57,7 @@ export async function connectDB() {
    */
   if (!globalForMongoose.mongoose?.promise) {
     globalForMongoose.mongoose!.promise = mongoose.connect(MONGODB_URI as string, {
-      dbName: "sferaluna",
+      dbName: "sferasolys",
       bufferCommands: false,
     });
   }

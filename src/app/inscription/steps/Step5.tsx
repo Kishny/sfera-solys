@@ -3,7 +3,7 @@
 "use client";
 
 /**
- * Étape 5 du formulaire d'inscription SferaLuna.
+ * Étape 5 du formulaire d'inscription Sfera'Solys.
  *
  * Objectif :
  * - choisir la visibilité du profil ;
@@ -29,25 +29,25 @@ const optionsVisibilite = [
   {
     value: "public",
     label: "Profil public",
-    description: "Votre profil peut être visible par les membres compatibles.",
+    description: "Ton profil peut être visible par les membres compatibles.",
     icon: <Eye className="h-4 w-4" />,
   },
   {
     value: "matches",
     label: "Seulement mes matches",
-    description: "Votre profil est visible uniquement par vos correspondances.",
+    description: "Ton profil est visible uniquement par tes correspondances.",
     icon: <Lock className="h-4 w-4" />,
   },
   {
     value: "premium",
     label: "Membres premium",
-    description: "Votre profil est priorisé auprès des membres premium.",
+    description: "Ton profil est priorisé auprès des membres premium.",
     icon: <Crown className="h-4 w-4" />,
   },
   {
     value: "invisible",
     label: "Mode discret",
-    description: "Votre profil reste plus confidentiel.",
+    description: "Ton profil reste plus confidentiel.",
     icon: <Ghost className="h-4 w-4" />,
   },
 ];
@@ -88,25 +88,25 @@ export default function Step5() {
     <div className="space-y-6 sm:space-y-8">
       {/* Titre de l'étape */}
       <div>
-        <h2 className="text-xl font-bold text-purple-300 sm:text-2xl">
+        <h2 className="text-xl font-bold text-cream sm:text-2xl">
           Visibilité et confidentialité
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-gray-300">
-          Choisissez comment votre profil apparaît sur SferaLuna et confirmez
-          votre consentement avant de continuer.
+        <p className="mt-2 text-sm leading-relaxed text-cream/70">
+          Choisis comment ton profil apparaît sur Sfera'Solys et confirme
+          ton consentement avant de continuer.
         </p>
       </div>
 
       {/* Visibilité */}
       <section className="space-y-4">
         <div>
-          <h3 className="text-lg font-semibold text-white">
-            Visibilité du profil <span className="text-pink-400">*</span>
+          <h3 className="text-lg font-semibold text-cream">
+            Visibilité du profil <span className="text-orange">*</span>
           </h3>
 
-          <p className="mt-2 text-sm text-gray-300">
-            Vous pourrez modifier ce choix plus tard depuis votre espace
+          <p className="mt-2 text-sm text-cream/70">
+            Tu pourras modifier ce choix plus tard depuis ton espace
             Mon Compte.
           </p>
         </div>
@@ -122,25 +122,25 @@ export default function Step5() {
                 onClick={() => handleVisibiliteChange(option.value)}
                 className={`rounded-xl border p-4 text-left transition-all ${
                   isSelected
-                    ? "border-pink-400 bg-pink-500/20 shadow-lg shadow-pink-500/10"
-                    : "border-white/25 bg-white/5 hover:border-purple-300 hover:bg-white/10"
+                    ? "border-orange bg-orange/15 shadow-lg shadow-orange/10"
+                    : "border-cream/15 bg-cream/5 hover:border-orange/50 hover:bg-cream/10"
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
                       isSelected
-                        ? "border-pink-400 bg-pink-500/20 text-pink-200"
-                        : "border-white/20 bg-white/5 text-gray-300"
+                        ? "border-orange bg-orange/15 text-orange"
+                        : "border-cream/12 bg-cream/5 text-cream/70"
                     }`}
                   >
                     {option.icon}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-white">{option.label}</p>
+                    <p className="font-semibold text-cream">{option.label}</p>
 
-                    <p className="mt-1 text-sm leading-relaxed text-gray-300">
+                    <p className="mt-1 text-sm leading-relaxed text-cream/70">
                       {option.description}
                     </p>
                   </div>
@@ -148,11 +148,11 @@ export default function Step5() {
                   <div
                     className={`mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                       isSelected
-                        ? "border-pink-400 bg-pink-500"
-                        : "border-gray-300 bg-white/5"
+                        ? "border-orange bg-orange"
+                        : "border-cream/15 bg-cream/5"
                     }`}
                   >
-                    {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                    {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-abyss" />}
                   </div>
                 </div>
               </button>
@@ -174,28 +174,28 @@ export default function Step5() {
           onClick={handleConsentementChange}
           className={`w-full rounded-xl border p-4 text-left transition-all ${
             consentement
-              ? "border-green-400 bg-green-500/15"
-              : "border-white/25 bg-white/5 hover:border-purple-300 hover:bg-white/10"
+              ? "border-lime bg-lime/12"
+              : "border-cream/15 bg-cream/5 hover:border-orange/50 hover:bg-cream/10"
           }`}
         >
           <div className="flex items-start gap-3">
             <div
               className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
                 consentement
-                  ? "border-green-500 bg-green-500"
-                  : "border-gray-300 bg-white/5"
+                  ? "border-lime bg-lime"
+                  : "border-cream/15 bg-cream/5"
               }`}
             >
-              {consentement && <Check className="h-3.5 w-3.5 text-white" />}
+              {consentement && <Check className="h-3.5 w-3.5 text-abyss" />}
             </div>
 
             <div>
-              <p className="font-semibold text-white">
-                J’accepte les règles de confidentialité SferaLuna{" "}
-                <span className="text-pink-400">*</span>
+              <p className="font-semibold text-cream">
+                J’accepte les règles de confidentialité Sfera'Solys{" "}
+                <span className="text-orange">*</span>
               </p>
 
-              <p className="mt-1 text-sm leading-relaxed text-gray-300">
+              <p className="mt-1 text-sm leading-relaxed text-cream/70">
                 J’accepte que mes informations soient utilisées pour créer mon
                 profil, améliorer mes suggestions et sécuriser mon expérience.
               </p>

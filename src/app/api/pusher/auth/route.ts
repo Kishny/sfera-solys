@@ -16,7 +16,7 @@ import { Match } from "@/models/Match";
  * Route appelée automatiquement par pusher-js quand le client veut s'abonner
  * à un canal privé.
  *
- * Canaux utilisés dans SferaLuna :
+ * Canaux utilisés dans Sfera'Solys :
  * - private-user-{userId}
  * - private-match-{matchId}
  *

@@ -13,6 +13,62 @@ module.exports = {
         secondary: "#F5F3F7",
         dark: "#1C1C1C",
         muted: "#5E5E5E",
+
+        // Éclipse solaire — tokens Sfera'Solys (concept 5 : lime & vulcanico)
+        //
+        // On garde les MÊMES clés qu'avant (abyss/teal/cream/orange/rust) pour que
+        // les classes déjà utilisées dans tout le code (bg-orange, text-rust, etc.)
+        // continuent de fonctionner sans rien renommer. Seules les valeurs hex
+        // changent :
+        //   - orange / accent      → vulcanico (#FF4103), remplace l'ancien orange
+        //   - rust / accent-deep   → ember (#6B1B02), déclinaison sombre du
+        //                            vulcanico pour les hovers/états pressés
+        //                            (remplace le rôle que jouait rust)
+        //   - teal / surface       → neutre proche de l'abyss (#0C222D), pour
+        //                            retirer la teinte teal tout en gardant la
+        //                            même utilité de "surface" un peu plus claire
+        //                            que le fond (cartes, dégradés, séparations)
+        //   - lime / accent-electric → nouveau, accent électrique secondaire
+        //                              réservé aux petites touches à fort impact
+        //                              (badges, points de statut, glows) — jamais
+        //                              en grande surface ni en texte courant
+        //
+        // TODO rebranding (phase 2, optionnelle) : une fois toutes les pages
+        // repassées en revue, on pourra renommer teal→(nouveau nom neutre) et
+        // rust→ember dans le code pour que les noms de classes redeviennent
+        // fidèles aux couleurs qu'ils décrivent.
+        abyss: "#001724",
+        teal: "#0C222D",
+        cream: "#FFEBD1",
+        orange: "#FF4103",
+        rust: "#6B1B02",
+        lime: "#B6FF00",
+
+        // Alias sémantiques (mêmes valeurs que les tokens ci-dessus)
+        background: "#001724", // abyss
+        surface: "#0C222D", // teal → neutre proche abyss
+        text: "#FFEBD1", // cream
+        accent: "#FF4103", // orange → vulcanico
+        "accent-deep": "#6B1B02", // rust → ember
+        "accent-electric": "#B6FF00", // lime
+      },
+      fontFamily: {
+        // Corps : Instrument Sans — texte courant, UI
+        sans: [
+          "var(--font-instrument-sans)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        // Display : Archivo — titres, boutons, wordmark (bas-de-casse, largeur expanded)
+        display: [
+          "var(--font-archivo)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        // Accent : Fraunces italique — touches éditoriales / chaleureuses
+        accent: ["var(--font-fraunces)", "ui-serif", "Georgia", "serif"],
       },
     },
   },

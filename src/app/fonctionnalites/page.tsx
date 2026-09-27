@@ -1,50 +1,50 @@
-// src/app/fonctionnalites/page.tsx
+'use client';
 
-"use client";
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import Link from 'next/link';
+import {
+  ArrowRight,
+  BadgeCheck,
+  CalendarDays,
+  Check,
+  ChevronDown,
+  Compass,
+  EyeOff,
+  Flag,
+  Ghost,
+  GraduationCap,
+  Lightbulb,
+  Lock,
+  MessageCircle,
+  ShieldCheck,
+} from 'lucide-react';
+
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import HexagonSix from '@/components/icons/HexagonSix';
 
 /**
- * Page Fonctionnalités SferaLuna.
+ * Page Fonctionnalités Sfera'Solys — direction A (« dossier de vérification »).
  *
- * Cette page présente :
- * - les fonctionnalités principales ;
- * - une mise en avant détaillée de la fonctionnalité active sur desktop ;
- * - une version accordéon très compacte sur mobile ;
- * - les statistiques dynamiques ;
- * - un CTA final vers l'inscription ou les forfaits.
+ * Restructuration + rebranding (voir CLAUDE.md § Restructuration) :
+ * cette page était restée intégralement celle du site d'origine — un
+ * dégradé différent par fonctionnalité, des orbes animées, des mockups en
+ * emojis, une marque et une cible non corrigées, et une copy rédigée au
+ * féminin (« Sois guidée », « Rejoins celles qui... »).
  *
- * Objectif mobile-first :
- * - réduire fortement la hauteur du hero ;
- * - éviter une navigation sticky trop volumineuse sur mobile ;
- * - transformer les cards en accordéons sur mobile ;
- * - garder une version premium, visuelle et plus détaillée sur tablette/desktop.
+ * Elle prend aussi du galon : la grille des 6 fonctionnalités a été
+ * retirée de la home, donc /fonctionnalites est désormais LE point de
+ * découverte du produit. La page se lit de haut en bas comme un sommaire :
+ * les 8 fonctionnalités, la façon dont elles s'enchaînent, le socle
+ * commun, quelques chiffres, les questions qui reviennent.
+ *
+ * Ce qui ne change pas : les 8 fonctionnalités, leurs titres, leurs
+ * descriptions, leurs bénéfices, leurs destinations, et le chargement des
+ * statistiques via /api/stats. Aucune fonctionnalité n'est annoncée comme
+ * « à venir » : les 7 routes liées existent, et « Sécurité totale » n'a
+ * volontairement pas de page dédiée (/securite n'existe pas).
  */
-
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import Link from "next/link";
-
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import HexagonSix from "@/components/icons/HexagonSix";
-
-import {
-  Brain,
-  Calendar,
-  ChevronDown,
-  ChevronRight,
-  Eye,
-  Ghost,
-  Heart,
-  Lightbulb,
-  MessageCircle,
-  Moon,
-  Shield,
-  Sparkles,
-} from "lucide-react";
-
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
 
 interface SiteStats {
   membres: number;
@@ -55,270 +55,202 @@ interface SiteStats {
 
 interface FeatureItem {
   id: string;
-  icon: React.ReactNode;
-  mobileIcon: React.ReactNode;
+  icon: React.ComponentType<{ size?: number | string; className?: string }>;
   title: string;
   description: string;
   details: string;
-  color: string;
-  stats: string[];
-  link: string;
-  comingSoon?: boolean;
+  benefits: string[];
+  /** Absent = pas de page dédiée, la carte reste non cliquable. */
+  link?: string;
+  /** Fonctionnalité de tête, mise en avant comme l'offre recommandée des tarifs. */
+  featured?: boolean;
 }
-
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
 
 /**
  * Formate les statistiques pour éviter les gros chiffres bruts.
- * Exemple :
- * 1200 -> 1.2K+
- * 1000 -> 1K+
- * 0 -> —
+ * 1200 -> 1.2K+ · 1000 -> 1K+ · 0 -> —
  */
 function formatStat(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(1).replace(".0", "")}K+`;
-  if (n === 0) return "—";
+  if (n >= 1000) return `${(n / 1000).toFixed(1).replace('.0', '')}K+`;
+  if (n === 0) return '—';
   return n.toString();
 }
 
-// ─────────────────────────────────────────────
-// Motif décoratif orbite
-// ─────────────────────────────────────────────
-
-/**
- * Motif orbite décoratif (cercles concentriques + points d'accent),
- * écho visuel du nom "Sfera".
- */
-function OrbitGlow({
-  className = "",
-  variant = "default",
-}: {
-  className?: string;
-  variant?: "default" | "light";
-}) {
-  const stroke = variant === "light" ? "#FFFFFF" : "#8E7AB5";
-  const dot = variant === "light" ? "#FFFFFF" : "#5B4B8A";
-
-  return (
-    <svg
-      viewBox="0 0 200 200"
-      className={`pointer-events-none absolute opacity-[0.14] ${className}`}
-      aria-hidden="true"
-    >
-      <circle cx="100" cy="100" r="90" fill="none" stroke={stroke} strokeWidth="1" />
-      <circle
-        cx="100"
-        cy="100"
-        r="62"
-        fill="none"
-        stroke={stroke}
-        strokeWidth="1"
-        strokeDasharray="4 6"
-      />
-      <circle cx="100" cy="100" r="34" fill="none" stroke={stroke} strokeWidth="1" />
-      <circle cx="100" cy="10" r="3" fill={dot} />
-      <circle cx="190" cy="100" r="3" fill={dot} />
-      <circle cx="100" cy="190" r="3" fill={dot} />
-      <circle cx="10" cy="100" r="3" fill={dot} />
-    </svg>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Données fonctionnalités
-// ─────────────────────────────────────────────
+/** Anneau de focus clavier, identique partout dans la direction A. */
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
 
 const features: FeatureItem[] = [
   {
-    id: "circle",
-    icon: <HexagonSix size={32} />,
-    mobileIcon: <HexagonSix size={20} />,
-    title: "Circle of Six",
-    description: "Des liens choisis, pas des milliers de swipes.",
+    id: 'circle',
+    // Icône maison de la marque, pas une icône générique : le Circle of Six
+    // est la fonctionnalité signature, elle garde son hexagone.
+    icon: HexagonSix,
+    title: 'Circle of Six',
+    description: 'Des liens choisis, pas des milliers de swipes.',
     details:
-      "Chaque semaine, notre algorithme te présente 6 femmes qui correspondent à tes valeurs et intérêts. Une approche qualitative pour des rencontres plus authentiques.",
-    color: "from-[#8E7AB5] to-[#D9B8FF]",
-    stats: [
-      "6 personnes par semaine",
-      "Compatibilité optimisée",
-      "Moins de fatigue du swipe",
+      "Chaque semaine, notre algorithme te présente 6 profils qui correspondent à tes valeurs et à tes intérêts. Une approche qualitative pour des rencontres plus authentiques.",
+    benefits: [
+      '6 profils par semaine',
+      'Compatibilité optimisée',
+      'Moins de fatigue du swipe',
     ],
-    link: "/circle",
+    link: '/circle',
+    featured: true,
   },
   {
-    id: "ghost",
-    icon: <Ghost className="h-8 w-8" />,
-    mobileIcon: <Ghost className="h-5 w-5" />,
-    title: "Mode Fantôme",
-    description: "Discrétion assurée, photos floutées, pseudonymes.",
+    id: 'ghost',
+    icon: Ghost,
+    title: 'Mode Fantôme',
+    description: 'Discrétion assurée, photos floutées, pseudonymes.',
     details:
-      "Protège ton intimité avec des photos floutées et un pseudonyme. Tu décides quand et à qui révéler ton identité.",
-    color: "from-[#4ECDC4] to-[#44A08D]",
-    stats: [
-      "Contrôle total",
-      "Anonymat renforcé",
-      "Activation rapide",
-    ],
-    link: "/mode-fantome",
+      'Protège ton intimité avec des photos floutées et un pseudonyme. Tu décides quand et à qui révéler ton identité.',
+    benefits: ['Contrôle total', 'Anonymat renforcé', 'Activation rapide'],
+    link: '/mode-fantome',
   },
   {
-    id: "vibesphere",
-    icon: <Moon className="h-8 w-8" />,
-    mobileIcon: <Moon className="h-5 w-5" />,
-    title: "VibeSphere",
-    description: "Exprime ta vibe dans ton espace personnalisé.",
+    id: 'vibesphere',
+    icon: Compass,
+    title: 'VibeSphere',
+    description: 'Exprime ta vibe dans ton espace personnalisé.',
     details:
       "Crée ton univers digital avec des playlists personnalisées, un journal émotionnel et des avatars d'humeur.",
-    color: "from-[#FF6B6B] to-[#FF8E8E]",
-    stats: [
-      "Journal émotionnel",
-      "Playlists personnalisées",
+    benefits: [
+      'Journal émotionnel',
+      'Playlists personnalisées',
       "Avatars d'humeur",
     ],
-    link: "/vibesphere",
+    link: '/vibesphere',
   },
   {
-    id: "vibeplanner",
-    icon: <Lightbulb className="h-8 w-8" />,
-    mobileIcon: <Lightbulb className="h-5 w-5" />,
-    title: "VibePlanner",
-    description: "Des idées de rendez-vous qui vous rassemblent.",
+    id: 'vibeplanner',
+    icon: Lightbulb,
+    title: 'VibePlanner',
+    description: 'Des idées de rendez-vous qui vous rassemblent, toi et l’autre.',
     details:
-      'Plus jamais de "On fait quoi ?". Des suggestions créatives basées sur vos intérêts communs.',
-    color: "from-[#FFD166] to-[#FF9A3C]",
-    stats: [
-      "Idées personnalisées",
-      "Adapté aux budgets",
-      "Planning intégré",
-    ],
-    link: "/vibeplanner",
+      "Plus jamais de « On fait quoi ? ». Des suggestions créatives basées sur vos intérêts communs à tous les deux.",
+    benefits: ['Idées personnalisées', 'Adapté aux budgets', 'Planning intégré'],
+    link: '/vibeplanner',
   },
   {
-    id: "events",
-    icon: <Calendar className="h-8 w-8" />,
-    mobileIcon: <Calendar className="h-5 w-5" />,
-    title: "Événements Luna",
-    description: "Participe à des moments inoubliables.",
+    id: 'events',
+    icon: CalendarDays,
+    title: 'Événements Solys',
+    description: 'Participe à des moments inoubliables.',
     details:
-      "Rejoins notre communauté lors d'événements exclusifs en ligne et en présentiel.",
-    color: "from-[#9D4EDD] to-[#7B2CBF]",
-    stats: [
-      "Événements mensuels",
-      "Communauté bienveillante",
-      "Rencontres organisées",
+      "Rejoins la communauté lors d'événements exclusifs, en ligne et en présentiel.",
+    benefits: [
+      'Événements mensuels',
+      'Communauté bienveillante',
+      'Rencontres organisées',
     ],
-    link: "/evenements",
-    comingSoon: true,
+    link: '/evenements',
   },
   {
-    id: "coaching",
-    icon: <Brain className="h-8 w-8" />,
-    mobileIcon: <Brain className="h-5 w-5" />,
-    title: "VibeMentor",
-    description: "Sois guidée avec bienveillance et expertise.",
+    id: 'coaching',
+    icon: GraduationCap,
+    title: 'VibeMentor',
+    description: 'Sois accompagné avec exigence et bienveillance.',
     details:
-      "Accompagnement personnalisé pour naviguer dans tes relations et ton développement personnel.",
-    color: "from-[#00B09B] to-[#96C93D]",
-    stats: [
-      "Coaching individuel",
-      "Ateliers thématiques",
-      "Ressources exclusives",
+      'Accompagnement personnalisé pour naviguer dans tes relations et ton développement personnel.',
+    benefits: [
+      'Coaching individuel',
+      'Ateliers thématiques',
+      'Ressources exclusives',
     ],
-    link: "/vibementor",
-    comingSoon: true,
+    link: '/vibementor',
   },
   {
-    id: "security",
-    icon: <Shield className="h-8 w-8" />,
-    mobileIcon: <Shield className="h-5 w-5" />,
-    title: "Sécurité Totale",
-    description: "Un espace protégé et bienveillant.",
+    id: 'security',
+    icon: ShieldCheck,
+    title: 'Sécurité totale',
+    description: 'Un espace protégé et bienveillant.',
     details:
-      "Modération, données protégées et outils de contrôle pour ton bien-être numérique.",
-    color: "from-[#667EEA] to-[#764BA2]",
-    stats: [
-      "Modération active",
-      "Données protégées",
-      "Signalement rapide",
-    ],
-    link: "/securite",
+      'Modération, données protégées et outils de contrôle pour ton bien-être numérique. Rien à activer : ce socle est appliqué à tous les comptes, dès la vérification.',
+    benefits: ['Modération active', 'Données protégées', 'Signalement rapide'],
   },
   {
-    id: "community",
-    icon: <Heart className="h-8 w-8" />,
-    mobileIcon: <Heart className="h-5 w-5" />,
-    title: "Communauté Luna",
-    description: "Rejoins un réseau bienveillant de femmes.",
+    id: 'community',
+    icon: MessageCircle,
+    title: 'Communauté Solys',
+    description: 'Rejoins un réseau bienveillant de membres vérifiés.',
     details:
-      "Échange, partage et grandis avec une communauté qui te comprend et te soutient.",
-    color: "from-[#FF6B9D] to-[#FF8E53]",
-    stats: [
-      "Groupes thématiques",
-      "Forum bienveillant",
-      "Support entre membres",
+      'Échange, partage et avance avec une communauté qui te comprend et te soutient.',
+    benefits: [
+      'Groupes thématiques',
+      'Forum bienveillant',
+      'Support entre membres',
     ],
-    link: "/communaute",
+    link: '/communaute',
   },
 ];
 
-// ─────────────────────────────────────────────
-// Animations
-// ─────────────────────────────────────────────
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.06,
-      delayChildren: 0.12,
-    },
+/** Les 3 temps du parcours, pour relier les fonctionnalités entre elles. */
+const journey = [
+  {
+    dot: 'orange' as const,
+    title: 'Découvrir',
+    description:
+      'Le Circle of Six te propose 6 profils par semaine, et la VibeSphere dit qui tu es sans que tu aies à te vendre.',
   },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.42, ease: "easeOut" },
+  {
+    dot: 'lime' as const,
+    title: 'Échanger',
+    description:
+      "Le Mode Fantôme protège ton intimité le temps de la mise en confiance ; le VibePlanner règle le « on fait quoi ? » avant qu'il se pose.",
   },
-};
+  {
+    dot: 'orange' as const,
+    title: 'Se rencontrer',
+    description:
+      "Les Événements Solys et la Communauté Solys sortent la rencontre de l'écran, avec un cadre clair et des membres vérifiés.",
+  },
+];
 
-// ─────────────────────────────────────────────
-// Page principale
-// ─────────────────────────────────────────────
+/** Socle commun : ce qui s'applique à toutes les fonctionnalités. */
+const foundations = [
+  { icon: BadgeCheck, label: 'Identité vérifiée par document officiel' },
+  { icon: Lock, label: 'Données sécurisées (RGPD)' },
+  { icon: EyeOff, label: 'Tu décides ce que tu montres' },
+  { icon: Flag, label: 'Signalement traité par un humain' },
+];
+
+const notes = [
+  {
+    question: 'Faut-il payer pour accéder aux fonctionnalités ?',
+    answer:
+      "La vérification d'identité, le profil, la messagerie de base, la VibeSphere et la Communauté Solys sont accessibles dès l'offre gratuite. Le Circle of Six hebdomadaire, le VibePlanner et le Mode Fantôme dépendent de l'offre choisie : le détail est sur la page Tarifs.",
+  },
+  {
+    question: 'Le Mode Fantôme gêne-t-il la vérification ?',
+    answer:
+      "Non. La vérification a lieu une seule fois, à l'inscription, et elle porte sur ton dossier. Le Mode Fantôme agit ensuite sur ce que voient les autres membres, pas sur ton statut de profil vérifié.",
+  },
+  {
+    question: 'Puis-je rester sur la communauté sans chercher de rencontre ?',
+    answer:
+      "Oui. Rien ne t'oblige à activer le Circle of Six. Une partie des membres commence par la Communauté Solys et les événements, puis avance à son rythme.",
+  },
+];
 
 export default function FonctionnalitesPage() {
   /**
-   * Fonction active sur tablette/desktop.
-   * Sur mobile, on utilise plutôt openFeatureIndex pour l'accordéon.
+   * Sur mobile, le détail de chaque fonctionnalité est replié pour que les
+   * 8 cartes restent parcourables au pouce. À partir de `sm`, tout est
+   * affiché en permanence (même logique que les offres de la page Tarifs).
    */
-  const [activeFeature, setActiveFeature] = useState<string>("circle");
-
-  /**
-   * Accordéon mobile :
-   * null = aucune fonctionnalité ouverte.
-   */
-  const [openFeatureIndex, setOpenFeatureIndex] = useState<number | null>(0);
-
-  /**
-   * État hover uniquement pour desktop.
-   */
-  const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
-
-  /**
-   * Statistiques dynamiques.
-   */
+  const [openFeature, setOpenFeature] = useState<string | null>('circle');
+  const [openNoteIndex, setOpenNoteIndex] = useState<number | null>(0);
   const [siteStats, setSiteStats] = useState<SiteStats | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   /**
-   * Chargement des statistiques depuis /api/stats.
+   * Statistiques dynamiques — même source que l'ancienne version, on garde
+   * la fonctionnalité et on change ce qu'on en fait : une bande de chiffres
+   * sobres au lieu de quatre tuiles animées à emojis.
    */
   useEffect(() => {
-    fetch("/api/stats")
+    fetch('/api/stats')
       .then((response) => response.json())
       .then((data) => {
         if (data.success) setSiteStats(data.stats);
@@ -326,165 +258,293 @@ export default function FonctionnalitesPage() {
       .catch(() => {});
   }, []);
 
-  const selectedFeature =
-    features.find((feature) => feature.id === activeFeature) || features[0];
+  const stats = [
+    { value: siteStats ? formatStat(siteStats.membres) : '…', label: 'Profils vérifiés' },
+    { value: siteStats ? formatStat(siteStats.matchs) : '…', label: 'Mises en relation' },
+    {
+      value: siteStats ? formatStat(siteStats.messages) : '…',
+      label: 'Messages échangés',
+    },
+    {
+      value: siteStats ? formatStat(siteStats.evenements) : '…',
+      label: 'Événements organisés',
+    },
+  ];
+
+  const fadeUp = {
+    initial: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: shouldReduceMotion ? 0 : 0.5, ease: 'easeOut' as const },
+  };
 
   return (
     <>
       <Header />
 
-      <main className="min-h-screen overflow-hidden bg-gradient-to-b from-[#F5F3F7] to-white pt-16 text-[#1C1C1C] sm:pt-20">
-        {/* ─────────────────────────────
-            Hero compact mobile
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden px-4 py-6 sm:px-6 sm:py-12 md:py-14">
-          <div className="absolute inset-0">
-            <div className="absolute left-0 top-0 h-full w-full bg-gradient-to-br from-[#FDF7FA]/80 via-[#F5F0FF]/60 to-[#E8DFFF]/40" />
+      <main id="contenu" className="bg-abyss text-cream">
+        {/* Hero */}
+        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+          <motion.div {...fadeUp} className="mx-auto max-w-3xl py-12 text-center sm:py-16">
+            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-orange">
+              8 fonctionnalités · vérification incluse
+            </span>
 
-            {/* Orbes décoratives réduites sur mobile */}
-            <motion.div
-              animate={{
-                x: [0, 80, 0],
-                y: [0, 35, 0],
-                rotate: [0, 180, 360],
-              }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute left-1/4 top-1/4 h-40 w-40 rounded-full bg-gradient-to-r from-[#8E7AB5]/10 to-[#D9B8FF]/10 blur-3xl sm:h-64 sm:w-64"
-            />
+            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+              Tout ce que fait Sfera&apos;Solys.
+            </h1>
 
-            <motion.div
-              animate={{
-                x: [0, -80, 0],
-                y: [0, -35, 0],
-                rotate: [360, 180, 0],
-              }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              className="absolute bottom-1/4 right-1/4 h-48 w-48 rounded-full bg-gradient-to-r from-[#FDF7FA]/20 to-[#8E7AB5]/10 blur-3xl sm:h-96 sm:w-96"
-            />
-          </div>
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/60 sm:text-base">
+              Chaque fonctionnalité répond à un moment précis : découvrir des
+              profils, te protéger, échanger, puis rencontrer. Rien de
+              décoratif, et rien qui se cache derrière un abonnement sans le
+              dire.
+            </p>
 
-          <OrbitGlow className="left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 sm:h-[32rem] sm:w-[32rem]" />
-
-          <div className="relative z-10 mx-auto max-w-5xl text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55 }}
-            >
-              {/* Badge compact */}
-              <motion.div
-                initial={{ scale: 0.94, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.12, type: "spring" }}
-                className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#8E7AB5]/20 bg-white/70 px-3 py-1.5 text-xs font-medium text-[#5B4B8A] backdrop-blur sm:mb-8 sm:px-4 sm:py-2 sm:text-sm"
+            <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <Link
+                href="/commencer"
+                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
               >
-                <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#8E7AB5] sm:h-2 sm:w-2" />
-                ✨ Expérience complète
-              </motion.div>
+                constituer mon dossier
+              </Link>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.22, duration: 0.65 }}
-                className="text-3xl font-black leading-tight sm:text-5xl md:text-7xl"
+              <Link
+                href="/tarifs"
+                className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
               >
-                <span className="bg-gradient-to-r from-[#5B4B8A] via-[#8E7AB5] to-[#D9B8FF] bg-clip-text text-transparent">
-                  Fonctionnalités
-                </span>
-
-                <br />
-
-                <span className="text-2xl font-light text-[#1C1C1C] sm:text-4xl md:text-6xl">
-                  exclusives
-                </span>
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.38, duration: 0.65 }}
-                className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-[#4B4B4B] sm:mt-6 sm:text-xl"
-              >
-                Conçues{" "}
-                <span className="font-semibold text-[#8E7AB5]">pour toi</span>,
-                pour ta liberté, ta sécurité et ta vibe.
-              </motion.p>
-            </motion.div>
-          </div>
+                voir ce qui est inclus par offre
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          </motion.div>
         </section>
 
-        {/* ─────────────────────────────
-            Mobile : accordéons fonctionnalités
-        ───────────────────────────── */}
-        <section className="bg-white px-4 py-5 sm:hidden">
-          <div className="mx-auto max-w-xl">
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              className="mb-4 text-center"
-            >
-              <h2 className="text-xl font-black text-[#1C1C1C]">
-                Tout dans une expérience{" "}
-                <span className="text-[#8E7AB5]">mobile-first</span>
-              </h2>
+        {/* Les 8 fonctionnalités */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="font-display [font-stretch:125%] mb-2 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              Les fonctionnalités
+            </h2>
 
-              <p className="mt-1 text-xs leading-relaxed text-[#666]">
-                Ouvre une fonctionnalité pour voir l&apos;essentiel.
-              </p>
-            </motion.div>
+            <p className="mb-8 max-w-xl text-[15px] leading-relaxed text-cream/60">
+              Toutes sont pensées pour des hommes de 28 ans et plus, et ne
+              fonctionnent qu&apos;entre profils vérifiés.
+            </p>
 
-            <div className="space-y-2">
-              {features.map((feature, index) => {
-                const isOpen = openFeatureIndex === index;
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {features.map((feature) => {
+                const Icon = feature.icon;
+                const isOpen = openFeature === feature.id;
 
                 return (
-                  <motion.div
+                  <div
                     key={feature.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.035 }}
-                    className="relative overflow-hidden rounded-2xl border border-[#E9E3F5] bg-white shadow-sm"
+                    className={`relative flex flex-col rounded-2xl border p-5 sm:p-6 ${
+                      feature.featured
+                        ? 'border-orange/40 bg-[#0C222D] ring-1 ring-orange/20'
+                        : 'border-cream/8 bg-[#0C222D]'
+                    }`}
                   >
-                    <div
-                      className={`absolute inset-y-0 left-0 w-1 bg-gradient-to-b ${feature.color}`}
+                    <Icon
+                      size={22}
+                      className={feature.featured ? 'text-orange' : 'text-cream/55'}
                     />
 
+                    <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold text-cream">
+                      {feature.title}
+                    </h3>
+
+                    <p className="mt-1 text-[13px] leading-relaxed text-cream/55">
+                      {feature.description}
+                    </p>
+
+                    {/* Bouton de dépli, mobile uniquement */}
                     <button
                       type="button"
                       onClick={() =>
-                        setOpenFeatureIndex(isOpen ? null : index)
+                        setOpenFeature((current) =>
+                          current === feature.id ? null : feature.id
+                        )
                       }
-                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left"
+                      aria-expanded={isOpen}
+                      className={`mt-4 flex items-center justify-between border-t border-cream/8 pt-3 text-[13px] font-semibold text-cream/70 sm:hidden ${focusRing}`}
                     >
-                      <span
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${feature.color} text-white`}
-                      >
-                        {feature.mobileIcon}
-                      </span>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <h3 className="truncate text-sm font-bold text-[#5B4B8A]">
-                            {feature.title}
-                          </h3>
-
-                          {feature.comingSoon && (
-                            <span className="shrink-0 rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-700">
-                              Bientôt
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="truncate text-[11px] text-[#666]">
-                          {feature.description}
-                        </p>
-                      </div>
-
+                      {isOpen ? 'masquer le détail' : 'voir le détail'}
                       <ChevronDown
-                        className={`h-4 w-4 shrink-0 text-[#8E7AB5] transition-transform ${
-                          isOpen ? "rotate-180" : ""
+                        size={15}
+                        className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+
+                    <div
+                      className={`flex-1 border-cream/8 sm:mt-4 sm:block sm:border-t sm:pt-4 ${
+                        isOpen ? 'mt-4 block' : 'hidden'
+                      }`}
+                    >
+                      <p className="text-[13px] leading-relaxed text-cream/70">
+                        {feature.details}
+                      </p>
+
+                      <ul className="mt-3 space-y-2">
+                        {feature.benefits.map((benefit) => (
+                          <li key={benefit} className="flex items-start gap-2">
+                            <Check
+                              size={14}
+                              className={`mt-[3px] shrink-0 ${
+                                feature.featured ? 'text-orange' : 'text-lime'
+                              }`}
+                            />
+                            <span className="text-[13px] leading-relaxed text-cream/70">
+                              {benefit}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {feature.link ? (
+                      <Link
+                        href={feature.link}
+                        className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+                      >
+                        découvrir
+                        <ArrowRight size={14} />
+                      </Link>
+                    ) : (
+                      <p className="mt-5 text-[13px] text-cream/55">
+                        Incluse partout, sans réglage.
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Comment elles s'enchaînent */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="font-display [font-stretch:125%] mb-10 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              Comment elles s&apos;enchaînent
+            </h2>
+
+            <ol className="flex flex-col">
+              {journey.map((step, i) => (
+                <li key={step.title} className="flex gap-5">
+                  <div className="flex shrink-0 flex-col items-center">
+                    <span
+                      className={`font-display flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-extrabold ${
+                        step.dot === 'orange'
+                          ? 'bg-orange text-abyss'
+                          : 'bg-lime text-abyss'
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                    {i < journey.length - 1 && (
+                      <span className="my-1.5 w-[2px] flex-1 bg-lime/35" />
+                    )}
+                  </div>
+
+                  <div className={i < journey.length - 1 ? 'pb-10' : ''}>
+                    <h3 className="font-display [font-stretch:125%] mb-1.5 text-[17px] font-bold text-cream">
+                      {step.title}
+                    </h3>
+                    <p className="max-w-md text-sm leading-relaxed text-cream/60">
+                      {step.description}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* Socle commun */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="font-display [font-stretch:125%] mb-2 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              Le socle commun
+            </h2>
+
+            <p className="mb-8 max-w-xl text-[15px] leading-relaxed text-cream/60">
+              Ces quatre règles ne dépendent d&apos;aucune fonctionnalité ni
+              d&apos;aucune offre. Elles s&apos;appliquent à tous les comptes,
+              dès la validation du dossier.
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              {foundations.map(({ icon: Icon, label }) => (
+                <div
+                  key={label}
+                  className="flex flex-col gap-2.5 rounded-2xl border border-cream/8 bg-[#0C222D] p-4 sm:p-[18px]"
+                >
+                  <Icon size={18} className="text-orange" />
+                  <span className="text-[13px] font-semibold text-cream">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Chiffres */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              Sfera&apos;Solys en chiffres
+            </h2>
+
+            <dl className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-2xl border border-cream/8 bg-[#0C222D] p-4 sm:p-[18px]"
+                >
+                  <dd className="font-display text-[26px] font-extrabold leading-none text-cream sm:text-[30px]">
+                    {stat.value}
+                  </dd>
+                  <dt className="mt-2 text-[13px] text-cream/55">{stat.label}</dt>
+                </div>
+              ))}
+            </dl>
+
+            <p className="mt-6 text-[13px] text-cream/55">
+              Chiffres mis à jour en continu depuis la plateforme. Un tiret
+              signifie qu&apos;un compteur n&apos;a pas encore démarré.
+            </p>
+          </div>
+        </section>
+
+        {/* Bon à savoir */}
+        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              Bon à savoir
+            </h2>
+
+            <div className="space-y-1.5">
+              {notes.map((note, index) => {
+                const isOpen = openNoteIndex === index;
+
+                return (
+                  <div
+                    key={note.question}
+                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#0C222D]"
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenNoteIndex((current) => (current === index ? null : index))
+                      }
+                      aria-expanded={isOpen}
+                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-cream sm:px-5 ${focusRing}`}
+                    >
+                      {note.question}
+                      <ChevronDown
+                        size={16}
+                        className={`shrink-0 text-cream/55 transition-transform ${
+                          isOpen ? 'rotate-180' : ''
                         }`}
                       />
                     </button>
@@ -493,560 +553,67 @@ export default function FonctionnalitesPage() {
                       {isOpen && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
+                          animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: "easeOut" }}
+                          transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="border-t border-[#F0ECFA] px-3 pb-3 pt-2">
-                            <p className="text-xs font-medium leading-relaxed text-[#1C1C1C]">
-                              {feature.details}
-                            </p>
-
-                            <div className="mt-2 flex flex-wrap gap-1.5">
-                              {feature.stats.map((stat) => (
-                                <span
-                                  key={stat}
-                                  className="rounded-full bg-[#8E7AB5]/10 px-2 py-1 text-[10px] font-medium text-[#5B4B8A]"
-                                >
-                                  {stat}
-                                </span>
-                              ))}
-                            </div>
-
-                            {feature.comingSoon ? (
-                              <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                                ⏳ Cette fonctionnalité arrive bientôt.
-                              </div>
-                            ) : (
-                              <Link
-                                href={feature.link}
-                                className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#8E7AB5]"
-                              >
-                                Découvrir
-                                <ChevronRight className="h-3.5 w-3.5" />
-                              </Link>
-                            )}
-                          </div>
+                          <p className="border-t border-cream/8 px-4 py-4 text-[13px] leading-relaxed text-cream/60 sm:px-5">
+                            {note.answer}
+                          </p>
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
-          </div>
-        </section>
 
-        {/* ─────────────────────────────
-            Tablette / desktop : navigation sticky
-        ───────────────────────────── */}
-        <section className="sticky top-20 z-10 hidden border-b border-[#F0F0F0] bg-white px-4 py-4 sm:block md:px-6 md:py-5">
-          <div className="mx-auto max-w-6xl">
-            <div className="flex flex-wrap justify-center gap-2">
-              {features.map((feature) => (
-                <button
-                  key={feature.id}
-                  type="button"
-                  onClick={() => setActiveFeature(feature.id)}
-                  onMouseEnter={() => setHoveredFeature(feature.id)}
-                  onMouseLeave={() => setHoveredFeature(null)}
-                  className={`group relative flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm transition-all ${
-                    activeFeature === feature.id
-                      ? `bg-gradient-to-r ${feature.color} border-transparent text-white`
-                      : "border-[#E8E0FF] bg-white text-[#666] hover:border-[#8E7AB5]"
-                  }`}
-                >
-                  <div
-                    className={
-                      activeFeature === feature.id
-                        ? "text-white"
-                        : "text-[#8E7AB5]"
-                    }
-                  >
-                    {feature.mobileIcon}
-                  </div>
-
-                  <span className="font-medium">{feature.title}</span>
-
-                  {feature.comingSoon && (
-                    <span
-                      className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                        activeFeature === feature.id
-                          ? "bg-white/20 text-white"
-                          : "bg-amber-100 text-amber-700"
-                      }`}
-                    >
-                      Bientôt
-                    </span>
-                  )}
-
-                  {activeFeature === feature.id && (
-                    <motion.div
-                      layoutId="activeFeature"
-                      className="absolute inset-0 rounded-full border-2 border-white/30"
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─────────────────────────────
-            Desktop / tablette : détail de la fonctionnalité active
-        ───────────────────────────── */}
-        <section className="hidden px-4 py-8 sm:block md:px-6">
-          <div className="mx-auto max-w-6xl">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={selectedFeature.id}
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -18 }}
-                transition={{ duration: 0.3 }}
-                className="grid items-center gap-10 lg:grid-cols-2"
-              >
-                {/* Colonne gauche - Détails */}
-                <div>
-                  <div className="mb-6 flex items-center gap-4">
-                    <div
-                      className={`rounded-2xl bg-gradient-to-r ${selectedFeature.color} p-4 text-white`}
-                    >
-                      {selectedFeature.icon}
-                    </div>
-
-                    <div>
-                      <h2 className="text-4xl font-black text-[#1C1C1C]">
-                        {selectedFeature.title}
-                      </h2>
-
-                      <p className="text-lg font-medium text-[#8E7AB5]">
-                        {selectedFeature.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="mb-8 text-lg leading-relaxed text-[#666]">
-                    {selectedFeature.details}
-                  </p>
-
-                  <div className="mb-8 space-y-4">
-                    {selectedFeature.stats.map((stat, index) => (
-                      <motion.div
-                        key={stat}
-                        initial={{ opacity: 0, x: -18 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.08 }}
-                        className="flex items-center gap-3"
-                      >
-                        <div className="h-2 w-2 rounded-full bg-gradient-to-r from-[#8E7AB5] to-[#D9B8FF]" />
-                        <span className="text-[#1C1C1C]">{stat}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {selectedFeature.comingSoon ? (
-                    <div className="flex items-start gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-                      <span className="mt-0.5 text-2xl">⏳</span>
-
-                      <div>
-                        <p className="mb-1 font-semibold text-amber-800">
-                          Bientôt disponible
-                        </p>
-
-                        <p className="text-sm leading-relaxed text-amber-700">
-                          Cette fonctionnalité est en cours de déploiement. Tout
-                          se met en place pour t&apos;offrir une expérience
-                          propre, utile et fiable.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <Link
-                      href={selectedFeature.link}
-                      className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#8E7AB5] to-[#D9B8FF] px-6 py-3 font-semibold text-white transition-all duration-300 hover:shadow-xl"
-                    >
-                      <span>Découvrir</span>
-                      <ChevronRight className="transition-transform group-hover:translate-x-1" />
-                    </Link>
-                  )}
-                </div>
-
-                {/* Colonne droite - Visuel simulé */}
-                <div className="relative">
-                  <div
-                    className={`absolute -inset-4 rounded-3xl bg-gradient-to-r ${selectedFeature.color} opacity-20 blur-xl`}
-                  />
-
-                  <div className="relative overflow-hidden rounded-2xl border border-[#F0F0F0] shadow-2xl">
-                    <div className="bg-gradient-to-br from-[#1a1529] to-[#2d2750] p-6">
-                      {/* En-tête mockup */}
-                      <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-gradient-to-r from-[#8E7AB5] to-[#D9B8FF]" />
-
-                          <div>
-                            <div className="h-2 w-32 rounded bg-gradient-to-r from-[#8E7AB5] to-[#D9B8FF]/50" />
-                            <div className="mt-1 h-1 w-24 rounded bg-gradient-to-r from-[#8E7AB5]/30 to-transparent" />
-                          </div>
-                        </div>
-
-                        <div className="text-white/60">
-                          {selectedFeature.id === "ghost"
-                            ? "👻 Mode"
-                            : "✨ Premium"}
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        {selectedFeature.id === "circle" && (
-                          <>
-                            <div className="text-center text-white">
-                              <div className="mb-4 text-6xl">👥</div>
-                              <h3 className="mb-2 text-2xl font-bold">
-                                Ton Circle of Six
-                              </h3>
-                              <p className="text-white/80">
-                                6 femmes qui partagent tes valeurs
-                              </p>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-2">
-                              {["🎨", "📚", "🌿", "🎵", "🍳", "🧳"].map(
-                                (emoji) => (
-                                  <div
-                                    key={emoji}
-                                    className="flex aspect-square items-center justify-center rounded-xl bg-white/10"
-                                  >
-                                    <div className="text-2xl">{emoji}</div>
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          </>
-                        )}
-
-                        {selectedFeature.id === "ghost" && (
-                          <div className="text-center text-white">
-                            <div className="mb-4 text-6xl">👻</div>
-                            <h3 className="mb-2 text-2xl font-bold">
-                              Mode Fantôme activé
-                            </h3>
-                            <p className="mb-4 text-white/80">
-                              Ton profil est flouté pour protéger ton intimité.
-                            </p>
-
-                            <div className="flex justify-center gap-2">
-                              <div className="rounded-full bg-white/10 px-3 py-1 text-sm">
-                                Photos floutées
-                              </div>
-
-                              <div className="rounded-full bg-white/10 px-3 py-1 text-sm">
-                                Pseudonyme
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {selectedFeature.id === "vibesphere" && (
-                          <div className="text-center text-white">
-                            <div className="mb-4 text-6xl">🌌</div>
-                            <h3 className="mb-2 text-2xl font-bold">
-                              Ton VibeSphere
-                            </h3>
-                            <p className="text-white/80">
-                              Exprime ton humeur du jour.
-                            </p>
-
-                            <div className="mt-4 flex justify-center gap-3">
-                              {["🌿", "⚡️", "💭"].map((emoji) => (
-                                <div
-                                  key={emoji}
-                                  className="rounded-lg bg-white/10 p-2 text-3xl"
-                                >
-                                  {emoji}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {!["circle", "ghost", "vibesphere"].includes(
-                          selectedFeature.id
-                        ) && (
-                          <div className="text-center text-white">
-                            <div className="mb-4 text-6xl">✨</div>
-
-                            <h3 className="mb-2 text-2xl font-bold">
-                              {selectedFeature.title}
-                            </h3>
-
-                            <p className="text-white/80">
-                              {selectedFeature.description}
-                            </p>
-
-                            <div className="mt-6 rounded-xl bg-white/5 p-4">
-                              <div className="flex items-center justify-center gap-4">
-                                <Eye className="text-white/60" />
-                                <MessageCircle className="text-white/60" />
-                                <Heart className="text-white/60" />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </section>
-
-        {/* ─────────────────────────────
-            Desktop / tablette : grille complète
-        ───────────────────────────── */}
-        <section className="relative hidden overflow-hidden bg-gradient-to-b from-white to-[#F9F7FC] px-4 py-10 sm:block md:px-6">
-          <OrbitGlow className="right-[-8%] top-0 h-72 w-72 sm:h-96 sm:w-96" />
-          <OrbitGlow className="left-[-10%] bottom-0 h-80 w-80 sm:h-[28rem] sm:w-[28rem]" />
-
-          <div className="relative z-10 mx-auto max-w-6xl">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-8 text-center"
-            >
-              <h2 className="mb-4 text-4xl font-black text-[#1C1C1C]">
-                Une expérience{" "}
-                <span className="text-[#8E7AB5]">complète</span>
-              </h2>
-
-              <p className="mx-auto max-w-3xl text-xl text-[#666]">
-                Tout ce dont tu as besoin pour créer des connexions
-                authentiques.
-              </p>
-            </motion.div>
-
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
-            >
-              {features.map((feature) => {
-                const isActive = activeFeature === feature.id;
-                const isInactive = activeFeature !== null && !isActive;
-
-                return (
-                  <motion.button
-                    key={feature.id}
-                    variants={itemVariants}
-                    type="button"
-                    onMouseEnter={() => setHoveredFeature(feature.id)}
-                    onMouseLeave={() => setHoveredFeature(null)}
-                    onClick={() => setActiveFeature(feature.id)}
-                    animate={{
-                      opacity: isInactive ? 0.35 : 1,
-                      scale: isActive ? 1.02 : 1,
-                    }}
-                    whileHover={{
-                      opacity: isInactive ? 0.7 : 1,
-                      scale: isActive ? 1.02 : 1.01,
-                    }}
-                    transition={{ duration: 0.2 }}
-                    className="group relative cursor-pointer text-left"
-                  >
-                    <div
-                      className={`relative h-full overflow-hidden rounded-2xl border bg-white p-5 transition-all duration-300 ${
-                        isActive
-                          ? "border-[#8E7AB5]/30 shadow-xl shadow-[#8E7AB5]/20 ring-2 ring-[#8E7AB5]"
-                          : "border-[#F0F0F0] shadow-lg hover:shadow-xl"
-                      }`}
-                    >
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${feature.color} transition-opacity duration-300 ${
-                          isActive
-                            ? "opacity-5"
-                            : "opacity-0 group-hover:opacity-5"
-                        }`}
-                      />
-
-                      <div className="relative z-10 mb-4 text-[#8E7AB5]">
-                        {feature.icon}
-                      </div>
-
-                      <h3 className="relative z-10 mb-2 text-xl font-semibold text-[#1C1C1C]">
-                        {feature.title}
-                      </h3>
-
-                      <p className="relative z-10 text-sm leading-relaxed text-[#666]">
-                        {feature.description}
-                      </p>
-
-                      {feature.comingSoon && (
-                        <div className="absolute right-4 top-4">
-                          <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-1 text-xs font-medium text-white shadow-sm">
-                            <span>⏳</span>
-                            <span>Bientôt</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {isActive && !feature.comingSoon && (
-                        <div className="absolute right-4 top-4">
-                          <div className="rounded-full bg-gradient-to-r from-[#8E7AB5] to-[#D9B8FF] px-2 py-1 text-xs font-medium text-white">
-                            Actif
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </motion.button>
-                );
-              })}
-            </motion.div>
-          </div>
-        </section>
-
-        {/* ─────────────────────────────
-            Statistiques compactes
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden bg-white px-4 py-5 sm:px-6 sm:py-10">
-          <OrbitGlow className="left-1/2 top-0 h-72 w-72 -translate-x-1/2 sm:h-96 sm:w-96" />
-
-          <div className="relative z-10 mx-auto max-w-6xl">
-            <div className="grid grid-cols-3 gap-2 sm:gap-6">
-              {[
-                {
-                  value: siteStats ? formatStat(siteStats.membres) : "…",
-                  label: "Membres",
-                  description: "Communauté active",
-                  icon: "👩‍❤️‍👩",
-                },
-                {
-                  value: siteStats ? formatStat(siteStats.matchs) : "…",
-                  label: "Matchs",
-                  description: "Connexions créées",
-                  icon: "💜",
-                },
-                {
-                  value: "24/7",
-                  label: "Sécurité",
-                  description: "Modération active",
-                  icon: "🛡️",
-                },
-              ].map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.08 }}
-                  className="rounded-2xl border border-[#E8E0FF] bg-gradient-to-b from-[#F9F7FC] to-white px-2 py-3 text-center sm:rounded-3xl sm:p-6"
-                >
-                  <div className="mb-1 text-xl sm:mb-4 sm:text-4xl">
-                    {stat.icon}
-                  </div>
-
-                  <div className="text-lg font-black text-[#5B4B8A] sm:text-5xl">
-                    {stat.value}
-                  </div>
-
-                  <div className="mt-0.5 text-xs font-semibold text-[#1C1C1C] sm:mt-2 sm:text-xl">
-                    {stat.label}
-                  </div>
-
-                  <div className="hidden text-[#666] sm:mt-2 sm:block">
-                    {stat.description}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─────────────────────────────
-            CTA final compact mobile
-        ───────────────────────────── */}
-        <section className="relative overflow-hidden px-4 py-7 sm:px-6 sm:py-14">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#8E7AB5] via-[#A68BC9] to-[#D9B8FF]" />
-
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            className="absolute -left-1/2 -top-1/2 h-full w-full bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1)_0%,transparent_50%)]"
-          />
-
-          <OrbitGlow
-            variant="light"
-            className="right-[-10%] top-[-15%] h-72 w-72 sm:h-96 sm:w-96"
-          />
-
-          <div className="relative z-10 mx-auto max-w-4xl text-center text-white">
-            <motion.h2
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-2 text-2xl font-black leading-tight sm:mb-6 sm:text-5xl"
-            >
-              Prête à découvrir toutes nos{" "}
-              <span className="text-white">fonctionnalités</span> ?
-            </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.12 }}
-              className="mx-auto mb-4 max-w-2xl text-sm leading-relaxed opacity-90 sm:mb-10 sm:text-xl"
-            >
-              Rejoins des femmes qui utilisent déjà SferaLuna pour créer des
-              connexions plus authentiques.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.94 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.22 }}
-              className="flex flex-col justify-center gap-2.5 sm:flex-row sm:gap-4"
-            >
+            <p className="mt-6 text-center text-[13px] text-cream/55">
+              Une autre question ?{' '}
               <Link
-                href="/auth?mode=register"
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#8E7AB5] shadow-2xl transition-all duration-300 hover:scale-105 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                href="/faq"
+                className={`fx-link font-semibold text-orange hover:text-orange/80 ${focusRing}`}
               >
-                <span>Essayer gratuitement</span>
-                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
+                voir la FAQ complète
+              </Link>
+            </p>
+          </div>
+        </section>
+
+        {/* CTA final */}
+        <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#0C222D] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+            <div>
+              <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
+                Les fonctionnalités s&apos;ouvrent après la vérification.
+              </h2>
+              <p className="text-sm text-cream/60">
+                Constitution du dossier gratuite, sans engagement. Tu choisiras
+                une offre ensuite, si tu en as envie.
+              </p>
+            </div>
+
+            <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
+              <Link
+                href="/commencer"
+                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+              >
+                constituer mon dossier
               </Link>
 
               <Link
                 href="/tarifs"
-                className="w-full rounded-full border-2 border-white px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/10 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                className={`fx-ghost rounded-xl border border-cream/15 px-7 py-3.5 text-sm font-bold text-cream/85 transition-colors hover:border-cream/30 ${focusRing}`}
               >
-                Voir les forfaits
+                voir les tarifs
               </Link>
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.32 }}
-              className="mt-3 text-xs text-white/80 sm:mt-8 sm:text-base"
-            >
-              <span className="font-semibold">30 jours d&apos;essai premium</span>{" "}
-              · Aucune carte requise · Annulation à tout moment
-            </motion.p>
+            </div>
           </div>
         </section>
       </main>
 
-      {/* Footer masqué sur mobile pour garder une page plus courte et app-like. */}
-      <div className="hidden sm:block">
-        <Footer />
-      </div>
+      <Footer />
     </>
   );
 }

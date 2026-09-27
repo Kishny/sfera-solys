@@ -34,7 +34,7 @@ function planLabel(plan?: string | null): string {
 export const runtime = "nodejs";
 
 /**
- * Plans SferaLuna payants autorisés.
+ * Plans Sfera'Solys payants autorisés.
  *
  * Ces valeurs doivent correspondre exactement à :
  * - src/models/User.ts
@@ -44,7 +44,7 @@ export const runtime = "nodejs";
 type LunaPlan = Exclude<UserPlan, "free">;
 
 /**
- * Vérifie si le plan reçu depuis Stripe est bien un plan SferaLuna autorisé.
+ * Vérifie si le plan reçu depuis Stripe est bien un plan Sfera'Solys autorisé.
  */
 function isValidLunaPlan(plan: unknown): plan is LunaPlan {
   return (
@@ -489,7 +489,7 @@ export async function POST(req: NextRequest) {
             try {
               await sendPaymentSuccessEmail(
                 paidUser.email,
-                paidUser.pseudonyme || "membre Luna",
+                paidUser.pseudonyme || "membre Solys",
                 planLabel(paidUser.plan),
                 periodEnd
               );
@@ -523,7 +523,7 @@ export async function POST(req: NextRequest) {
             try {
               await sendPaymentFailedEmail(
                 failedUser.email,
-                failedUser.pseudonyme || "membre Luna"
+                failedUser.pseudonyme || "membre Solys"
               );
             } catch (mailErr) {
               console.warn("Email échec paiement échoué :", mailErr);

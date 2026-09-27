@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
 
     /**
-     * SferaLuna vise 28+.
+     * Sfera'Solys vise 28+.
      * On met donc 28 par défaut.
      */
     const ageMin = parsePositiveInt(searchParams.get("age_min"), 28);
@@ -164,7 +164,7 @@ export async function GET(req: NextRequest) {
      * Filtre par département (bassin géographique cohérent, DOM inclus).
      *
      * - Un département explicite passé en query param prime (filtre manuel).
-     * - Sinon, si la membre a choisi la portée "Mon département" et qu'un
+     * - Sinon, si le membre a choisi la portée "Mon département" et qu'un
      *   département est renseigné, on restreint à ce même département.
      * - Pour "Ma région" / "Toute la France" (ou anciennes valeurs en km),
      *   on n'ajoute pas de restriction départementale.
@@ -185,7 +185,7 @@ export async function GET(req: NextRequest) {
       // Département explicitement sélectionné dans Explorer.
       effectiveDepartement = departementParam;
     } else if (currentRayon === "departement" && currentDept) {
-      // Par défaut : on reste dans le bassin de la membre.
+      // Par défaut : on reste dans le bassin de le membre.
       effectiveDepartement = currentDept;
     }
 

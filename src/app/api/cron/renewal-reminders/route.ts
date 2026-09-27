@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
       try {
         await sendRenewalReminderEmail(
           user.email,
-          user.pseudonyme || "membre Luna",
+          user.pseudonyme || "membre Solys",
           PLAN_LABELS[user.plan as string] || "Premium",
           user.premiumExpiresAt ?? null
         );

@@ -15,7 +15,7 @@ async function requireAdmin() {
 
 /**
  * POST /api/admin/users/[id]/ban
- * Bannit une utilisatrice (désactive son compte).
+ * Bannit un utilisateur (désactive son compte).
  */
 export async function POST(
   req: NextRequest,
@@ -34,7 +34,7 @@ export async function POST(
     { new: true }
   );
 
-  if (!user) return NextResponse.json({ error: "Utilisatrice introuvable." }, { status: 404 });
+  if (!user) return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
 
   return NextResponse.json({ success: true, message: `${user.pseudonyme} a été bannie.` });
 }
