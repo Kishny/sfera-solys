@@ -119,19 +119,9 @@ const publicPages = [
     priority: 0.7,
   },
   {
-    path: "/vibeplanner",
-    changeFrequency: "monthly",
-    priority: 0.6,
-  },
-  {
     path: "/vibementor",
     changeFrequency: "monthly",
     priority: 0.6,
-  },
-  {
-    path: "/vibesphere",
-    changeFrequency: "monthly",
-    priority: 0.65,
   },
   {
     path: "/evenements",

@@ -96,7 +96,7 @@ const links: HeaderLink[] = [
       {
         label: 'Fonctionnalités',
         href: '/fonctionnalites',
-        description: 'Circle of Six, Mode Fantôme, VibeSphere…',
+        description: 'Circle of Six, annuaire, Mode Fantôme…',
       },
       {
         label: 'Guide débutant',

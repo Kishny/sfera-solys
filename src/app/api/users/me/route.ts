@@ -18,10 +18,8 @@ import { Like } from '@/models/Like';
 import { Match } from '@/models/Match';
 import { Message } from '@/models/Message';
 import { ProfileVisit } from '@/models/ProfileVisit';
-import { VibePost } from '@/models/VibePost';
 import { CommunityPost } from '@/models/CommunityPost';
 import { MentorPost } from '@/models/MentorPost';
-import { JournalEntry } from '@/models/JournalEntry';
 import { stripe } from '@/lib/stripe';
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -83,10 +81,8 @@ export async function DELETE() {
     Match.deleteMany({ $or: [{ user1Id: userId }, { user2Id: userId }] }),
     Message.deleteMany({ senderId: userId }),
     ProfileVisit.deleteMany({ $or: [{ visitorId: userId }, { visitedId: userId }] }),
-    VibePost.deleteMany({ userId }),
     CommunityPost.deleteMany({ userId }),
     MentorPost.deleteMany({ userId }),
-    JournalEntry.deleteMany({ userId }),
   ]);
 
   // ── 4. Supprimer le document User ─────────────────────────────────────────

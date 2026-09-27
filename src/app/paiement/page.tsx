@@ -131,7 +131,7 @@ const plans: PlanConfig[] = [
       "Profil visible",
       "Suggestions compatibles",
       "Messages avec vos matchs",
-      "Accès au journal émotionnel",
+      "Accès à la Communauté Solys",
       "Sécurité standard",
     ],
   },

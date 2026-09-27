@@ -11,10 +11,8 @@ import { Like } from "@/models/Like";
 import { Match } from "@/models/Match";
 import { Message } from "@/models/Message";
 import { ProfileVisit } from "@/models/ProfileVisit";
-import { VibePost } from "@/models/VibePost";
 import { CommunityPost } from "@/models/CommunityPost";
 import { MentorPost } from "@/models/MentorPost";
-import { JournalEntry } from "@/models/JournalEntry";
 import { Boost } from "@/models/Boost";
 import { Testimonial } from "@/models/Testimonial";
 import { LunaEvent } from "@/models/LunaEvent";
@@ -50,9 +48,8 @@ function extractPublicId(url: string): string | null {
  * 3. Annuler l'abonnement Stripe actif (fin de période, sans remboursement).
  * 4. Supprimer les photos Cloudinary (avatar + galerie).
  * 5. Supprimer toutes les données liées : likes, matches, messages, visites
- *    de profil, vibes, posts communauté, questions/réponses VibeMentor,
- *    journal émotionnel, boosts, témoignage, et retrait des listes
- *    d'inscrits aux événements Solys.
+ *    de profil, posts communauté, questions/réponses VibeMentor, boosts,
+ *    témoignage, et retrait des listes d'inscrits aux événements Solys.
  * 6. Supprimer le document User.
  */
 export async function DELETE(
@@ -140,10 +137,8 @@ export async function DELETE(
       Match.deleteMany({ $or: [{ user1Id: userId }, { user2Id: userId }] }),
       Message.deleteMany({ senderId: userId }),
       ProfileVisit.deleteMany({ $or: [{ visitorId: userId }, { visitedId: userId }] }),
-      VibePost.deleteMany({ userId }),
       CommunityPost.deleteMany({ userId }),
       MentorPost.deleteMany({ userId }),
-      JournalEntry.deleteMany({ userId }),
       Boost.deleteMany({ userId }),
       Testimonial.deleteMany({ userId }),
       LunaEvent.updateMany({ attendees: userId }, { $pull: { attendees: userId } }),

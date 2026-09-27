@@ -60,7 +60,6 @@ import {
  * - boosts mensuels ;
  * - visites de profils ;
  * - accès Circle of Six ;
- * - accès VibePlanner.
  */
 export type SubscriptionAction =
   | "like"
@@ -69,7 +68,7 @@ export type SubscriptionAction =
   | "use_boost"
   | "visit_profile"
   | "circle_of_six"
-  | "vibeplanner";
+;
 
 /**
  * Résultat standard d'une vérification de limite.
@@ -576,24 +575,6 @@ export class SubscriptionChecker {
         };
       }
 
-      case "vibeplanner": {
-        const hasFeature = await this.hasFeature("vibePlanner");
-
-        if (!hasFeature) {
-          return {
-            allowed: false,
-            currentPlan,
-            feature: "vibePlanner",
-            reason: "VibePlanner n'est pas disponible avec votre plan actuel.",
-            upgradeUrl: getUpgradeUrl(),
-          };
-        }
-
-        return {
-          allowed: true,
-          currentPlan,
-        };
-      }
 
       default: {
         return {

@@ -24,16 +24,13 @@ export const SUBSCRIPTION_PLANS = {
       boostsPerMonth: 0,
       profileVisits: 20,
       maxMatches: 3,
-      vibePlannerPerMonth: 0,
     },
 
     features: {
       circleOfSix: false,
       ghostMode: false,
-      vibePlanner: false,
       profileVisitors: false,
       premiumFilters: false,
-      advancedVibeSphere: false,
       unlimitedMessages: false,
       unlimitedLikes: false,
       eventsAccess: false,
@@ -56,16 +53,13 @@ export const SUBSCRIPTION_PLANS = {
       boostsPerMonth: 1,
       profileVisits: 100,
       maxMatches: Infinity,
-      vibePlannerPerMonth: 3,
     },
 
     features: {
       circleOfSix: true,
       ghostMode: false,
-      vibePlanner: true,
       profileVisitors: false,
       premiumFilters: false,
-      advancedVibeSphere: false,
       unlimitedMessages: true,
       unlimitedLikes: true,
       eventsAccess: true,
@@ -88,16 +82,13 @@ export const SUBSCRIPTION_PLANS = {
       boostsPerMonth: 3,
       profileVisits: Infinity,
       maxMatches: Infinity,
-      vibePlannerPerMonth: Infinity,
     },
 
     features: {
       circleOfSix: true,
       ghostMode: true,
-      vibePlanner: true,
       profileVisitors: true,
       premiumFilters: true,
-      advancedVibeSphere: true,
       unlimitedMessages: true,
       unlimitedLikes: true,
       eventsAccess: true,
@@ -111,7 +102,7 @@ export const SUBSCRIPTION_PLANS = {
     id: "elite-monthly",
     name: "Elite",
     price: 34.99,
-    description: "Pour les plus engagées",
+    description: "Pour les plus engagés",
 
     limits: {
       dailyLikes: Infinity,
@@ -120,16 +111,13 @@ export const SUBSCRIPTION_PLANS = {
       boostsPerMonth: 10,
       profileVisits: Infinity,
       maxMatches: Infinity,
-      vibePlannerPerMonth: Infinity,
     },
 
     features: {
       circleOfSix: true,
       ghostMode: true,
-      vibePlanner: true,
       profileVisitors: true,
       premiumFilters: true,
-      advancedVibeSphere: true,
       unlimitedMessages: true,
       unlimitedLikes: true,
       eventsAccess: true,

@@ -11,7 +11,6 @@ import { useSubscription } from "@/hooks/useSubscription";
  * Il sert aux composants comme :
  * - ExplorerPage
  * - MonCompte
- * - VibeSphere
  *
  * Il dépend maintenant de /api/subscription/status,
  * donc il respecte vraiment Stripe et le webhook.

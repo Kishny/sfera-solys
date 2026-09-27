@@ -2209,8 +2209,8 @@ function PremiumTab({
 
   const featuresByPlan: Record<LunaPlan, string[]> = {
     free: ["🌙 Profil public", "💌 5 likes / jour"],
-    "essential-monthly": ["⭐ Likes illimités", "📅 VibePlanner", "🎪 Événements Solys", "💬 Support prioritaire"],
-    "premium-monthly": ["💎 Circle of Six", "👻 Mode invisible", "📊 Visiteurs de profil", "🔍 Filtres avancés", "✨ VibeSphere avancé"],
+    "essential-monthly": ["⭐ Likes illimités", "🎪 Événements Solys", "💬 Support prioritaire"],
+    "premium-monthly": ["💎 Circle of Six", "👻 Mode invisible", "📊 Visiteurs de profil", "🔍 Filtres avancés", ],
     "elite-monthly": ["👑 Toutes les fonctionnalités", "⚡ 10 boosts / mois", "🎯 Filtres ultra-précis", "🛡️ Badge VIP", "💬 Support 24/7", "🏆 VibeMentor coaching"],
   };
 

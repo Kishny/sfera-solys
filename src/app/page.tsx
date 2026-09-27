@@ -40,7 +40,7 @@ import type { PublicTestimonial } from '@/components/testimonials/TestimonialCar
  * sceau de vérification, étapes du parcours, bandeau de garanties, un
  * seul témoignage édité, un seul appel à l'action final.
  *
- * Les fonctionnalités (Circle of Six, Mode Fantôme, VibeSphere...) ne
+ * Les fonctionnalités (Circle of Six, annuaire, Mode Fantôme...) ne
  * disparaissent pas : elles restent accessibles depuis /fonctionnalites
  * (lien "comment ça marche" du header) plutôt que d'être toutes listées
  * ici — cf. maquette DirA-Home dans le canvas de maquettes.
@@ -91,10 +91,10 @@ const featureTeasers = [
   },
   {
     icon: Compass,
-    title: 'VibeSphere',
+    title: 'Annuaire',
     description:
       'Un espace personnel pour dire qui tu es sans avoir à te vendre.',
-    href: '/vibesphere',
+    href: '/fonctionnalites',
   },
   {
     icon: CalendarDays,

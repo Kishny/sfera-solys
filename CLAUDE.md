@@ -672,9 +672,44 @@ problème.
 
 **À savoir :** `next.config.ts` contient `typescript: { ignoreBuildErrors: true }` et `eslint: { ignoreDuringBuilds: true }`. Le build passe donc malgré les erreurs de types — c'est pourquoi **26 erreurs préexistantes** se sont accumulées sans bruit : `models/User.ts` (13, typage mongoose), `mon-compte` (5) et `valeurs` (2) (typage `Variants` de framer-motion), `models/Subscription.ts` (2, exports manquants), `ui/Button.tsx` (1), et 3 dans les types générés de Next. Aucune n'a été introduite par ce chantier, et elles méritent leur propre passe.
 
+### 🧹 Retrait de VibeSphere, du journal et du VibePlanner (27/09/2026)
+
+Trois fonctionnalités ont été **retirées du produit**, pas masquées : la
+VibeSphere (fil communautaire parallèle à `/communaute`), le journal émotionnel
+et le VibePlanner. Motif : la VibeSphere doublait la Communauté Solys, le
+journal reposait sur une fausse « analyse IA » (un `setTimeout` de 1,2 s suivi
+d'un mot tiré d'une table), et le VibePlanner était vendu dans les offres sans
+exister ailleurs que dans un compteur de quota.
+
+**VibeMentor est conservé** : c'est une contrepartie réelle de l'offre Elite
+(`vibementorCoaching`), et son modèle `MentorPost` est alimenté.
+
+Supprimés : `src/app/vibesphere/`, `src/app/vibeplanner/`,
+`src/app/api/vibesphere/`, `src/app/api/vibeplanner/`, `src/app/api/journal/`,
+`src/models/VibePost.ts`, `src/models/VibePlan.ts`, `src/models/JournalEntry.ts`.
+
+Le retrait ne s'arrête pas aux fichiers : une fonctionnalité supprimée laisse
+des traces dans les **quotas** (12 drapeaux dans `lib/subscription/config.ts`,
+l'action `"vibeplanner"` dans `api/subscription/check`), les **suppressions en
+cascade** (`api/admin/reset`, `api/admin/users/[id]`, `api/users/me`), la
+**navigation** (Header, Footer, Sidebar), le **sitemap**, et surtout la **copy
+commerciale** — `/tarifs`, `/fonctionnalites` (« 8 fonctionnalités » → 6),
+`/guide`, `/faq`, `/paiement`, la page d'accueil. C'est cette dernière couche
+qui pourrit le plus longtemps : un tarif qui promet une fonctionnalité absente
+se lit comme un mensonge, pas comme une dette technique.
+
+Effet de bord utile : `api/reports` prétendait attendre « ton modèle VibePost »
+pour vérifier les signalements de posts communautaires, et acceptait donc
+**n'importe quel ObjectId valide**. Le modèle `CommunityPost` existait depuis le
+début. La cible est maintenant vérifiée comme les deux autres (existence +
+interdiction de s'auto-signaler).
+
+Contrôle : `tsc` revient à **23 erreurs préexistantes, zéro liée aux Vibe\***,
+et `grep -rni "vibesphere\|vibeplanner\|vibepost\|journalentry"` ne renvoie rien.
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/explorer /circle /communaute /evenements /mode-fantome /vibementor /vibeplanner /vibesphere /matches /messages/[matchId] /profil/[id] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/explorer /circle /communaute /evenements /mode-fantome /vibementor /matches /messages/[matchId] /profil/[id] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire

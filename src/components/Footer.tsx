@@ -80,8 +80,6 @@ export default function Footer() {
       links: [
         { label: 'Explorer des profils', href: '/explorer' },
         { label: 'Circle of Six', href: '/circle' },
-        { label: 'VibeSphere', href: '/vibesphere' },
-        { label: 'VibePlanner', href: '/vibeplanner' },
       ],
     },
     {

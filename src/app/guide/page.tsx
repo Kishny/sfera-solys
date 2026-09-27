@@ -81,17 +81,17 @@ const steps: Step[] = [
     ],
   },
   {
-    title: 'Personnalisation de ton VibeSphere',
-    duration: 'en continu',
+    title: 'Réglage de ta visibilité',
+    duration: '2 minutes',
     dot: 'orange',
     icon: Compass,
     content:
-      'Crée ton espace émotionnel unique pour exprimer ton humeur du jour.',
+      'Tu choisis qui te voit, à quelle distance, et tu peux en changer à tout moment.',
     details: [
-      'Choisis ta playlist personnalisée',
-      'Sélectionne tes couleurs et ambiance préférées',
-      'Partage tes humeurs avec des avatars expressifs',
-      'Utilise le journal émotionnel pour suivre ton évolution',
+      'Profil public, réservé à tes correspondances, priorisé ou discret',
+      'Rayon de recherche adapté à ton département',
+      'Mode Fantôme pour rester présent sans apparaître',
+      'Chaque réglage se modifie depuis Mon Compte',
     ],
   },
   {
@@ -104,7 +104,7 @@ const steps: Step[] = [
     details: [
       'Utilise nos prompts de conversation pour briser la glace',
       'Partage tes intérêts communs pour créer un lien',
-      'Propose un rendez-vous VibePlanner créatif',
+      'Propose une activité concrète plutôt qu’un « on verra »',
       'Respecte toujours les limites et le consentement',
     ],
   },
@@ -186,8 +186,6 @@ const communityTips = [
 const relatedPages = [
   { label: 'Circle of Six', href: '/circle' },
   { label: 'Mode Fantôme', href: '/mode-fantome' },
-  { label: 'VibeSphere', href: '/vibesphere' },
-  { label: 'VibePlanner', href: '/vibeplanner' },
   { label: 'Événements Solys', href: '/evenements' },
 ];
 

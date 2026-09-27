@@ -110,12 +110,6 @@ const allFAQs: Faq[] = [
     category: 'security',
   },
   {
-    question: 'Comment fonctionne le VibePlanner ?',
-    answer:
-      'Le VibePlanner te suggère des idées de rendez-vous créatives basées sur vos intérêts communs. Tu peux proposer une activité, fixer une date et laisser l’autre personne accepter. C’est un excellent moyen de briser la glace avec des plans originaux.',
-    category: 'matching',
-  },
-  {
     question: 'Puis-je modifier mes préférences de matching ?',
     answer:
       "Oui, tu peux ajuster tes préférences à tout moment dans les paramètres de ton compte. L'algorithme s'adapte ensuite à tes nouveaux critères pour les prochaines suggestions.",
@@ -132,12 +126,6 @@ const allFAQs: Faq[] = [
     answer:
       "Dans les paramètres de ton compte, tu peux demander la suppression définitive. Tes données sont ensuite supprimées selon les délais prévus par notre politique de confidentialité et les obligations légales applicables.",
     category: 'account',
-  },
-  {
-    question: "Le VibeSphere est-il inclus dans l'offre gratuite ?",
-    answer:
-      'Oui, chaque membre peut accéder au VibeSphere de base. Les plans supérieurs peuvent débloquer des fonctionnalités avancées comme les statistiques détaillées, les playlists personnalisées ou des options communautaires supplémentaires.',
-    category: 'premium',
   },
   {
     question: 'Comment participer aux événements de la communauté ?',

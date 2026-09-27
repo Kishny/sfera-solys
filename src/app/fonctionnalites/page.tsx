@@ -36,10 +36,10 @@ import HexagonSix from '@/components/icons/HexagonSix';
  * Elle prend aussi du galon : la grille des 6 fonctionnalités a été
  * retirée de la home, donc /fonctionnalites est désormais LE point de
  * découverte du produit. La page se lit de haut en bas comme un sommaire :
- * les 8 fonctionnalités, la façon dont elles s'enchaînent, le socle
+ * les 6 fonctionnalités, la façon dont elles s'enchaînent, le socle
  * commun, quelques chiffres, les questions qui reviennent.
  *
- * Ce qui ne change pas : les 8 fonctionnalités, leurs titres, leurs
+ * Ce qui ne change pas : les fonctionnalités restantes, leurs titres, leurs
  * descriptions, leurs bénéfices, leurs destinations, et le chargement des
  * statistiques via /api/stats. Aucune fonctionnalité n'est annoncée comme
  * « à venir » : les 7 routes liées existent, et « Sécurité totale » n'a
@@ -109,30 +109,6 @@ const features: FeatureItem[] = [
     link: '/mode-fantome',
   },
   {
-    id: 'vibesphere',
-    icon: Compass,
-    title: 'VibeSphere',
-    description: 'Exprime ta vibe dans ton espace personnalisé.',
-    details:
-      "Crée ton univers digital avec des playlists personnalisées, un journal émotionnel et des avatars d'humeur.",
-    benefits: [
-      'Journal émotionnel',
-      'Playlists personnalisées',
-      "Avatars d'humeur",
-    ],
-    link: '/vibesphere',
-  },
-  {
-    id: 'vibeplanner',
-    icon: Lightbulb,
-    title: 'VibePlanner',
-    description: 'Des idées de rendez-vous qui vous rassemblent, toi et l’autre.',
-    details:
-      "Plus jamais de « On fait quoi ? ». Des suggestions créatives basées sur vos intérêts communs à tous les deux.",
-    benefits: ['Idées personnalisées', 'Adapté aux budgets', 'Planning intégré'],
-    link: '/vibeplanner',
-  },
-  {
     id: 'events',
     icon: CalendarDays,
     title: 'Événements Solys',
@@ -191,13 +167,13 @@ const journey = [
     dot: 'orange' as const,
     title: 'Découvrir',
     description:
-      'Le Circle of Six te propose 6 profils par semaine, et la VibeSphere dit qui tu es sans que tu aies à te vendre.',
+      'Le Circle of Six te propose 6 profils par semaine, et l’annuaire te laisse chercher par toi-même.',
   },
   {
     dot: 'lime' as const,
     title: 'Échanger',
     description:
-      "Le Mode Fantôme protège ton intimité le temps de la mise en confiance ; le VibePlanner règle le « on fait quoi ? » avant qu'il se pose.",
+      "Le Mode Fantôme protège ton intimité le temps de la mise en confiance, et la messagerie reste sobre : pas de relances, pas de score à tenir.",
   },
   {
     dot: 'orange' as const,
@@ -219,7 +195,7 @@ const notes = [
   {
     question: 'Faut-il payer pour accéder aux fonctionnalités ?',
     answer:
-      "La vérification d'identité, le profil, la messagerie de base, la VibeSphere et la Communauté Solys sont accessibles dès l'offre gratuite. Le Circle of Six hebdomadaire, le VibePlanner et le Mode Fantôme dépendent de l'offre choisie : le détail est sur la page Tarifs.",
+      "La vérification d'identité, le profil, la messagerie de base et la Communauté Solys sont accessibles dès l'offre gratuite. Le Circle of Six hebdomadaire, les boosts de visibilité et le Mode Fantôme dépendent de l'offre choisie : le détail est sur la page Tarifs.",
   },
   {
     question: 'Le Mode Fantôme gêne-t-il la vérification ?',
@@ -286,7 +262,7 @@ export default function FonctionnalitesPage() {
         <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <motion.div {...fadeUp} className="mx-auto max-w-3xl py-12 text-center sm:py-16">
             <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-orange">
-              8 fonctionnalités · vérification incluse
+              6 fonctionnalités · vérification incluse
             </span>
 
             <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
@@ -319,7 +295,7 @@ export default function FonctionnalitesPage() {
           </motion.div>
         </section>
 
-        {/* Les 8 fonctionnalités */}
+        {/* Les 6 fonctionnalités */}
         <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
             <h2 className="font-display [font-stretch:125%] mb-2 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">

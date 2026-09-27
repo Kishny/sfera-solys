@@ -82,7 +82,7 @@ const journey: JourneyStep[] = [
     checklist: [
       "Tes centres d'intérêt, tes valeurs et tes intentions",
       'Trois photos récentes minimum, non retouchées',
-      'Ta VibeSphere : ambiance, playlist, couleurs de ton espace',
+      'Ta ville et le rayon dans lequel tu cherches',
     ],
     icon: Users,
   },

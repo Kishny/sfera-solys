@@ -83,8 +83,7 @@ function isSubscriptionAction(value: unknown): value is SubscriptionAction {
     value === "use_super_like" ||
     value === "use_boost" ||
     value === "visit_profile" ||
-    value === "circle_of_six" ||
-    value === "vibeplanner"
+    value === "circle_of_six"
   );
 }
 
@@ -117,7 +116,6 @@ function normalizeAction(action?: SubscriptionCheckBody["action"]): Subscription
     case "use_boost":
     case "visit_profile":
     case "circle_of_six":
-    case "vibeplanner":
       return action;
 
     default:
@@ -198,7 +196,6 @@ export async function GET() {
             boostsPerMonth: serializeLimit(limits.boostsPerMonth),
             profileVisits: serializeLimit(limits.profileVisits),
             maxMatches: serializeLimit(limits.maxMatches),
-            vibePlannerPerMonth: serializeLimit(limits.vibePlannerPerMonth),
           },
   
           user: {
@@ -317,7 +314,6 @@ export async function POST(req: NextRequest) {
             "use_boost",
             "visit_profile",
             "circle_of_six",
-            "vibeplanner",
           ],
         },
         { status: 400 }

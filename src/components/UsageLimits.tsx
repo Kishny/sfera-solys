@@ -47,15 +47,6 @@ export default function UsageLimits() {
       limit: null,
       period: null,
     },
-    {
-      key: "vibePlanner",
-      icon: Calendar,
-      label: "VibePlanner",
-      description: "Idées rendez-vous ce mois-ci",
-      limit:
-        typeof limits.boosts === "number" && !isFree ? null : isFree ? 0 : null,
-      period: "monthly",
-    },
   ];
 
   return (

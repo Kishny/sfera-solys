@@ -7,7 +7,7 @@ import mongoose, { Schema, Document, Model, models } from "mongoose";
  *
  * user : profil utilisateur
  * message : message privé
- * community_post : post VibeSphere / communauté
+ * community_post : post de la communauté
  */
 export type ReportTargetType = "user" | "message" | "community_post";
 
@@ -85,7 +85,7 @@ const ReportSchema = new Schema<IReport>(
      * Peut être :
      * - un User._id ;
      * - un Message._id ;
-     * - un post VibeSphere._id.
+     * - un post CommunityPost._id.
      */
     targetId: {
       type: Schema.Types.ObjectId,

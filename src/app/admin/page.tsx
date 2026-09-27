@@ -163,17 +163,10 @@ const resetTargets: {
   },
   {
     id: "posts",
-    label: "Posts (VibeSphere / Communauté / VibeMentor)",
+    label: "Posts (Communauté / VibeMentor)",
     description: "Supprime tous les posts publiés sur ces 3 espaces.",
     confirmMessage:
-      "Supprimer définitivement TOUS les posts VibeSphere, Communauté et VibeMentor ? Cette action est irréversible.",
-  },
-  {
-    id: "journal",
-    label: "Journal émotionnel",
-    description: "Supprime toutes les entrées de journal de toutes les utilisatrices.",
-    confirmMessage:
-      "Supprimer définitivement TOUTES les entrées de journal émotionnel ? Cette action est irréversible.",
+      "Supprimer définitivement TOUS les posts Communauté et VibeMentor ? Cette action est irréversible.",
   },
 ];
 

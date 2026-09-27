@@ -10,10 +10,8 @@ import { Like } from "@/models/Like";
 import { Match } from "@/models/Match";
 import { Message } from "@/models/Message";
 import { ProfileVisit } from "@/models/ProfileVisit";
-import { VibePost } from "@/models/VibePost";
 import { CommunityPost } from "@/models/CommunityPost";
 import { MentorPost } from "@/models/MentorPost";
-import { JournalEntry } from "@/models/JournalEntry";
 
 /**
  * Cibles de reset autorisées.
@@ -22,22 +20,20 @@ import { JournalEntry } from "@/models/JournalEntry";
  * "d'activité" sont supprimées, pour repartir avec des statistiques propres
  * sans perdre les comptes existants.
  */
-type ResetTarget = "messages" | "matches" | "visits" | "posts" | "journal";
+type ResetTarget = "messages" | "matches" | "visits" | "posts";
 
 const allowedTargets: ResetTarget[] = [
   "messages",
   "matches",
   "visits",
   "posts",
-  "journal",
 ];
 
 const targetLabels: Record<ResetTarget, string> = {
   messages: "Messages",
   matches: "Matchs & likes",
   visits: "Visites de profil",
-  posts: "Posts (VibeSphere / Communauté / VibeMentor)",
-  journal: "Journal émotionnel",
+  posts: "Posts (Communauté / VibeMentor)",
 };
 
 function isResetTarget(value: unknown): value is ResetTarget {
@@ -48,7 +44,7 @@ function isResetTarget(value: unknown): value is ResetTarget {
  * POST /api/admin/reset
  *
  * Vide une catégorie de données d'activité (réservé admin).
- * Body : { target: "messages" | "matches" | "visits" | "posts" | "journal" }
+ * Body : { target: "messages" | "matches" | "visits" | "posts" }
  */
 export async function POST(req: NextRequest) {
   try {
@@ -123,21 +119,12 @@ export async function POST(req: NextRequest) {
       }
 
       case "posts": {
-        const [vibes, community, mentor] = await Promise.all([
-          VibePost.deleteMany({}),
+        const [community, mentor] = await Promise.all([
           CommunityPost.deleteMany({}),
           MentorPost.deleteMany({}),
         ]);
         deletedCount =
-          (vibes.deletedCount ?? 0) +
-          (community.deletedCount ?? 0) +
-          (mentor.deletedCount ?? 0);
-        break;
-      }
-
-      case "journal": {
-        const res = await JournalEntry.deleteMany({});
-        deletedCount = res.deletedCount ?? 0;
+          (community.deletedCount ?? 0) + (mentor.deletedCount ?? 0);
         break;
       }
     }

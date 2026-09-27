@@ -10,6 +10,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Message } from "@/models/Message";
 import { Report } from "@/models/Report";
+import { CommunityPost } from "@/models/CommunityPost";
 
 /**
  * API de signalement Sfera'Solys.
@@ -122,9 +123,8 @@ async function getCurrentUser() {
 /**
  * Vérifie que la cible signalée existe réellement.
  *
- * Pour community_post :
- * - je ne peux pas vérifier tant que tu ne m'as pas envoyé ton modèle VibePost.
- * - pour l'instant, on accepte l'ObjectId valide.
+ * Les trois types de cible sont vérifiés de la même façon : la cible doit
+ * exister, et on ne peut pas se signaler soi-même.
  */
 async function validateReportTarget({
   targetType,
@@ -186,14 +186,28 @@ async function validateReportTarget({
   }
 
   if (targetType === "community_post") {
-    /**
-     * À brancher quand tu m'enverras le modèle VibeSphere/Post.
-     *
-     * Exemple plus tard :
-     * const post = await VibePost.findById(targetId).select("_id userId");
-     * if (!post) ...
-     * if (String(post.userId) === String(reporterId)) ...
-     */
+    const targetPost = await CommunityPost.findById(targetId).select(
+      "_id userId"
+    );
+
+    if (!targetPost) {
+      return {
+        ok: false,
+        error: "Publication introuvable.",
+        code: "TARGET_POST_NOT_FOUND",
+        status: 404,
+      };
+    }
+
+    if (String(targetPost.userId) === String(reporterId)) {
+      return {
+        ok: false,
+        error: "Vous ne pouvez pas signaler votre propre publication.",
+        code: "SELF_REPORT",
+        status: 400,
+      };
+    }
+
     return { ok: true };
   }
 

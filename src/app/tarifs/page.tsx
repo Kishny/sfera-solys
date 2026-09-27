@@ -60,7 +60,6 @@ const plans: Plan[] = [
       '5 likes par jour',
       '3 matchs maximum',
       'Messagerie limitée (10 messages/jour)',
-      'VibeSphere basique',
       'Communauté Solys',
       'Support par formulaire',
     ],
@@ -77,7 +76,6 @@ const plans: Plan[] = [
     features: [
       'Tout du plan Gratuit',
       'Circle of Six hebdomadaire',
-      'VibePlanner (3/mois)',
       'Filtres avancés',
       'Événements exclusifs',
       'Badge Essentiel',
@@ -96,9 +94,7 @@ const plans: Plan[] = [
     features: [
       'Tout du plan Essentiel',
       'Mode Fantôme',
-      'VibePlanner illimité',
       'Voir les visiteurs de ton profil',
-      'VibeSphere avancé',
       'Filtres premium (distance, actif…)',
       'Badge Premium',
       'Support prioritaire 7j/7',
@@ -133,7 +129,6 @@ const comparisonRows = [
   { feature: 'Matchs simultanés', values: ['3 max', 'Illimité', 'Illimité', 'Illimité'] },
   { feature: 'Messagerie', values: ['10 msg/jour', 'Illimitée', 'Illimitée', 'Illimitée'] },
   { feature: 'Circle of Six', values: ['non', '1/semaine', '1/semaine', '1/semaine'] },
-  { feature: 'VibePlanner', values: ['non', '3/mois', 'Illimité', 'Illimité +'] },
   { feature: 'Mode Fantôme', values: ['non', 'non', 'oui', 'oui'] },
   { feature: 'Visiteurs du profil', values: ['non', 'non', 'oui', 'oui'] },
   { feature: 'Filtres premium', values: ['non', 'Basiques', 'Avancés', 'Complets'] },
