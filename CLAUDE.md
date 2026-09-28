@@ -1121,9 +1121,59 @@ exposée : `authorizeMatchAccess` dans `/api/messages/[matchId]` n'exige que
 d'y écrire. Il faudra refuser l'envoi quand l'expéditeur figure dans
 `deletedBy`.
 
+### ⭕ Circle of Six : la fonctionnalité signature n'était pas hebdomadaire (28/09/2026)
+
+C'est la promesse centrale du produit, celle qui justifie qu'Explorer ne soit
+pas un fil infini. `/valeurs` : « Le Circle of Six propose six profils le lundi,
+puis s'arrête. » `/fonctionnalites` : « Chaque semaine, notre algorithme te
+présente 6 profils. »
+
+**Rien n'était hebdomadaire.** `/api/circle` recalculait le score à chaque appel
+et renvoyait le top 6 du moment. Un like, la connexion d'un candidat, une
+modification de profil, et les six changeaient — parfois entre deux chargements
+de la même page. Le champ `weekOf` partait au client, s'affichait en « Semaine
+du … », et ne figeait strictement rien. Et la page offrait un bouton
+**« Actualiser »** qui relançait le tirage : l'exact contraire de « puis
+s'arrête ».
+
+Ce n'était pas une sélection hebdomadaire, c'était un classement permanent
+affiché six par six.
+
+**Figer demande de stocker.** Un tirage déterministe à partir de (membre,
+semaine) ne suffit pas : le vivier change quand des membres s'inscrivent ou se
+retirent, donc le top 6 bougerait quand même. D'où `models/CircleWeek.ts` — une
+ligne par membre et par semaine, écrite au premier affichage, servie ensuite
+jusqu'au lundi suivant.
+
+L'index unique `{ userId, weekStart }` est la garantie qui compte : deux onglets
+ouverts le lundi matin ne peuvent pas produire deux tirages différents. La route
+s'appuie dessus (`upsert` + `$setOnInsert`) plutôt que sur un verrou applicatif.
+
+**Deux trous d'accès, aussi.** La route ne lisait jamais le drapeau
+`circleOfSix` — `false` sur l'offre gratuite, et `/tarifs` vend « Circle of Six
+hebdomadaire » à partir d'Essentiel : n'importe quel compte connecté obtenait
+ses six profils. Et `isPremium === true` était lu seul, sans
+`subscriptionStatus`, donc un abonnement résilié continuait d'ouvrir les profils
+réservés. Les deux passent maintenant par `planEffectif`.
+
+**Le vivier était mal tiré.** `.limit(200)` sans tri prenait les 200 premiers
+dans l'ordre naturel de la collection, c'est-à-dire en pratique les 200 plus
+anciens comptes, indéfiniment les mêmes. Le plafond reste (300) mais porte
+désormais sur les profils les plus récemment actifs.
+
+**Les cas limites sont dits, pas masqués.** Moins de six profils arrive pour
+deux raisons, et la page les distingue : le vivier était trop petit au moment du
+tirage (six profils ne sortent pas d'un vivier de trois), ou un profil tiré est
+devenu indisponible depuis. Dans le second cas il n'est **pas remplacé** — la
+semaine est la semaine — et la page l'explique plutôt que d'afficher quatre
+cartes sans un mot.
+
+« Actualiser » est remplacé par ce qui manquait vraiment : le compte à rebours
+jusqu'au prochain tirage, recalculé chaque minute.
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/circle /communaute /evenements /mode-fantome /vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/communaute /evenements /mode-fantome /vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire
