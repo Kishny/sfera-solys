@@ -86,14 +86,14 @@ const allFAQs: Faq[] = [
   {
     question: 'Mes données sont-elles vraiment sécurisées ?',
     answer:
-      "Absolument. Nous utilisons un chiffrement sécurisé pour protéger les communications et les données sensibles. Tes photos sont stockées avec précaution et tu peux utiliser le Mode Fantôme pour mieux contrôler ta visibilité. L'équipe de modération traite les signalements et surveille les interactions.",
+      "Les échanges avec le site sont chiffrés et les mots de passe sont stockés sous forme de condensats, jamais en clair. Ton document d'identité n'est pas conservé sur nos serveurs : il est transmis à Stripe, qui renvoie seulement le résultat de la vérification. Le détail de ce qui est collecté, par qui et pour combien de temps figure sur la page Confidentialité.",
     category: 'security',
     popular: true,
   },
   {
     question: "Puis-je utiliser Sfera'Solys de manière anonyme ?",
     answer:
-      "Oui, grâce au Mode Fantôme. Tu peux créer un profil avec un pseudonyme, flouter tes photos et contrôler précisément qui voit tes informations. Tu décides quand et à qui révéler ton identité.",
+      "En partie. La vérification d'identité est obligatoire, mais ton document part chez Stripe et n'apparaît jamais sur le site : les autres membres voient le pseudonyme et les photos que tu as choisis. Tu règles ensuite qui te voit — profil public, réservé à tes mises en relation, ou invisible avec le Mode Fantôme.",
     category: 'security',
     popular: true,
   },

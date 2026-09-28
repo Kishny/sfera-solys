@@ -1171,9 +1171,63 @@ cartes sans un mot.
 « Actualiser » est remplacé par ce qui manquait vraiment : le compte à rebours
 jusqu'au prochain tirage, recalculé chaque minute.
 
+### 👻 Mode Fantôme : la fonctionnalité était vraie, la publicité non (28/09/2026)
+
+Bonne surprise pour une fois. Le Mode Fantôme **fonctionne** : passer en
+`invisible` exige la feature `ghostMode` côté serveur (`/api/users/profile`), le
+profil sort de l'annuaire et du Circle, et `/api/visitors` refuse d'enregistrer
+la visite d'un membre invisible — la navigation ne laisse donc réellement aucune
+trace.
+
+Ce qui était faux, c'était ce qu'on en disait. **Cinq pages** promettaient des
+« photos floutées » et un dévoilement « quand et à qui tu décides » :
+`/fonctionnalites` (deux fois), `/guide`, `/faq` et l'accueil. Aucun floutage
+n'existe nulle part dans le code, et aucun état de dévoilement par personne non
+plus.
+
+Décision de l'utilisateur : **corriger la copy**, pas construire la
+fonctionnalité — les clés Cloudinary sont vides, donc un floutage n'aurait pas
+été testable, et « tu décides à qui » suppose un état de dévoilement par
+relation, c'est-à-dire une vraie fonctionnalité, pas un réglage.
+
+**Deux autres affirmations sont tombées au passage.** `/guide` annonçait « notre
+équipe de modération travaille 24h/24 […] surveille les interactions », et
+`/faq` reprenait « l'équipe de modération surveille les interactions ». Il n'y a
+pas d'équipe — `/equipe` le dit franchement — et rien ne surveille les échanges
+en continu : il y a un filtre anti-harcèlement sur les messages, et des
+signalements lus par une personne. C'est ce qui est écrit maintenant.
+
+**Les quatre niveaux de visibilité sont enfin accessibles.** Le modèle porte
+`public`, `matches`, `premium`, `invisible`, et l'API accepte les quatre. **La
+page n'en proposait que deux** (public ↔ invisible) : « réservé à mes mises en
+relation » et « réservé aux membres payants » n'étaient réglables nulle part.
+
+C'était devenu gênant : depuis que `/api/profiles/[id]` applique réellement la
+visibilité « mes matchs » (voir plus haut), on avait un réglage appliqué mais
+impossible à choisir. La page les expose tous les quatre, et seul `invisible`
+demande une offre Premium.
+
+La page se termine par une section « ce que ces réglages ne font pas » — pas de
+floutage, aucun effet sur les conversations, aucune dispense de vérification.
+Une fonctionnalité qui dit ses limites se fait moins reprocher que celle qui les
+laisse découvrir.
+
+### 🔁 Le pont de fichiers a encore menti (28/09/2026)
+
+Deuxième occurrence, un an de logs plus tard : `device_commit_files` a répondu
+`"written"` en reposant **la version précédente** du fichier. Détecté par
+l'empreinte, comme la première fois. Contourné en republiant sous un **nom de
+fichier neuf**, ce qui a fonctionné du premier coup.
+
+La règle tient donc toujours, et mérite d'être répétée : **vérifier chaque envoi
+par `md5sum` des deux côtés**, jamais sur la réponse de l'outil. Sans cette
+vérification, la page serait partie en production avec `method: "PATCH"` sur une
+route qui n'expose que `PUT` — un bouton qui ne sauvegarde rien, c'est-à-dire
+exactement le genre de façade que ce chantier passe son temps à retirer.
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/communaute /evenements /mode-fantome /vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/communaute /evenements /vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire

@@ -134,12 +134,12 @@ const faqs = [
   {
     question: 'Dois-je révéler mon identité réelle ?',
     answer:
-      "Non. Tu as le contrôle total sur ton anonymat. Le Mode Fantôme te permet d'utiliser un pseudonyme, de flouter tes photos et de ne révéler ton identité que quand tu le décides.",
+      "Pas aux autres membres. Ton document d'identité est transmis à Stripe pour la vérification et n'est jamais affiché sur le site : les autres voient ton pseudonyme, tes photos et ce que tu as choisi de remplir. Et le Mode Fantôme te permet de disparaître de l'annuaire et du Circle quand tu préfères te faire discret.",
   },
   {
     question: "Comment fonctionne la modération sur Sfera'Solys ?",
     answer:
-      'Notre équipe de modération travaille 24h/24 pour garantir la protection de tous. Nous vérifions les profils, surveillons les interactions et agissons rapidement en cas de signalement.',
+      "La vérification d'identité est automatisée et obligatoire : Stripe Identity compare un document officiel à un selfie pris en direct. Les messages passent par un filtre qui bloque les contenus manifestement abusifs. Et un signalement est lu par une personne — c'est le seul endroit où l'humain intervient, et c'est voulu : le jugement ne se délègue pas à un filtre.",
   },
   {
     question: "Puis-je utiliser Sfera'Solys si je suis en couple ?",

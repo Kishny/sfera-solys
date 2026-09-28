@@ -86,7 +86,7 @@ const featureTeasers = [
     icon: Ghost,
     title: 'Mode Fantôme',
     description:
-      'Photos floutées et pseudonyme : tu décides quand te révéler.',
+      "Disparais de l'annuaire sans perdre tes conversations.",
     href: '/mode-fantome',
   },
   {

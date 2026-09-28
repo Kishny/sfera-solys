@@ -103,10 +103,14 @@ const features: FeatureItem[] = [
     id: 'ghost',
     icon: Ghost,
     title: 'Mode Fantôme',
-    description: 'Discrétion assurée, photos floutées, pseudonymes.',
+    description: 'Rester sur la plateforme sans y apparaître.',
     details:
-      'Protège ton intimité avec des photos floutées et un pseudonyme. Tu décides quand et à qui révéler ton identité.',
-    benefits: ['Contrôle total', 'Anonymat renforcé', 'Activation rapide'],
+      "Ton profil disparaît de l'annuaire et du Circle of Six tant que le mode est actif, et tu continues à consulter les profils sans laisser de trace chez les autres. Tes conversations et tes mises en relation, elles, ne bougent pas : tu ne perds aucun échange. Tu redeviens visible quand tu le décides.",
+    benefits: [
+      "Invisible dans l'annuaire et le Circle",
+      'Navigation sans laisser de trace',
+      'Conversations conservées',
+    ],
     link: '/mode-fantome',
   },
   {
