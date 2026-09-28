@@ -217,7 +217,7 @@ export default function Home() {
               {...fadeUp}
               className="flex w-full max-w-xl flex-1 flex-col items-center gap-5 text-center lg:items-start lg:text-left"
             >
-              <span className="w-fit rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-orange">
+              <span className="w-fit rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
                 Vérification immédiate · hommes 28+
               </span>
 

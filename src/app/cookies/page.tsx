@@ -95,7 +95,7 @@ export default function CookiesPage() {
                   <span className="text-[14px] font-semibold text-cream">
                     {cookie.name}
                   </span>
-                  <span className="rounded-full border border-orange/30 bg-orange/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange">
+                  <span className="rounded-full border border-orange/30 bg-orange/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-cream">
                     {cookie.type}
                   </span>
                   <span className="text-[11px] text-cream/50">

@@ -239,7 +239,7 @@ export default function FAQPage() {
         <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <div className="mx-auto max-w-3xl py-12 sm:py-16">
             <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-orange">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
                 <HelpCircle size={13} />
                 centre d&apos;aide
               </span>
@@ -303,7 +303,7 @@ export default function FAQPage() {
                       aria-pressed={isActive}
                       className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12px] font-semibold transition-colors ${focusRing} ${
                         isActive
-                          ? 'border-orange/40 bg-orange/[0.12] text-orange'
+                          ? 'border-orange/40 bg-orange/[0.12] text-cream'
                           : 'border-cream/15 text-cream/70 hover:border-cream/30 hover:text-cream'
                       }`}
                     >

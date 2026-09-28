@@ -137,7 +137,7 @@ export default async function TemoignagesPage() {
         {/* Hero */}
         <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <div className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-orange">
+            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
               Paroles de membres vérifiés
             </span>
 

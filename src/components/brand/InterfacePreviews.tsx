@@ -211,7 +211,7 @@ export function AnnuairePreview({ className = '' }: { className?: string }) {
         {/* Filtres */}
         <div className="mb-3 flex items-center gap-1.5">
           <SlidersHorizontal size={11} className="shrink-0 text-cream/55" />
-          <span className="rounded-full border border-orange/35 bg-orange/[0.1] px-2 py-0.5 text-[10px] font-semibold text-orange">
+          <span className="rounded-full border border-orange/35 bg-orange/[0.1] px-2 py-0.5 text-[10px] font-semibold text-cream">
             À proximité
           </span>
           <span className="rounded-full border border-cream/12 px-2 py-0.5 text-[10px] font-semibold text-cream/60">

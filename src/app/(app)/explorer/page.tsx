@@ -35,8 +35,9 @@
  * - **La visite enregistrée passivement.** L'ancienne page envoyait un
  *   `POST /api/visitors` pour chaque carte affichée. En grille, ça ferait vingt
  *   visites par page feuilletée, gonflerait « qui a vu ton profil » et
- *   épuiserait le quota de visites (20 sur l'offre gratuite). La visite part
- *   maintenant au clic sur « voir le profil » — quand elle a lieu.
+ *   épuiserait le quota de visites (20 sur l'offre gratuite). Elle est
+ *   désormais enregistrée par la page de profil elle-même — au seul endroit
+ *   où la visite a effectivement lieu.
  *
  * ## Corrections de fond au passage
  *
@@ -366,18 +367,14 @@ export default function AnnuairePage() {
   };
 
   /**
-   * Ouvre un profil, et enregistre la visite à ce moment-là.
+   * Ouvre un profil.
    *
-   * La navigation ne dépend pas de l'enregistrement : si la visite échoue, on
-   * ouvre le profil quand même.
+   * L'enregistrement de la visite appartient à la page de profil, pas à
+   * l'annuaire : une visite a lieu quel que soit le chemin d'arrivée
+   * (messages, matchs, Circle, lien direct), et la centraliser évite d'avoir
+   * à la recoller dans chaque page qui mène à un profil.
    */
   const ouvrirProfil = (profilId: string) => {
-    void fetch("/api/visitors", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visitedUserId: profilId }),
-    }).catch(() => {});
-
     router.push(`/profil/${profilId}?from=annuaire`);
   };
 

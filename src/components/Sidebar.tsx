@@ -170,7 +170,7 @@ export default function Sidebar() {
                   onClick={() => setCircleOpen((current) => !current)}
                   className={`flex w-full items-center gap-3 rounded-xl px-3 py-[11px] text-sm font-medium transition-colors ${
                     active
-                      ? "bg-orange/15 text-orange"
+                      ? "bg-orange/15 text-cream"
                       : "text-cream/65 hover:bg-cream/5 hover:text-cream"
                   }`}
                 >
@@ -223,7 +223,7 @@ export default function Sidebar() {
               aria-current={active ? "page" : undefined}
               className={`flex items-center gap-3 rounded-xl px-3 py-[11px] text-sm font-medium transition-colors ${
                 active
-                  ? "bg-orange/15 text-orange"
+                  ? "bg-orange/15 text-cream"
                   : "text-cream/65 hover:bg-cream/5 hover:text-cream"
               }`}
             >

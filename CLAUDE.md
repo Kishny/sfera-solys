@@ -902,9 +902,80 @@ Les erreurs restantes (21) sont toutes dans `models/User.ts` (13, typage
 mongoose), `mon-compte` (5), `models/Subscription.ts` (2, exports manquants) et
 `ui/Button.tsx` (1).
 
+### 👤 Page de profil migrée, et un trou de confidentialité refermé (28/09/2026)
+
+`/profil/[id]` rejoint le groupe `(app)` (donc la sidebar, plus de
+Header/Footer propres) et passe à l'éclipse solaire. Mais l'essentiel n'est pas
+visuel.
+
+**Le bouton « Liker ce profil » appelait `router.back()`.** Rien d'autre. Le
+commentaire d'origine l'assumait : « Pour l'instant, je garde ta logique :
+retour à la page précédente. Plus tard, si tu veux, on pourra le connecter
+directement à /api/likes. » Un bouton qui annonce une action et navigue à la
+place est pire qu'un bouton absent : il consomme une intention. Il like
+maintenant pour de vrai, avec le quota du jour et la détection de réciprocité,
+et affiche trois états distincts — à aimer, déjà aimé, déjà en relation.
+
+**La visibilité « réservé à mes matchs » ne protégeait rien.**
+`/api/profiles/[id]` portait un commentaire expliquant qu'il fallait attendre le
+modèle `Match`… qui existait depuis le début. Résultat : un membre ayant choisi
+ce réglage était bien exclu de l'annuaire (`/api/profiles` filtre sur
+`visibilite`), mais son profil restait **entièrement consultable par n'importe
+quel membre connecté** ayant son identifiant. Un réglage de confidentialité qui
+protège de la navigation mais pas de l'accès direct ne protège de rien. La route
+vérifie désormais qu'un match actif lie les deux comptes.
+
+L'API renvoie aussi un bloc `relation` (`estMonProfil`, `dejaAime`,
+`estUnMatch`, `matchId`) : c'est lui qui permet au bouton d'être juste, au lieu
+de deviner.
+
+**La visite se compte sur la page de profil, plus dans l'annuaire.** Une visite
+a lieu quel que soit le chemin d'arrivée — messages, matchs, Circle, lien
+direct — et l'annuaire était le seul à l'enregistrer. Le serveur ignore déjà les
+auto-visites et dédoublonne par jour (`visitDay`), donc centraliser ne gonfle
+rien.
+
+**Restes du fork trouvés sur cette page** : les orientations étaient au féminin
+(« Hétérosexuelle », « Lesbienne / Homosexuelle », « Curieuse »), le badge
+disait « Vérifiée », la lune 🌙 servait d'icône aux centres d'intérêt, la page
+vouvoyait alors que tout le reste tutoie — et **l'initiale de secours de
+l'avatar était « L »**, pour Luna. L'ancienne valeur `curieuse` reste mappée,
+pour les profils enregistrés avant la reprise.
+
+### 🎨 Règle de contraste : l'orange ne porte plus de petit texte
+
+Les instructions du projet disaient déjà « réserver l'orange aux accents et gros
+éléments, pas au petit texte ». La refonte l'avait pourtant enfreint partout :
+le motif `bg-orange/[0.12] … text-orange` servait de pastille « eyebrow » sur
+**douze pages** plus `PageLegale`, en plus des états sélectionnés de la sidebar,
+de la FAQ et de `DossierParcours`.
+
+Mesures (texte orange sur fond orange tinté, au-dessus de la carte `#0C222D`) :
+
+| tinte | ratio sur carte | ratio sur abyss |
+|---|---|---|
+| orange/6  | 4,51 | 5,04 |
+| orange/8  | 4,47 | 5,01 |
+| orange/10 | 4,38 | 4,92 |
+| orange/12 | **4,29** | 4,83 |
+| orange/15 | **4,16** | 4,70 |
+
+Sur `abyss` ça passe ; **sur la carte, non** — et c'est là que vivaient les
+pastilles. Le texte passe donc en `cream` (12,9 à 14,5:1) et l'orange reste sur
+la bordure : la pastille se lit toujours comme un accent orange. Les marqueurs
+qui doivent sauter aux yeux (`[À COMPLÉTER]`, « En relation », « Mis en avant »)
+passent en orange plein avec du texte `abyss` (5,23:1).
+
+Exception conservée : un conteneur d'icône en `bg-orange/15 text-orange`
+(`inscription/steps/Step5`) reste valide — un pictogramme demande 3:1, pas 4,5.
+
+**Le lime n'a pas ce problème** : sur ses propres tintes il donne 7,8 à 12,6:1.
+Le piège du lime est l'inverse, et il est documenté plus haut : **cream sur lime
+plein = 1,04:1**, donc invisible. Le lime ne porte que du texte `abyss`.
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/circle /communaute /evenements /mode-fantome /vibementor /matches /messages/[matchId] /profil/[id] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/circle /communaute /evenements /mode-fantome /vibementor /matches /messages/[matchId] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire

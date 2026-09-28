@@ -7,6 +7,8 @@ import mongoose from "mongoose";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { Like } from "@/models/Like";
+import { Match } from "@/models/Match";
 
 /**
  * GET /api/profiles/[id]
@@ -18,7 +20,25 @@ import { User } from "@/models/User";
  * - valide l'id MongoDB ;
  * - ne renvoie jamais email, password, Stripe, tokens, réponse secrète ;
  * - bloque les profils invisibles ;
- * - bloque les profils premium-only si le visiteur n'est pas premium.
+ * - bloque les profils premium-only si le visiteur n'est pas premium ;
+ * - bloque les profils réservés aux matchs si aucun match actif ne lie les deux.
+ *
+ * ## Le trou de confidentialité corrigé
+ *
+ * La visibilité « matches » (« visible seulement par mes matchs ») n'était
+ * **pas appliquée ici**. Un commentaire annonçait qu'il fallait attendre le
+ * modèle `Match`… qui existait depuis le début. Conséquence : un membre ayant
+ * choisi ce réglage était bien exclu de l'annuaire — `/api/profiles` filtre sur
+ * `visibilite` — mais son profil restait **entièrement consultable par
+ * n'importe quel membre connecté** ayant son identifiant. Un réglage de
+ * confidentialité qui ne protège que de la navigation, pas de l'accès direct,
+ * ne protège de rien.
+ *
+ * ## L'état de la relation, renvoyé avec le profil
+ *
+ * La page de profil avait un bouton « Liker ce profil » qui ne faisait que
+ * revenir en arrière. Pour qu'il devienne réel, il lui faut savoir où en est la
+ * relation : déjà aimé, déjà en match, ou rien. C'est le bloc `relation`.
  */
 
 function isPremiumActive(user: any) {
@@ -98,7 +118,7 @@ export async function GET(
 
     const isOwnProfile = String(profile._id) === String(currentUser._id);
 
-    // Bloquer l'accès aux profils admin (invisibles pour les utilisatrices)
+    // Bloquer l'accès aux profils admin (invisibles pour les membres)
     if ((profile as any).role === "admin" && !isOwnProfile) {
       return NextResponse.json(
         { success: false, error: "Profil introuvable.", code: "PROFILE_NOT_FOUND" },
@@ -155,16 +175,62 @@ export async function GET(
     }
 
     /**
-     * Note :
-     * La visibilité "matches" dépend de ton modèle Match.
-     * Quand tu m'enverras Match.ts ou /api/matches, on pourra vérifier
-     * réellement si l'utilisateur connecté a le droit de voir ce profil.
+     * Relation entre le visiteur et ce profil.
+     *
+     * Lue avant le contrôle de visibilité « matches », puisque c'est elle qui
+     * en décide. Les deux lectures sont indexées : `Like` sur
+     * `{ fromUserId, toUserId }` (unique) et `Match` sur
+     * `{ user1Id, user2Id }` (unique).
      */
+    const [dejaAime, match] = await Promise.all([
+      isOwnProfile
+        ? Promise.resolve(null)
+        : Like.exists({
+            fromUserId: currentUser._id,
+            toUserId: profile._id,
+          }),
+      isOwnProfile
+        ? Promise.resolve(null)
+        : Match.findOne({
+            isActive: true,
+            $or: [
+              { user1Id: currentUser._id, user2Id: profile._id },
+              { user1Id: profile._id, user2Id: currentUser._id },
+            ],
+          }).select("_id"),
+    ]);
+
+    /**
+     * Visibilité « réservé à mes matchs ».
+     *
+     * C'est le réglage que le membre a choisi : sans match actif entre les deux,
+     * le profil n'est pas consultable, même avec l'identifiant en main.
+     */
+    if (
+      profile.visibilite === "matches" &&
+      !isOwnProfile &&
+      !match
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Ce membre réserve son profil à ses mises en relation.",
+          code: "MATCH_REQUIRED",
+        },
+        { status: 403 }
+      );
+    }
 
     return NextResponse.json(
       {
         success: true,
         profile,
+        relation: {
+          estMonProfil: isOwnProfile,
+          dejaAime: Boolean(dejaAime),
+          estUnMatch: Boolean(match),
+          matchId: match ? String(match._id) : null,
+        },
       },
       {
         status: 200,

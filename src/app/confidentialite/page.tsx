@@ -41,7 +41,7 @@ import PageLegale, { type SectionLegale } from '@/components/legal/PageLegale';
  */
 
 const A_COMPLETER = (
-  <strong className="rounded bg-orange/15 px-1.5 py-0.5 text-orange">
+  <strong className="rounded bg-orange px-1.5 py-0.5 text-abyss">
     [À COMPLÉTER]
   </strong>
 );

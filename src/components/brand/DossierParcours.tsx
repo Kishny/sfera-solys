@@ -104,7 +104,7 @@ function EnteteDossier({ etape }: { etape: Etape }) {
         className={
           etape.validation
             ? 'rounded-full border border-lime/30 bg-lime/[0.08] px-2.5 py-0.5 text-[10px] font-bold text-lime'
-            : 'rounded-full border border-orange/30 bg-orange/[0.08] px-2.5 py-0.5 text-[10px] font-bold text-orange'
+            : 'rounded-full border border-orange/30 bg-orange/[0.08] px-2.5 py-0.5 text-[10px] font-bold text-cream'
         }
       >
         {etape.duree}
@@ -426,7 +426,7 @@ export default function DossierParcours() {
                       : 'bg-lime/20 text-lime group-hover:bg-lime/30'
                     : estActif
                       ? 'bg-orange text-abyss'
-                      : 'bg-orange/15 text-orange group-hover:bg-orange/25'
+                      : 'bg-orange/20 text-cream group-hover:bg-orange/30'
                 }`}
               >
                 {item.numero}
