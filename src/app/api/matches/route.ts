@@ -9,6 +9,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Match } from "@/models/Match";
 import { Message } from "@/models/Message";
+import { quotaMatchs, trouverEnAttente } from "@/lib/matches";
 
 /**
  * GET /api/matches
@@ -22,6 +23,14 @@ import { Message } from "@/models/Message";
  * - tri des conversations récentes en premier ;
  * - pas de données sensibles ;
  * - structure prête pour /matches, /messages/[matchId], /mon-compte.
+ *
+ * ## Le plafond, renvoyé avec la liste
+ *
+ * L'offre gratuite est plafonnée à 3 mises en relation (`maxMatches`), un chiffre
+ * annoncé sur `/tarifs` et longtemps appliqué nulle part. La route renvoie
+ * désormais `plafond`, avec le nombre de relations **en attente** : des likes
+ * réciproques qui ne se sont pas ouverts faute de place. Sans ce chiffre, un
+ * membre au plafond ne verrait rien — juste des likes qui ne donnent rien.
  */
 
 function toObjectIdString(value: unknown) {
@@ -75,7 +84,8 @@ export async function GET() {
     const sessionEmail = session.user.email.toLowerCase().trim();
 
     const currentUser = await User.findOne({ email: sessionEmail }).select(
-      "_id"
+      // plan / isPremium / subscriptionStatus : mesure du plafond de relations.
+      "_id plan isPremium subscriptionStatus"
     );
 
     if (!currentUser) {
@@ -108,11 +118,34 @@ export async function GET() {
       })
       .lean();
 
+    const pourQuota = {
+      plan: currentUser.plan,
+      isPremium: currentUser.isPremium,
+      subscriptionStatus: currentUser.subscriptionStatus,
+    };
+
+    /** Plafond de l'offre et relations qui attendent une place. */
+    const lirePlafond = async () => {
+      const [quota, enAttente] = await Promise.all([
+        quotaMatchs(currentUserId, pourQuota),
+        trouverEnAttente(currentUserId),
+      ]);
+
+      return {
+        actifs: quota.actifs,
+        maximum: quota.illimite ? null : quota.plafond,
+        restants: quota.restants,
+        atteint: quota.atteint,
+        enAttente: enAttente.length,
+      };
+    };
+
     if (matches.length === 0) {
       return NextResponse.json(
         {
           success: true,
           matches: [],
+          plafond: await lirePlafond(),
           metadata: {
             total: 0,
           },
@@ -158,7 +191,7 @@ export async function GET() {
     /**
      * Messages non lus par conversation.
      *
-     * Un message est "non lu" pour l'utilisateur connectée si :
+     * Un message est "non lu" pour le membre connecté si :
      * - il appartient à l'un de ses matches ;
      * - il a été envoyé par l'AUTRE personne (senderId != moi) ;
      * - il n'a pas encore été lu (readAt = null).
@@ -222,6 +255,7 @@ export async function GET() {
       {
         success: true,
         matches: result,
+        plafond: await lirePlafond(),
         metadata: {
           total: result.length,
         },

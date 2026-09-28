@@ -12,6 +12,7 @@ import { Match } from "@/models/Match";
 import { pusher } from "@/lib/pusher";
 import { sendNewMatchPush } from "@/lib/push";
 import { quotaLikesDuJour } from "@/lib/quotas";
+import { ouvrirEnAttente, quotaMatchs } from "@/lib/matches";
 
 /**
  * Route Likes Sfera'Solys.
@@ -26,7 +27,15 @@ import { quotaLikesDuJour } from "@/lib/quotas";
  * - retire un like ;
  * - désactive le match associé si besoin.
  *
- * ## Le quota, qui n'existait pas
+ * ## Le plafond de mises en relation
+ *
+ * `/tarifs` annonce « 3 matchs maximum » sur l'offre gratuite et la config le
+ * porte (`maxMatches`), mais aucune ligne ne le lisait. Désormais : si un like
+ * réciproque ferait dépasser le plafond de l'un des deux, **le like reste
+ * enregistré et la relation attend**. Elle s'ouvre dès qu'une place se libère,
+ * c'est-à-dire au retrait d'un like — voir `src/lib/matches.ts`.
+ *
+ * ## Le quota de likes, qui n'existait pas
  *
  * L'offre gratuite annonce « 5 likes par jour » sur /tarifs, et les offres
  * payantes vendent l'illimité comme un avantage. Cette route ne vérifiait
@@ -262,7 +271,10 @@ export async function POST(req: NextRequest) {
      * - un profil invisible.
      */
     const targetUser = await User.findById(targetId).select(
-      "_id hasCompletedProfile banned visibilite role"
+      // plan / isPremium / subscriptionStatus : nécessaires pour mesurer le
+      // plafond de mises en relation de la cible contre SON offre, et non
+      // contre l'offre gratuite par défaut.
+      "_id hasCompletedProfile banned visibilite role plan isPremium subscriptionStatus"
     );
 
     if (
@@ -390,9 +402,60 @@ export async function POST(req: NextRequest) {
     }
 
     /**
-     * Like réciproque détecté.
-     * On crée ou réactive le match.
+     * Like réciproque détecté — reste à savoir s'il y a de la place.
+     *
+     * Chacun est mesuré contre son propre plafond : un membre payant n'est
+     * jamais limité par l'offre de son vis-à-vis. Mais une relation demande
+     * deux places, donc si l'un est au plafond, elle attend.
      */
+    const [plafondMoi, plafondAutre] = await Promise.all([
+      quotaMatchs(
+        currentUserId,
+        currentUser as {
+          plan?: string | null;
+          isPremium?: boolean | null;
+          subscriptionStatus?: string | null;
+        }
+      ),
+      quotaMatchs(targetId, targetUser as {
+        plan?: string | null;
+        isPremium?: boolean | null;
+        subscriptionStatus?: string | null;
+      }),
+    ]);
+
+    if (plafondMoi.atteint || plafondAutre.atteint) {
+      /**
+       * Le like est conservé : c'est ce qui permet à la relation de s'ouvrir
+       * plus tard, sans que personne n'ait à re-liker.
+       *
+       * Le message ne révèle pas l'offre de l'autre membre — juste qu'il n'a
+       * pas de place.
+       */
+      return NextResponse.json(
+        {
+          success: true,
+          matched: false,
+          enAttente: true,
+          raison: plafondMoi.atteint
+            ? `Tu as ${plafondMoi.actifs} mises en relation en cours, le maximum de ton offre. Ce like est gardé : libère une place et la relation s'ouvrira.`
+            : "Ce membre a atteint son nombre de mises en relation. Ton like est gardé : la relation s'ouvrira dès qu'une place se libère.",
+          plafond: {
+            actifs: plafondMoi.actifs,
+            maximum: plafondMoi.illimite ? null : plafondMoi.plafond,
+            parMoi: plafondMoi.atteint,
+          },
+          quota: {
+            limite: quotaApres.limite,
+            utilises: quotaApres.utilises,
+            restants: quotaApres.restants,
+          },
+          upgradeUrl: plafondMoi.atteint ? "/tarifs" : undefined,
+        },
+        { status: 200, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
     const { user1Id, user2Id } = normalizeMatchUserIds(
       currentUserId,
       targetId
@@ -605,9 +668,32 @@ export async function DELETE(req: NextRequest) {
       }
     );
 
+    /**
+     * Une place vient de se libérer : c'est le seul moment où une relation en
+     * attente peut s'ouvrir de ce côté. Un échec ici ne fait pas échouer le
+     * retrait de like — la place est libérée quoi qu'il arrive.
+     */
+    const ouvertes = await ouvrirEnAttente(
+      currentUserId,
+      currentUser as {
+        plan?: string | null;
+        isPremium?: boolean | null;
+        subscriptionStatus?: string | null;
+      }
+    );
+
+    for (const ouverte of ouvertes) {
+      await notifyNewMatch({
+        matchId: ouverte.matchId,
+        currentUserId,
+        targetId: ouverte.autreUserId,
+      });
+    }
+
     return NextResponse.json(
       {
         success: true,
+        relationsOuvertes: ouvertes.length,
       },
       {
         status: 200,

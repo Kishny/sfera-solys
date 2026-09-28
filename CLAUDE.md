@@ -973,9 +973,104 @@ Exception conservée : un conteneur d'icône en `bg-orange/15 text-orange`
 Le piège du lime est l'inverse, et il est documenté plus haut : **cream sur lime
 plein = 1,04:1**, donc invisible. Le lime ne porte que du texte `abyss`.
 
+### 💞 /matches migrée, plafond appliqué, et une sortie enfin possible (28/09/2026)
+
+Trois trous sur cette page, dont un que la migration a rendu bloquant.
+
+**1. On ne pouvait pas quitter une relation.** `DELETE /api/likes` existe depuis
+le début — il retire le like et désactive le match — et **aucune page du site ne
+l'appelait**. Pire : trois routes complètes n'ont jamais eu d'interface,
+`DELETE /api/matches/[id]` (suppression douce via `deletedBy`),
+`PATCH /api/matches/[id]/archive` et `PATCH /api/matches/[id]/mute`. Les champs
+`archivedBy`, `mutedBy` et `deletedBy` du modèle ne sont lus nulle part. Un
+membre entrait dans une relation et n'en sortait jamais.
+
+`/matches` a maintenant « Mettre fin », en deux temps dans la carte (pas de
+boîte de dialogue native). L'archivage et la sourdine attendent `/messages`,
+c'est leur place.
+
+**2. Le plafond de l'offre gratuite n'était appliqué nulle part.** `/tarifs`
+annonce « 3 matchs maximum » et `maxMatches` vaut 3 dans la config, mais aucune
+ligne ne lisait cette valeur. Choix de l'utilisateur : **bloquer la formation du
+4ᵉ match**, pas le like.
+
+Donc `src/lib/matches.ts` : quand un like réciproque ferait dépasser le plafond
+de l'un des deux, le like **reste enregistré** et la relation est « en
+attente ». Elle s'ouvre dès qu'une place se libère — `DELETE /api/likes` appelle
+`ouvrirEnAttente`, qui promeut les paires réciproques dans l'ordre d'arrivée du
+like reçu, premier arrivé premier servi.
+
+Quatre points de conception qui méritent d'être écrits :
+
+- **Chacun contre son propre plafond.** On n'applique pas le plus strict des
+  deux aux deux : un membre payant n'est jamais limité par l'offre de son
+  vis-à-vis. Il reste qu'une relation demande deux places, donc si l'un est au
+  plafond, elle attend. Pour ça, `/api/likes` doit charger
+  `plan/isPremium/subscriptionStatus` **de la cible** — sans ça, un membre
+  payant serait mesuré contre l'offre gratuite par défaut et bloquerait tout.
+- **Pas de résurrection involontaire.** « En attente » = les deux likes existent
+  et aucun match actif ne les relie. Retirer un like le supprime, donc une
+  relation à laquelle on a mis fin ne revient pas : la paire n'existe plus.
+- **Les deux sorties libèrent une place.** Le comptage exclut les matchs que le
+  membre a lui-même mis dans `deletedBy`, même s'ils restent actifs pour
+  l'autre. Sans ça, « retirer de ma liste » laisserait la place occupée et le
+  plafond deviendrait un cul-de-sac.
+- **Le message ne révèle pas l'offre de l'autre.** Si c'est la cible qui est au
+  plafond, on dit seulement qu'elle n'a pas de place.
+
+**3. Les messages non lus étaient calculés puis jetés.** `/api/matches` agrège
+`unreadCount` par conversation depuis toujours ; le type `MatchItem` de
+l'ancienne page ne le déclarait même pas. Le compteur est affiché.
+
+**Structure** : l'ancienne page maintenait **deux arbres de cartes** — un
+accordéon mobile et des cartes complètes à partir de `md` — soit la même
+information écrite deux fois. Une seule carte responsive les remplace. La page
+rejoint le groupe `(app)`.
+
+### ⏳ La vérification d'identité : barrière à poser, décision prise
+
+`identityVerified` **n'est utilisé comme barrière nulle part dans le code**.
+Le site promet pourtant, sur `/histoire` : « Aucun accès au produit avant qu'un
+document officiel ait été vérifié. Sans exception, et sans possibilité de passer
+devant. » En pratique, un compte non vérifié a accès à tout.
+
+Décision de l'utilisateur : **brancher plus tard, avec les clés Stripe**. La
+raison est concrète — `STRIPE_SECRET_KEY` est encore `A_REMPLACER`, donc
+personne ne *peut* être vérifié : poser la barrière maintenant fermerait le
+site à son propre auteur, y compris pour tester.
+
+Ce qu'il faudra faire le jour où Stripe est configuré :
+
+- une barrière côté serveur, pas seulement une redirection côté client : les
+  routes qui ouvrent le produit (`/api/profiles`, `/api/likes`, `/api/messages`,
+  `/api/matches`, `/api/circle`) doivent refuser un compte non vérifié ;
+- `src/middleware.ts` ne couvre que `/api/:path*` — c'est le bon endroit pour
+  une vérification transverse, à condition de lire la session ;
+- prévoir l'état « vérification en cours » (Stripe Identity est rapide mais pas
+  instantané) et un écran d'attente qui ne ressemble pas à un refus ;
+- décider ce qu'un compte non vérifié peut voir : rien, ou son propre profil et
+  la page de vérification. La seconde option est la seule utilisable.
+
+### État de test (28/09/2026)
+
+`.env.local` : `MONGODB_URI` et `NEXTAUTH_*` renseignés, **tout le reste est
+`A_REMPLACER`**. Conséquences pour tester :
+
+- **Marche** : inscription e-mail + mot de passe, connexion immédiate (la
+  vérification d'e-mail n'est pas bloquante — l'envoi part en `.catch()`),
+  profil, annuaire, likes et leur quota, matchs, messages (enregistrés), page de
+  profil.
+- **Ne marche pas** : Google/Apple (clés vides), Stripe (donc ni abonnement ni
+  vérification d'identité), Cloudinary (aucun upload de photo), Pusher (les
+  messages arrivent mais pas en temps réel — les échecs sont attrapés, donc rien
+  ne casse), Resend (aucun e-mail).
+- Il faut **deux comptes** pour tester un match et une conversation, et forcer
+  `plan` / `isPremium` / `subscriptionStatus` dans Atlas pour voir le panneau de
+  boost autrement qu'en « ton offre ne comprend pas de boost ».
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/circle /communaute /evenements /mode-fantome /vibementor /matches /messages/[matchId] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/circle /communaute /evenements /mode-fantome /vibementor /messages/[matchId] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire
