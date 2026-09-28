@@ -5,1420 +5,870 @@
 /**
  * Page d'authentification Sfera'Solys.
  *
- * Version optimisée mobile :
- * - formulaire plus compact ;
- * - flèche retour corrigée pour ne plus toucher la carte ;
- * - accordéons pour les blocs secondaires ;
- * - padding mobile réduit ;
- * - inputs et boutons moins hauts sur téléphone ;
- * - meilleur confort sur iPhone/Safari mobile.
+ * ## La carte qui bascule
+ *
+ * Connexion et inscription ne sont plus deux onglets qui se remplacent, mais
+ * deux moitiés d'une même carte. Le panneau solaire glisse d'un côté à
+ * l'autre et découvre le formulaire qu'il cachait ; le discours qu'il porte
+ * s'échange avec lui. La géométrie vit dans `auth.module.css`, pas ici.
+ *
+ * ## Ce qui a été corrigé au passage
+ *
+ * - **Le mot de passe était validé à 6 caractères côté page et à 8 côté
+ *   serveur.** Un mot de passe de 6 ou 7 caractères passait la validation,
+ *   partait au serveur, et revenait refusé. La page exige maintenant 8,
+ *   comme `POST /api/auth/register`.
+ * - **Les boutons Google et Apple s'affichaient toujours**, alors que les
+ *   providers ne sont enregistrés côté NextAuth que si leurs variables
+ *   d'environnement existent. Sans clés, le bouton menait à une page
+ *   d'erreur. On lit maintenant `/api/auth/providers` — la route que NextAuth
+ *   expose déjà — et on n'affiche que ce qui est réellement branché.
+ * - **La liste d'arguments vantait « Cadeaux premium », « Événements VIP »,
+ *   « App mobile exclusive » et un « Support 24h »** : rien de tout cela
+ *   n'existe dans le code. Remplacée par les deux faits vérifiables de cette
+ *   page — la vérification d'identité et le critère d'âge.
  */
 
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import {
+  AlertCircle,
+  ArrowLeft,
+  AtSign,
+  BadgeCheck,
+  CheckCircle2,
   Eye,
   EyeOff,
-  Mail,
+  Loader2,
   Lock,
+  Mail,
   User,
-  AtSign,
-  Sparkles,
-  Star,
-  ArrowLeft,
-  CheckCircle,
-  AlertCircle,
-  Crown,
-  Shield,
-  Smartphone,
-  Gift,
-  Users,
-  Heart,
-  Sun,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 
-type LunaSessionUser = {
+import styles from "./auth.module.css";
+
+type SessionSolys = {
   id?: string;
   email?: string | null;
-  name?: string | null;
-  image?: string | null;
-  pseudonyme?: string;
   role?: string;
   hasCompletedProfile?: boolean;
   identityVerified?: boolean;
-  plan?: "free" | "essential-monthly" | "premium-monthly" | "elite-monthly";
-  isPremium?: boolean;
-  subscriptionStatus?:
-    | "inactive"
-    | "active"
-    | "trialing"
-    | "past_due"
-    | "canceled";
 };
 
 /**
- * Fond étoilé léger.
+ * Les deux moitiés restent dans le DOM pendant qu'elles glissent : sans
+ * précaution, la tabulation emmène dans le formulaire caché, et un lecteur
+ * d'écran annonce deux champs « mot de passe ». `inert` retire toute une
+ * branche du parcours clavier et de l'arbre d'accessibilité — l'attribut est
+ * reconnu par les navigateurs, mais pas encore typé par React 18.
  */
-const starsStyles = `
-.stars {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
+function auRepos(actif: boolean) {
+  return (actif ? {} : { inert: "" }) as React.HTMLAttributes<HTMLDivElement>;
 }
 
-.stars::before,
-.stars::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
-    radial-gradient(1px 1px at 40px 70px, rgba(255, 255, 255, 0.6), transparent),
-    radial-gradient(1px 1px at 50px 160px, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.6), transparent);
-  background-repeat: repeat;
-  background-size: 200px 200px;
-}
-
-.stars::after {
-  background-image:
-    radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1px 1px at 160px 120px, rgba(255, 255, 255, 0.4), transparent),
-    radial-gradient(1px 1px at 200px 60px, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1px 1px at 240px 90px, rgba(255, 255, 255, 0.6), transparent);
-  background-size: 300px 300px;
-  animation: twinkle 8s ease-in-out infinite alternate;
-}
-
-@keyframes twinkle {
-  0%, 100% {
-    opacity: 0.8;
-  }
-
-  50% {
-    opacity: 0.4;
-  }
-}
-`;
+const messagesOAuth: Record<string, string> = {
+  OAuthSignin: "La connexion n’a pas pu démarrer.",
+  OAuthCallback: "Le retour du fournisseur a échoué.",
+  OAuthCreateAccount: "Impossible de créer le compte avec ce fournisseur.",
+  EmailCreateAccount: "Impossible de créer le compte avec cet email.",
+  Callback: "Le retour du fournisseur a échoué.",
+  OAuthAccountNotLinked:
+    "Cet email est déjà rattaché à une autre méthode de connexion.",
+  SessionRequired: "Connecte-toi pour accéder à cette page.",
+  Default: "La connexion n’a pas abouti.",
+};
 
 /**
- * Motif orbite décoratif (cercles concentriques + points d'accent),
- * écho visuel du nom "Sfera".
- */
-function OrbitGlow({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 200 200"
-      className={`pointer-events-none absolute opacity-[0.14] ${className}`}
-      aria-hidden="true"
-    >
-      <circle cx="100" cy="100" r="90" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-      <circle
-        cx="100"
-        cy="100"
-        r="62"
-        fill="none"
-        stroke="#FFFFFF"
-        strokeWidth="1"
-        strokeDasharray="4 6"
-      />
-      <circle cx="100" cy="100" r="34" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-      <circle cx="100" cy="10" r="3" fill="#FFFFFF" />
-      <circle cx="190" cy="100" r="3" fill="#FFFFFF" />
-      <circle cx="100" cy="190" r="3" fill="#FFFFFF" />
-      <circle cx="10" cy="100" r="3" fill="#FFFFFF" />
-    </svg>
-  );
-}
-
-function PremiumAuthContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const { data: session, status } = useSession();
-
-  const mode = searchParams.get("mode");
-
-  // Erreurs OAuth renvoyées par NextAuth dans l'URL (?error=...)
-  const oauthError = searchParams.get("error");
-  const oauthErrorMessages: Record<string, string> = {
-    OAuthSignin: "Erreur lors de l'initiation de la connexion OAuth.",
-    OAuthCallback: "Erreur lors du retour OAuth. Vérifie la configuration du provider.",
-    OAuthCreateAccount: "Impossible de créer le compte via ce provider.",
-    EmailCreateAccount: "Impossible de créer le compte avec cet email.",
-    Callback: "Erreur de callback OAuth.",
-    OAuthAccountNotLinked: "Cet email est déjà associé à une autre méthode de connexion.",
-    SessionRequired: "Tu dois être connecté pour accéder à cette page.",
-    Default: "Une erreur est survenue lors de la connexion.",
-  };
-  const oauthErrorMessage = oauthError
-    ? (oauthErrorMessages[oauthError] ?? oauthErrorMessages.Default)
-    : null;
-
-  const [isLogin, setIsLogin] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [success, setSuccess] = useState("");
-  const [passwordStrength, setPasswordStrength] = useState(0);
-
-  const [showFeatures, setShowFeatures] = useState(false);
-
-  /**
-   * Accordéons mobile.
-   * Fermés par défaut pour garder la page courte.
-   */
-  const [openMobileFeatures, setOpenMobileFeatures] = useState(false);
-  const [openMobileStats, setOpenMobileStats] = useState(false);
-  const [openSocialLogin, setOpenSocialLogin] = useState(false);
-
-  const containerVariants = useMemo(
-    () => ({
-      hidden: { opacity: 0 },
-      visible: {
-        opacity: 1,
-        transition: {
-          staggerChildren: 0.08,
-          delayChildren: 0.15,
-        },
-      },
-    }),
-    []
-  );
-
-  const itemVariants = useMemo(
-    () => ({
-      hidden: { y: 16, opacity: 0 },
-      visible: { y: 0, opacity: 1 },
-    }),
-    []
-  );
-
-  /**
-   * Injection du CSS étoilé côté client.
-   */
-  useEffect(() => {
-    const styleId = "sferasolys-auth-stars-style";
-
-    if (document.getElementById(styleId)) return;
-
-    const styleSheet = document.createElement("style");
-    styleSheet.id = styleId;
-    styleSheet.textContent = starsStyles;
-    document.head.appendChild(styleSheet);
-
-    return () => {
-      const existingStyle = document.getElementById(styleId);
-      existingStyle?.remove();
-    };
-  }, []);
-
-  /**
-   * Synchronisation URL -> onglet actif.
-   */
-  useEffect(() => {
-    if (mode === "register") {
-      setIsLogin(false);
-      return;
-    }
-
-    if (mode === "login") {
-      setIsLogin(true);
-    }
-  }, [mode]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowFeatures(true), 700);
-    return () => clearTimeout(timer);
-  }, []);
-
-  /**
-   * Redirection si déjà connecté.
-   */
-  useEffect(() => {
-    if (status !== "authenticated") return;
-
-    const currentUser = session?.user as LunaSessionUser | undefined;
-
-    /**
-     * La vérification d'identité est obligatoire pour accéder au compte.
-     * Exception : les comptes admin (compte interne, pas une vraie membre
-     * du site de rencontre) sont traités comme déjà vérifiés.
-     */
-    const isIdentityVerified =
-      currentUser?.identityVerified === true || currentUser?.role === "admin";
-
-    if (currentUser?.hasCompletedProfile === true && isIdentityVerified) {
-      router.replace("/mon-compte");
-      return;
-    }
-
-    if (currentUser?.hasCompletedProfile === true) {
-      router.replace("/inscription");
-      return;
-    }
-
-    if (currentUser?.hasCompletedProfile === false) {
-      router.replace("/inscription");
-    }
-  }, [status, session, router]);
-
-  const redirectAfterLogin = async () => {
-    const sessionRes = await fetch("/api/auth/session", {
-      cache: "no-store",
-    });
-
-    const freshSession = await sessionRes.json();
-    const currentUser = freshSession?.user as LunaSessionUser | undefined;
-
-    const isIdentityVerified =
-      currentUser?.identityVerified === true || currentUser?.role === "admin";
-
-    if (currentUser?.hasCompletedProfile === true && isIdentityVerified) {
-      router.push("/mon-compte");
-      return;
-    }
-
-    router.push("/inscription");
-  };
-
-  const checkPasswordStrength = (password: string) => {
-    let strength = 0;
-
-    if (password.length >= 8) strength += 25;
-    if (/[A-Z]/.test(password)) strength += 25;
-    if (/[0-9]/.test(password)) strength += 25;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 25;
-
-    setPasswordStrength(strength);
-  };
-
-  const validateForm = (formData: FormData, loginMode: boolean) => {
-    const newErrors: Record<string, string> = {};
-
-    const identifier = String(formData.get("email") || "").trim();
-    const password = String(formData.get("password") || "");
-    const confirmPassword = String(formData.get("confirmPassword") || "");
-    const name = String(formData.get("name") || "").trim();
-    const pseudonyme = String(formData.get("pseudonyme") || "").trim();
-
-    if (loginMode) {
-      // En connexion : email ou pseudonyme accepté
-      if (!identifier || identifier.length < 2) {
-        newErrors.email = "Saisis ton email ou ton pseudonyme";
-      }
-    } else {
-      // En inscription
-      if (name.length < 2) {
-        newErrors.name = "Le nom doit contenir au moins 2 caractères";
-      }
-
-      // Pseudonyme optionnel — validé uniquement si renseigné
-      if (pseudonyme.length > 0) {
-        if (pseudonyme.length < 2 || pseudonyme.length > 50) {
-          newErrors.pseudonyme =
-            "Le pseudonyme doit contenir entre 2 et 50 caractères";
-        } else if (!/^[a-zA-ZÀ-ÿ0-9 _-]+$/.test(pseudonyme)) {
-          newErrors.pseudonyme =
-            "Lettres, chiffres, espaces, tirets ou underscores uniquement";
-        }
-      }
-
-      if (!identifier || !/^\S+@\S+\.\S+$/.test(identifier)) {
-        newErrors.email = "Adresse email invalide";
-      }
-    }
-
-    if (!password || password.length < 6) {
-      newErrors.password =
-        "Le mot de passe doit contenir au moins 6 caractères";
-    }
-
-    if (!loginMode && password !== confirmPassword) {
-      newErrors.confirmPassword = "Les mots de passe ne correspondent pas";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (isLoading) return;
-
-    setIsLoading(true);
-    setErrors({});
-    setSuccess("");
-
-    const formData = new FormData(event.currentTarget);
-
-    if (!validateForm(formData, true)) {
-      setIsLoading(false);
-      return;
-    }
-
-    const email = String(formData.get("email") || "").toLowerCase().trim();
-    const password = String(formData.get("password") || "");
-
-    try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-      });
-
-      if (!result?.ok) {
-        setErrors({
-          form: "Email ou mot de passe incorrect",
-        });
-        return;
-      }
-
-      setTimeout(async () => {
-        await redirectAfterLogin();
-      }, 400);
-    } catch (error) {
-      console.error("Erreur login :", error);
-      setErrors({
-        form: "Une erreur est survenue lors de la connexion",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (isLoading) return;
-
-    setIsLoading(true);
-    setErrors({});
-    setSuccess("");
-
-    const formData = new FormData(event.currentTarget);
-
-    if (!validateForm(formData, false)) {
-      setIsLoading(false);
-      return;
-    }
-
-    const name = String(formData.get("name") || "").trim();
-    const pseudonyme = String(formData.get("pseudonyme") || "").trim();
-    const email = String(formData.get("email") || "").toLowerCase().trim();
-    const password = String(formData.get("password") || "");
-
-    try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          pseudonyme,
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        setErrors({
-          form: data?.error || "Erreur lors de l'inscription",
-        });
-        return;
-      }
-
-      setSuccess("Compte créé avec succès ! Connexion en cours...");
-
-      const loginResult = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-      });
-
-      if (!loginResult?.ok) {
-        setErrors({
-          form: "Compte créé, mais connexion automatique impossible. Connecte-toi manuellement.",
-        });
-        return;
-      }
-
-      setTimeout(() => {
-        router.push("/inscription");
-      }, 600);
-    } catch (error) {
-      console.error("Erreur inscription :", error);
-      setErrors({
-        form: "Erreur de connexion au serveur",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSocialLogin = async (
-    provider: "google" | "apple"
-  ) => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-    setErrors({});
-    setSuccess("");
-
-    try {
-      await signIn(provider, {
-        callbackUrl: "/auth",
-        redirect: true,
-      });
-    } catch (error) {
-      console.error(`Erreur connexion ${provider} :`, error);
-      setErrors({
-        form: `Erreur lors de la connexion avec ${provider}`,
-      });
-      setIsLoading(false);
-    }
-  };
-
-  const switchMode = (loginMode: boolean) => {
-    setIsLogin(loginMode);
-    setErrors({});
-    setSuccess("");
-    setOpenSocialLogin(false);
-
-    const nextMode = loginMode ? "login" : "register";
-
-    router.replace(`/auth?mode=${nextMode}`, {
-      scroll: false,
-    });
-  };
-
-  const premiumFeatures = [
-    {
-      icon: <Crown className="h-4 w-4 sm:h-5 sm:w-5" />,
-      text: "Profils vérifiés",
-    },
-    {
-      icon: <Shield className="h-4 w-4 sm:h-5 sm:w-5" />,
-      text: "Sécurité maximale",
-    },
-    {
-      icon: <Smartphone className="h-4 w-4 sm:h-5 sm:w-5" />,
-      text: "App mobile exclusive",
-    },
-    {
-      icon: <Gift className="h-4 w-4 sm:h-5 sm:w-5" />,
-      text: "Cadeaux premium",
-    },
-    {
-      icon: <Users className="h-4 w-4 sm:h-5 sm:w-5" />,
-      text: "Événements VIP",
-    },
-    {
-      icon: <Heart className="h-4 w-4 sm:h-5 sm:w-5" />,
-      text: "Matchs compatibles",
-    },
-  ];
-
-  return (
-    <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#001724] via-[#03202E] to-[#0C222D] font-sans text-cream">
-      {/* Décor de fond */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-16 left-1/4 h-72 w-72 rounded-full bg-orange/10 blur-3xl sm:h-96 sm:w-96" />
-        <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-lime/[0.06] blur-3xl sm:h-80 sm:w-80" />
-        <div className="absolute top-1/3 left-1/3 h-56 w-56 rounded-full bg-lime/10 blur-3xl sm:h-64 sm:w-64" />
-        <OrbitGlow className="right-[-10%] top-10 h-72 w-72 sm:h-96 sm:w-96" />
-        <OrbitGlow className="left-[-10%] bottom-[-5%] h-80 w-80 sm:h-[28rem] sm:w-[28rem]" />
-      </div>
-
-      <div className="stars" />
-
-      {/* 
-        Bouton retour corrigé :
-        - plus haut ;
-        - plus petit sur mobile ;
-        - ne touche plus la carte.
-      */}
-      <motion.div
-        initial={{ opacity: 0, x: -16 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="fixed left-4 top-4 z-40 sm:left-6 sm:top-6"
-      >
-        <Link
-          href="/"
-          aria-label="Retour à l'accueil"
-          className="fx-ghost group flex h-10 w-10 items-center justify-center rounded-full border border-cream/10 bg-cream/10 text-cream/80 shadow-lg shadow-black/40 backdrop-blur-xl transition-all hover:bg-cream/15 hover:text-cream sm:h-auto sm:w-auto sm:gap-2 sm:px-3 sm:py-2"
-        >
-          <ArrowLeft className="h-5 w-5 sm:h-5 sm:w-5" />
-
-          <span className="hidden text-sm font-medium sm:inline">
-            Retour
-          </span>
-        </Link>
-      </motion.div>
-
-      {/* 
-        Contenu principal :
-        - padding top augmenté pour éviter le conflit avec la flèche ;
-        - gap réduit ;
-        - meilleur rendu sur petit écran.
-      */}
-      <section className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl items-start px-4 pb-10 pt-20 sm:px-6 sm:pb-16 sm:pt-24 lg:items-center lg:px-8 lg:py-20">
-        <div className="grid w-full grid-cols-1 items-start gap-5 lg:grid-cols-2 lg:items-center lg:gap-12">
-          {/* Colonne gauche : branding + arguments */}
-          <motion.div
-            initial={{ opacity: 0, x: -32 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.55 }}
-            className="order-2 px-0 text-cream lg:order-1 lg:px-4"
-          >
-            <div className="mb-4 sm:mb-8">
-              <div className="mb-3 flex items-center justify-center gap-2.5 lg:justify-start">
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange to-rust opacity-50 blur-lg" />
-                  <Sun className="relative h-7 w-7 text-orange sm:h-12 sm:w-12" />
-                </div>
-
-                <h1 className="bg-gradient-to-r from-cream to-orange bg-clip-text text-2xl font-bold text-transparent sm:text-4xl md:text-5xl">
-                  Sfera'Solys
-                </h1>
-              </div>
-
-              <h2 className="text-center text-lg font-bold leading-tight sm:text-3xl md:text-4xl lg:text-left">
-                Rencontre l'amour sous un{" "}
-                <span className="text-orange">nouvel angle</span>
-              </h2>
-
-              <p className="mx-auto mt-2 max-w-xl text-center text-xs leading-relaxed text-cream/70 sm:text-base md:text-lg lg:mx-0 lg:text-left">
-                Une expérience élégante, sûre et authentique pour créer des
-                rencontres plus profondes.
-              </p>
-            </div>
-
-            {/* Desktop : fonctionnalités visibles */}
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate={showFeatures ? "visible" : "hidden"}
-              className="mb-6 hidden grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid"
-            >
-              {premiumFeatures.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  variants={itemVariants}
-                  className="flex items-center gap-3 rounded-xl border border-cream/10 bg-cream/5 p-3 backdrop-blur-sm transition-all hover:border-orange/40"
-                >
-                  <div className="text-orange">{feature.icon}</div>
-                  <span className="text-sm font-medium">{feature.text}</span>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Mobile : fonctionnalités en accordéon */}
-            <div className="mb-3 lg:hidden">
-              <button
-                type="button"
-                onClick={() => setOpenMobileFeatures(!openMobileFeatures)}
-                className="fx-ghost flex w-full items-center justify-between rounded-2xl border border-cream/10 bg-cream/5 px-4 py-3 text-left backdrop-blur-sm transition-all hover:bg-cream/10"
-                aria-expanded={openMobileFeatures}
-              >
-                <div>
-                  <p className="text-sm font-semibold text-cream">
-                    Pourquoi Sfera'Solys ?
-                  </p>
-                  <p className="text-xs text-cream/55">
-                    Profils vérifiés, sécurité, matchs compatibles...
-                  </p>
-                </div>
-
-                {openMobileFeatures ? (
-                  <ChevronUp className="h-5 w-5 shrink-0 text-orange" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 shrink-0 text-orange" />
-                )}
-              </button>
-
-              <AnimatePresence>
-                {openMobileFeatures && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mt-3 grid grid-cols-1 gap-3">
-                      {premiumFeatures.map((feature, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-3 rounded-xl border border-cream/10 bg-cream/5 p-3 backdrop-blur-sm"
-                        >
-                          <div className="text-orange">{feature.icon}</div>
-                          <span className="text-sm font-medium">
-                            {feature.text}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Desktop : statistiques visibles */}
-            <div className="hidden rounded-2xl border border-orange/30 bg-gradient-to-r from-orange/[0.08] to-lime/[0.05] p-4 backdrop-blur-sm sm:p-6 lg:block">
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div>
-                  <div className="text-2xl font-bold sm:text-3xl">—</div>
-                  <div className="text-xs text-cream/70 sm:text-sm">
-                    Rencontres
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-2xl font-bold sm:text-3xl">—</div>
-                  <div className="text-xs text-cream/70 sm:text-sm">
-                    Satisfaction
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-2xl font-bold sm:text-3xl">24h</div>
-                  <div className="text-xs text-cream/70 sm:text-sm">
-                    Support
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-                {[...Array(5)].map((_, index) => (
-                  <Star
-                    key={index}
-                    className="h-4 w-4 fill-current text-orange"
-                  />
-                ))}
-
-                <span className="text-xs text-cream/70 sm:text-sm">
-                  Bientôt sur l'App Store
-                </span>
-              </div>
-            </div>
-
-            {/* Mobile : statistiques en accordéon */}
-            <div className="lg:hidden">
-              <button
-                type="button"
-                onClick={() => setOpenMobileStats(!openMobileStats)}
-                className="flex w-full items-center justify-between rounded-2xl border border-orange/25 bg-gradient-to-r from-orange/[0.06] to-lime/[0.04] px-4 py-3 text-left backdrop-blur-sm transition-all hover:from-orange/[0.08] hover:to-lime/[0.05]"
-                aria-expanded={openMobileStats}
-              >
-                <div>
-                  <p className="text-sm font-semibold text-cream">
-                    Chiffres et avantages
-                  </p>
-                  <p className="text-xs text-cream/55">
-                    Support, satisfaction et expérience premium
-                  </p>
-                </div>
-
-                {openMobileStats ? (
-                  <ChevronUp className="h-5 w-5 shrink-0 text-orange" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 shrink-0 text-orange" />
-                )}
-              </button>
-
-              <AnimatePresence>
-                {openMobileStats && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mt-3 rounded-2xl border border-orange/25 bg-gradient-to-r from-orange/[0.06] to-lime/[0.04] p-4 backdrop-blur-sm">
-                      <div className="grid grid-cols-3 gap-3 text-center">
-                        <div>
-                          <div className="text-xl font-bold">—</div>
-                          <div className="text-[11px] text-cream/70">
-                            Rencontres
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="text-xl font-bold">—</div>
-                          <div className="text-[11px] text-cream/70">
-                            Satisfaction
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="text-xl font-bold">24h</div>
-                          <div className="text-[11px] text-cream/70">
-                            Support
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                        {[...Array(5)].map((_, index) => (
-                          <Star
-                            key={index}
-                            className="h-3.5 w-3.5 fill-current text-orange"
-                          />
-                        ))}
-
-                        <span className="text-xs text-cream/70">
-                          Bientôt sur l'App Store
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-
-          {/* Colonne droite : formulaire */}
-          <motion.div
-            initial={{ opacity: 0, x: 32 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.55 }}
-            className="order-1 flex justify-center lg:order-2"
-          >
-            <div className="relative w-full max-w-[360px] sm:max-w-md">
-              <div className="overflow-hidden rounded-[1.35rem] border border-cream/10 bg-gradient-to-br from-abyss/90 to-[#0C222D]/90 shadow-2xl backdrop-blur-xl sm:rounded-3xl">
-                {/* Haut du formulaire */}
-                <div className="border-b border-cream/10 p-3.5 sm:p-6">
-                  <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6">
-                    <button
-                      type="button"
-                      onClick={() => switchMode(true)}
-                      className={`fx-btn flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all sm:py-3 sm:text-base ${
-                        isLogin
-                          ? "bg-orange text-abyss shadow-lg shadow-orange/25"
-                          : "text-cream/55 hover:bg-cream/5 hover:text-cream"
-                      }`}
-                    >
-                      <User className="h-4 w-4 sm:h-5 sm:w-5" />
-                      Connexion
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => switchMode(false)}
-                      className={`fx-btn flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium transition-all sm:py-3 sm:text-base ${
-                        !isLogin
-                          ? "bg-orange text-abyss shadow-lg shadow-orange/25"
-                          : "text-cream/55 hover:bg-cream/5 hover:text-cream"
-                      }`}
-                    >
-                      <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
-                      Inscription
-                    </button>
-                  </div>
-
-                  <AnimatePresence mode="wait">
-                    {isLogin ? (
-                      <motion.div
-                        key="login-title"
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -16 }}
-                        className="space-y-1"
-                      >
-                        <h2 className="text-lg font-bold text-cream sm:text-2xl">
-                          Bienvenue de retour
-                        </h2>
-
-                        <p className="text-xs text-cream/55 sm:text-base">
-                          Connecte-toi à ton espace Sfera'Solys
-                        </p>
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="register-title"
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -16 }}
-                        className="space-y-1"
-                      >
-                        <h2 className="text-lg font-bold text-cream sm:text-2xl">
-                          Rejoins l'aventure
-                        </h2>
-
-                        <p className="text-xs text-cream/55 sm:text-base">
-                          Crée ton compte en quelques secondes
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                <div className="p-3.5 sm:p-6">
-                  <AnimatePresence>
-                    {/* Erreur OAuth (ex: redirect_uri_mismatch, app non configurée) */}
-                    {oauthErrorMessage && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="mb-3 rounded-xl border border-orange-500/30 bg-orange-500/10 p-3 sm:p-4"
-                      >
-                        <div className="flex items-center gap-3">
-                          <AlertCircle className="h-5 w-5 shrink-0 text-orange-400" />
-                          <span className="text-sm text-orange-300">
-                            {oauthErrorMessage}
-                          </span>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {errors.form && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 sm:p-4"
-                      >
-                        <div className="flex items-center gap-3">
-                          <AlertCircle className="h-5 w-5 shrink-0 text-red-400" />
-                          <span className="text-sm text-red-300">
-                            {errors.form}
-                          </span>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {success && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="mb-3 rounded-xl border border-lime/30 bg-lime/10 p-3 sm:p-4"
-                      >
-                        <div className="flex items-center gap-3">
-                          <CheckCircle className="h-5 w-5 shrink-0 text-lime" />
-                          <span className="text-sm text-lime">
-                            {success}
-                          </span>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  <AnimatePresence mode="wait">
-                    {isLogin ? (
-                      <motion.form
-                        key="login-form"
-                        initial={{ opacity: 0, x: 16 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -16 }}
-                        onSubmit={handleLogin}
-                        className="space-y-2.5 sm:space-y-4"
-                      >
-                        <AuthInput
-                          label="Email ou pseudonyme"
-                          name="email"
-                          type="text"
-                          placeholder="prenom@email.com ou ton pseudo"
-                          icon={<AtSign className="h-5 w-5 text-cream/55" />}
-                          error={errors.email}
-                        />
-
-                        <PasswordInput
-                          label="Mot de passe"
-                          name="password"
-                          placeholder="Ton mot de passe"
-                          showPassword={showPassword}
-                          setShowPassword={setShowPassword}
-                          error={errors.password}
-                        />
-
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                          <label className="flex cursor-pointer items-center gap-2">
-                            <input
-                              type="checkbox"
-                              name="remember"
-                              className="h-4 w-4 rounded border border-cream/10 bg-cream/5 checked:border-orange checked:bg-orange focus:ring-orange/25"
-                            />
-                            <span className="text-xs text-cream/55 sm:text-sm">
-                              Se souvenir de moi
-                            </span>
-                          </label>
-
-                          <Link
-                            href="/auth/reset-password"
-                            className="text-xs text-orange transition-colors hover:text-orange sm:text-sm"
-                          >
-                            Mot de passe oublié ?
-                          </Link>
-                        </div>
-
-                        <SubmitButton
-                          isLoading={isLoading}
-                          loadingText="Connexion..."
-                          text="Se connecter"
-                        />
-                      </motion.form>
-                    ) : (
-                      <motion.form
-                        key="register-form"
-                        initial={{ opacity: 0, x: 16 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -16 }}
-                        onSubmit={handleRegister}
-                        className="space-y-2.5 sm:space-y-4"
-                      >
-                        <AuthInput
-                          label="Nom complet"
-                          name="name"
-                          type="text"
-                          placeholder="Ton nom et prénom"
-                          icon={<User className="h-5 w-5 text-cream/55" />}
-                          error={errors.name}
-                        />
-
-                        <AuthInput
-                          label="Pseudonyme (optionnel)"
-                          name="pseudonyme"
-                          type="text"
-                          placeholder="Ton pseudonyme visible par les autres"
-                          icon={<AtSign className="h-5 w-5 text-cream/55" />}
-                          error={errors.pseudonyme}
-                          required={false}
-                          hint="Seul ton pseudonyme sera visible sur ton profil public. Tu pourras le définir plus tard."
-                        />
-
-                        <AuthInput
-                          label="Adresse email"
-                          name="email"
-                          type="email"
-                          placeholder="prenom@email.com"
-                          icon={<Mail className="h-5 w-5 text-cream/55" />}
-                          error={errors.email}
-                        />
-
-                        <PasswordInput
-                          label="Mot de passe"
-                          name="password"
-                          placeholder="Minimum 8 caractères"
-                          showPassword={showPassword}
-                          setShowPassword={setShowPassword}
-                          error={errors.password}
-                          onChange={(value) => checkPasswordStrength(value)}
-                        />
-
-                        {passwordStrength > 0 && (
-                          <div>
-                            <div className="h-1 overflow-hidden rounded-full bg-cream/10">
-                              <div
-                                className={`h-full transition-all duration-300 ${
-                                  passwordStrength < 50
-                                    ? "bg-red-500"
-                                    : passwordStrength < 75
-                                      ? "bg-orange"
-                                      : "bg-lime"
-                                }`}
-                                style={{ width: `${passwordStrength}%` }}
-                              />
-                            </div>
-
-                            <p className="mt-1 text-xs text-cream/55">
-                              {passwordStrength < 50
-                                ? "Faible"
-                                : passwordStrength < 75
-                                  ? "Moyen"
-                                  : "Fort"}
-                            </p>
-                          </div>
-                        )}
-
-                        <PasswordInput
-                          label="Confirmer le mot de passe"
-                          name="confirmPassword"
-                          placeholder="Retape ton mot de passe"
-                          showPassword={showConfirmPassword}
-                          setShowPassword={setShowConfirmPassword}
-                          error={errors.confirmPassword}
-                        />
-
-                        <label className="flex cursor-pointer items-start gap-2.5">
-                          <input
-                            type="checkbox"
-                            name="terms"
-                            required
-                            className="mt-0.5 h-4 w-4 shrink-0 rounded border border-cream/10 bg-cream/5 checked:border-orange checked:bg-orange focus:ring-orange/25 sm:h-5 sm:w-5"
-                          />
-
-                          <span className="text-xs leading-relaxed text-cream/55 sm:text-sm">
-                            J'accepte les{" "}
-                            <Link
-                              href="/conditions"
-                              className="text-orange hover:text-orange"
-                            >
-                              conditions d'utilisation
-                            </Link>{" "}
-                            et la{" "}
-                            <Link
-                              href="/confidentialite"
-                              className="text-orange hover:text-orange"
-                            >
-                              politique de confidentialité
-                            </Link>
-                          </span>
-                        </label>
-
-                        <SubmitButton
-                          isLoading={isLoading}
-                          loadingText="Création..."
-                          text="Créer mon compte"
-                        />
-                      </motion.form>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Connexions sociales en accordéon */}
-                  <div className="mt-4">
-                    <button
-                      type="button"
-                      onClick={() => setOpenSocialLogin(!openSocialLogin)}
-                      className="fx-ghost flex w-full items-center justify-between rounded-xl border border-cream/10 bg-cream/5 px-3.5 py-2.5 text-left transition-all hover:bg-cream/10 sm:px-4 sm:py-3"
-                      aria-expanded={openSocialLogin}
-                    >
-                      <div>
-                        <p className="text-xs font-medium text-cream sm:text-sm">
-                          Autres méthodes de connexion
-                        </p>
-                        <p className="text-[11px] text-cream/55 sm:text-xs">
-                          Google ou Apple
-                        </p>
-                      </div>
-
-                      {openSocialLogin ? (
-                        <ChevronUp className="h-5 w-5 shrink-0 text-orange" />
-                      ) : (
-                        <ChevronDown className="h-5 w-5 shrink-0 text-orange" />
-                      )}
-                    </button>
-
-                    <AnimatePresence>
-                      {openSocialLogin && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pt-4">
-                            <div className="relative mb-4">
-                              <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-cream/10" />
-                              </div>
-
-                              <div className="relative flex justify-center text-sm">
-                                <span className="bg-abyss px-3 text-cream/55">
-                                  Ou continuer avec
-                                </span>
-                              </div>
-                            </div>
-
-                            <SocialButton
-                              label="Google"
-                              imageSrc="/google-icon.svg"
-                              onClick={() => handleSocialLogin("google")}
-                              disabled={isLoading}
-                              fullWidth
-                            />
-
-                            <SocialButton
-                              label="Continuer avec Apple"
-                              imageSrc="/Apple-icon.svg"
-                              onClick={() => handleSocialLogin("apple")}
-                              disabled={isLoading}
-                              fullWidth
-                            />
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                {/* Footer du formulaire */}
-                <div className="border-t border-cream/10 p-3.5 pt-3 sm:p-6 sm:pt-4">
-                  <p className="text-center text-xs text-cream/55 sm:text-sm">
-                    {isLogin ? (
-                      <>
-                        Pas encore de compte ?{" "}
-                        <button
-                          type="button"
-                          onClick={() => switchMode(false)}
-                          className="font-medium text-orange transition-colors hover:text-orange"
-                        >
-                          S'inscrire maintenant
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        Tu as déjà un compte ?{" "}
-                        <button
-                          type="button"
-                          onClick={() => switchMode(true)}
-                          className="font-medium text-orange transition-colors hover:text-orange"
-                        >
-                          Se connecter
-                        </button>
-                      </>
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              {/* 
-                Badge sécurité :
-                - caché sur très petit mobile pour éviter de gêner ;
-                - visible à partir de sm.
-              */}
-              <div className="pointer-events-none absolute -bottom-6 left-1/2 hidden w-max -translate-x-1/2 sm:block">
-                <div className="flex items-center gap-2 rounded-full border border-lime/30 bg-gradient-to-r from-lime/10 to-lime/[0.06] px-4 py-2 backdrop-blur-sm">
-                  <Shield className="h-4 w-4 text-lime" />
-                  <span className="text-xs text-lime sm:text-sm">
-                    Sécurité SSL 256-bit
-                  </span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-    </main>
-  );
-}
-
-/**
- * Export principal.
+ * L'éclipse : le disque solaire, mordu par une ombre qui tourne autour.
  *
- * Suspense est utile avec useSearchParams dans l'App Router.
+ * La morsure est un masque SVG, pas un disque sombre posé par-dessus. La
+ * différence se voit : avec un disque, l'ombre était plus foncée que le
+ * panneau et se lisait comme une seconde boule ; avec un masque, le soleil
+ * est réellement découpé et c'est le dégradé du panneau — et la couronne —
+ * qui apparaissent dans l'échancrure.
  */
-export default function PremiumAuthPage() {
+function Eclipse() {
   return (
-    <Suspense
-      fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#001724] text-cream">
-          <div className="flex items-center gap-3">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-cream border-t-transparent" />
-            <span>Chargement...</span>
-          </div>
-        </main>
-      }
-    >
-      <PremiumAuthContent />
-    </Suspense>
-  );
-}
+    <div className={styles.eclipse} aria-hidden="true">
+      <div className={styles.couronne} />
 
-/**
- * Input classique réutilisable.
- *
- * Version mobile compacte :
- * - label plus petit ;
- * - padding vertical réduit ;
- * - meilleure hauteur sur mobile.
- */
-function AuthInput({
-  label,
-  name,
-  type,
-  placeholder,
-  icon,
-  error,
-  required = true,
-  hint,
-}: {
-  label: string;
-  name: string;
-  type: string;
-  placeholder: string;
-  icon: React.ReactNode;
-  error?: string;
-  required?: boolean;
-  hint?: string;
-}) {
-  return (
-    <div>
-      <label className="mb-1.5 block text-xs font-medium text-cream/55 sm:mb-2 sm:text-sm">
-        {label}
-      </label>
+      <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full">
+        <defs>
+          <radialGradient id="solys-soleil" cx="36%" cy="32%">
+            <stop offset="0%" stopColor="#FFD9BE" />
+            <stop offset="42%" stopColor="#FF4103" />
+            <stop offset="100%" stopColor="#B82802" />
+          </radialGradient>
 
-      <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
+          <mask id="solys-morsure">
+            <circle cx="100" cy="100" r="56" fill="#fff" />
+            {/* L'ombre tourne autour du soleil : l'éclipse avance sans fin. */}
+            <g className={styles.orbite}>
+              <circle cx="150" cy="74" r="56" fill="#000" />
+            </g>
+          </mask>
+        </defs>
 
-        <input
-          name={name}
-          type={type}
-          placeholder={placeholder}
-          required={required}
-          className="w-full rounded-xl border border-cream/10 bg-cream/5 py-2.5 pl-11 pr-4 text-sm text-cream outline-none transition-all placeholder:text-cream/45 focus:border-orange focus:ring-2 focus:ring-orange/25 sm:py-3 sm:pl-12 sm:text-base"
+        <circle
+          cx="100"
+          cy="100"
+          r="56"
+          fill="url(#solys-soleil)"
+          mask="url(#solys-morsure)"
         />
-      </div>
 
-      {hint && !error && (
-        <p className="mt-1 text-[11px] text-cream/55 sm:text-xs">{hint}</p>
-      )}
-      {error && <p className="mt-1 text-xs text-red-400 sm:text-sm">{error}</p>}
+        {/* Deux orbites, qui tournent en sens inverse l'une de l'autre. */}
+        <circle
+          cx="100"
+          cy="100"
+          r="78"
+          fill="none"
+          stroke="#FFEBD1"
+          strokeOpacity="0.16"
+          strokeWidth="1"
+        />
+        <g className={styles.contreOrbite}>
+          <circle
+            cx="100"
+            cy="100"
+            r="94"
+            fill="none"
+            stroke="#FFEBD1"
+            strokeOpacity="0.1"
+            strokeWidth="1"
+            strokeDasharray="3 9"
+          />
+        </g>
+      </svg>
     </div>
   );
 }
 
-/**
- * Input mot de passe réutilisable.
- *
- * Version mobile compacte :
- * - hauteur réduite ;
- * - texte plus petit ;
- * - icône alignée proprement.
- */
-function PasswordInput({
-  label,
-  name,
-  placeholder,
-  showPassword,
-  setShowPassword,
-  error,
-  onChange,
-}: {
-  label: string;
-  name: string;
-  placeholder: string;
-  showPassword: boolean;
-  setShowPassword: (value: boolean) => void;
-  error?: string;
-  onChange?: (value: string) => void;
+/** Champ de saisie : icône à gauche, trait solaire au focus. */
+function Champ({
+  rang,
+  icone,
+  erreur,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  rang: number;
+  icone: React.ReactNode;
+  erreur?: string;
 }) {
   return (
-    <div>
-      <label className="mb-1.5 block text-xs font-medium text-cream/55 sm:mb-2 sm:text-sm">
-        {label}
-      </label>
+    <div className={styles.monte} style={{ "--rang": rang } as React.CSSProperties}>
+      <div className={`${styles.champ} ${erreur ? styles.champErreur : ""}`}>
+        <input {...props} aria-invalid={erreur ? true : undefined} />
+        <span className={styles.icone}>{icone}</span>
+      </div>
 
-      <div className="relative">
-        <Lock className="absolute left-3 top-1/2 h-4.5 w-4.5 -translate-y-1/2 text-cream/55 sm:h-5 sm:w-5" />
+      {erreur && (
+        <p className="mt-1.5 text-[12px] text-cream/85" role="alert">
+          {erreur}
+        </p>
+      )}
+    </div>
+  );
+}
 
+/** Champ mot de passe : même chose, plus l'œil. */
+function ChampSecret({
+  rang,
+  erreur,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  rang: number;
+  erreur?: string;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className={styles.monte} style={{ "--rang": rang } as React.CSSProperties}>
+      <div className={`${styles.champ} ${erreur ? styles.champErreur : ""}`}>
         <input
-          name={name}
-          type={showPassword ? "text" : "password"}
-          placeholder={placeholder}
-          required
-          onChange={(event) => onChange?.(event.target.value)}
-          className="w-full rounded-xl border border-cream/10 bg-cream/5 py-2.5 pl-11 pr-11 text-sm text-cream outline-none transition-all placeholder:text-cream/45 focus:border-orange focus:ring-2 focus:ring-orange/25 sm:py-3 sm:pl-12 sm:pr-12 sm:text-base"
+          {...props}
+          type={visible ? "text" : "password"}
+          aria-invalid={erreur ? true : undefined}
         />
+        <span className={styles.icone}>
+          <Lock size={15} aria-hidden="true" />
+        </span>
 
         <button
           type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-cream/55 transition-colors hover:text-cream"
+          onClick={() => setVisible((v) => !v)}
+          className={styles.oeil}
           aria-label={
-            showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
+            visible ? "Masquer le mot de passe" : "Afficher le mot de passe"
           }
         >
-          {showPassword ? (
-            <EyeOff className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+          {visible ? (
+            <EyeOff size={15} aria-hidden="true" />
           ) : (
-            <Eye className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+            <Eye size={15} aria-hidden="true" />
           )}
         </button>
       </div>
 
-      {error && <p className="mt-1 text-xs text-red-400 sm:text-sm">{error}</p>}
+      {erreur && (
+        <p className="mt-1.5 text-[12px] text-cream/85" role="alert">
+          {erreur}
+        </p>
+      )}
     </div>
   );
 }
 
-/**
- * Bouton principal compact.
- */
-function SubmitButton({
-  isLoading,
-  loadingText,
-  text,
+/** Bouton d'envoi : reprend le `.fx-btn` du site, avec son balayage. */
+function BoutonEnvoi({
+  enCours,
+  children,
+  rang,
 }: {
-  isLoading: boolean;
-  loadingText: string;
-  text: string;
+  enCours: boolean;
+  children: React.ReactNode;
+  rang: number;
 }) {
   return (
-    <motion.button
-      type="submit"
-      disabled={isLoading}
-      whileHover={{ scale: isLoading ? 1 : 1.02 }}
-      whileTap={{ scale: isLoading ? 1 : 0.98 }}
-      className="fx-btn w-full rounded-xl bg-orange py-2.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-50 sm:py-3 sm:text-base"
-    >
-      {isLoading ? (
-        <div className="flex items-center justify-center gap-2">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-abyss border-t-transparent sm:h-5 sm:w-5" />
-          {loadingText}
-        </div>
-      ) : (
-        text
-      )}
-    </motion.button>
+    <div className={styles.monte} style={{ "--rang": rang } as React.CSSProperties}>
+      <button
+        type="submit"
+        disabled={enCours}
+        className="fx-btn relative mt-1 w-full overflow-hidden rounded-full bg-orange px-6 py-3.5 font-display text-[13px] font-bold uppercase tracking-[0.12em] text-abyss [font-stretch:125%] disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <span className="flex items-center justify-center gap-2">
+          {enCours && (
+            <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+          )}
+          {children}
+        </span>
+      </button>
+    </div>
   );
 }
 
-/**
- * Bouton de connexion sociale.
- *
- * Les fichiers doivent exister dans /public :
- * - public/google-icon.svg
- * - public/Apple-icon.svg
- */
-function SocialButton({
-  label,
-  imageSrc,
-  onClick,
-  disabled,
-  fullWidth = false,
-}: {
-  label: string;
-  imageSrc: string;
-  onClick: () => void;
-  disabled?: boolean;
-  fullWidth?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`group flex items-center justify-center gap-2 rounded-xl border border-cream/10 bg-cream/5 p-2.5 text-sm transition-all hover:border-cream/20 hover:bg-cream/10 disabled:opacity-50 sm:p-3 ${
-        fullWidth ? "mt-3 w-full" : ""
-      }`}
-    >
-      <Image
-        src={imageSrc}
-        alt={label}
-        width={20}
-        height={20}
-        className="transition-transform group-hover:scale-110"
-      />
+function Contenu() {
+  const router = useRouter();
+  const parametres = useSearchParams();
+  const { data: session, status } = useSession();
+  const mouvementReduit = useReducedMotion();
 
-      <span className="font-medium">{label}</span>
-    </button>
+  const mode = parametres.get("mode");
+  const erreurOAuth = parametres.get("error");
+
+  const [connexion, setConnexion] = useState(false);
+  const [enCours, setEnCours] = useState(false);
+  const [erreurs, setErreurs] = useState<Record<string, string>>({});
+  const [succes, setSucces] = useState("");
+  const [force, setForce] = useState(0);
+
+  /** Fournisseurs réellement enregistrés côté NextAuth. */
+  const [fournisseurs, setFournisseurs] = useState<string[]>([]);
+
+  const carte = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mode === "register") setConnexion(false);
+    if (mode === "login") setConnexion(true);
+  }, [mode]);
+
+  useEffect(() => {
+    if (!erreurOAuth) return;
+    setErreurs({
+      form: messagesOAuth[erreurOAuth] ?? messagesOAuth.Default,
+    });
+  }, [erreurOAuth]);
+
+  /**
+   * NextAuth n'enregistre Google et Apple que si leurs variables
+   * d'environnement existent. On demande la liste plutôt que de la supposer.
+   */
+  useEffect(() => {
+    let vivant = true;
+
+    fetch("/api/auth/providers", { cache: "no-store" })
+      .then((reponse) => reponse.json())
+      .then((donnees) => {
+        if (!vivant || !donnees) return;
+        setFournisseurs(Object.keys(donnees));
+      })
+      .catch(() => {});
+
+    return () => {
+      vivant = false;
+    };
+  }, []);
+
+  /** Parallaxe discrète : la carte suit le curseur de quelques pixels. */
+  useEffect(() => {
+    const element = carte.current;
+    if (!element || mouvementReduit) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
+    const suivre = (evenement: PointerEvent) => {
+      const zone = element.getBoundingClientRect();
+      const x = (evenement.clientX - zone.left) / zone.width - 0.5;
+      const y = (evenement.clientY - zone.top) / zone.height - 0.5;
+      // Pas de transition pendant le suivi : elle ferait traîner la carte
+      // derrière le curseur. Elle ne sert qu'au retour au repos.
+      element.style.transition = "none";
+      element.style.transform = `perspective(1400px) rotateX(${-y * 2.4}deg) rotateY(${x * 2.4}deg)`;
+    };
+
+    const relacher = () => {
+      element.style.transition = "transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1)";
+      element.style.transform = "";
+    };
+
+    element.addEventListener("pointermove", suivre);
+    element.addEventListener("pointerleave", relacher);
+
+    return () => {
+      element.removeEventListener("pointermove", suivre);
+      element.removeEventListener("pointerleave", relacher);
+    };
+  }, [mouvementReduit]);
+
+  /** Redirection si la session existe déjà. */
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    const membre = session?.user as SessionSolys | undefined;
+    const verifie =
+      membre?.identityVerified === true || membre?.role === "admin";
+
+    if (membre?.hasCompletedProfile === true && verifie) {
+      router.replace("/mon-compte");
+      return;
+    }
+
+    router.replace("/inscription");
+  }, [status, session, router]);
+
+  const redirigerApresConnexion = async () => {
+    const reponse = await fetch("/api/auth/session", { cache: "no-store" });
+    const fraiche = await reponse.json().catch(() => null);
+    const membre = fraiche?.user as SessionSolys | undefined;
+
+    const verifie =
+      membre?.identityVerified === true || membre?.role === "admin";
+
+    router.push(
+      membre?.hasCompletedProfile === true && verifie
+        ? "/mon-compte"
+        : "/inscription"
+    );
+  };
+
+  const mesurerForce = (motDePasse: string) => {
+    let score = 0;
+    if (motDePasse.length >= 8) score += 25;
+    if (/[A-Z]/.test(motDePasse)) score += 25;
+    if (/[0-9]/.test(motDePasse)) score += 25;
+    if (/[^A-Za-z0-9]/.test(motDePasse)) score += 25;
+    setForce(score);
+  };
+
+  /**
+   * Validation. Le seuil du mot de passe est à 8 caractères — celui de
+   * `POST /api/auth/register`. Il était à 6 ici, donc la page laissait
+   * passer des mots de passe que le serveur refusait ensuite.
+   */
+  const valider = (donnees: FormData, modeConnexion: boolean) => {
+    const trouvees: Record<string, string> = {};
+
+    const identifiant = String(donnees.get("email") || "").trim();
+    const motDePasse = String(donnees.get("password") || "");
+    const confirmation = String(donnees.get("confirmPassword") || "");
+    const nom = String(donnees.get("name") || "").trim();
+    const pseudonyme = String(donnees.get("pseudonyme") || "").trim();
+
+    if (modeConnexion) {
+      if (identifiant.length < 2) {
+        trouvees.email = "Saisis ton email ou ton pseudonyme.";
+      }
+
+      if (!motDePasse) {
+        trouvees.password = "Saisis ton mot de passe.";
+      }
+    } else {
+      if (nom.length < 2) {
+        trouvees.name = "Au moins 2 caractères.";
+      }
+
+      if (pseudonyme.length > 0) {
+        if (pseudonyme.length < 2 || pseudonyme.length > 50) {
+          trouvees.pseudonyme = "Entre 2 et 50 caractères.";
+        } else if (!/^[a-zA-ZÀ-ÿ0-9 _-]+$/.test(pseudonyme)) {
+          trouvees.pseudonyme =
+            "Lettres, chiffres, espaces, tirets ou underscores.";
+        }
+      }
+
+      if (!/^\S+@\S+\.\S+$/.test(identifiant)) {
+        trouvees.email = "Adresse email invalide.";
+      }
+
+      if (motDePasse.length < 8) {
+        trouvees.password = "Au moins 8 caractères.";
+      }
+
+      if (motDePasse !== confirmation) {
+        trouvees.confirmPassword = "Les deux mots de passe diffèrent.";
+      }
+    }
+
+    setErreurs(trouvees);
+    return Object.keys(trouvees).length === 0;
+  };
+
+  const seConnecter = async (evenement: React.FormEvent<HTMLFormElement>) => {
+    evenement.preventDefault();
+    if (enCours) return;
+
+    setEnCours(true);
+    setErreurs({});
+    setSucces("");
+
+    const donnees = new FormData(evenement.currentTarget);
+
+    if (!valider(donnees, true)) {
+      setEnCours(false);
+      return;
+    }
+
+    const email = String(donnees.get("email") || "")
+      .toLowerCase()
+      .trim();
+    const password = String(donnees.get("password") || "");
+
+    try {
+      const resultat = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (!resultat?.ok) {
+        setErreurs({ form: "Email ou mot de passe incorrect." });
+        return;
+      }
+
+      await redirigerApresConnexion();
+    } catch {
+      setErreurs({ form: "Connexion interrompue." });
+    } finally {
+      setEnCours(false);
+    }
+  };
+
+  const sInscrire = async (evenement: React.FormEvent<HTMLFormElement>) => {
+    evenement.preventDefault();
+    if (enCours) return;
+
+    setEnCours(true);
+    setErreurs({});
+    setSucces("");
+
+    const donnees = new FormData(evenement.currentTarget);
+
+    if (!valider(donnees, false)) {
+      setEnCours(false);
+      return;
+    }
+
+    const name = String(donnees.get("name") || "").trim();
+    const pseudonyme = String(donnees.get("pseudonyme") || "").trim();
+    const email = String(donnees.get("email") || "")
+      .toLowerCase()
+      .trim();
+    const password = String(donnees.get("password") || "");
+
+    try {
+      const reponse = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, pseudonyme, email, password }),
+      });
+
+      const resultat = await reponse.json().catch(() => null);
+
+      if (!reponse.ok) {
+        setErreurs({ form: resultat?.error || "L’inscription n’a pas abouti." });
+        return;
+      }
+
+      setSucces("Compte créé. On t’emmène à la suite.");
+
+      const connecte = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (!connecte?.ok) {
+        setErreurs({
+          form: "Compte créé, mais la connexion automatique a échoué. Connecte-toi à la main.",
+        });
+        return;
+      }
+
+      window.setTimeout(() => router.push("/inscription"), 600);
+    } catch {
+      setErreurs({ form: "Connexion interrompue." });
+    } finally {
+      setEnCours(false);
+    }
+  };
+
+  const viaFournisseur = async (fournisseur: "google" | "apple") => {
+    if (enCours) return;
+    setEnCours(true);
+    setErreurs({});
+
+    try {
+      await signIn(fournisseur, { callbackUrl: "/auth", redirect: true });
+    } catch {
+      setErreurs({ form: "La connexion n’a pas pu démarrer." });
+      setEnCours(false);
+    }
+  };
+
+  const basculer = useCallback(
+    (versConnexion: boolean) => {
+      setConnexion(versConnexion);
+      setErreurs({});
+      setSucces("");
+      router.replace(`/auth?mode=${versConnexion ? "login" : "register"}`, {
+        scroll: false,
+      });
+    },
+    [router]
+  );
+
+  const inscription = !connexion;
+
+  const boutonsFournisseurs = (
+    [
+      { id: "google" as const, nom: "Google" },
+      { id: "apple" as const, nom: "Apple" },
+    ] as const
+  ).filter((f) => fournisseurs.includes(f.id));
+
+  const message = succes ? (
+    <p
+      className="flex items-start gap-2 rounded-xl border border-lime/25 bg-lime/[0.07] px-3.5 py-2.5 text-[12px] leading-relaxed text-cream/85"
+      role="status"
+    >
+      <CheckCircle2
+        size={14}
+        className="mt-0.5 shrink-0 text-lime"
+        aria-hidden="true"
+      />
+      {succes}
+    </p>
+  ) : erreurs.form ? (
+    <p
+      className="flex items-start gap-2 rounded-xl border border-orange/35 bg-orange/[0.08] px-3.5 py-2.5 text-[12px] leading-relaxed text-cream/85"
+      role="alert"
+    >
+      <AlertCircle
+        size={14}
+        className="mt-0.5 shrink-0 text-orange"
+        aria-hidden="true"
+      />
+      {erreurs.form}
+    </p>
+  ) : null;
+
+  /**
+   * Les fournisseurs tiers, affichés seulement s'ils existent vraiment.
+   *
+   * Ce bloc est une valeur, pas un composant défini dans le corps de la
+   * fonction : un composant local serait un type neuf à chaque rendu, donc
+   * remonté à chaque frappe, et son animation d'entrée repartirait de zéro.
+   */
+  const fournisseursRendus =
+    boutonsFournisseurs.length === 0 ? null : (
+      <div className={styles.monte} style={{ "--rang": 1 } as React.CSSProperties}>
+        <div className="flex gap-2.5">
+          {boutonsFournisseurs.map((fournisseur) => (
+            <button
+              key={fournisseur.id}
+              type="button"
+              onClick={() => viaFournisseur(fournisseur.id)}
+              disabled={enCours}
+              className="fx-ghost flex flex-1 items-center justify-center gap-2 rounded-xl border border-cream/12 px-3 py-2.5 text-[12px] font-semibold text-cream disabled:opacity-50"
+            >
+              {fournisseur.nom}
+            </button>
+          ))}
+        </div>
+
+        <p className="mt-3 text-center text-[11px] uppercase tracking-[0.14em] text-cream/35">
+          ou avec ton email
+        </p>
+      </div>
+    );
+
+  return (
+    <div className={styles.scene}>
+      <div ref={carte} className={styles.carte}>
+        {/* Le panneau solaire */}
+        <div
+          className={`${styles.voile} ${connexion ? styles.voileConnexion : ""}`}
+          aria-hidden="true"
+        >
+          <Eclipse />
+        </div>
+
+        {/* Discours côté inscription : il invite à se connecter */}
+        <div
+          {...auRepos(inscription)}
+          className={`${styles.pan} ${styles.panInscription} ${
+            inscription ? styles.panActif : styles.panRepos
+          }`}
+        >
+          <h2 className="font-display text-[30px] font-bold leading-tight [font-stretch:125%]">
+            Déjà des nôtres&nbsp;?
+          </h2>
+
+          <p className="max-w-[16rem] text-[14px] leading-relaxed text-cream/80">
+            Retrouve ton cercle, tes conversations et là où tu en étais.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => basculer(true)}
+            className="fx-ghost mt-2 rounded-full border border-cream/45 px-7 py-2.5 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-cream [font-stretch:125%]"
+          >
+            Se connecter
+          </button>
+        </div>
+
+        {/* Colonne inscription */}
+        <div
+          {...auRepos(inscription)}
+          className={`${styles.colonne} ${styles.colonneInscription} ${
+            inscription ? styles.colonneActive : styles.colonneRepos
+          }`}
+        >
+          <div
+            className={styles.monte}
+            style={{ "--rang": 0 } as React.CSSProperties}
+          >
+            <h1 className="font-display text-[24px] font-bold leading-tight text-cream [font-stretch:125%]">
+              Créer un compte
+            </h1>
+            <p className="mt-1 text-[13px] text-cream/60">
+              Quelques secondes, puis on fait connaissance.
+            </p>
+          </div>
+
+          {fournisseursRendus}
+
+          <form onSubmit={sInscrire} className="flex flex-col gap-2.5">
+            {message}
+
+            <Champ
+              rang={2}
+              name="name"
+              type="text"
+              placeholder="Prénom ou nom"
+              autoComplete="name"
+              erreur={erreurs.name}
+              icone={<User size={15} aria-hidden="true" />}
+            />
+
+            <Champ
+              rang={3}
+              name="pseudonyme"
+              type="text"
+              placeholder="Pseudonyme (facultatif)"
+              autoComplete="nickname"
+              erreur={erreurs.pseudonyme}
+              icone={<AtSign size={15} aria-hidden="true" />}
+            />
+
+            <Champ
+              rang={4}
+              name="email"
+              type="email"
+              placeholder="Adresse email"
+              autoComplete="email"
+              erreur={erreurs.email}
+              icone={<Mail size={15} aria-hidden="true" />}
+            />
+
+            <ChampSecret
+              rang={5}
+              name="password"
+              placeholder="Mot de passe (8 caractères minimum)"
+              autoComplete="new-password"
+              erreur={erreurs.password}
+              onChange={(evenement) => mesurerForce(evenement.target.value)}
+            />
+
+            {force > 0 && (
+              <div
+                className="h-1 overflow-hidden rounded-full bg-cream/10"
+                role="presentation"
+              >
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-orange to-lime transition-[width] duration-500"
+                  style={{ width: `${force}%` }}
+                />
+              </div>
+            )}
+
+            <ChampSecret
+              rang={6}
+              name="confirmPassword"
+              placeholder="Confirme le mot de passe"
+              autoComplete="new-password"
+              erreur={erreurs.confirmPassword}
+            />
+
+            <BoutonEnvoi rang={7} enCours={enCours}>
+              Créer mon compte
+            </BoutonEnvoi>
+          </form>
+
+          <p
+            className={`${styles.monte} flex items-center justify-center gap-1.5 text-center text-[11px] leading-relaxed text-cream/45`}
+            style={{ "--rang": 8 } as React.CSSProperties}
+          >
+            <BadgeCheck size={12} className="shrink-0" aria-hidden="true" />
+            Identité vérifiée à l’inscription · 28 ans et plus
+          </p>
+        </div>
+
+        {/* Discours côté connexion : il invite à s'inscrire */}
+        <div
+          {...auRepos(connexion)}
+          className={`${styles.pan} ${styles.panConnexion} ${
+            connexion ? styles.panActif : styles.panRepos
+          }`}
+        >
+          <h2 className="font-display text-[30px] font-bold leading-tight [font-stretch:125%]">
+            Première fois ici&nbsp;?
+          </h2>
+
+          <p className="max-w-[16rem] text-[14px] leading-relaxed text-cream/80">
+            Un compte, une pièce d’identité vérifiée, et des profils qui
+            existent vraiment.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => basculer(false)}
+            className="fx-ghost mt-2 rounded-full border border-cream/45 px-7 py-2.5 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-cream [font-stretch:125%]"
+          >
+            Créer un compte
+          </button>
+        </div>
+
+        {/* Colonne connexion */}
+        <div
+          {...auRepos(connexion)}
+          className={`${styles.colonne} ${styles.colonneConnexion} ${
+            connexion ? styles.colonneActive : styles.colonneRepos
+          }`}
+        >
+          <div
+            className={styles.monte}
+            style={{ "--rang": 0 } as React.CSSProperties}
+          >
+            <h1 className="font-display text-[24px] font-bold leading-tight text-cream [font-stretch:125%]">
+              Se connecter
+            </h1>
+            <p className="mt-1 text-[13px] text-cream/60">
+              Content de te revoir.
+            </p>
+          </div>
+
+          {fournisseursRendus}
+
+          <form onSubmit={seConnecter} className="flex flex-col gap-2.5">
+            {message}
+
+            <Champ
+              rang={2}
+              name="email"
+              type="text"
+              placeholder="Email ou pseudonyme"
+              autoComplete="username"
+              erreur={erreurs.email}
+              icone={<Mail size={15} aria-hidden="true" />}
+            />
+
+            <ChampSecret
+              rang={3}
+              name="password"
+              placeholder="Mot de passe"
+              autoComplete="current-password"
+              erreur={erreurs.password}
+            />
+
+            <div
+              className={styles.monte}
+              style={{ "--rang": 4 } as React.CSSProperties}
+            >
+              <Link
+                href="/auth/reset-password"
+                className="fx-link text-[12px] text-cream/60 hover:text-cream"
+              >
+                Mot de passe oublié&nbsp;?
+              </Link>
+            </div>
+
+            <BoutonEnvoi rang={5} enCours={enCours}>
+              Se connecter
+            </BoutonEnvoi>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function PageAuth() {
+  return (
+    <main className="relative min-h-screen overflow-x-hidden bg-abyss font-sans text-cream">
+      {/* Halos solaires, très lents */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-32 left-1/4 h-[30rem] w-[30rem] rounded-full bg-orange/[0.09] blur-[120px]" />
+        <div className="absolute bottom-[-10rem] right-1/5 h-[26rem] w-[26rem] rounded-full bg-rust/25 blur-[120px]" />
+        <div className="absolute left-[-6rem] top-1/2 h-[18rem] w-[18rem] rounded-full bg-lime/[0.05] blur-[100px]" />
+      </div>
+
+      <div className="stars" />
+
+      <Link
+        href="/"
+        aria-label="Retour à l’accueil"
+        className="fx-ghost fixed left-4 top-4 z-40 flex items-center gap-2 rounded-full border border-cream/12 bg-abyss/70 px-3 py-2 text-[12px] font-semibold text-cream/80 backdrop-blur-xl sm:left-6 sm:top-6"
+      >
+        <ArrowLeft size={15} aria-hidden="true" />
+        <span className="hidden sm:inline">Retour</span>
+      </Link>
+
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center">
+            <Loader2
+              size={26}
+              className="animate-spin text-orange"
+              aria-hidden="true"
+            />
+          </div>
+        }
+      >
+        <Contenu />
+      </Suspense>
+    </main>
   );
 }

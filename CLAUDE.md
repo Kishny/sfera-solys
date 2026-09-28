@@ -1521,6 +1521,70 @@ d'inscription est 28 ans depuis le fork ; ce champ était resté à 18.
 erreurs restantes sont toutes préexistantes et hors de cette page :
 `models/User.ts` (13), `models/Subscription.ts` (2), `ui/Button.tsx` (1).
 
+### 🌘 /auth — la carte qui bascule (28/09/2026)
+
+Connexion et inscription ne sont plus deux onglets qui se remplacent, mais
+deux moitiés d'une même carte. Le panneau solaire glisse d'un côté à l'autre
+et découvre le formulaire qu'il cachait ; le discours qu'il porte s'échange
+avec lui. 1 424 lignes → 839, plus une feuille dédiée.
+
+**Pourquoi un module CSS et pas du Tailwind.** Le va-et-vient repose sur
+quatre couches qui glissent ensemble, chacune avec sa translation et son
+z-index. En classes utilitaires, cela ferait une dizaine de variantes
+conditionnelles par élément. `auth.module.css` est de portée locale : rien ne
+fuit dans le reste du site, et aucune feuille n'est injectée à l'exécution —
+contrairement à l'ancienne page, qui créait un `<style>` dans le `<head>` au
+montage pour son fond étoilé.
+
+**L'éclipse est un masque, pas un disque posé dessus.** Première version : un
+cercle sombre par-dessus le soleil. Le rendu le trahissait — l'ombre, plus
+foncée que le panneau, se lisait comme une seconde boule. Avec un masque SVG,
+le soleil est réellement découpé, et c'est le dégradé du panneau qui apparaît
+dans l'échancrure. La couronne, elle, est un anneau à centre transparent :
+comme dans une vraie éclipse, elle entoure le disque occulté au lieu de
+briller derrière. L'ombre tourne en 34 s, l'orbite pointillée en sens inverse
+en 72 s.
+
+**Le panneau ne peut pas être orange plein.** Le crème sur #FF4103 tombe à
+3,0:1, sous le seuil AA. Le panneau est donc un dégradé de rust, où le crème
+tient 10,1:1 — et 4,9:1 au pire endroit, là où le halo orange du haut est le
+plus dense. L'éclipse est volontairement décentrée en bas à gauche : si le
+disque solaire passait derrière le texte, on retomberait à 3,0:1. Le
+graphisme cède la place à la lisibilité.
+
+**Trois corrections de fond :**
+
+- **Le mot de passe était validé à 6 caractères côté page et à 8 côté
+  serveur.** Un mot de passe de 6 ou 7 caractères passait la validation,
+  partait à `POST /api/auth/register`, et revenait refusé. Les deux seuils
+  sont alignés sur 8.
+- **Les boutons Google et Apple s'affichaient toujours**, alors que NextAuth
+  n'enregistre ces providers que si leurs variables d'environnement existent
+  (`getOAuthProviders`). Sans clés — c'est l'état actuel du `.env.local` —
+  le bouton menait à une page d'erreur. La page lit maintenant
+  `/api/auth/providers`, la route que NextAuth expose déjà, et n'affiche que
+  ce qui est réellement branché.
+- **La colonne de gauche vantait « Cadeaux premium », « Événements VIP »,
+  « App mobile exclusive » et un « Support 24h ».** Aucun des quatre n'a de
+  code derrière. Remplacés par une seule ligne, vérifiable : identité
+  vérifiée à l'inscription, 28 ans et plus.
+
+**Accessibilité.** Les deux moitiés restent dans le DOM pendant qu'elles
+glissent : sans précaution, la tabulation emmène dans le formulaire caché et
+un lecteur d'écran annonce deux champs « mot de passe ». `inert` retire la
+branche au repos du parcours clavier et de l'arbre d'accessibilité. Le
+mouvement (glissement, orbites, entrée échelonnée des champs, parallaxe au
+curseur) est désactivé sous `prefers-reduced-motion`, et la parallaxe l'est
+aussi sur écran tactile.
+
+**Sur mobile, plus rien ne glisse** : la carte se déplie, le panneau devient
+un bandeau de 196 px et seule la moitié active s'affiche.
+
+**Vérifié au rendu, pas seulement au build** : les trois états (inscription,
+connexion, mobile) ont été rendus dans Chromium à partir du CSS et du
+balisage réels. C'est ce rendu qui a montré que le disque d'ombre ne
+fonctionnait pas et qu'il fallait passer au masque.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.

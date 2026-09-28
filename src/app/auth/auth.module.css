@@ -1,0 +1,467 @@
+/* src/app/auth/auth.module.css */
+
+/*
+  Géométrie et mouvement de la carte d'authentification.
+
+  ## Pourquoi une feuille dédiée plutôt que Tailwind
+
+  Le va-et-vient de la carte repose sur quatre couches qui glissent en même
+  temps, chacune avec sa propre translation et son propre z-index. En classes
+  utilitaires, cela donnerait une dizaine de variantes conditionnelles par
+  élément, illisibles. Ici c'est un module CSS : la portée est locale, rien ne
+  fuit dans le reste du site, et aucune feuille n'est injectée à l'exécution.
+
+  Les couleurs viennent de la charte (abyss, teal, cream, orange, rust, lime).
+  Elles sont écrites en dur ici parce qu'un module CSS ne lit pas la config
+  Tailwind — c'est le seul endroit du fichier où c'est le cas, et les valeurs
+  sont celles de tailwind.config.js.
+
+  ## Contraste
+
+  Le panneau coulissant ne peut pas être orange plein : le crème sur
+  #FF4103 tombe à 3,0:1, sous le seuil AA. Il est donc en dégradé de rust
+  (#6B1B02), où le crème atteint 10,1:1, et l'orange reste ce qu'il doit
+  être — un accent, et le disque de l'éclipse.
+*/
+
+.scene {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  min-height: 100svh;
+  align-items: center;
+  justify-content: center;
+  padding: 88px 16px 48px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   La carte
+   ──────────────────────────────────────────────────────────── */
+
+.carte {
+  position: relative;
+  overflow: hidden;
+  width: min(980px, 100%);
+  height: 660px;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 235, 209, 0.1);
+  background: #0c222d;
+  box-shadow:
+    0 60px 120px -50px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(255, 65, 3, 0.06);
+  transition: box-shadow 0.4s ease;
+}
+
+.carte:focus-within {
+  box-shadow:
+    0 60px 120px -50px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(255, 65, 3, 0.18);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Le panneau coulissant
+   ──────────────────────────────────────────────────────────── */
+
+.voile {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 50%;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      120% 90% at 20% 0%,
+      rgba(255, 65, 3, 0.45) 0%,
+      transparent 60%
+    ),
+    linear-gradient(155deg, #8a2508 0%, #6b1b02 45%, #2a0a02 100%);
+  translate: 0 0;
+  transition: translate 0.75s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.voileConnexion {
+  translate: 100% 0;
+}
+
+/* Le grain : sans lui, le dégradé fait une bande plate et moirée. */
+.voile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: radial-gradient(
+    rgba(255, 235, 209, 0.35) 0.5px,
+    transparent 0.5px
+  );
+  background-size: 4px 4px;
+}
+
+/* L'éclipse : un disque sombre qui mord un disque solaire. */
+/*
+  L'éclipse est volontairement décentrée, en bas à gauche et débordante.
+  Au centre du panneau, le fond reste le rust du dégradé, où le crème tient
+  10,1:1 ; si le disque solaire passait derrière le texte, on retomberait à
+  3,0:1. Le graphisme cède la place à la lisibilité.
+*/
+.eclipse {
+  position: absolute;
+  bottom: -150px;
+  left: -130px;
+  width: 440px;
+  height: 440px;
+  pointer-events: none;
+}
+
+/*
+  La couronne est un anneau, pas un halo plein : le centre reste transparent
+  pour que la morsure du masque se lise, exactement comme la couronne d'une
+  vraie éclipse, visible autour du disque occulté et non derrière lui.
+*/
+.couronne {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    transparent 34%,
+    rgba(255, 65, 3, 0.5) 47%,
+    rgba(255, 65, 3, 0.14) 64%,
+    transparent 78%
+  );
+  animation: respire 7s ease-in-out infinite alternate;
+}
+
+/*
+  Le disque d'ombre tourne autour du soleil. Il s'agit d'un `<g>` SVG : ni
+  `position` ni `inset` ne s'y appliquent, et l'origine de rotation doit être
+  donnée dans le repère du viewBox (le centre, 100 100).
+*/
+.orbite {
+  transform-origin: 100px 100px;
+  animation: orbite 34s linear infinite;
+}
+
+/* L'orbite extérieure tourne dans l'autre sens, deux fois plus lentement. */
+.contreOrbite {
+  transform-origin: 100px 100px;
+  animation: contreOrbite 72s linear infinite;
+}
+
+@keyframes orbite {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes contreOrbite {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes respire {
+  0% {
+    opacity: 0.5;
+    scale: 1;
+  }
+  100% {
+    opacity: 0.9;
+    scale: 1.07;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Les deux discours, portés par le panneau
+   ──────────────────────────────────────────────────────────── */
+
+.pan {
+  position: absolute;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  width: 50%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 0 44px;
+  text-align: center;
+  color: #ffebd1;
+  opacity: 0;
+  transition:
+    translate 0.75s cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 0.4s ease;
+}
+
+.panInscription {
+  left: 0;
+  translate: -100% 0;
+}
+
+.panConnexion {
+  left: 50%;
+  translate: 100% 0;
+}
+
+.panActif {
+  translate: 0 0;
+  opacity: 1;
+  transition-delay: 0s, 0.25s;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Les deux formulaires
+   ──────────────────────────────────────────────────────────── */
+
+.colonne {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  width: 50%;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  padding: 36px 44px;
+  background: #0c222d;
+  overflow-y: auto;
+  scrollbar-width: none;
+  transition: translate 0.75s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.colonne::-webkit-scrollbar {
+  display: none;
+}
+
+.colonneConnexion {
+  left: 0;
+  translate: -100% 0;
+}
+
+.colonneInscription {
+  left: 50%;
+  translate: 100% 0;
+}
+
+.colonneActive {
+  translate: 0 0;
+}
+
+/*
+  Les champs montent un par un quand la colonne arrive. Le délai est posé en
+  ligne (`--rang`) parce qu'un `nth-child` casserait dès qu'un message d'erreur
+  s'insère entre deux champs.
+*/
+.monte {
+  opacity: 0;
+}
+
+.colonneActive .monte {
+  animation: monte 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  animation-delay: calc(0.28s + var(--rang, 0) * 0.055s);
+}
+
+@keyframes monte {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Champs
+   ──────────────────────────────────────────────────────────── */
+
+.champ {
+  position: relative;
+}
+
+.champ input {
+  width: 100%;
+  border: 1px solid rgba(255, 235, 209, 0.12);
+  border-radius: 12px;
+  background: #001724;
+  padding: 13px 42px 13px 40px;
+  font-size: 14px;
+  color: #ffebd1;
+  transition:
+    border-color 0.22s ease,
+    background-color 0.22s ease,
+    box-shadow 0.28s ease;
+}
+
+.champ input::placeholder {
+  color: rgba(255, 235, 209, 0.45);
+}
+
+.champ input:hover {
+  border-color: rgba(255, 235, 209, 0.24);
+}
+
+.champ input:focus {
+  outline: none;
+  border-color: rgba(255, 65, 3, 0.65);
+  box-shadow: 0 0 0 4px rgba(255, 65, 3, 0.12);
+}
+
+.champ svg {
+  transition: color 0.22s ease;
+}
+
+.champ input:focus ~ .icone {
+  color: #ff4103;
+}
+
+.icone {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  translate: 0 -50%;
+  color: rgba(255, 235, 209, 0.45);
+  pointer-events: none;
+}
+
+.oeil {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  translate: 0 -50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 8px;
+  color: rgba(255, 235, 209, 0.5);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.oeil:hover {
+  color: #ffebd1;
+  background: rgba(255, 235, 209, 0.08);
+}
+
+/* Le trait qui se déploie sous le champ au focus. */
+.champ::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  height: 2px;
+  width: 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #ff4103, #b6ff00);
+  transition:
+    width 0.35s cubic-bezier(0.2, 0.7, 0.3, 1),
+    left 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.champ:focus-within::after {
+  left: 8%;
+  width: 84%;
+}
+
+.champErreur input {
+  border-color: rgba(255, 65, 3, 0.55);
+}
+
+/* ────────────────────────────────────────────────────────────
+   Mobile : la carte se déplie, plus rien ne glisse
+   ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 899px) {
+  .scene {
+    padding: 76px 14px 32px;
+    align-items: flex-start;
+  }
+
+  .carte {
+    height: auto;
+    border-radius: 24px;
+  }
+
+  .voile {
+    position: relative;
+    width: 100%;
+    height: 196px;
+    translate: 0 0 !important;
+  }
+
+  /* Sur le bandeau, l'éclipse part à droite : à gauche elle passait sous le
+     titre et n'était plus qu'un éclat coupé par le bord. */
+  .eclipse {
+    left: auto;
+    right: -170px;
+    bottom: -180px;
+    width: 310px;
+    height: 310px;
+  }
+
+  .pan {
+    left: 0 !important;
+    width: 100%;
+    height: 196px;
+    padding: 0 28px;
+    gap: 12px;
+    translate: 0 0 !important;
+  }
+
+  .panRepos {
+    display: none;
+  }
+
+  .colonne {
+    position: relative;
+    left: 0 !important;
+    width: 100%;
+    height: auto;
+    padding: 28px 22px 32px;
+    translate: 0 0 !important;
+  }
+
+  .colonneRepos {
+    display: none;
+  }
+
+  .monte {
+    opacity: 1;
+    animation: none !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Mouvement réduit
+   ──────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .voile,
+  .pan,
+  .colonne {
+    transition-duration: 0.01ms;
+  }
+
+  .orbite,
+  .contreOrbite,
+  .couronne {
+    animation: none;
+  }
+
+  .monte {
+    opacity: 1;
+    animation: none !important;
+  }
+}
