@@ -53,7 +53,7 @@ import {
   LogOut,
   MapPin,
   MessageCircle,
-  Moon,
+  Sun,
   Pencil,
   Save,
   Shield,
@@ -76,7 +76,7 @@ import { DEPARTEMENTS, getDepartementLabel } from "@/lib/locations";
 type AuthProvider = "credentials" | "google" | "apple";
 type UserRole = "user" | "admin";
 
-type LunaPlan =
+type PlanSolys =
   | "free"
   | "essential-monthly"
   | "premium-monthly"
@@ -105,7 +105,7 @@ type TabId =
   | "securite"
   | "connexions";
 
-interface LunaUser {
+interface MembreSolys {
   _id?: string;
   id?: string;
 
@@ -141,7 +141,7 @@ interface LunaUser {
   role: UserRole;
 
   // Premium / Stripe
-  plan: LunaPlan;
+  plan: PlanSolys;
   subscriptionStatus: SubscriptionStatus;
   isPremium: boolean;
   premiumStartedAt?: string | null;
@@ -206,7 +206,7 @@ interface MatchItem {
 // Constantes
 // ─────────────────────────────────────────────
 
-const emptyUser: LunaUser = {
+const emptyUser: MembreSolys = {
   email: "",
   pseudonyme: "Membre Solys",
   name: "",
@@ -249,12 +249,22 @@ const emptyUser: LunaUser = {
   subscriptionStatusLabel: "Inactif",
 };
 
+/**
+ * Orientations, au masculin.
+ *
+ * La liste était intégralement au féminin — reste du fork SferaLuna — et
+ * contenait « Lesbienne / Homosexuelle », qui n'avait rien à faire sur la
+ * version hommes. La clé `curieuse` est conservée **en plus** de `curieux` :
+ * elle a pu être enregistrée en base avant la reprise, et un profil ne doit pas
+ * afficher une valeur brute parce qu'on a renommé une clé.
+ */
 const orientationLabels: Record<string, string> = {
-  hetero: "Hétérosexuelle",
-  homo: "Lesbienne / Homosexuelle",
-  bi: "Bisexuelle",
-  curieuse: "Curieuse — je souhaite découvrir",
-  pan: "Pansexuel(le)",
+  hetero: "Hétérosexuel",
+  homo: "Homosexuel",
+  bi: "Bisexuel",
+  pan: "Pansexuel",
+  curieux: "Curieux — je souhaite découvrir",
+  curieuse: "Curieux — je souhaite découvrir",
   other: "Autre",
 };
 
@@ -270,21 +280,26 @@ const visibilityLabels: Record<ProfileVisibility, string> = {
   public: "Profil public",
   matches: "Seulement mes matches",
   premium: "Membres premium",
-  invisible: "Mode discret 👻",
+  invisible: "Mode Fantôme",
 };
 
-const planLabels: Record<LunaPlan, string> = {
+const planLabels: Record<PlanSolys, string> = {
   free: "Gratuit",
   "essential-monthly": "Essentiel",
   "premium-monthly": "Premium",
-  "elite-monthly": "Elite ✨",
+  "elite-monthly": "Elite",
 };
 
-const planEmoji: Record<LunaPlan, string> = {
-  free: "🌙",
-  "essential-monthly": "⭐",
-  "premium-monthly": "💎",
-  "elite-monthly": "👑",
+/**
+ * Le plan gratuit portait **la lune** — le symbole de SferaLuna — sur la
+ * version solaire. Les quatre offres sont désormais distinguées par un libellé,
+ * pas par un pictogramme décoratif.
+ */
+const planEmoji: Record<PlanSolys, string> = {
+  free: "",
+  "essential-monthly": "",
+  "premium-monthly": "",
+  "elite-monthly": "",
 };
 
 /**
@@ -293,7 +308,7 @@ const planEmoji: Record<LunaPlan, string> = {
  * d'un coup d'œil (violet Essentiel, rose Premium, or Elite).
  */
 const planAccent: Record<
-  LunaPlan,
+  PlanSolys,
   {
     ring: string;
     gradient: string;
@@ -333,27 +348,29 @@ const planAccent: Record<
 };
 
 const subscriptionLabels: Record<SubscriptionStatus, string> = {
-  inactive: "En attente",
-  active: "Actif ✅",
+  // « En attente » laissait croire à un traitement en cours qui n'existe pas.
+  inactive: "Inactif",
+  active: "Actif",
   trialing: "Essai gratuit",
   past_due: "Paiement en retard",
   canceled: "Annulé",
 };
 
 const tabs: { id: TabId; label: string; emoji: string; icon: ElementType }[] = [
-  { id: "dashboard", label: "Accueil", emoji: "🏠", icon: Sparkles },
-  { id: "profil", label: "Profil", emoji: "✨", icon: User },
-  { id: "connexions", label: "Intéractions", emoji: "💞", icon: Heart },
-  { id: "preferences", label: "Préférences", emoji: "💫", icon: Heart },
-  { id: "premium", label: "Premium", emoji: "👑", icon: Crown },
-  { id: "securite", label: "Sécurité", emoji: "🔒", icon: Shield },
+  { id: "dashboard", label: "Accueil", emoji: "", icon: Sparkles },
+  { id: "profil", label: "Profil", emoji: "", icon: User },
+  // « Intéractions » portait une faute d'orthographe depuis l'origine.
+  { id: "connexions", label: "Interactions", emoji: "", icon: Heart },
+  { id: "preferences", label: "Préférences", emoji: "", icon: Heart },
+  { id: "premium", label: "Abonnement", emoji: "", icon: Crown },
+  { id: "securite", label: "Sécurité", emoji: "", icon: Shield },
 ];
 
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
 
-function isValidPlan(plan: unknown): plan is LunaPlan {
+function isValidPlan(plan: unknown): plan is PlanSolys {
   return (
     plan === "free" ||
     plan === "essential-monthly" ||
@@ -399,7 +416,7 @@ function isValidIdentityStatus(value: unknown): value is IdentityVerificationSta
  * - plan = elite-monthly => "Elite ✨"
  * - plan = free => "Gratuit"
  */
-function getPremiumLabel(user: LunaUser) {
+function getPremiumLabel(user: MembreSolys) {
   if (user.plan && user.plan !== "free") {
     return planLabels[user.plan] || "Premium";
   }
@@ -421,7 +438,7 @@ function getPremiumLabel(user: LunaUser) {
  * Dans ce cas, il a choisi une offre mais Stripe n'a pas encore confirmé.
  * Donc on NE débloque PAS les fonctionnalités premium.
  */
-function isPremiumActive(user: LunaUser) {
+function isPremiumActive(user: MembreSolys) {
   return (
     user.isPremium === true &&
     (user.subscriptionStatus === "active" ||
@@ -464,7 +481,7 @@ function relativeTime(dateStr: string | null) {
  * - garder des valeurs cohérentes même si l'API renvoie un champ manquant ;
  * - conserver les champs Stripe/Premium correctement.
  */
-function normalizeUser(rawUser: any, sessionUser?: any): LunaUser {
+function normalizeUser(rawUser: any, sessionUser?: any): MembreSolys {
   const rawPlan = rawUser?.plan;
   const rawSubscriptionStatus = rawUser?.subscriptionStatus;
   const rawVisibility = rawUser?.visibilite;
@@ -551,12 +568,17 @@ function normalizeUser(rawUser: any, sessionUser?: any): LunaUser {
 // Animations
 // ─────────────────────────────────────────────
 
+/**
+ * `ease: "easeOut"` était inféré comme `string`, alors que framer-motion attend
+ * le littéral : cinq erreurs de types, masquées par `ignoreBuildErrors`.
+ * `as const` fige le littéral et les fait disparaître.
+ */
 const tabContentVariants = {
   initial: { opacity: 0, y: 12 },
   animate: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.25, ease: "easeOut" },
+    transition: { duration: 0.25, ease: "easeOut" as const },
   },
   exit: { opacity: 0, y: -8, transition: { duration: 0.15 } },
 };
@@ -566,7 +588,7 @@ const cardVariants = {
   visible: (i: number) => ({
     opacity: 1,
     scale: 1,
-    transition: { delay: i * 0.07, duration: 0.3, ease: "easeOut" },
+    transition: { delay: i * 0.07, duration: 0.3, ease: "easeOut" as const },
   }),
 };
 
@@ -580,8 +602,8 @@ function MonCompteContent() {
   const { data: session, status } = useSession();
 
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
-  const [user, setUser] = useState<LunaUser>(emptyUser);
-  const [draftUser, setDraftUser] = useState<LunaUser>(emptyUser);
+  const [user, setUser] = useState<MembreSolys>(emptyUser);
+  const [draftUser, setDraftUser] = useState<MembreSolys>(emptyUser);
 
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -767,16 +789,20 @@ function MonCompteContent() {
       user.orientation,
       user.intentions?.length,
       user.localisation,
-      user.rayon,
       user.question,
       // user.reponse est toujours "" (jamais renvoyée par l'API pour sécurité).
       // On utilise hasReponse qui indique si la réponse est enregistrée en BDD.
       user.hasReponse,
       user.interets?.length,
       user.visibilite,
-      user.consentement,
     ];
 
+    /**
+     * `consentement` et `rayon` ont été retirés du calcul : le premier vaut
+     * `true` dès l'inscription, le second a une valeur par défaut. Les compter
+     * faisait démarrer le pourcentage à un niveau qu'aucun remplissage ne
+     * justifiait — un profil vide affichait un taux flatteur.
+     */
     return Math.round((fields.filter(Boolean).length / fields.length) * 100);
   }, [user]);
 
@@ -785,7 +811,7 @@ function MonCompteContent() {
 
   const isTabEditable = activeTab === "profil" || activeTab === "preferences";
 
-  const updateDraft = <K extends keyof LunaUser>(key: K, value: LunaUser[K]) => {
+  const updateDraft = <K extends keyof MembreSolys>(key: K, value: MembreSolys[K]) => {
     setDraftUser((prev) => ({
       ...prev,
       [key]: value,
@@ -925,12 +951,12 @@ function MonCompteContent() {
             <div className="absolute inset-0 animate-pulse rounded-full bg-gradient-to-r from-purple-500 to-pink-500 opacity-50 blur-xl" />
 
             <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white/10 backdrop-blur">
-              <Moon className="h-10 w-10 text-purple-200" />
+              <Sun className="h-10 w-10 text-purple-200" />
             </div>
           </div>
 
           <p className="text-sm text-white/60">
-            Chargement de votre espace Solys…
+            Chargement de ton espace Solys…
           </p>
         </motion.div>
       </div>
@@ -1099,7 +1125,7 @@ function MonCompteContent() {
                     </span>
                   ) : (
                     <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-xs text-white/60">
-                      🌙 Gratuit
+                      Offre gratuite
                     </span>
                   )}
                 </div>
@@ -1236,7 +1262,7 @@ function MonCompteContent() {
               )}
 
               {activeTab === "premium" && (
-                <PremiumTab user={user} router={router} />
+                <PremiumTab user={user} router={router} onRefresh={fetchProfile} />
               )}
 
               {activeTab === "securite" && <SecurityTab user={user} />}
@@ -1454,7 +1480,7 @@ function DashboardTab({
   profileCompletion,
   router,
 }: {
-  user: LunaUser;
+  user: MembreSolys;
   profileCompletion: number;
   router: ReturnType<typeof useRouter>;
 }) {
@@ -1504,7 +1530,7 @@ function DashboardTab({
         </h2>
 
         <p className="text-sm text-white/50">
-          Voici un aperçu de votre espace Sfera'Solys.
+          Voici un aperçu de ton espace Sfera'Solys.
         </p>
       </div>
 
@@ -1552,7 +1578,7 @@ function DashboardTab({
 
         {profileCompletion < 100 && (
           <p className="mt-2 text-xs text-white/40">
-            Complétez votre profil pour apparaître dans plus de recherches 🚀
+            Complète ton profil pour apparaître dans plus de recherches.
           </p>
         )}
       </div>
@@ -1610,13 +1636,13 @@ function DashboardTab({
             >
               {active
                 ? `🎉 Plan ${getPremiumLabel(user)} actif !`
-                : "🌟 Passez Premium"}
+                : "Voir les offres"}
             </p>
 
             <p className="text-sm text-white/60">
               {active
-                ? "Vous profitez des fonctionnalités incluses dans votre abonnement."
-                : "Débloquez les likes illimités, le mode invisible et bien plus."}
+                ? "Tu profites des fonctionnalités incluses dans ton abonnement."
+                : "Les likes illimités et le Mode Fantôme s’ouvrent avec une offre payante."}
             </p>
           </div>
 
@@ -1649,9 +1675,9 @@ function ProfilTab({
   splitToArray,
   onPhotosSaved,
 }: {
-  user: LunaUser;
+  user: MembreSolys;
   isEditing: boolean;
-  updateDraft: <K extends keyof LunaUser>(key: K, value: LunaUser[K]) => void;
+  updateDraft: <K extends keyof MembreSolys>(key: K, value: MembreSolys[K]) => void;
   splitToArray: (value: string) => string[];
   onPhotosSaved: () => void;
 }) {
@@ -1697,10 +1723,18 @@ function ProfilTab({
         return;
       }
 
+      /**
+       * La photo est envoyée à Cloudinary tout de suite, mais elle n'entre
+       * dans le profil qu'au « Sauvegarder » : `updateDraft` ne touche que le
+       * brouillon. L'ancien message disait « Photo mise à jour avec succès ! »,
+       * ce qui était faux — et le bouton restait actif hors mode édition, donc
+       * on pouvait « réussir » un changement qui n'était jamais enregistré.
+       * Le message dit maintenant ce qui s'est réellement passé.
+       */
       updateDraft("image", data.imageUrl);
       setUploadMsg({
         type: "success",
-        text: "Photo mise à jour avec succès !",
+        text: "Photo prête. Elle sera enregistrée quand tu sauvegarderas.",
       });
     } catch {
       setUploadMsg({
@@ -1727,8 +1761,8 @@ function ProfilTab({
 
         <p className="text-sm text-white/50">
           {isEditing
-            ? "Mode édition — modifiez vos informations ci-dessous."
-            : 'Cliquez sur "Modifier" pour éditer votre profil.'}
+            ? "Mode édition — modifie tes informations ci-dessous."
+            : 'Appuie sur « Modifier » pour éditer ton profil.'}
         </p>
       </div>
 
@@ -1739,8 +1773,8 @@ function ProfilTab({
           className="flex items-start gap-2 rounded-xl border border-purple-400/20 bg-purple-500/10 px-4 py-3 text-sm text-purple-200"
         >
           <Pencil className="mt-0.5 h-4 w-4 shrink-0" />
-          Mode édition activé — vos modifications ne seront pas enregistrées
-          avant la sauvegarde.
+          Mode édition activé — rien n&apos;est enregistré tant que tu n&apos;as
+          pas sauvegardé.
         </motion.div>
       )}
 
@@ -1785,10 +1819,17 @@ function ProfilTab({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className="rounded-lg border border-purple-400/30 bg-purple-500/30 px-4 py-1.5 text-xs font-medium text-purple-200 transition hover:bg-purple-500/40 disabled:opacity-50"
+            // Hors mode édition, rien ne peut être sauvegardé : le bouton
+            // annonçait un succès que le « Sauvegarder » absent rendait faux.
+            disabled={isUploading || !isEditing}
+            title={
+              !isEditing
+                ? "Passe en mode édition pour changer ta photo."
+                : undefined
+            }
+            className="rounded-lg border border-purple-400/30 bg-purple-500/30 px-4 py-1.5 text-xs font-medium text-purple-200 transition hover:bg-purple-500/40 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isUploading ? "Upload en cours…" : "Changer la photo"}
+            {isUploading ? "Envoi en cours…" : "Changer la photo"}
           </button>
 
           <input
@@ -1812,7 +1853,7 @@ function ProfilTab({
           value={user.bio || ""}
           onChange={(event) => updateDraft("bio", event.target.value)}
           className="input-solys h-24 resize-none"
-          placeholder="Décrivez-vous en quelques mots… vos passions, ce que vous recherchez…"
+          placeholder="Quelques mots sur toi : ce qui t’occupe, ce que tu cherches…"
           maxLength={500}
         />
 
@@ -1914,7 +1955,7 @@ function ProfilTab({
             value={user.question || ""}
             onChange={(event) => updateDraft("question", event.target.value)}
             className="input-solys"
-            placeholder="Votre question secrète"
+            placeholder="Ta question secrète"
           />
         </Field>
 
@@ -1930,7 +1971,7 @@ function ProfilTab({
                 ? "••••••••"
                 : user.hasReponse
                 ? "Laisser vide pour conserver la réponse actuelle"
-                : "Votre réponse secrète"
+                : "Ta réponse secrète"
             }
           />
           {user.hasReponse && !isEditing && (
@@ -1938,7 +1979,7 @@ function ProfilTab({
           )}
           {user.hasReponse && isEditing && (
             <p className="mt-1 text-xs text-white/40">
-              Laissez vide pour conserver votre réponse actuelle.
+              Laisse vide pour conserver ta réponse actuelle.
             </p>
           )}
         </Field>
@@ -1958,9 +1999,9 @@ function PreferencesTab({
   splitToArray,
   onVisibilityChange,
 }: {
-  user: LunaUser;
+  user: MembreSolys;
   isEditing: boolean;
-  updateDraft: <K extends keyof LunaUser>(key: K, value: LunaUser[K]) => void;
+  updateDraft: <K extends keyof MembreSolys>(key: K, value: MembreSolys[K]) => void;
   splitToArray: (value: string) => string[];
   onVisibilityChange: (value: ProfileVisibility) => Promise<void>;
 }) {
@@ -1987,7 +2028,7 @@ function PreferencesTab({
         <h2 className="mb-1 text-lg font-bold sm:text-xl">💫 Préférences</h2>
 
         <p className="text-sm text-white/50">
-          Gérez vos intentions, orientation et visibilité.
+          Tes intentions, ton orientation et qui peut te voir.
         </p>
       </div>
 
@@ -2026,8 +2067,8 @@ function PreferencesTab({
 
               <p className="mt-0.5 text-xs text-white/50">
                 {isInvisible
-                  ? "Votre profil est invisible dans les recherches."
-                  : "Naviguez discrètement sans apparaître aux autres."}
+                  ? "Ton profil n’apparaît plus dans l’annuaire ni dans les Circle."
+                  : "Consulte les autres profils sans laisser de trace."}
               </p>
             </div>
           </div>
@@ -2096,7 +2137,7 @@ function PreferencesTab({
           />
         </Field>
 
-        <Field label="Visibilité du profil 👁️">
+        <Field label="Visibilité du profil">
           <select
             disabled={!isEditing}
             value={user.visibilite || "matches"}
@@ -2106,8 +2147,22 @@ function PreferencesTab({
             className="input-solys"
           >
             {Object.entries(visibilityLabels).map(([key, value]) => (
-              <option key={key} value={key}>
-                {value}
+              /**
+               * Le Mode Fantôme est réservé aux offres qui l'incluent. Le
+               * sélecteur les listait toutes, ce qui permettait de choisir
+               * « invisible » sans l'offre — contournant la garde du
+               * basculeur juste au-dessus. Le serveur refusait bien la
+               * requête, mais l'interface proposait une option vouée à
+               * l'échec.
+               */
+              <option
+                key={key}
+                value={key}
+                disabled={key === "invisible" && !premiumActive}
+              >
+                {key === "invisible" && !premiumActive
+                  ? `${value} (offres Premium et Elite)`
+                  : value}
               </option>
             ))}
           </select>
@@ -2177,9 +2232,21 @@ function StripeSyncButton({ onSuccess }: { onSuccess: () => void }) {
 function PremiumTab({
   user,
   router,
+  onRefresh,
 }: {
-  user: LunaUser;
+  user: MembreSolys;
   router: ReturnType<typeof useRouter>;
+  /**
+   * Relit le profil depuis l'API.
+   *
+   * Les actions Stripe appelaient `router.refresh()`, qui ne sert à rien ici :
+   * cette page charge son profil **côté client** (`fetchProfile`), et un
+   * rafraîchissement de route ne relance pas ce `fetch`. Résultat : pause,
+   * annulation, réactivation ou synchronisation réussissaient, affichaient leur
+   * message de succès, et l'écran continuait d'afficher l'ancien état jusqu'à
+   * un rechargement manuel.
+   */
+  onRefresh: () => void;
 }) {
   const active = isPremiumActive(user);
   const planLabel = getPremiumLabel(user);
@@ -2195,20 +2262,21 @@ function PremiumTab({
       const res = await fetch(endpoint, { method: "POST" });
       const data = await res.json().catch(() => null);
       if (res.ok && data?.success) {
-        setActionMsg({ text: data.message ?? "✅ Opération réussie.", ok: true });
-        setTimeout(() => router.refresh(), 1500);
+        setActionMsg({ text: data.message ?? "Opération réussie.", ok: true });
+        // Relecture réelle du profil, pas un router.refresh() sans effet.
+        setTimeout(onRefresh, 1200);
       } else {
-        setActionMsg({ text: data?.error ?? "❌ Erreur.", ok: false });
+        setActionMsg({ text: data?.error ?? "Cette action n’a pas abouti.", ok: false });
       }
     } catch {
-      setActionMsg({ text: "❌ Erreur réseau.", ok: false });
+      setActionMsg({ text: "Connexion interrompue.", ok: false });
     } finally {
       setActionLoading(null);
     }
   };
 
-  const featuresByPlan: Record<LunaPlan, string[]> = {
-    free: ["🌙 Profil public", "💌 5 likes / jour"],
+  const featuresByPlan: Record<PlanSolys, string[]> = {
+    free: ["Profil public", "5 likes par jour", "10 messages par jour"],
     "essential-monthly": ["⭐ Likes illimités", "🎪 Événements Solys", "💬 Support prioritaire"],
     "premium-monthly": ["💎 Circle of Six", "👻 Mode invisible", "📊 Visiteurs de profil", "🔍 Filtres avancés", ],
     "elite-monthly": ["👑 Toutes les fonctionnalités", "⚡ 10 boosts / mois", "🎯 Filtres ultra-précis", "🛡️ Badge VIP", "💬 Support 24/7", "🏆 Badge Elite"],
@@ -2218,7 +2286,7 @@ function PremiumTab({
     <div className="space-y-5 sm:space-y-6">
       <div>
         <h2 className="mb-1 text-lg font-bold sm:text-xl">👑 Mon abonnement</h2>
-        <p className="text-sm text-white/50">Gérez votre plan Sfera'Solys.</p>
+        <p className="text-sm text-white/50">Ton offre Sfera'Solys.</p>
       </div>
 
       {/* Carte statut */}
@@ -2257,17 +2325,21 @@ function PremiumTab({
         {/* Alertes état */}
         {user.subscriptionCancelAtPeriodEnd && user.premiumExpiresAt && (
           <div className="mb-4 rounded-xl border border-orange-400/20 bg-orange-400/10 px-3 py-2 text-sm text-orange-200">
-            ⚠️ Votre abonnement se terminera le <strong>{formatDate(user.premiumExpiresAt)}</strong>. Vous conservez l&apos;accès Premium jusqu&apos;à cette date.
+            Ton abonnement se termine le{" "}
+            <strong>{formatDate(user.premiumExpiresAt)}</strong>. Tu gardes
+            l&apos;accès jusqu&apos;à cette date.
           </div>
         )}
         {user.subscriptionPaused && (
           <div className="mb-4 rounded-xl border border-blue-400/20 bg-blue-400/10 px-3 py-2 text-sm text-blue-200">
-            ⏸️ Abonnement en pause — aucun prélèvement ce mois-ci. Réactivez à tout moment.
+            Abonnement en pause — aucun prélèvement ce mois-ci. Tu peux
+            réactiver à tout moment.
           </div>
         )}
         {!active && hasSelectedPaidPlan && !user.subscriptionCancelAtPeriodEnd && (
           <div className="mb-4 rounded-xl border border-yellow-400/20 bg-yellow-400/10 px-3 py-2 text-sm text-yellow-100">
-            Offre sélectionnée, accès non activé. Si vous avez payé, cliquez sur &quot;Synchroniser&quot;.
+            Offre sélectionnée, accès non activé. Si tu as payé, utilise
+            « Synchroniser ».
           </div>
         )}
 
@@ -2280,7 +2352,7 @@ function PremiumTab({
             <p>🔄 Prochain renouvellement : <strong>{formatDate(user.premiumExpiresAt)}</strong></p>
           )}
           {user.premiumStartedAt && (
-            <p>📅 Abonnée depuis : {formatDate(user.premiumStartedAt)}</p>
+            <p>Abonné depuis : {formatDate(user.premiumStartedAt)}</p>
           )}
         </div>
 
@@ -2329,14 +2401,14 @@ function PremiumTab({
 
           {/* Sync si paiement non reconnu */}
           {!active && hasSelectedPaidPlan && !user.subscriptionCancelAtPeriodEnd && (
-            <StripeSyncButton onSuccess={() => router.refresh()} />
+            <StripeSyncButton onSuccess={onRefresh} />
           )}
         </div>
       </div>
 
       {/* Fonctionnalités */}
       <div>
-        <p className="mb-3 text-sm font-semibold text-white/60">✨ Fonctionnalités de votre plan :</p>
+        <p className="mb-3 text-sm font-semibold text-white/60">Ce que comprend ton offre :</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {(featuresByPlan[user.plan] || featuresByPlan.free).map((feature) => (
             <div key={feature} className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/5 px-3 py-2.5 text-sm">
@@ -2359,7 +2431,7 @@ function PremiumTab({
 
       {user.plan !== "elite-monthly" && active && (
         <div className="rounded-2xl border border-amber-300/30 bg-gradient-to-br from-amber-400/10 to-yellow-500/10 p-5 text-center">
-          <p className="mb-1 text-lg">👑 Passez à l&apos;offre Elite</p>
+          <p className="mb-1 text-lg font-semibold">Voir l&apos;offre Elite</p>
           <p className="mb-4 text-sm text-white/60">Accès complet + 10 boosts et Badge VIP.</p>
           <button type="button" onClick={() => router.push("/paiement")}
             className="rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-amber-400/20 transition hover:scale-[1.02] hover:shadow-amber-400/40">
@@ -2375,7 +2447,7 @@ function PremiumTab({
 // Onglet Sécurité
 // ─────────────────────────────────────────────
 
-function IdentityVerificationBlock({ user }: { user: LunaUser }) {
+function IdentityVerificationBlock({ user }: { user: MembreSolys }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -2423,8 +2495,8 @@ function IdentityVerificationBlock({ user }: { user: LunaUser }) {
       </div>
 
       <p className="text-sm text-white/60">
-        Vérifiez votre identité avec une pièce d&apos;identité officielle pour
-        obtenir le badge &quot;Profil vérifié&quot; sur Sfera'Solys.
+        Vérifie ton identité avec un document officiel pour obtenir le badge
+        « Profil vérifié ».
       </p>
 
       {status === "pending" && (
@@ -2433,7 +2505,7 @@ function IdentityVerificationBlock({ user }: { user: LunaUser }) {
 
       {status === "failed" && (
         <p className="text-sm text-red-300/80">
-          ❌ Vérification échouée. Réessayez.
+          Vérification échouée. Tu peux réessayer.
         </p>
       )}
 
@@ -2453,11 +2525,16 @@ function IdentityVerificationBlock({ user }: { user: LunaUser }) {
   );
 }
 
-function SecurityTab({ user }: { user: LunaUser }) {
+function SecurityTab({ user }: { user: MembreSolys }) {
   const checks = [
     { ok: !!user.email, label: "Adresse email enregistrée", emoji: "📧" },
     {
-      ok: user.provider === "google" || !!user.question,
+      /**
+       * `provider === "google"` cochait cette ligne même sans question
+       * enregistrée : l'indicateur affichait une sécurité qui n'existait pas.
+       * Seule la présence réelle d'une question et d'une réponse compte.
+       */
+      ok: !!user.question && user.hasReponse === true,
       label: "Question de sécurité définie",
       emoji: "🔑",
     },
@@ -2486,7 +2563,7 @@ function SecurityTab({ user }: { user: LunaUser }) {
         </h2>
 
         <p className="text-sm text-white/50">
-          État de sécurité de votre espace Sfera'Solys.
+          L’état de sécurité de ton compte.
         </p>
       </div>
 
@@ -2548,8 +2625,136 @@ function SecurityTab({ user }: { user: LunaUser }) {
       {user.provider === "credentials" && (
         <div className="flex items-start gap-2 rounded-xl border border-blue-400/20 bg-blue-500/10 px-4 py-3 text-sm text-blue-200">
           <Shield className="mt-0.5 h-4 w-4 shrink-0" />
-          Votre mot de passe est stocké de manière sécurisée et chiffré
-          avec bcrypt.
+          Ton mot de passe est stocké sous forme de condensat chiffré (bcrypt),
+          jamais en clair — personne ne peut le lire, pas même nous.
+        </div>
+      )}
+
+      <SuppressionCompte />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Suppression de compte
+// ─────────────────────────────────────────────
+
+/**
+ * Suppression définitive du compte.
+ *
+ * `DELETE /api/users/me` existait depuis le début, complet — il annule
+ * l'abonnement Stripe, supprime les photos Cloudinary, toutes les données
+ * liées, puis le compte — et **aucune interface ne l'appelait**.
+ *
+ * Ce n'est pas un détail : la politique de confidentialité affirme que « la
+ * plupart de ces actions se font directement depuis ton espace Mon Compte ».
+ * Sans ce bouton, le droit à l'effacement était annoncé et introuvable.
+ *
+ * Confirmation en deux temps, sans boîte de dialogue native : on clique, le
+ * bloc demande d'écrire « SUPPRIMER ». Une action irréversible mérite un geste
+ * délibéré, pas un clic de plus.
+ */
+function SuppressionCompte() {
+  const [ouvert, setOuvert] = useState(false);
+  const [confirmation, setConfirmation] = useState("");
+  const [enCours, setEnCours] = useState(false);
+  const [erreur, setErreur] = useState("");
+
+  const supprimer = async () => {
+    if (confirmation.trim().toUpperCase() !== "SUPPRIMER" || enCours) return;
+
+    setEnCours(true);
+    setErreur("");
+
+    try {
+      const reponse = await fetch("/api/users/me", { method: "DELETE" });
+      const donnees = await reponse.json().catch(() => null);
+
+      if (!reponse.ok || donnees?.success === false) {
+        setErreur(
+          donnees?.error ?? "La suppression n'a pas abouti. Réessaie ou écris-nous."
+        );
+        return;
+      }
+
+      // Le compte n'existe plus : on ferme la session et on quitte le site.
+      await signOut({ redirect: false });
+      window.location.href = "/";
+    } catch {
+      setErreur("Connexion interrompue. Ton compte n'a pas été supprimé.");
+    } finally {
+      setEnCours(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-red-400/20 bg-red-500/[0.06] p-4 sm:p-5">
+      <p className="font-semibold text-white">Supprimer mon compte</p>
+
+      <p className="mt-1.5 text-sm leading-relaxed text-white/60">
+        Ton profil, tes photos, tes mises en relation et tes messages sont
+        effacés définitivement. Un abonnement en cours est résilié chez Stripe.
+        Cette action ne peut pas être annulée.
+      </p>
+
+      {!ouvert ? (
+        <button
+          type="button"
+          onClick={() => setOuvert(true)}
+          className="mt-4 rounded-xl border border-red-400/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-400/10"
+        >
+          Supprimer mon compte
+        </button>
+      ) : (
+        <div className="mt-4">
+          <label
+            htmlFor="confirmation-suppression"
+            className="mb-2 block text-sm text-white/70"
+          >
+            Écris <strong className="text-white">SUPPRIMER</strong> pour
+            confirmer.
+          </label>
+
+          <input
+            id="confirmation-suppression"
+            type="text"
+            value={confirmation}
+            onChange={(evenement) => setConfirmation(evenement.target.value)}
+            autoComplete="off"
+            className="input-solys"
+          />
+
+          {erreur && (
+            <p className="mt-3 text-sm text-red-300" role="alert">
+              {erreur}
+            </p>
+          )}
+
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            <button
+              type="button"
+              onClick={supprimer}
+              disabled={
+                enCours || confirmation.trim().toUpperCase() !== "SUPPRIMER"
+              }
+              className="rounded-xl border border-red-400/30 bg-red-500/15 px-4 py-2.5 text-sm font-semibold text-red-200 transition hover:bg-red-500/25 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {enCours ? "Suppression…" : "Supprimer définitivement"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOuvert(false);
+                setConfirmation("");
+                setErreur("");
+              }}
+              disabled={enCours}
+              className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-semibold text-white/80 transition hover:border-white/30 disabled:opacity-50"
+            >
+              Annuler
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -2560,7 +2765,7 @@ function SecurityTab({ user }: { user: LunaUser }) {
 // Onglet Connexions
 // ─────────────────────────────────────────────
 
-function ConnexionsTab({ user }: { user: LunaUser }) {
+function ConnexionsTab({ user }: { user: MembreSolys }) {
   const router = useRouter();
   const [reportUserId, setReportUserId] = useState<string | null>(null);
 
@@ -2601,7 +2806,7 @@ function ConnexionsTab({ user }: { user: LunaUser }) {
       .catch(() => {});
   }, []);
 
-  // On invite à témoigner une fois le membre "active" (au moins 1 match).
+  // On invite à témoigner une fois le membre actif (au moins 1 match).
   const showTestimonialBanner =
     !loadingMatches && matches.length > 0 && hasTestimonial === false;
 
@@ -2660,7 +2865,7 @@ function ConnexionsTab({ user }: { user: LunaUser }) {
                     Tu vis l&apos;aventure Sfera'Solys ?
                   </p>
                   <p className="text-xs text-white/60">
-                    Partage ton expérience pour rassurer les nouvelles membres.
+                    Partage ton expérience pour rassurer les nouveaux membres.
                     Visible après validation.
                   </p>
                 </div>
@@ -2975,8 +3180,8 @@ function ConnexionsTab({ user }: { user: LunaUser }) {
                 </h3>
 
                 <p className="mb-5 text-sm text-white/60">
-                  Avec un abonnement actif, découvrez qui visite votre profil en
-                  temps réel.
+                  Avec une offre Premium ou Elite, tu vois qui a consulté ton
+                  profil.
                 </p>
 
                 <Link
@@ -2996,11 +3201,11 @@ function ConnexionsTab({ user }: { user: LunaUser }) {
                 <p className="mb-3 text-4xl">🔍</p>
 
                 <p className="text-sm text-white/50">
-                  Personne n&apos;a encore visité votre profil.
+                  Personne n&apos;a encore consulté ton profil.
                 </p>
 
                 <p className="mt-2 text-xs text-white/30">
-                  Complétez votre profil pour être plus visible !
+                  Complète ton profil pour être plus visible.
                 </p>
               </div>
             ) : (

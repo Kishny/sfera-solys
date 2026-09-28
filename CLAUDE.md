@@ -1387,6 +1387,67 @@ La visibilité des profils réglés sur « premium » reste liée au fait d'avoi
 offre payante, quelle qu'elle soit : c'est un autre sujet, et le réglage dit
 bien « membres payants », pas « membres Premium ».
 
+### 🧾 /mon-compte — première passe : le fond (28/09/2026)
+
+3 344 lignes, la plus grosse page du projet. Traitée en deux temps pour que
+chaque étape reste vérifiable : **le fond d'abord** (ce commit), le visuel et la
+découpe ensuite.
+
+**La suppression de compte n'avait pas d'interface.** `DELETE /api/users/me`
+existe depuis le début, complet — il annule l'abonnement Stripe, supprime les
+photos Cloudinary, toutes les données liées, puis le compte — et **aucune page
+ne l'appelait**. Ce n'est pas un détail : la politique de confidentialité
+affirme que « la plupart de ces actions se font directement depuis ton espace
+Mon Compte ». Le droit à l'effacement était annoncé et introuvable. Le bouton
+existe, avec confirmation en deux temps (il faut écrire « SUPPRIMER »), sans
+boîte de dialogue native.
+
+**Quatre bugs d'affichage qui mentaient :**
+
+- **La photo de profil annonçait un succès qu'elle n'enregistrait pas.**
+  L'envoi vers Cloudinary est réel, mais la photo n'entre dans le profil qu'au
+  « Sauvegarder » — et le message disait « Photo mise à jour avec succès ! ».
+  Pire, le bouton restait actif **hors mode édition**, donc on pouvait
+  « réussir » un changement qui n'était jamais enregistré. Le bouton est
+  désactivé hors édition, et le message dit ce qui s'est réellement passé.
+- **Les actions Stripe ne rafraîchissaient rien.** Pause, annulation,
+  réactivation et synchronisation appelaient `router.refresh()` — sans effet
+  ici, puisque la page charge son profil **côté client**. L'action réussissait,
+  le message de succès s'affichait, et l'écran gardait l'ancien état jusqu'à un
+  rechargement manuel. Remplacé par une vraie relecture du profil.
+- **Le sélecteur de visibilité contournait la garde du Mode Fantôme.** Le
+  basculeur juste au-dessus vérifie l'offre ; le `<select>` listait les quatre
+  visibilités sans contrôle, donc proposait « invisible » à qui n'y a pas droit.
+  Le serveur refusait bien, mais l'interface offrait une option vouée à l'échec.
+- **« Question de sécurité définie » était cochée pour tout compte Google**,
+  même sans question enregistrée — un indicateur de sécurité qui affichait une
+  sécurité inexistante.
+
+**Deux chiffres flattés :** le taux de complétion du profil comptait
+`consentement` (toujours vrai dès l'inscription) et `rayon` (valeur par
+défaut), donc un profil vide démarrait haut. Et un abonnement `inactive`
+s'affichait « En attente », ce qui laissait croire à un traitement en cours.
+
+**Restes du fork :** les orientations étaient au féminin, dont « Lesbienne /
+Homosexuelle » ; l'écran de chargement affichait une **lune** lucide ; le plan
+gratuit portait 🌙 comme pictogramme ; les types internes s'appelaient
+`LunaPlan` et `LunaUser`. La clé d'orientation `curieuse` est **conservée en
+plus** de `curieux` : elle a pu être enregistrée en base avant la reprise, et un
+profil ne doit pas afficher une valeur brute parce qu'on a renommé une clé.
+
+**28 chaînes vouvoyaient** alors que tout le reste du site tutoie. Et l'onglet
+« Intéractions » portait une faute d'orthographe depuis l'origine.
+
+**Dette de types : 21 → 16.** Les cinq erreurs restantes de `mon-compte`
+venaient de `ease: "easeOut"` inféré `string` au lieu du littéral attendu par
+framer-motion ; `as const` les fait disparaître.
+
+**Reste pour la seconde passe** : 114 classes violettes/roses, 19 couleurs
+hexadécimales codées en dur, 68 lignes avec emoji, et la découpe du fichier en
+un composant par onglet. Les emojis n'ont **pas** été retirés dans cette passe :
+certains servent d'illustration en `text-4xl` dans les états vides, et les
+enlever sans refaire la mise en page laisserait des blocs vides.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
@@ -1398,7 +1459,7 @@ bien « membres payants », pas « membres Premium ».
 - [ ] `.npmrc` — retirer tout token privé hérité (commit « passe dédiée » côté SferaLuna)
 - [ ] Fichier racine `sferaluna-app-icon-1024.png` — obsolète (remplacé par `public/app-icon-1024.png`, non référencé dans le code), à déplacer/supprimer
 - [ ] **`/histoire` — page à réécrire, pas à corriger** : la marque et le genre y ont été corrigés, mais le récit lui-même reste celui de SferaLuna (« les applications ne sont pas conçues pour les femmes → nous avons créé ceci »). L'histoire fondatrice de Sfera'Solys n'est pas inventable : c'est au porteur du projet de la raconter. En l'état la page n'est plus fausse sur sa cible, mais elle ne raconte pas encore la bonne histoire.
-- [ ] **21 erreurs de types préexistantes** — voir la section Vérification ci-dessus ; masquées par `ignoreBuildErrors`.
+- [ ] **16 erreurs de types préexistantes** — voir la section Vérification ci-dessus ; masquées par `ignoreBuildErrors`.
 - [ ] **Critère d'inscription / cible** : vérifier que la copy et les visuels des pages non traitées (onboarding, profil, formulaires) sont bien orientés hommes 28+, sans présomption d'orientation
 - [ ] **OAuth** : nouveau projet Google Cloud + Services ID Apple pour le domaine Sfera'Solys (redirect URIs, `NEXTAUTH_URL` / `NEXT_PUBLIC_APP_URL` alignés sur le domaine canonique)
 - [ ] **Domaine** : sferasolys.fr/.com + déploiement Vercel séparé
