@@ -238,11 +238,11 @@ src/
 │   ├── matches/page.tsx                      ← Liste des matches ✅
 │   ├── messages/[matchId]/page.tsx           ← Chat privé ✅
 │   ├── mode-fantome/page.tsx                 ← Mode invisible premium ✅
-│   ├── mon-compte/page.tsx                   ← Dashboard compte
+│   ├── mon-compte/page.tsx                   ← Dashboard compte ✅
+│   │   └── _composants/                      ← types.ts + un composant par onglet
 │   ├── paiement/page.tsx                     ← Choix offre Stripe
 │   ├── profil/[id]/page.tsx                  ← Profil public ✅
-│   ├── vibementor|vibeplanner|vibesphere/page.tsx ✅
-│   ├── vibesphere/journal/page.tsx           ← Journal émotionnel ✅
+│   ├── entraide/page.tsx                     ← Entraide entre membres ✅
 │   ├── sitemap.ts / robots.ts               ← SEO
 │   ├── layout.tsx / layout-meta.ts          ← RootLayout + helper buildMeta
 │   ├── accessibilite|confidentialite|conditions|cookies/
@@ -1448,9 +1448,82 @@ un composant par onglet. Les emojis n'ont **pas** été retirés dans cette pass
 certains servent d'illustration en `text-4xl` dans les états vides, et les
 enlever sans refaire la mise en page laisserait des blocs vides.
 
+### 🧾 /mon-compte — seconde passe : le visuel et la découpe (28/09/2026)
+
+**3 550 lignes → 11 fichiers, 3 667 lignes.** (3 344 à l'origine ; la
+première passe en a ajouté 200 avec la suppression de compte et les
+corrections.) Le fichier contenait tout :
+types, libellés, helpers, page, six onglets, deux modales, trois
+sous-composants. Aucune partie n'était relisable seule, et corriger un onglet
+imposait de faire défiler l'ensemble. Découpé en un composant par onglet dans
+`_composants/`, plus un `types.ts` pour ce qui est réellement partagé. Le
+total grossit légèrement : les en-têtes de fichier et les imports explicites
+coûtent des lignes, et c'est le prix d'un fichier qu'on peut ouvrir seul.
+
+La page passe dans le groupe `(app)`, donc l'URL ne change pas et elle hérite
+du fond `abyss` et de la `Sidebar` persistante. Ce qui a permis de supprimer
+**la nav du haut, qui doublait la Sidebar** : deux systèmes de navigation
+simultanés, dont un redondant depuis la restructuration.
+
+**Ce qui disparaît avec le fond violet :**
+
+- **Le dégradé violet/rose et ses trois orbes flous.** La page vit maintenant
+  sur `abyss`, comme le reste de l'espace connecté.
+- **Le bloc `<style jsx global>`** : une feuille de style par page, avec la
+  classe `.input-solys` et un anneau de focus violet codé en dur. Remplacé par
+  les constantes `champ` et `focusRing` de `types.ts`. Au passage :
+  `animate-msg-pulse`, l'animation de la pastille de message non lu, était
+  déclarée **dans ce bloc** — la classe ne correspondait déjà plus à rien
+  ailleurs, et la pastille est maintenant statique et plus lisible.
+- **`planAccent` et `planEmoji`** : chaque offre avait sa teinte propre
+  (violet pour Essentiel, rose pour Premium, or pour Elite) et son emoji. Un
+  second système de couleurs superposé à celui de la marque. L'éclipse solaire
+  n'a qu'un accent — orange pour l'action, lime pour la validation — et une
+  offre se reconnaît à son nom.
+- **Les quatre cartes de statistiques de l'accueil**, chacune dans une famille
+  chromatique différente (violet, vert, jaune, bleu).
+- **68 lignes avec emoji, 19 couleurs hexadécimales codées en dur, 114 classes
+  violettes** : il en reste zéro en vigueur. Les six mentions de « violet » et
+  le seul emoji restants sont dans les commentaires qui expliquent ce qui a été
+  retiré.
+
+L'anneau de complétion du profil passe du dégradé violet→rose à
+`orange → lime` : lime quand le profil est complet, orange sinon. La couleur
+dit enfin quelque chose.
+
+**Trois promesses d'interface retirées ou corrigées :**
+
+- **Les moyens de paiement étaient une liste décorative.** « Carte bancaire ·
+  PayPal · Apple Pay · Google Pay » en `<span>` statiques, sans aucun lien avec
+  les méthodes réellement activées côté Stripe — l'un des libellés avait même
+  perdu son emoji, laissant une espace orpheline dans le tableau. Remplacé par
+  ce qui est vrai : le paiement passe par Stripe, les moyens disponibles sont
+  ceux que la page de paiement propose, et le site ne voit aucune donnée
+  bancaire.
+- **« Compte Stripe enregistré » figurait parmi les contrôles de sécurité.**
+  La présence d'un `stripeCustomerId` ne dit rien de la sécurité d'un compte.
+  Remplacé par « Identité vérifiée », qui en dit quelque chose.
+- **La carte d'une mise en relation portait trois actions concurrentes** — la
+  carte entière cliquable, un bouton « Voir ✨ » et un lien « Message » — dont
+  deux menaient au même endroit. Reste la carte (vers le profil), « Message »
+  (vers la conversation) et le signalement.
+
+**Vérifié, pas supposé :** `/api/testimonials/me` et `/api/visitors` existent
+bien tous les deux, et c'est la route `/api/visitors` qui refuse (403) un
+membre sans offre payante — pas seulement cet écran. La bannière « témoigner »
+n'apparaît qu'à un membre qui a au moins une mise en relation et n'a pas encore
+témoigné.
+
+**Âge minimum : `min={18}` → `min={28}`** dans le champ du profil. Le critère
+d'inscription est 28 ans depuis le fork ; ce champ était resté à 18.
+
+**Dette de types inchangée à 16**, build vert, 82 pages générées. Les 16
+erreurs restantes sont toutes préexistantes et hors de cette page :
+`models/User.ts` (13), `models/Subscription.ts` (2), `ui/Button.tsx` (1).
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire
