@@ -48,7 +48,7 @@ function extractPublicId(url: string): string | null {
  * 3. Annuler l'abonnement Stripe actif (fin de période, sans remboursement).
  * 4. Supprimer les photos Cloudinary (avatar + galerie).
  * 5. Supprimer toutes les données liées : likes, matches, messages, visites
- *    de profil, posts communauté, questions/réponses VibeMentor, boosts,
+ *    de profil, posts communauté, questions/réponses d'Entraide, boosts,
  *    témoignage, et retrait des listes d'inscrits aux événements Solys.
  * 6. Supprimer le document User.
  */

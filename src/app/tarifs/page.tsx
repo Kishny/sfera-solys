@@ -114,7 +114,6 @@ const plans: Plan[] = [
     features: [
       'Tout du plan Premium',
       '10 boosts de visibilité par mois',
-      'Coaching VibeMentor mensuel',
       'Cercle privé VIP',
       'Accès anticipé aux nouvelles fonctionnalités',
       'Rencontres organisées exclusives',
@@ -135,7 +134,6 @@ const comparisonRows = [
   { feature: 'Mode Fantôme', values: ['non', 'non', 'oui', 'oui'] },
   { feature: 'Visiteurs du profil', values: ['non', 'non', 'oui', 'oui'] },
   { feature: 'Filtres premium', values: ['non', 'Basiques', 'Avancés', 'Complets'] },
-  { feature: 'Coaching VibeMentor', values: ['non', 'non', 'non', 'Mensuel'] },
   { feature: 'Événements', values: ['Gratuits', 'Exclusifs', 'Exclusifs', 'VIP'] },
   { feature: 'Support', values: ['Formulaire', '5j/7', '7j/7', 'Dédié 7j/7'] },
   { feature: 'Badge', values: ['non', 'Essentiel', 'Premium', 'Elite'] },

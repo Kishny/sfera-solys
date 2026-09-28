@@ -33,7 +33,7 @@ const targetLabels: Record<ResetTarget, string> = {
   messages: "Messages",
   matches: "Matchs & likes",
   visits: "Visites de profil",
-  posts: "Posts (Communauté / VibeMentor)",
+  posts: "Posts (Communauté / Entraide)",
 };
 
 function isResetTarget(value: unknown): value is ResetTarget {

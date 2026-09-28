@@ -9,6 +9,8 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Like } from "@/models/Like";
 import { classementBoosts, pipelineProfilsClasses } from "@/lib/boosts";
+import { planEffectif } from "@/lib/quotas";
+import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
 
 /**
  * GET /api/profiles
@@ -136,11 +138,28 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
 
     /**
-     * Filtres premium uniquement.
+     * Filtres avancés — sur le drapeau de l'offre, pas sur « est premium ».
+     *
+     * Le code lisait `userIsPremium`, qui est vrai dès la première offre
+     * payante. Or `premiumFilters` vaut **false** sur l'offre Essentiel et
+     * `/tarifs` ne les liste qu'à partir de Premium : un membre Essentiel
+     * obtenait donc des filtres qu'il n'avait pas payés. La visibilité des
+     * profils « premium » reste, elle, liée au fait d'avoir une offre payante —
+     * c'est un autre sujet.
      */
-    const orientation = userIsPremium ? searchParams.get("orientation") : null;
+    const plan = planEffectif({
+      plan: (currentUser as { plan?: string }).plan,
+      isPremium: (currentUser as { isPremium?: boolean }).isPremium,
+      subscriptionStatus: (currentUser as { subscriptionStatus?: string })
+        .subscriptionStatus,
+    });
+
+    const filtresAvances =
+      SUBSCRIPTION_PLANS[plan].features.premiumFilters === true;
+
+    const orientation = filtresAvances ? searchParams.get("orientation") : null;
     const actifRecemment =
-      userIsPremium && searchParams.get("actif_recemment") === "true";
+      filtresAvances && searchParams.get("actif_recemment") === "true";
 
     /**
      * Requête principale.
@@ -288,6 +307,8 @@ export async function GET(req: NextRequest) {
         },
         filters: {
           userIsPremium,
+          /** L'offre autorise-t-elle les filtres avancés ? */
+          filtresAvances,
           ageMin: safeAgeMin,
           ageMax: safeAgeMax,
         },

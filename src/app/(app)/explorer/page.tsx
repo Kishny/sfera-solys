@@ -174,7 +174,15 @@ function libelleIntention(valeur: string): string {
 export default function AnnuairePage() {
   const { status } = useSession();
   const router = useRouter();
-  const { isPremium, subscription } = usePremium();
+  const { subscription } = usePremium();
+
+  /**
+   * Les filtres avancés dépendent du drapeau `premiumFilters`, pas de
+   * « est premium » : il vaut **false** sur l'offre Essentiel, qui obtenait
+   * donc des filtres non payés. L'API applique la même règle et renvoie
+   * `filters.filtresAvances` ; on s'y aligne dès la première réponse.
+   */
+  const [filtresAvances, setFiltresAvances] = useState(false);
   const reduireAnimations = useReducedMotion();
 
   /** Filtres en cours d'édition, appliqués seulement à la validation. */
@@ -245,11 +253,11 @@ export default function AnnuairePage() {
         // "" = on laisse l'API appliquer la portée enregistrée par le membre.
         if (filtres.departement) params.set("departement", filtres.departement);
 
-        // Les filtres payants ne partent que si l'offre les autorise.
-        if (isPremium && filtres.orientation) {
+        // Les filtres avancés ne partent que si l'offre les autorise.
+        if (filtresAvances && filtres.orientation) {
           params.set("orientation", filtres.orientation);
         }
-        if (isPremium && filtres.actifRecemment) {
+        if (filtresAvances && filtres.actifRecemment) {
           params.set("actif_recemment", "true");
         }
 
@@ -273,6 +281,7 @@ export default function AnnuairePage() {
         setProfils(donnees.profiles ?? []);
         setTotal(donnees.pagination?.total ?? 0);
         setNombreDePages(Math.max(1, donnees.pagination?.totalPages ?? 1));
+        setFiltresAvances(donnees.filters?.filtresAvances === true);
       } catch {
         setErreur("Connexion interrompue. Réessaie dans un instant.");
         setProfils([]);
@@ -280,7 +289,7 @@ export default function AnnuairePage() {
         setChargement(false);
       }
     },
-    [isPremium]
+    [filtresAvances]
   );
 
   /**
@@ -623,15 +632,15 @@ export default function AnnuairePage() {
               {/* Filtres payants */}
               <div className="mt-4 rounded-xl border border-cream/10 p-4">
                 <p className="mb-3 flex items-center gap-2 text-[12px] font-semibold text-cream/70">
-                  {isPremium ? (
+                  {filtresAvances ? (
                     <Sparkles size={14} className="text-orange" aria-hidden="true" />
                   ) : (
                     <Lock size={14} className="text-cream/55" aria-hidden="true" />
                   )}
-                  Filtres des offres payantes
+                  Filtres avancés
                 </p>
 
-                {isPremium ? (
+                {filtresAvances ? (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label
@@ -679,10 +688,10 @@ export default function AnnuairePage() {
                   </div>
                 ) : (
                   <p className="text-[12px] leading-relaxed text-cream/55">
-                    L&apos;orientation et l&apos;activité récente sont réservées
-                    aux offres payantes. Le reste de l&apos;annuaire, la
-                    vérification d&apos;identité et la recherche sont
-                    accessibles dès l&apos;offre gratuite.
+                    L&apos;orientation et l&apos;activité récente s&apos;ouvrent à
+                    partir de l&apos;offre Premium. Le reste de l&apos;annuaire, la
+                    vérification d&apos;identité et la recherche sont accessibles
+                    dès l&apos;offre gratuite.
                   </p>
                 )}
               </div>

@@ -65,7 +65,7 @@ const links: SidebarLink[] = [
     icon: Users2,
     subItems: [
       { label: "Circle of Six", href: "/circle" },
-      { label: "VibeMentor", href: "/vibementor" },
+      { label: "Entraide", href: "/entraide" },
       { label: "Mode fantôme", href: "/mode-fantome" },
       { label: "Événements", href: "/evenements" },
       { label: "Communauté", href: "/communaute" },

@@ -49,9 +49,8 @@ describe("SUBSCRIPTION_PLANS", () => {
     expect(premium.features.premiumFilters).toBe(true);
   });
 
-  it("le plan elite active vibementorCoaching et vipCommunity", () => {
+  it("le plan elite active vipCommunity", () => {
     const elite = SUBSCRIPTION_PLANS["elite-monthly"];
-    expect(elite.features.vibementorCoaching).toBe(true);
     expect(elite.features.vipCommunity).toBe(true);
     expect(elite.limits.boostsPerMonth).toBe(10);
   });

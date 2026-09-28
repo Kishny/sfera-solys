@@ -2211,7 +2211,7 @@ function PremiumTab({
     free: ["🌙 Profil public", "💌 5 likes / jour"],
     "essential-monthly": ["⭐ Likes illimités", "🎪 Événements Solys", "💬 Support prioritaire"],
     "premium-monthly": ["💎 Circle of Six", "👻 Mode invisible", "📊 Visiteurs de profil", "🔍 Filtres avancés", ],
-    "elite-monthly": ["👑 Toutes les fonctionnalités", "⚡ 10 boosts / mois", "🎯 Filtres ultra-précis", "🛡️ Badge VIP", "💬 Support 24/7", "🏆 VibeMentor coaching"],
+    "elite-monthly": ["👑 Toutes les fonctionnalités", "⚡ 10 boosts / mois", "🎯 Filtres ultra-précis", "🛡️ Badge VIP", "💬 Support 24/7", "🏆 Badge Elite"],
   };
 
   return (
@@ -2360,7 +2360,7 @@ function PremiumTab({
       {user.plan !== "elite-monthly" && active && (
         <div className="rounded-2xl border border-amber-300/30 bg-gradient-to-br from-amber-400/10 to-yellow-500/10 p-5 text-center">
           <p className="mb-1 text-lg">👑 Passez à l&apos;offre Elite</p>
-          <p className="mb-4 text-sm text-white/60">Accès complet + 10 boosts, Badge VIP et coaching VibeMentor.</p>
+          <p className="mb-4 text-sm text-white/60">Accès complet + 10 boosts et Badge VIP.</p>
           <button type="button" onClick={() => router.push("/paiement")}
             className="rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-amber-400/20 transition hover:scale-[1.02] hover:shadow-amber-400/40">
             Voir les offres ✨

@@ -1315,9 +1315,81 @@ Structure : comme `/matches`, la page maintenait **deux arbres de cartes**
 (mobile / `md`), soit la même information écrite deux fois. Une seule carte
 responsive.
 
+### 🤝 VibeMentor n'était pas du coaching : devenu « Entraide » (28/09/2026)
+
+La plus grosse tromperie tarifaire trouvée dans ce projet. `/tarifs` facturait
+**« Coaching VibeMentor mensuel »** dans l'offre Elite à 34,99 €, et
+`/fonctionnalites` promettait « coaching individuel », « ateliers
+thématiques » et « ressources exclusives ».
+
+Le modèle raconte autre chose. `MentorPost` porte une question, des **réponses
+d'autres membres**, des votes et une réponse retenue. Aucun coach, aucun
+professionnel, aucun atelier, aucune ressource. C'est un forum d'entraide entre
+pairs — un bon produit, mais pas du coaching, et sûrement pas ce qui justifie
+l'offre la plus chère du catalogue.
+
+Décision de l'utilisateur : **nommer la fonctionnalité pour ce qu'elle est et
+l'ouvrir à tous**. `/vibementor` → `/entraide` (avec redirection permanente
+dans `next.config.ts`, pour ne pas casser les liens partagés),
+`/api/vibementor` → `/api/entraide`, et le drapeau `vibementorCoaching`
+supprimé de la configuration — **il n'était lu nulle part**, donc la
+fonctionnalité était déjà ouverte à tous sans que personne le sache.
+
+Le modèle garde son nom (`MentorPost`) : « mentor » est un mot commun, pas une
+marque, et un second renommage de collection ne se justifiait pas.
+
+**Deux champs dormaient depuis le début.** `isAccepted` et `isSolved`
+n'étaient **jamais écrits**. Le modèle prévoyait qu'une question soit résolue
+par une réponse retenue — c'est le principe même d'un forum d'entraide, et ce
+qui le rend utile aux suivants — et rien ne permettait de le faire. L'action
+`accept` existe, réservée à l'auteur de la question, et `isSolved` suit
+l'existence d'une réponse retenue plutôt que d'être un drapeau séparé qui
+pourrait dériver.
+
+Mêmes protections ajoutées que sur la Communauté : filtre anti-harcèlement sur
+les questions et les réponses, limite de débit, refus des comptes suspendus,
+validation de la catégorie.
+
+### 💸 L'offre Elite n'a plus de contrepartie propre — à décider
+
+Avec le retrait de `vibementorCoaching`, l'inventaire des dix drapeaux de
+fonctionnalité donne ceci :
+
+| drapeau | appliqué ? |
+|---|---|
+| `circleOfSix` | ✅ depuis le 28/09 |
+| `ghostMode` | ✅ (l'était déjà) |
+| `profileVisitors` | ✅ (l'était déjà) |
+| `eventsAccess` | ✅ depuis le 28/09 |
+| `premiumFilters` | ✅ depuis le 28/09 (voir ci-dessous) |
+| `unlimitedLikes` / `unlimitedMessages` | ✅ via les limites `Infinity` |
+| `vipCommunity` | ❌ **lu nulle part** |
+| `prioritySupport` | ❌ lu nulle part (promesse humaine, pas du code) |
+| `vibementorCoaching` | 🗑️ supprimé |
+
+Reste donc, pour justifier Elite à 34,99 € face à Premium à 19,99 € : 10 boosts
+au lieu de 3, et `vipCommunity` — qui n'existe pas. « Cercle privé VIP »,
+« Accès anticipé aux nouvelles fonctionnalités », « Rencontres organisées
+exclusives » et « Support dédié 7j/7 » sont sur `/tarifs` sans contrepartie
+dans le code. **C'est une décision de prix, pas de code** : à trancher avant
+d'ouvrir les paiements.
+
+### 🐛 L'offre Essentiel obtenait les filtres de Premium
+
+`premiumFilters` vaut **false** sur Essentiel et `true` à partir de Premium,
+mais `/api/profiles` et l'annuaire lisaient `isPremium` — vrai dès la première
+offre payante. Un membre Essentiel obtenait donc l'orientation et le filtre
+« actif récemment » qu'il n'avait pas payés. Les deux lisent maintenant le
+drapeau, et l'API renvoie `filters.filtresAvances` pour que la page s'aligne
+sans deviner.
+
+La visibilité des profils réglés sur « premium » reste liée au fait d'avoir une
+offre payante, quelle qu'elle soit : c'est un autre sujet, et le réglage dit
+bien « membres payants », pas « membres Premium ».
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire

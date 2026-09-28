@@ -87,7 +87,7 @@ export default function Footer() {
       icon: '🧡',
       links: [
         { label: 'Événements', href: '/evenements' },
-        { label: 'VibeMentor', href: '/vibementor' },
+        { label: 'Entraide', href: '/entraide' },
         { label: 'FAQ', href: '/faq' },
         { label: 'Centre d’aide', href: '/aide' },
       ],

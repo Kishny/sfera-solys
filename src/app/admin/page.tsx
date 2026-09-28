@@ -163,10 +163,10 @@ const resetTargets: {
   },
   {
     id: "posts",
-    label: "Posts (Communauté / VibeMentor)",
+    label: "Posts (Communauté / Entraide)",
     description: "Supprime tous les posts publiés sur ces 3 espaces.",
     confirmMessage:
-      "Supprimer définitivement TOUS les posts Communauté et VibeMentor ? Cette action est irréversible.",
+      "Supprimer définitivement TOUS les posts Communauté et Entraide ? Cette action est irréversible.",
   },
 ];
 

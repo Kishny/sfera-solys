@@ -130,16 +130,16 @@ const features: FeatureItem[] = [
   {
     id: 'coaching',
     icon: GraduationCap,
-    title: 'VibeMentor',
-    description: 'Sois accompagné avec exigence et bienveillance.',
+    title: 'Entraide',
+    description: 'Poser une question à ceux qui y sont déjà passés.',
     details:
-      'Accompagnement personnalisé pour naviguer dans tes relations et ton développement personnel.',
+      "Un fil de questions-réponses entre membres vérifiés : comment aborder un premier message, quoi mettre dans son profil, comment poser une limite. Celui qui pose la question retient la réponse qui l'a aidé, et elle reste visible pour les suivants. Ce sont des membres qui répondent, pas des professionnels — et c'est accessible dès l'offre gratuite.",
     benefits: [
-      'Coaching individuel',
-      'Ateliers thématiques',
-      'Ressources exclusives',
+      'Questions par thème',
+      'Réponses de membres vérifiés',
+      'La réponse retenue reste visible',
     ],
-    link: '/vibementor',
+    link: '/entraide',
   },
   {
     id: 'security',

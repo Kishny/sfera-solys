@@ -12,6 +12,16 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  /**
+   * `/vibementor` est devenu `/entraide` : la fonctionnalité était un forum
+   * d'entraide entre membres, pas du coaching (voir CLAUDE.md). Une redirection
+   * permanente évite de casser les liens déjà partagés, les favoris et le
+   * référencement de l'ancienne URL.
+   */
+  async redirects() {
+    return [{ source: "/vibementor", destination: "/entraide", permanent: true }];
+  },
+
   async headers() {
     return [
       {

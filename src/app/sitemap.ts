@@ -119,7 +119,7 @@ const publicPages = [
     priority: 0.7,
   },
   {
-    path: "/vibementor",
+    path: "/entraide",
     changeFrequency: "monthly",
     priority: 0.6,
   },
