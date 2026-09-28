@@ -418,6 +418,21 @@ function InscriptionPageContent() {
   };
 
   /**
+   * Garde de session.
+   *
+   * La page ne traitait que `status === "loading"` : sans session, elle
+   * s'affichait quand même. On pouvait donc remplir les cinq étapes et ne
+   * l'apprendre qu'au tout dernier bouton, sous la forme d'un 401 brut de
+   * `POST /api/users/update-profile` — la route faisait son travail, c'est
+   * l'écran qui laissait avancer. On repart vers /auth avant la première
+   * question.
+   */
+  useEffect(() => {
+    if (status !== "unauthenticated") return;
+    router.replace("/auth?mode=login");
+  }, [status, router]);
+
+  /**
    * Si l'utilisateur a déjà un profil complété (ex: retour après
    * vérification d'identité), on l'amène directement à l'écran final
    * au lieu de lui refaire remplir les 5 étapes.
@@ -587,6 +602,20 @@ function InscriptionPageContent() {
 
       const responseData = await res.json().catch(() => null);
 
+      /**
+       * 401 : la session a disparu entre l'ouverture de la page et l'envoi
+       * (cookie expiré, déconnexion dans un autre onglet). Le message par
+       * défaut de la route est « Non autorisé » — exact, mais sans suite
+       * possible. On dit ce qu'il faut faire, et on y emmène.
+       */
+      if (res.status === 401) {
+        setSubmitError(
+          "Ta session a expiré. On te renvoie à la connexion — ton profil sera à ressaisir."
+        );
+        window.setTimeout(() => router.replace("/auth?mode=login"), 2200);
+        return;
+      }
+
       if (!res.ok || !responseData?.success) {
         setSubmitError(
           responseData?.error ||
@@ -689,6 +718,19 @@ function InscriptionPageContent() {
   /**
    * Loader pendant le chargement de session NextAuth.
    */
+  if (status === "unauthenticated") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-abyss px-4 text-cream">
+        <div className="text-center">
+          <p className="text-[15px] font-semibold">Connexion requise</p>
+          <p className="mt-1.5 text-[13px] text-cream/60">
+            On t’emmène à la page de connexion.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#001724] via-[#0C222D] to-[#0C222D] px-4 text-cream">

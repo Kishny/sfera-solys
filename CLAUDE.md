@@ -1585,6 +1585,36 @@ connexion, mobile) ont été rendus dans Chromium à partir du CSS et du
 balisage réels. C'est ce rendu qui a montré que le disque d'ombre ne
 fonctionnait pas et qu'il fallait passer au masque.
 
+### 🚧 /inscription — le 401 qui arrivait à la fin (28/09/2026)
+
+Un 401 sur `POST /api/users/update-profile`, au tout dernier bouton du
+parcours d'inscription. La route faisait son travail : elle ne voyait pas de
+session. C'est l'écran qui laissait avancer.
+
+`/inscription` appelait `useSession()` mais ne traitait que
+`status === "loading"`. Sans session, la page s'affichait quand même : on
+pouvait remplir les cinq étapes — âge, orientation, intentions, localisation,
+intérêts, question de sécurité — et ne l'apprendre qu'à l'envoi, sous la forme
+d'un « Non autorisé. Veuillez vous connecter. » avec tout le formulaire perdu.
+
+Deux corrections :
+
+- **Une garde de session** : `status === "unauthenticated"` renvoie vers
+  `/auth?mode=login` avant la première question.
+- **Un 401 au moment de l'envoi se lit maintenant** : la session peut aussi
+  disparaître en cours de route (cookie expiré, déconnexion dans un autre
+  onglet). Le message dit ce qui s'est passé et emmène à la connexion, au lieu
+  de laisser un « Non autorisé » sans suite.
+
+**Ce que disaient les temps de réponse.** Dans le journal du serveur de
+développement, `POST /api/auth/callback/credentials` répondait en 16 ms et
+`GET /api/auth/session` en 15 ms. Une comparaison bcrypt à un coût de 12 prend
+au bas mot 100 ms, et le callback `jwt` interroge Atlas à chaque lecture de
+session : ces deux durées ne sont atteignables que si `authorize` est ressorti
+avant bcrypt — compte introuvable — et s'il n'y avait aucun jeton à décoder.
+Autrement dit la connexion n'avait pas pris, et le parcours s'est poursuivi
+comme si de rien n'était. C'est exactement ce que la garde empêche désormais.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
