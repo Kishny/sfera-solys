@@ -279,3 +279,54 @@ export async function ouvrirEnAttente(
 
   return ouvertes;
 }
+
+// ─────────────────────────────────────────────
+// Sourdine et archivage
+// ─────────────────────────────────────────────
+
+/**
+ * Sourdine et archivage : écrits depuis le début, lus nulle part.
+ *
+ * `PATCH /api/matches/[id]/mute` et `PATCH /api/matches/[id]/archive`
+ * existaient, complets, et **aucune ligne ne relisait jamais `mutedBy` ni
+ * `archivedBy`**. Mettre une conversation en sourdine la notait en base sans
+ * rien couper ; l'archiver ne la retirait d'aucune liste. Deux réglages
+ * décoratifs.
+ *
+ * Ces deux lecteurs leur donnent un effet : la sourdine coupe la notification
+ * push (jamais l'arrivée du message — une conversation muette reste une
+ * conversation), et l'archivage sort la relation de la liste principale.
+ */
+
+type MatchAvecReglages = {
+  mutedBy?: Array<{ userId: unknown; until: Date | string }> | null;
+  archivedBy?: unknown[] | null;
+};
+
+/** La conversation est-elle en sourdine pour ce membre, maintenant ? */
+export function estEnSourdine(
+  match: MatchAvecReglages,
+  userId: Identifiant
+): boolean {
+  const entrees = match.mutedBy ?? [];
+  const moi = String(userId);
+  const maintenant = Date.now();
+
+  return entrees.some((entree) => {
+    if (String(entree.userId) !== moi) return false;
+
+    const fin = new Date(entree.until).getTime();
+
+    // Une sourdine expirée ne compte pas : la date est l'autorité.
+    return Number.isFinite(fin) && fin > maintenant;
+  });
+}
+
+/** La conversation est-elle archivée par ce membre ? */
+export function estArchivee(
+  match: MatchAvecReglages,
+  userId: Identifiant
+): boolean {
+  const moi = String(userId);
+  return (match.archivedBy ?? []).some((id) => String(id) === moi);
+}

@@ -13,6 +13,8 @@ import { Report } from "@/models/Report";
 import { pusher } from "@/lib/pusher";
 import { sendNewMessagePush } from "@/lib/push";
 import { moderateText } from "@/lib/text-moderation";
+import { quotaMessagesDuJour } from "@/lib/quotas";
+import { estEnSourdine } from "@/lib/matches";
 
 /**
  * API Messages Sfera'Solys.
@@ -91,7 +93,10 @@ async function authorizeMatchAccess(matchId: string, sessionEmail: string) {
 
   const currentUser = await User.findOne({
     email: sessionEmail.toLowerCase().trim(),
-  }).select("_id banned");
+  }).select(
+    // plan / isPremium / subscriptionStatus : quota quotidien de messages.
+    "_id banned plan isPremium subscriptionStatus"
+  );
 
   if (!currentUser || currentUser.banned) return null;
 
@@ -107,6 +112,7 @@ async function authorizeMatchAccess(matchId: string, sessionEmail: string) {
 
   return {
     currentUserId,
+    currentUser,
     match,
   };
 }
@@ -333,7 +339,7 @@ export async function POST(
       );
     }
 
-    const { currentUserId, match } = access;
+    const { currentUserId, currentUser, match } = access;
 
     let body: { content?: unknown } | null = null;
 
@@ -418,6 +424,41 @@ export async function POST(
       );
     }
 
+    /**
+     * Quota quotidien de messages.
+     *
+     * L'offre gratuite annonce « messagerie limitée (10 messages/jour) » sur
+     * /tarifs, et cette route ne vérifiait rien : le compteur de
+     * `subscription-check` lisait un champ `dailyMessagesCount` absent du modèle
+     * User, donc toujours zéro. Les messages sont désormais comptés sur la
+     * collection (voir src/lib/quotas.ts).
+     *
+     * Vérifié **après** la modération : un message bloqué pour abus ne doit pas
+     * consommer de quota, il n'a jamais existé.
+     */
+    const quota = await quotaMessagesDuJour(currentUserId.toString(), {
+      plan: currentUser.plan,
+      isPremium: currentUser.isPremium,
+      subscriptionStatus: currentUser.subscriptionStatus,
+    });
+
+    if (quota.atteint) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Tu as envoyé tes ${quota.limite} messages du jour. Le compteur repart à minuit.`,
+          code: "MESSAGE_QUOTA_REACHED",
+          quota: {
+            limite: quota.limite,
+            utilises: quota.utilises,
+            restants: quota.restants,
+          },
+          upgradeUrl: "/tarifs",
+        },
+        { status: 403 }
+      );
+    }
+
     const message = await Message.create({
       matchId: match._id,
       senderId: currentUserId,
@@ -451,16 +492,35 @@ export async function POST(
       console.warn("Pusher trigger new-message échoué :", pusherError);
     }
 
-    // Push notification vers le destinataire (silencieux si échec)
+    /**
+     * Notification push vers le destinataire — sauf s'il a mis la conversation
+     * en sourdine.
+     *
+     * `mutedBy` était écrit par `PATCH /api/matches/[id]/mute` et **relu
+     * nulle part** : la sourdine ne coupait rien. Elle coupe la notification,
+     * jamais l'arrivée du message : une conversation muette reste une
+     * conversation, et l'événement Pusher ci-dessus part dans tous les cas.
+     *
+     * Silencieux en cas d'échec : un push raté ne doit pas faire échouer
+     * l'envoi du message.
+     */
     try {
       const otherUserId = getOtherUserId(match, access.currentUserId);
-      const sender = await User.findById(access.currentUserId).select("pseudonyme").lean() as { pseudonyme?: string } | null;
-      await sendNewMessagePush({
-        recipientUserId: otherUserId,
-        senderName: sender?.pseudonyme ?? "Quelqu'un",
-        preview: content,
-        matchId: match._id.toString(),
-      });
+
+      if (estEnSourdine(match, otherUserId)) {
+        // Rien à envoyer : le destinataire a demandé le silence.
+      } else {
+        const sender = (await User.findById(access.currentUserId)
+          .select("pseudonyme")
+          .lean()) as { pseudonyme?: string } | null;
+
+        await sendNewMessagePush({
+          recipientUserId: otherUserId,
+          senderName: sender?.pseudonyme ?? "Quelqu'un",
+          preview: content,
+          matchId: match._id.toString(),
+        });
+      }
     } catch (pushErr) {
       console.warn("Push notification message échouée :", pushErr);
     }
@@ -469,6 +529,12 @@ export async function POST(
       {
         success: true,
         message: serializedMessage,
+        quota: {
+          limite: quota.limite,
+          utilises: quota.utilises + 1,
+          restants:
+            quota.restants === null ? null : Math.max(0, quota.restants - 1),
+        },
       },
       {
         status: 201,

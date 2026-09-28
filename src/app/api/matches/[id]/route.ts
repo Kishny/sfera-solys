@@ -18,7 +18,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id && !session?.user?.email) {
-    return NextResponse.json({ error: 'Non authentifiée' }, { status: 401 });
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
   const { id: matchId } = await params;
@@ -32,7 +32,7 @@ export async function DELETE(
   let userId: string = session.user.id ?? '';
   if (!userId && session.user.email) {
     const u = await User.findOne({ email: session.user.email.toLowerCase() }).select('_id').lean();
-    if (!u) return NextResponse.json({ error: 'Utilisatrice introuvable' }, { status: 404 });
+    if (!u) return NextResponse.json({ error: 'Membre introuvable' }, { status: 404 });
     userId = (u._id as mongoose.Types.ObjectId).toString();
   }
 

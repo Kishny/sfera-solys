@@ -9,7 +9,12 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Match } from "@/models/Match";
 import { Message } from "@/models/Message";
-import { quotaMatchs, trouverEnAttente } from "@/lib/matches";
+import {
+  estArchivee,
+  estEnSourdine,
+  quotaMatchs,
+  trouverEnAttente,
+} from "@/lib/matches";
 
 /**
  * GET /api/matches
@@ -31,6 +36,16 @@ import { quotaMatchs, trouverEnAttente } from "@/lib/matches";
  * désormais `plafond`, avec le nombre de relations **en attente** : des likes
  * réciproques qui ne se sont pas ouverts faute de place. Sans ce chiffre, un
  * membre au plafond ne verrait rien — juste des likes qui ne donnent rien.
+ *
+ * ## Archivage et sourdine, enfin lus
+ *
+ * `archivedBy` et `mutedBy` étaient écrits par leurs routes respectives et
+ * **relus nulle part** : archiver ne retirait la conversation d'aucune liste, et
+ * la sourdine ne coupait rien. Chaque entrée porte désormais `archivee` et
+ * `sourdineActive`, pour que l'interface puisse en tenir compte. On renvoie
+ * tout, archivées comprises : le tri appartient à la page, et une relation
+ * archivée occupe toujours une place dans le plafond — l'archivage est un
+ * rangement, pas une sortie.
  */
 
 function toObjectIdString(value: unknown) {
@@ -236,6 +251,11 @@ export async function GET() {
         updatedAt: match.updatedAt,
         lastMessageAt: match.lastMessageAt ?? null,
         isActive: match.isActive,
+
+        /** Rangée par le membre connecté — pas par l'autre. */
+        archivee: estArchivee(match, currentUserId),
+        /** Sourdine encore valide à cette seconde. */
+        sourdineActive: estEnSourdine(match, currentUserId),
         unreadCount,
         hasUnreadMessage: unreadCount > 0,
 

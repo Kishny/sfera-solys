@@ -1068,9 +1068,62 @@ Ce qu'il faudra faire le jour où Stripe est configuré :
   `plan` / `isPremium` / `subscriptionStatus` dans Atlas pour voir le panneau de
   boost autrement qu'en « ton offre ne comprend pas de boost ».
 
+### 💬 /messages migrée : deux réglages sortis du placard, et le quota appliqué (28/09/2026)
+
+**La sourdine et le rangement n'existaient que côté serveur.**
+`PATCH /api/matches/[id]/mute` et `PATCH /api/matches/[id]/archive` étaient
+complets, testables au curl, et **aucune interface ne les appelait**. Pire :
+`mutedBy` et `archivedBy` n'étaient relus nulle part, donc même appelés à la
+main ils n'auraient rien changé — deux réglages purement décoratifs.
+
+Les deux ont maintenant un bouton *et* un effet :
+
+- la **sourdine** coupe la notification push du destinataire dans
+  `POST /api/messages/[matchId]`, jamais l'arrivée du message ni l'événement
+  Pusher. Une conversation muette reste une conversation. Une sourdine expirée
+  ne compte pas : la date tranche, comme pour les boosts ;
+- le **rangement** sort la relation de la liste principale de `/matches`, avec
+  un basculement « En cours / Rangées ». Une relation rangée **occupe toujours
+  une place** dans le plafond : ranger est un classement, pas une sortie. C'est
+  dit à l'écran, pour que personne ne range en croyant libérer une place.
+
+**La limite de 10 messages par jour n'était pas appliquée.** `/tarifs` l'annonce
+depuis le début ; le compteur lisait `dailyMessagesCount`, champ absent du
+modèle `User`. `POST /api/messages/[matchId]` refuse maintenant au-delà du
+quota, et renvoie ce qui reste — la zone de saisie l'affiche, parce qu'il vaut
+mieux le savoir avant d'écrire qu'après.
+
+Détail qui compte : le quota est vérifié **après** la modération
+anti-harcèlement. Un message bloqué pour abus n'a jamais existé, il ne doit pas
+consommer de quota.
+
+**Le temps réel peut manquer, et il faut le dire.** Les clés Pusher sont
+optionnelles : si l'abonnement échoue, la conversation reste utilisable mais ne
+se met plus à jour seule. La page l'annonce au lieu de laisser croire à un
+blocage.
+
+Deux détails de contraste mesurés : l'horodatage dans une bulle orange était en
+`abyss/70` (3,80:1) — passé en `abyss/90` (4,93:1) ; les accusés de lecture
+héritent du même conteneur, donc corrigés avec.
+
+**Détour assumé** : la page lit `/api/matches` en entier pour retrouver son
+interlocuteur et ses réglages, parce que c'est la seule route qui expose
+`archivee` et `sourdineActive`. Une route `/api/matches/[id]` en lecture ferait
+mieux le jour où le volume le justifie.
+
+### ⚠️ Incohérence connue, laissée en place
+
+`DELETE /api/matches/[id]` (suppression douce via `deletedBy`) n'a toujours pas
+d'interface — seul « Mettre fin » existe, qui passe par `DELETE /api/likes`.
+Tant que c'est le cas, rien à faire. Mais le jour où la suppression douce est
+exposée : `authorizeMatchAccess` dans `/api/messages/[matchId]` n'exige que
+`isActive: true`, donc un membre qui a quitté la conversation pourrait continuer
+d'y écrire. Il faudra refuser l'envoi quand l'expéditeur figure dans
+`deletedBy`.
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/circle /communaute /evenements /mode-fantome /vibementor /messages/[matchId] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/circle /communaute /evenements /mode-fantome /vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire

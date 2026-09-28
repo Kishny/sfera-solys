@@ -23,7 +23,13 @@
  * page ne le déclarait même pas. Le travail était fait côté serveur et ignoré
  * côté client.
  *
- * **3. Le plafond était invisible.** L'offre gratuite est limitée à 3 mises en
+ * **3. L'archivage et la sourdine ne faisaient rien.** `archivedBy` et
+ * `mutedBy` étaient écrits par leurs routes et relus nulle part. Archiver une
+ * conversation ne la retirait d'aucune liste. Elles sont maintenant masquées par
+ * défaut, avec un basculement pour les revoir — et elles **continuent d'occuper
+ * une place** dans le plafond : archiver est un rangement, pas une sortie.
+ *
+ * **4. Le plafond était invisible.** L'offre gratuite est limitée à 3 mises en
  * relation. Sans affichage, un membre au plafond ne voit rien : juste des likes
  * réciproques qui ne donnent rien. La page montre l'état (« 3 sur 3 ») et le
  * nombre de relations en attente d'une place.
@@ -43,6 +49,8 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   AlertCircle,
+  Archive,
+  BellOff,
   Flag,
   Heart,
   Hourglass,
@@ -81,6 +89,10 @@ interface Relation {
   lastMessageAt: string | null;
   unreadCount?: number;
   hasUnreadMessage?: boolean;
+  /** Rangée par le membre connecté, pas par l'autre. */
+  archivee?: boolean;
+  /** Sourdine encore valide côté serveur. */
+  sourdineActive?: boolean;
   user: MembreMatche | null;
 }
 
@@ -145,6 +157,7 @@ export default function PageRelations() {
   const [erreur, setErreur] = useState("");
 
   const [recherche, setRecherche] = useState("");
+  const [voirArchivees, setVoirArchivees] = useState(false);
 
   /** Relation dont la fin est en attente de confirmation. */
   const [finDemandee, setFinDemandee] = useState<string | null>(null);
@@ -221,11 +234,21 @@ export default function PageRelations() {
     }
   };
 
+  const archivees = useMemo(
+    () => relations.filter((relation) => relation.archivee === true).length,
+    [relations]
+  );
+
   const filtrees = useMemo(() => {
     const terme = recherche.trim().toLowerCase();
-    if (!terme) return relations;
 
-    return relations.filter((relation) => {
+    const visibles = relations.filter((relation) =>
+      voirArchivees ? relation.archivee === true : relation.archivee !== true
+    );
+
+    if (!terme) return visibles;
+
+    return visibles.filter((relation) => {
       const membre = relation.user;
       if (!membre) return false;
 
@@ -241,7 +264,7 @@ export default function PageRelations() {
         String(champ).toLowerCase().includes(terme)
       );
     });
-  }, [relations, recherche]);
+  }, [relations, recherche, voirArchivees]);
 
   const nonLus = useMemo(
     () =>
@@ -376,6 +399,41 @@ export default function PageRelations() {
                   className={`w-full rounded-xl border border-cream/12 bg-[#0C222D] py-2.5 pl-10 pr-3 text-[13px] text-cream placeholder:text-cream/55 ${focusRing}`}
                 />
               </div>
+            </div>
+          )}
+
+          {/* Archivées */}
+          {archivees > 0 && (
+            <div className="mb-5 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setVoirArchivees(false)}
+                aria-pressed={!voirArchivees}
+                className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+                  voirArchivees
+                    ? "border-cream/15 text-cream/70 hover:border-cream/30"
+                    : "border-orange bg-orange text-abyss"
+                }`}
+              >
+                En cours
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setVoirArchivees(true)}
+                aria-pressed={voirArchivees}
+                className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+                  voirArchivees
+                    ? "border-orange bg-orange text-abyss"
+                    : "border-cream/15 text-cream/70 hover:border-cream/30"
+                }`}
+              >
+                Rangées ({archivees})
+              </button>
+
+              <p className="text-[11px] leading-relaxed text-cream/55">
+                Une relation rangée occupe toujours une place.
+              </p>
             </div>
           )}
 
@@ -584,6 +642,20 @@ function CarteRelation({
             {nonLus > 0 && (
               <span className="rounded-full bg-orange px-2 py-0.5 text-[11px] font-bold text-abyss">
                 {nonLus} non lu{nonLus > 1 ? "s" : ""}
+              </span>
+            )}
+
+            {relation.sourdineActive && (
+              <span className="flex items-center gap-1 rounded-full border border-cream/15 px-2 py-0.5 text-[11px] font-semibold text-cream/70">
+                <BellOff size={11} aria-hidden="true" />
+                En sourdine
+              </span>
+            )}
+
+            {relation.archivee && (
+              <span className="flex items-center gap-1 rounded-full border border-cream/15 px-2 py-0.5 text-[11px] font-semibold text-cream/70">
+                <Archive size={11} aria-hidden="true" />
+                Rangée
               </span>
             )}
           </div>
