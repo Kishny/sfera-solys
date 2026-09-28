@@ -1,55 +1,78 @@
-// src/app/explorer/page.tsx
+// src/app/(app)/explorer/page.tsx
 
 "use client";
 
 /**
- * Page Explorer Sfera'Solys.
+ * Annuaire Sfera'Solys.
  *
- * Cette page gère :
- * - l'affichage des profils à découvrir ;
- * - un effet pile de cartes façon Tinder ;
- * - les filtres classiques ;
- * - les filtres premium ;
- * - le like ;
- * - le pass ;
- * - la détection de match ;
- * - l'enregistrement des visites de profil ;
- * - le chargement progressif ;
- * - le signalement d'un profil.
+ * ## Pourquoi ce n'est plus une pile de cartes
  *
- * Version mobile-first :
- * - header page plus compact ;
- * - filtres plus compacts ;
- * - carte profil moins haute sur mobile ;
- * - actions plus proches de la carte ;
- * - empilement visuel des profils ;
- * - drag horizontal léger façon swipe ;
- * - footer masqué sur mobile pour éviter une page trop longue.
+ * Cette page était un swipe façon Tinder : trois cartes empilées,
+ * glisser-à-droite pour liker, glisser-à-gauche pour passer, et un
+ * préchargement qui allongeait la liste sans fin. Or le site affirme le
+ * contraire à deux endroits. `/valeurs` : « Le Circle of Six propose six
+ * profils le lundi, puis s'arrête. À côté, l'annuaire permet de chercher par
+ * soi-même. Aucune des deux vues ne défile à l'infini : ce n'est pas un oubli,
+ * c'est le produit. » Et `/fonctionnalites` vend « des liens choisis, pas des
+ * milliers de swipes » et « moins de fatigue du swipe ».
+ *
+ * L'annuaire promis n'existait pas : Explorer *était* le swipe. Une promesse
+ * tenue par une page qui fait l'inverse n'est pas une promesse.
+ *
+ * Donc : une grille, une recherche, et une **pagination explicite**. On demande
+ * la page suivante, elle ne vient pas toute seule. C'est le point entier du
+ * changement — le reste (grille, filtres) n'en est que la conséquence.
+ *
+ * ## Ce qui disparaît, et pourquoi
+ *
+ * - **Le glisser-pour-liker.** Un geste rapide et réversible-par-accident est
+ *   exactement ce que la page prétend refuser.
+ * - **Le bouton « passer ».** Dans un annuaire, on ne passe pas : on ne like
+ *   pas. Rien à enregistrer, rien à consommer.
+ * - **Le compteur « x profils à découvrir ».** Il comptait ce qui restait dans
+ *   la pile chargée, pas les membres. L'annuaire affiche le total réel, celui
+ *   que renvoie l'API.
+ * - **La visite enregistrée passivement.** L'ancienne page envoyait un
+ *   `POST /api/visitors` pour chaque carte affichée. En grille, ça ferait vingt
+ *   visites par page feuilletée, gonflerait « qui a vu ton profil » et
+ *   épuiserait le quota de visites (20 sur l'offre gratuite). La visite part
+ *   maintenant au clic sur « voir le profil » — quand elle a lieu.
+ *
+ * ## Corrections de fond au passage
+ *
+ * - Les filtres d'âge partaient de **18 ans** alors que la plateforme est
+ *   réservée aux 28 ans et plus (l'API corrigeait silencieusement à 28).
+ * - Les orientations proposées étaient toutes au féminin, héritées de
+ *   SferaLuna : « Hétérosexuelle », « Lesbienne / Homosexuelle », « Curieuse ».
+ * - L'identité visuelle passe du violet/rose hérité à l'éclipse solaire.
+ *   L'orange est réservé à l'action, le lime à la validation — jamais du texte
+ *   fin sur ces deux fonds.
  */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
-  Heart,
-  X,
-  MapPin,
-  Sparkles,
-  Filter,
-  ChevronDown,
-  Loader2,
-  Search,
-  Crown,
-  RefreshCw,
-  Lock,
-  MessageCircle,
-  Flag,
   AlertCircle,
-  User,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Flag,
+  Heart,
+  Loader2,
+  Lock,
+  MapPin,
+  MessageCircle,
+  RotateCcw,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+  X,
 } from "lucide-react";
+
 import { usePremium } from "@/hooks/usePremium";
-import Link from "next/link";
 import ReportModal from "@/components/ReportModal";
 import PanneauBoost from "@/components/boost/PanneauBoost";
 import { DEPARTEMENTS, getDepartementLabel } from "@/lib/locations";
@@ -58,14 +81,14 @@ import { DEPARTEMENTS, getDepartementLabel } from "@/lib/locations";
 // Types
 // ─────────────────────────────────────────────
 
-interface Profile {
+interface Profil {
   _id: string;
   pseudonyme: string;
   age?: number;
   localisation?: string;
   departement?: string;
-  interets: string[];
-  intentions: string[];
+  interets?: string[];
+  intentions?: string[];
   image?: string;
   identityVerified?: boolean;
   /**
@@ -75,26 +98,29 @@ interface Profile {
   miseEnAvant?: boolean;
 }
 
-interface Filters {
-  age_min: string;
-  age_max: string;
-  intentions: string;
-  localisation: string;
+interface Recherche {
+  ageMin: string;
+  ageMax: string;
+  intentions: string[];
+  ville: string;
   departement: string;
-
-  /**
-   * Filtres premium.
-   * Ils sont envoyés à l'API uniquement si l'utilisateur est premium.
-   */
+  /** Filtres réservés aux offres payantes. */
   orientation: string;
-  actif_recemment: boolean;
+  actifRecemment: boolean;
 }
 
 // ─────────────────────────────────────────────
-// Options de filtres
+// Constantes
 // ─────────────────────────────────────────────
 
-const INTENTIONS_OPTIONS = [
+/** Âge minimum d'inscription. L'API applique la même borne. */
+const AGE_MINIMUM = 28;
+const AGE_MAXIMUM = 99;
+
+/** Profils par page. L'API plafonne à 50. */
+const PAR_PAGE = 18;
+
+const INTENTIONS = [
   { value: "rencontre-serieuse", label: "Rencontre sérieuse" },
   { value: "amitie", label: "Amitié" },
   { value: "aventure", label: "Aventure" },
@@ -102,1287 +128,943 @@ const INTENTIONS_OPTIONS = [
   { value: "discussion", label: "Discussion" },
 ];
 
-const ORIENTATION_OPTIONS = [
-  { value: "hetero", label: "Hétérosexuelle" },
-  { value: "homo", label: "Lesbienne / Homosexuelle" },
-  { value: "bi", label: "Bisexuelle" },
-  { value: "pan", label: "Pansexuelle" },
-  { value: "curieuse", label: "Curieuse" },
+/**
+ * Orientations, au masculin.
+ *
+ * La liste précédente était intégralement au féminin — reste du fork
+ * SferaLuna. « Curieux » remplace « Curieuse », et l'entrée
+ * « Lesbienne / Homosexuelle » n'avait évidemment rien à faire ici.
+ */
+const ORIENTATIONS = [
+  { value: "hetero", label: "Hétérosexuel" },
+  { value: "homo", label: "Homosexuel" },
+  { value: "bi", label: "Bisexuel" },
+  { value: "pan", label: "Pansexuel" },
+  { value: "curieux", label: "Curieux" },
   { value: "other", label: "Autre" },
 ];
 
-// ─────────────────────────────────────────────
-// Accent visuel par tier (reflète le plan de l'utilisateur qui explore)
-// ─────────────────────────────────────────────
-
-const planAccent: Record<
-  string,
-  { titleGradient: string; actionGradient: string; actionShadow: string }
-> = {
-  free: {
-    titleGradient: "from-white to-white/70",
-    actionGradient: "from-white/30 to-white/15",
-    actionShadow: "shadow-white/10",
-  },
-  "essential-monthly": {
-    titleGradient: "from-violet-200 to-purple-200",
-    actionGradient: "from-violet-500 to-purple-600",
-    actionShadow: "shadow-violet-500/30",
-  },
-  "premium-monthly": {
-    titleGradient: "from-purple-200 to-pink-200",
-    actionGradient: "from-pink-500 to-purple-600",
-    actionShadow: "shadow-pink-500/30",
-  },
-  "elite-monthly": {
-    titleGradient: "from-amber-200 to-yellow-200",
-    actionGradient: "from-amber-400 to-yellow-500",
-    actionShadow: "shadow-amber-400/30",
-  },
+const RECHERCHE_VIDE: Recherche = {
+  ageMin: String(AGE_MINIMUM),
+  ageMax: String(AGE_MAXIMUM),
+  intentions: [],
+  ville: "",
+  departement: "",
+  orientation: "",
+  actifRecemment: false,
 };
 
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+
+const champ =
+  "w-full rounded-xl border border-cream/12 bg-abyss/60 px-3 py-2.5 text-[13px] text-cream placeholder:text-cream/55 " +
+  focusRing;
+
+/** Libellé d'une intention, ou la valeur brute si elle est inconnue. */
+function libelleIntention(valeur: string): string {
+  return INTENTIONS.find((item) => item.value === valeur)?.label ?? valeur;
+}
+
 // ─────────────────────────────────────────────
-// Page principale
+// Page
 // ─────────────────────────────────────────────
 
-export default function ExplorerPage() {
+export default function AnnuairePage() {
   const { status } = useSession();
   const router = useRouter();
-  const { isPremium, plan } = usePremium();
-  const accent = planAccent[plan ?? "free"] ?? planAccent.free;
+  const { isPremium, subscription } = usePremium();
+  const reduireAnimations = useReducedMotion();
 
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  /** Filtres en cours d'édition, appliqués seulement à la validation. */
+  const [brouillon, setBrouillon] = useState<Recherche>(RECHERCHE_VIDE);
+  /** Filtres réellement envoyés à l'API. */
+  const [recherche, setRecherche] = useState<Recherche>(RECHERCHE_VIDE);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLiking, setIsLiking] = useState(false);
+  const [filtresOuverts, setFiltresOuverts] = useState(false);
 
-  const [matchModal, setMatchModal] = useState<{
-    profile: Profile;
-    matchId: string;
-  } | null>(null);
-
-  const [showFilters, setShowFilters] = useState(false);
+  const [profils, setProfils] = useState<Profil[]>([]);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [total, setTotal] = useState(0);
+  const [nombreDePages, setNombreDePages] = useState(1);
+
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState("");
+
+  const [likeEnCours, setLikeEnCours] = useState<string | null>(null);
+  const [profilsAimes, setProfilsAimes] = useState<Set<string>>(new Set());
 
   /**
-   * Permet d'éviter de liker plusieurs fois le même profil côté UI.
-   */
-  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
-
-  /**
-   * Profil actuellement signalé.
-   */
-  const [reportProfileId, setReportProfileId] = useState<string | null>(null);
-
-  /**
-   * Message d'erreur global discret.
-   */
-  const [pageError, setPageError] = useState("");
-
-  const [filters, setFilters] = useState<Filters>({
-    age_min: "18",
-    age_max: "99",
-    intentions: "",
-    localisation: "",
-    departement: "",
-    orientation: "",
-    actif_recemment: false,
-  });
-
-  /**
-   * Profils visibles dans la pile.
+   * Likes restants aujourd'hui. `null` = illimité.
    *
-   * On affiche :
-   * - la carte active ;
-   * - la prochaine ;
-   * - celle d'après.
-   *
-   * Ça donne l'effet Tinder sans casser ta logique actuelle.
+   * Amorcé depuis `/api/subscription/status`, puis mis à jour par la réponse de
+   * chaque like : l'API renvoie le quota, donc pas besoin d'un second appel.
    */
-  const stackedProfiles = useMemo(() => {
-    return profiles.slice(currentIndex, currentIndex + 3);
-  }, [profiles, currentIndex]);
+  const [likesRestants, setLikesRestants] = useState<number | null>(null);
+
+  const [profilSignale, setProfilSignale] = useState<string | null>(null);
+
+  const [match, setMatch] = useState<{ profil: Profil; matchId: string } | null>(
+    null
+  );
+
+  useEffect(() => {
+    const restants = subscription?.usage?.remainingSwipes;
+    if (typeof restants === "number") setLikesRestants(restants);
+  }, [subscription]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") router.push("/auth?mode=login");
+  }, [status, router]);
 
   /**
-   * Nombre de profils restants à explorer.
-   */
-  const remainingCount = Math.max(profiles.length - currentIndex, 0);
-
-  /**
-   * Profil actif.
-   */
-  const currentProfile = profiles[currentIndex] ?? null;
-
-  /**
-   * Chargement des profils.
+   * Charge une page de l'annuaire.
    *
-   * reset = true :
-   * - recharge depuis la page 1 ;
-   * - remplace les profils actuels ;
-   * - remet l'index courant à 0.
-   *
-   * reset = false :
-   * - ajoute les profils suivants à la liste existante.
+   * Remplace toujours les résultats : une page est une page. C'est la
+   * différence de fond avec l'ancienne pile, qui empilait les pages jusqu'à
+   * l'épuisement de la base.
    */
-  const fetchProfiles = useCallback(
-    async (reset = false) => {
-      setIsLoading(true);
-      setPageError("");
+  const chargerPage = useCallback(
+    async (numero: number, filtres: Recherche) => {
+      setChargement(true);
+      setErreur("");
 
       try {
         const params = new URLSearchParams();
 
-        if (filters.age_min) params.set("age_min", filters.age_min);
-        if (filters.age_max) params.set("age_max", filters.age_max);
-        if (filters.intentions) params.set("intentions", filters.intentions);
-        if (filters.localisation) {
-          params.set("localisation", filters.localisation);
-        }
-        if (filters.departement) {
-          params.set("departement", filters.departement);
+        params.set("age_min", filtres.ageMin || String(AGE_MINIMUM));
+        params.set("age_max", filtres.ageMax || String(AGE_MAXIMUM));
+
+        if (filtres.intentions.length > 0) {
+          params.set("intentions", filtres.intentions.join(","));
         }
 
-        /**
-         * Filtres premium :
-         * on ne les envoie à l'API que si l'utilisateur est premium.
-         */
-        if (isPremium && filters.orientation) {
-          params.set("orientation", filters.orientation);
-        }
+        if (filtres.ville.trim()) params.set("localisation", filtres.ville.trim());
 
-        if (isPremium && filters.actif_recemment) {
+        // "" = on laisse l'API appliquer la portée enregistrée par le membre.
+        if (filtres.departement) params.set("departement", filtres.departement);
+
+        // Les filtres payants ne partent que si l'offre les autorise.
+        if (isPremium && filtres.orientation) {
+          params.set("orientation", filtres.orientation);
+        }
+        if (isPremium && filtres.actifRecemment) {
           params.set("actif_recemment", "true");
         }
 
-        params.set("limit", "20");
-        params.set("page", reset ? "1" : String(page));
+        params.set("limit", String(PAR_PAGE));
+        params.set("page", String(numero));
 
-        const res = await fetch(`/api/profiles?${params.toString()}`, {
+        const reponse = await fetch(`/api/profiles?${params.toString()}`, {
           cache: "no-store",
         });
 
-        const data = await res.json().catch(() => null);
+        const donnees = await reponse.json().catch(() => null);
 
-        if (!res.ok || !data?.success) {
-          console.error("Erreur chargement profils :", data?.error);
-          setPageError(data?.error || "Impossible de charger les profils.");
-          /**
-           * Important : on coupe hasMore ici.
-           * Sinon l'effet de préchargement (qui dépend de hasMore)
-           * continue d'incrémenter `page` indéfiniment à chaque échec,
-           * ce qui spamme l'API en boucle (ex: page=271, 272, 273...).
-           */
-          setHasMore(false);
+        if (!reponse.ok || donnees?.success !== true) {
+          setErreur(donnees?.error || "Impossible de charger l'annuaire.");
+          setProfils([]);
+          setTotal(0);
+          setNombreDePages(1);
           return;
         }
 
-        if (reset) {
-          setProfiles(data.profiles ?? []);
-          setCurrentIndex(0);
-          setPage(1);
-        } else {
-          setProfiles((prev) => [...prev, ...(data.profiles ?? [])]);
-        }
-
-        setHasMore(data.pagination?.hasMore ?? false);
-      } catch (err) {
-        console.error("Erreur fetchProfiles :", err);
-        setPageError("Erreur de connexion au serveur.");
+        setProfils(donnees.profiles ?? []);
+        setTotal(donnees.pagination?.total ?? 0);
+        setNombreDePages(Math.max(1, donnees.pagination?.totalPages ?? 1));
+      } catch {
+        setErreur("Connexion interrompue. Réessaie dans un instant.");
+        setProfils([]);
       } finally {
-        setIsLoading(false);
+        setChargement(false);
       }
     },
-    [filters, isPremium, page]
+    [isPremium]
   );
 
   /**
-   * Redirection si l'utilisateur n'est pas connecté.
-   */
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth?mode=login");
-    }
-  }, [status, router]);
-
-  /**
-   * Premier chargement des profils.
+   * Un seul effet de chargement, déclenché par la page et les filtres appliqués.
    *
-   * Important :
-   * on ne met pas fetchProfiles en dépendance ici volontairement,
-   * sinon les profils se rechargent dès qu'un filtre change.
+   * L'ancienne page en avait trois qui s'alimentaient l'un l'autre — dont un qui
+   * incrémentait `page` à l'infini quand l'API échouait, jusqu'à `page=273`.
    */
   useEffect(() => {
-    if (status === "authenticated") {
-      fetchProfiles(true);
-    }
+    if (status !== "authenticated") return;
+    void chargerPage(page, recherche);
+  }, [status, page, recherche, chargerPage]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
-
-  /**
-   * Applique les filtres.
-   */
-  const handleApplyFilters = () => {
-    setShowFilters(false);
-    fetchProfiles(true);
+  const appliquer = () => {
+    setFiltresOuverts(false);
+    setPage(1);
+    setRecherche(brouillon);
   };
 
-  /**
-   * Réinitialise les filtres.
-   */
-  const handleResetFilters = () => {
-    setFilters({
-      age_min: "18",
-      age_max: "99",
-      intentions: "",
-      localisation: "",
-      departement: "",
-      orientation: "",
-      actif_recemment: false,
-    });
-
-    /**
-     * On laisse React appliquer le state avant de relancer la recherche.
-     */
-    setTimeout(() => {
-      fetchProfiles(true);
-    }, 0);
+  const reinitialiser = () => {
+    setBrouillon(RECHERCHE_VIDE);
+    setPage(1);
+    setRecherche(RECHERCHE_VIDE);
   };
 
-  /**
-   * Passe au profil suivant.
-   */
-  const goNextProfile = () => {
-    setCurrentIndex((prev) => prev + 1);
+  const basculerIntention = (valeur: string) => {
+    setBrouillon((actuel) => ({
+      ...actuel,
+      intentions: actuel.intentions.includes(valeur)
+        ? actuel.intentions.filter((item) => item !== valeur)
+        : [...actuel.intentions, valeur],
+    }));
+  };
+
+  const allerPage = (numero: number) => {
+    const cible = Math.min(Math.max(1, numero), nombreDePages);
+    if (cible === page) return;
+
+    setPage(cible);
+    window.scrollTo({ top: 0, behavior: reduireAnimations ? "auto" : "smooth" });
   };
 
   /**
    * Like d'un profil.
+   *
+   * Le quota est appliqué côté serveur — l'offre gratuite donne 5 likes par
+   * jour, et cette limite n'était historiquement vérifiée nulle part. On se
+   * contente ici d'afficher ce que le serveur répond.
    */
-  const handleLike = async (profile: Profile) => {
-    if (isLiking || likedIds.has(profile._id)) return;
+  const aimer = async (profil: Profil) => {
+    if (likeEnCours || profilsAimes.has(profil._id)) return;
 
-    setIsLiking(true);
-    setPageError("");
+    setLikeEnCours(profil._id);
+    setErreur("");
 
     try {
-      const res = await fetch("/api/likes", {
+      const reponse = await fetch("/api/likes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetUserId: profile._id }),
+        body: JSON.stringify({ targetUserId: profil._id }),
       });
 
-      const data = await res.json().catch(() => null);
+      const donnees = await reponse.json().catch(() => null);
 
-      if (data?.success) {
-        setLikedIds((prev) => new Set([...prev, profile._id]));
-
-        if (data.matched && data.matchId) {
-          setMatchModal({ profile, matchId: data.matchId });
-        } else {
-          /**
-           * On passe au profil suivant uniquement s'il n'y a pas de match.
-           * En cas de match, la modal gère la suite.
-           */
-          goNextProfile();
-        }
-      } else {
-        setPageError(data?.error || "Impossible d'envoyer le like.");
+      if (donnees?.quota) {
+        setLikesRestants(donnees.quota.restants ?? null);
       }
-    } catch (err) {
-      console.error("Erreur like :", err);
-      setPageError("Erreur de connexion pendant le like.");
+
+      if (!reponse.ok || donnees?.success !== true) {
+        setErreur(donnees?.error || "Impossible d'envoyer ce like.");
+        return;
+      }
+
+      setProfilsAimes((actuel) => new Set(actuel).add(profil._id));
+
+      if (donnees.matched && donnees.matchId) {
+        setMatch({ profil, matchId: donnees.matchId });
+      }
+    } catch {
+      setErreur("Connexion interrompue pendant le like.");
     } finally {
-      setIsLiking(false);
+      setLikeEnCours(null);
     }
   };
 
   /**
-   * Passer un profil.
+   * Ouvre un profil, et enregistre la visite à ce moment-là.
+   *
+   * La navigation ne dépend pas de l'enregistrement : si la visite échoue, on
+   * ouvre le profil quand même.
    */
-  const handlePass = () => {
-    if (isLiking) return;
-    goNextProfile();
-  };
-
-  /**
-   * Enregistre la visite dès qu'un profil est affiché.
-   */
-  useEffect(() => {
-    const profile = profiles[currentIndex];
-
-    if (!profile || status !== "authenticated") return;
-
-    fetch("/api/visitors", {
+  const ouvrirProfil = (profilId: string) => {
+    void fetch("/api/visitors", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visitedUserId: profile._id }),
+      body: JSON.stringify({ visitedUserId: profilId }),
     }).catch(() => {});
-  }, [currentIndex, profiles, status]);
 
-  /**
-   * Préchargement :
-   * quand on approche de la fin, on demande la page suivante.
-   */
-  useEffect(() => {
-    if (
-      profiles.length > 0 &&
-      currentIndex >= profiles.length - 5 &&
-      hasMore &&
-      !isLoading
-    ) {
-      setPage((prev) => prev + 1);
-    }
-  }, [currentIndex, profiles.length, hasMore, isLoading]);
+    router.push(`/profil/${profilId}?from=annuaire`);
+  };
 
-  /**
-   * Chargement des pages suivantes.
-   */
-  useEffect(() => {
-    if (page > 1) fetchProfiles(false);
+  /** Nombre de filtres actifs, pour l'indicateur du bouton sur mobile. */
+  const filtresActifs = useMemo(() => {
+    let compte = 0;
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+    if (recherche.ageMin !== String(AGE_MINIMUM)) compte += 1;
+    if (recherche.ageMax !== String(AGE_MAXIMUM)) compte += 1;
+    if (recherche.intentions.length > 0) compte += 1;
+    if (recherche.ville.trim()) compte += 1;
+    if (recherche.departement) compte += 1;
+    if (recherche.orientation) compte += 1;
+    if (recherche.actifRecemment) compte += 1;
+
+    return compte;
+  }, [recherche]);
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1a0b2e] via-[#2d1b69] to-[#3a2a82]">
-        <Loader2 className="h-9 w-9 animate-spin text-purple-300" />
+      <div className="flex min-h-screen items-center justify-center bg-abyss">
+        <Loader2 className="h-8 w-8 animate-spin text-orange" aria-hidden="true" />
+        <span className="sr-only">Chargement</span>
       </div>
     );
   }
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] via-[#2d1b69] to-[#3a2a82] text-white">
-        {/* TODO restructuration : ce fond dégradé violet/rose est encore
-            celui de Sfera'Solys, non rebrandé — cf. CLAUDE.md « reste à
-            faire ». Header retiré : cette page vit maintenant dans le
-            groupe de routes (app), avec Sidebar.tsx comme nav. */}
-
-        {/* ─────────────────────────────
-            Modal Match
-        ───────────────────────────── */}
-        <AnimatePresence>
-          {matchModal && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            >
-              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
-              <motion.div
-                initial={{ scale: 0.7, opacity: 0, y: 40 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.8, opacity: 0, y: 20 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                className="relative z-10 max-h-[90vh] w-full max-w-sm overflow-hidden rounded-3xl border border-pink-400/30 bg-gradient-to-br from-[#1a0b2e] to-[#3a2a82] shadow-2xl"
-              >
-                {/* Confettis décoratifs */}
-                <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                  {["💫", "✨", "🌟", "💕", "🌙", "💜"].map((emoji, i) => (
-                    <motion.span
-                      key={i}
-                      className="absolute select-none text-xl"
-                      initial={{ opacity: 0, y: 0, x: `${15 + i * 14}%` }}
-                      animate={{ opacity: [0, 1, 0], y: -80 }}
-                      transition={{
-                        delay: i * 0.15,
-                        duration: 1.4,
-                        ease: "easeOut",
-                      }}
-                      style={{ top: "60%" }}
-                    >
-                      {emoji}
-                    </motion.span>
-                  ))}
-                </div>
-
-                <div className="relative p-6 text-center sm:p-8">
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="mb-2 text-xs font-semibold uppercase tracking-widest text-pink-300 sm:text-sm"
-                  >
-                    C&apos;est un match !
-                  </motion.p>
-
-                  <motion.h2
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3, type: "spring" }}
-                    className="mb-5 bg-gradient-to-r from-pink-300 to-purple-200 bg-clip-text text-2xl font-bold text-transparent sm:mb-6 sm:text-3xl"
-                  >
-                    💞 {matchModal.profile.pseudonyme || "Membre"}
-                  </motion.h2>
-
-                  <motion.div
-                    initial={{ scale: 0, rotate: -15 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{
-                      delay: 0.15,
-                      type: "spring",
-                      stiffness: 300,
-                    }}
-                    className="mx-auto mb-5 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-pink-400/40 bg-gradient-to-br from-pink-500 to-purple-600 text-4xl font-bold shadow-xl sm:mb-6 sm:h-28 sm:w-28 sm:text-5xl"
-                  >
-                    {matchModal.profile.image ? (
-                      <img
-                        src={matchModal.profile.image}
-                        alt={matchModal.profile.pseudonyme || "Membre"}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      (matchModal.profile.pseudonyme || "L").charAt(0).toUpperCase()
-                    )}
-                  </motion.div>
-
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="mb-6 text-sm text-white/60 sm:mb-8"
-                  >
-                    Vous vous êtes mutuellement likées.
-                    {(matchModal.profile.localisation ||
-                      matchModal.profile.departement) && (
-                      <span className="mt-1 flex items-center justify-center gap-1 text-xs text-white/40">
-                        <MapPin className="h-3 w-3" />
-                        {[
-                          matchModal.profile.localisation,
-                          getDepartementLabel(matchModal.profile.departement),
-                        ]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
-                    )}
-                  </motion.p>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="flex flex-col gap-3"
-                  >
-                    <Link
-                      href={`/messages/${matchModal.matchId}`}
-                      className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/30 transition hover:opacity-90"
-                    >
-                      <MessageCircle className="h-5 w-5" />
-                      Envoyer un message
-                    </Link>
-
-                    <button
-                      onClick={() => {
-                        setMatchModal(null);
-                        goNextProfile();
-                      }}
-                      className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-white/60 transition hover:bg-white/10 hover:text-white"
-                    >
-                      Continuer à explorer
-                    </button>
-                  </motion.div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <main className="mx-auto flex min-h-screen max-w-2xl flex-col px-3 pb-6 pt-6 sm:px-4 sm:pb-10 sm:pt-8">
+      <div className="min-h-screen bg-abyss px-4 py-6 text-cream sm:px-6 sm:py-8 lg:px-10">
+        <div className="mx-auto max-w-6xl">
           {/* ─────────────────────────────
-              Header page compact
+              En-tête
           ───────────────────────────── */}
-          <section className="mb-3 sm:mb-5">
-            <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <h1
-                  className={`truncate bg-gradient-to-r bg-clip-text text-xl font-black text-transparent transition-colors duration-300 sm:text-3xl ${accent.titleGradient}`}
-                >
-                  Explorer
-                </h1>
+          <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="font-display [font-stretch:125%] text-[26px] font-extrabold leading-tight tracking-tight text-cream sm:text-[32px]">
+                Annuaire
+              </h1>
 
-                <p className="mt-0.5 text-xs text-gray-400 sm:text-sm">
-                  {remainingCount > 0
-                    ? `${remainingCount} profil${remainingCount > 1 ? "s" : ""} à découvrir`
-                    : "Tous les profils ont été explorés"}
-                </p>
-              </div>
-
-              <div className="flex shrink-0 items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => fetchProfiles(true)}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 transition hover:bg-white/10 sm:h-10 sm:w-10"
-                  title="Rafraîchir"
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 text-gray-300 ${
-                      isLoading ? "animate-spin" : ""
-                    }`}
-                  />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowFilters((value) => !value)}
-                  className="flex h-9 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 text-xs text-gray-300 transition hover:bg-white/10 sm:h-10 sm:px-4 sm:text-sm"
-                >
-                  <Filter className="h-4 w-4" />
-                  Filtres
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
-                      showFilters ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-              </div>
+              <p
+                className="mt-1.5 text-[13px] leading-relaxed text-cream/60 sm:text-sm"
+                aria-live="polite"
+              >
+                {chargement && profils.length === 0
+                  ? "Recherche en cours…"
+                  : total > 0
+                    ? `${total} profil${total > 1 ? "s" : ""} correspondent à ta recherche. Tu avances page par page — rien ne défile à l’infini.`
+                    : "Aucun profil ne correspond à cette recherche."}
+              </p>
             </div>
-          </section>
+
+            <div className="flex shrink-0 items-center gap-2">
+              {likesRestants !== null && (
+                <p className="hidden rounded-xl border border-cream/12 px-3 py-2 text-[12px] text-cream/60 sm:block">
+                  {likesRestants > 0
+                    ? `${likesRestants} like${likesRestants > 1 ? "s" : ""} aujourd’hui`
+                    : "Plus de like aujourd’hui"}
+                </p>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setFiltresOuverts((ouvert) => !ouvert)}
+                aria-expanded={filtresOuverts}
+                aria-controls="panneau-filtres"
+                className={`inline-flex items-center gap-2 rounded-xl border border-cream/12 px-3.5 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/25 lg:hidden ${focusRing}`}
+              >
+                <Filter size={15} aria-hidden="true" />
+                Filtres
+                {filtresActifs > 0 && (
+                  <span className="rounded-full bg-orange px-1.5 text-[11px] font-bold text-abyss">
+                    {filtresActifs}
+                  </span>
+                )}
+              </button>
+            </div>
+          </header>
 
           {/* ─────────────────────────────
               Boost de visibilité
           ───────────────────────────── */}
-          <PanneauBoost onBoostLance={() => fetchProfiles(true)} />
-
-          {/* Erreur globale */}
-          <AnimatePresence>
-            {pageError && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="mb-3 flex items-center gap-3 rounded-2xl border border-red-400/30 bg-red-500/10 px-3 py-2.5 text-xs text-red-200 sm:text-sm"
-              >
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span className="flex-1">{pageError}</span>
-
-                <button
-                  type="button"
-                  onClick={() => setPageError("")}
-                  aria-label="Fermer l'erreur"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <PanneauBoost onBoostLance={() => chargerPage(page, recherche)} />
 
           {/* ─────────────────────────────
-              Panneau filtres compact
+              Recherche
+              Dépliée en permanence à partir de lg, repliable en dessous.
           ───────────────────────────── */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.section
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-3 overflow-hidden sm:mb-5"
-              >
-                <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur sm:space-y-4 sm:p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-sm font-semibold text-white sm:text-base">
-                      Filtres de recherche
-                    </h3>
+          <section
+            id="panneau-filtres"
+            className={`mb-5 rounded-2xl border border-cream/10 bg-[#0C222D] p-4 sm:p-5 ${
+              filtresOuverts ? "block" : "hidden lg:block"
+            }`}
+          >
+            <form
+              onSubmit={(evenement) => {
+                evenement.preventDefault();
+                appliquer();
+              }}
+            >
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <label
+                    htmlFor="ville"
+                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                  >
+                    Ville
+                  </label>
+                  <input
+                    id="ville"
+                    type="text"
+                    value={brouillon.ville}
+                    onChange={(evenement) =>
+                      setBrouillon((actuel) => ({
+                        ...actuel,
+                        ville: evenement.target.value,
+                      }))
+                    }
+                    placeholder="Lyon, Fort-de-France…"
+                    className={champ}
+                  />
+                </div>
 
-                    <button
-                      type="button"
-                      onClick={handleResetFilters}
-                      className="text-xs text-purple-300 transition hover:text-purple-200"
-                    >
-                      Réinitialiser
-                    </button>
-                  </div>
+                <div>
+                  <label
+                    htmlFor="departement"
+                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                  >
+                    Département
+                  </label>
+                  <select
+                    id="departement"
+                    value={brouillon.departement}
+                    onChange={(evenement) =>
+                      setBrouillon((actuel) => ({
+                        ...actuel,
+                        departement: evenement.target.value,
+                      }))
+                    }
+                    className={champ}
+                  >
+                    {/*
+                      Trois états distincts, et c'est voulu.
 
-                  {/* Âge */}
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                    <FilterField label="Âge min">
-                      <input
-                        type="number"
-                        value={filters.age_min}
-                        onChange={(event) =>
-                          setFilters((current) => ({
-                            ...current,
-                            age_min: event.target.value,
-                          }))
-                        }
-                        className="input-explorer"
-                        min={18}
-                        max={120}
-                      />
-                    </FilterField>
-
-                    <FilterField label="Âge max">
-                      <input
-                        type="number"
-                        value={filters.age_max}
-                        onChange={(event) =>
-                          setFilters((current) => ({
-                            ...current,
-                            age_max: event.target.value,
-                          }))
-                        }
-                        className="input-explorer"
-                        min={18}
-                        max={120}
-                      />
-                    </FilterField>
-                  </div>
-
-                  {/* Département */}
-                  <FilterField label="Département">
-                    <select
-                      value={filters.departement}
-                      onChange={(event) =>
-                        setFilters((current) => ({
-                          ...current,
-                          departement: event.target.value,
-                        }))
-                      }
-                      className="select-explorer"
-                    >
-                      <option value="">Mon département (par défaut)</option>
-                      <option value="all" className="bg-gray-900">
-                        Toute la France
+                      `/api/profiles` traite l'absence de département comme
+                      « respecte la portée enregistrée par le membre » : un
+                      membre réglé sur « mon département » reste dans son
+                      bassin. Envoyer une valeur vide pour dire « toute la
+                      France » donnerait donc l'inverse de ce qui est affiché.
+                      L'API attend `all` pour lever la restriction, et c'est
+                      ce que porte l'option explicite.
+                    */}
+                    <option value="">Selon ma préférence</option>
+                    <option value="all">Toute la France</option>
+                    {DEPARTEMENTS.map((departement) => (
+                      <option key={departement.code} value={departement.code}>
+                        {departement.nom} ({departement.code})
                       </option>
+                    ))}
+                  </select>
+                </div>
 
-                      <optgroup label="France métropolitaine" className="bg-gray-900">
-                        {DEPARTEMENTS.filter((d) => !d.outreMer).map((d) => (
-                          <option
-                            key={d.code}
-                            value={d.code}
-                            className="bg-gray-900"
-                          >
-                            {d.code} — {d.nom}
-                          </option>
-                        ))}
-                      </optgroup>
+                <div>
+                  <label
+                    htmlFor="age-min"
+                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                  >
+                    Âge minimum
+                  </label>
+                  <input
+                    id="age-min"
+                    type="number"
+                    inputMode="numeric"
+                    min={AGE_MINIMUM}
+                    max={AGE_MAXIMUM}
+                    value={brouillon.ageMin}
+                    onChange={(evenement) =>
+                      setBrouillon((actuel) => ({
+                        ...actuel,
+                        ageMin: evenement.target.value,
+                      }))
+                    }
+                    className={champ}
+                  />
+                  <p className="mt-1 text-[11px] text-cream/55">
+                    Sfera&apos;Solys est réservé aux {AGE_MINIMUM} ans et plus.
+                  </p>
+                </div>
 
-                      <optgroup label="Outre-mer" className="bg-gray-900">
-                        {DEPARTEMENTS.filter((d) => d.outreMer).map((d) => (
-                          <option
-                            key={d.code}
-                            value={d.code}
-                            className="bg-gray-900"
-                          >
-                            {d.code} — {d.nom}
-                          </option>
-                        ))}
-                      </optgroup>
-                    </select>
-                  </FilterField>
+                <div>
+                  <label
+                    htmlFor="age-max"
+                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                  >
+                    Âge maximum
+                  </label>
+                  <input
+                    id="age-max"
+                    type="number"
+                    inputMode="numeric"
+                    min={AGE_MINIMUM}
+                    max={AGE_MAXIMUM}
+                    value={brouillon.ageMax}
+                    onChange={(evenement) =>
+                      setBrouillon((actuel) => ({
+                        ...actuel,
+                        ageMax: evenement.target.value,
+                      }))
+                    }
+                    className={champ}
+                  />
+                </div>
+              </div>
 
-                  {/* Ville */}
-                  <FilterField label="Ville">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              {/* Intentions */}
+              <fieldset className="mt-4">
+                <legend className="mb-2 text-[12px] font-semibold text-cream/70">
+                  Intentions
+                </legend>
 
-                      <input
-                        type="text"
-                        value={filters.localisation}
-                        onChange={(event) =>
-                          setFilters((current) => ({
-                            ...current,
-                            localisation: event.target.value,
-                          }))
-                        }
-                        className="input-explorer pl-9"
-                        placeholder="Paris, Fort-de-France..."
-                      />
-                    </div>
-                  </FilterField>
+                <div className="flex flex-wrap gap-2">
+                  {INTENTIONS.map((intention) => {
+                    const choisie = brouillon.intentions.includes(
+                      intention.value
+                    );
 
-                  {/* Intentions */}
-                  <FilterField label="Intention">
-                    <select
-                      value={filters.intentions}
-                      onChange={(event) =>
-                        setFilters((current) => ({
-                          ...current,
-                          intentions: event.target.value,
-                        }))
-                      }
-                      className="select-explorer"
-                    >
-                      <option value="">Toutes</option>
-
-                      {INTENTIONS_OPTIONS.map((option) => (
-                        <option
-                          key={option.value}
-                          value={option.value}
-                          className="bg-gray-900"
-                        >
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </FilterField>
-
-                  {/* Filtres premium */}
-                  <div className="border-t border-white/10 pt-3">
-                    <div className="mb-2 flex items-center gap-2">
-                      <Crown className="h-4 w-4 text-yellow-400" />
-
-                      <span className="text-xs font-semibold text-yellow-300">
-                        Filtres Premium
-                      </span>
-
-                      {!isPremium && (
-                        <span className="ml-auto flex items-center gap-1 text-[11px] text-gray-500">
-                          <Lock className="h-3 w-3" />
-                          Réservé
-                        </span>
-                      )}
-                    </div>
-
-                    <FilterField label="Orientation" className="mb-3">
-                      <select
-                        value={filters.orientation}
-                        onChange={(event) =>
-                          setFilters((current) => ({
-                            ...current,
-                            orientation: event.target.value,
-                          }))
-                        }
-                        disabled={!isPremium}
-                        className="select-explorer disabled:cursor-not-allowed disabled:opacity-40"
+                    return (
+                      <button
+                        key={intention.value}
+                        type="button"
+                        onClick={() => basculerIntention(intention.value)}
+                        aria-pressed={choisie}
+                        className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+                          choisie
+                            ? "border-orange bg-orange text-abyss"
+                            : "border-cream/12 text-cream/60 hover:border-cream/25"
+                        }`}
                       >
-                        <option value="">Toutes</option>
+                        {intention.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
 
-                        {ORIENTATION_OPTIONS.map((option) => (
-                          <option
-                            key={option.value}
-                            value={option.value}
-                            className="bg-gray-900"
-                          >
-                            {option.label}
+              {/* Filtres payants */}
+              <div className="mt-4 rounded-xl border border-cream/10 p-4">
+                <p className="mb-3 flex items-center gap-2 text-[12px] font-semibold text-cream/70">
+                  {isPremium ? (
+                    <Sparkles size={14} className="text-orange" aria-hidden="true" />
+                  ) : (
+                    <Lock size={14} className="text-cream/55" aria-hidden="true" />
+                  )}
+                  Filtres des offres payantes
+                </p>
+
+                {isPremium ? (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label
+                        htmlFor="orientation"
+                        className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                      >
+                        Orientation
+                      </label>
+                      <select
+                        id="orientation"
+                        value={brouillon.orientation}
+                        onChange={(evenement) =>
+                          setBrouillon((actuel) => ({
+                            ...actuel,
+                            orientation: evenement.target.value,
+                          }))
+                        }
+                        className={champ}
+                      >
+                        <option value="">Peu importe</option>
+                        {ORIENTATIONS.map((orientation) => (
+                          <option key={orientation.value} value={orientation.value}>
+                            {orientation.label}
                           </option>
                         ))}
                       </select>
-                    </FilterField>
+                    </div>
 
-                    <label
-                      className={`flex cursor-pointer items-center gap-3 ${
-                        !isPremium ? "cursor-not-allowed opacity-40" : ""
-                      }`}
-                    >
+                    <label className="flex cursor-pointer items-center gap-3 self-end rounded-xl border border-cream/12 px-3 py-2.5">
                       <input
                         type="checkbox"
-                        checked={filters.actif_recemment}
-                        onChange={(event) =>
-                          setFilters((current) => ({
-                            ...current,
-                            actif_recemment: event.target.checked,
+                        checked={brouillon.actifRecemment}
+                        onChange={(evenement) =>
+                          setBrouillon((actuel) => ({
+                            ...actuel,
+                            actifRecemment: evenement.target.checked,
                           }))
                         }
-                        disabled={!isPremium}
-                        className="h-4 w-4 accent-purple-500"
+                        className={`h-4 w-4 shrink-0 accent-orange ${focusRing}`}
                       />
-
-                      <span className="text-xs text-gray-300 sm:text-sm">
-                        Actif(ve) ces 7 derniers jours
+                      <span className="text-[13px] text-cream/80">
+                        Actif dans les 7 derniers jours
                       </span>
                     </label>
-
-                    {!isPremium && (
-                      <p className="mt-2 text-[11px] text-gray-500 sm:text-xs">
-                        <a
-                          href="/paiement"
-                          className="text-purple-400 hover:underline"
-                        >
-                          Passer Premium
-                        </a>{" "}
-                        pour accéder à ces filtres.
-                      </p>
-                    )}
                   </div>
+                ) : (
+                  <p className="text-[12px] leading-relaxed text-cream/55">
+                    L&apos;orientation et l&apos;activité récente sont réservées
+                    aux offres payantes. Le reste de l&apos;annuaire, la
+                    vérification d&apos;identité et la recherche sont
+                    accessibles dès l&apos;offre gratuite.
+                  </p>
+                )}
+              </div>
 
-                  <button
-                    type="button"
-                    onClick={handleApplyFilters}
-                    className={`w-full rounded-xl bg-gradient-to-r py-2.5 text-sm font-semibold text-white transition hover:opacity-90 ${accent.actionGradient}`}
-                  >
-                    Appliquer les filtres
-                  </button>
-                </div>
-              </motion.section>
-            )}
-          </AnimatePresence>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <button
+                  type="submit"
+                  className={`inline-flex items-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                >
+                  <Search size={15} aria-hidden="true" />
+                  Chercher
+                </button>
+
+                <button
+                  type="button"
+                  onClick={reinitialiser}
+                  className={`inline-flex items-center gap-2 rounded-xl border border-cream/12 px-4 py-2.5 text-[13px] font-semibold text-cream/70 transition-colors hover:border-cream/25 hover:text-cream ${focusRing}`}
+                >
+                  <RotateCcw size={14} aria-hidden="true" />
+                  Réinitialiser
+                </button>
+              </div>
+            </form>
+          </section>
+
+          {/* Erreur */}
+          {erreur && (
+            <div
+              role="alert"
+              className="mb-5 flex items-start gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-4 py-3"
+            >
+              <AlertCircle
+                size={16}
+                className="mt-0.5 shrink-0 text-orange"
+                aria-hidden="true"
+              />
+              <p className="flex-1 text-[13px] leading-relaxed text-cream/85">
+                {erreur}
+              </p>
+              <button
+                type="button"
+                onClick={() => setErreur("")}
+                aria-label="Fermer le message"
+                className={`shrink-0 rounded-lg p-1 text-cream/50 hover:text-cream ${focusRing}`}
+              >
+                <X size={15} aria-hidden="true" />
+              </button>
+            </div>
+          )}
 
           {/* ─────────────────────────────
-              Zone cartes
+              Résultats
           ───────────────────────────── */}
-          <section className="flex flex-1 flex-col">
-            {isLoading && profiles.length === 0 ? (
-              <div className="flex flex-1 flex-col items-center justify-center gap-4 py-20">
-                <Loader2 className="h-9 w-9 animate-spin text-purple-300" />
-                <p className="text-sm text-gray-400">
-                  Chargement des profils...
+          {chargement ? (
+            <div className="flex flex-col items-center gap-3 py-24">
+              <Loader2
+                className="h-7 w-7 animate-spin text-orange"
+                aria-hidden="true"
+              />
+              <p className="text-[13px] text-cream/55">Recherche en cours…</p>
+            </div>
+          ) : profils.length === 0 ? (
+            <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+              <UserRound
+                size={28}
+                className="mx-auto mb-4 text-cream/30"
+                aria-hidden="true"
+              />
+
+              <h2 className="font-display [font-stretch:125%] text-[18px] font-bold text-cream">
+                Rien à cette adresse
+              </h2>
+
+              <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/60">
+                Aucun profil ne correspond à ces critères. Élargis le
+                département ou la tranche d&apos;âge, ou retire une intention.
+              </p>
+
+              <button
+                type="button"
+                onClick={reinitialiser}
+                className={`mt-6 inline-flex items-center gap-2 rounded-xl border border-cream/15 px-5 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+              >
+                <RotateCcw size={14} aria-hidden="true" />
+                Réinitialiser la recherche
+              </button>
+            </div>
+          ) : (
+            <>
+              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {profils.map((profil) => (
+                  <CarteProfil
+                    key={profil._id}
+                    profil={profil}
+                    aime={profilsAimes.has(profil._id)}
+                    likeEnCours={likeEnCours === profil._id}
+                    likesEpuises={likesRestants === 0}
+                    onAimer={() => aimer(profil)}
+                    onOuvrir={() => ouvrirProfil(profil._id)}
+                    onSignaler={() => setProfilSignale(profil._id)}
+                  />
+                ))}
+              </ul>
+
+              {/* ─────────────────────────────
+                  Pagination explicite
+                  Le cœur du changement : la page suivante se demande.
+              ───────────────────────────── */}
+              <nav
+                aria-label="Pagination de l'annuaire"
+                className="mt-8 flex items-center justify-center gap-3"
+              >
+                <button
+                  type="button"
+                  onClick={() => allerPage(page - 1)}
+                  disabled={page <= 1}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-4 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
+                >
+                  <ChevronLeft size={15} aria-hidden="true" />
+                  Précédent
+                </button>
+
+                <p className="min-w-[7.5rem] text-center text-[13px] text-cream/60">
+                  Page <span className="font-bold text-cream">{page}</span> sur{" "}
+                  {nombreDePages}
                 </p>
-              </div>
-            ) : currentProfile ? (
-              <>
-                {/* Pile de cartes façon Tinder */}
-                <div className="relative mx-auto h-[520px] w-full max-w-sm sm:h-[640px] sm:max-w-md">
-                  <AnimatePresence mode="popLayout">
-                    {stackedProfiles
-                      .map((profile, index) => ({
-                        profile,
-                        stackIndex: index,
-                      }))
-                      .reverse()
-                      .map(({ profile, stackIndex }) => {
-                        const isTopCard = stackIndex === 0;
 
-                        return (
-                          <ProfileStackCard
-                            key={profile._id}
-                            profile={profile}
-                            stackIndex={stackIndex}
-                            isTopCard={isTopCard}
-                            isLiking={isLiking}
-                            likedIds={likedIds}
-                            onPass={handlePass}
-                            onLike={handleLike}
-                            onReport={(profileId) => setReportProfileId(profileId)}
-                            onOpenProfile={(profileId) =>
-                              router.push(`/profil/${profileId}?from=explorer`)
-                            }
-                          />
-                        );
-                      })}
-                  </AnimatePresence>
-                </div>
-
-                {/* Actions séparées, compactes, toujours visibles */}
-                <div className="mt-3 flex items-center justify-center gap-5 sm:mt-5 sm:gap-6">
-                  <button
-                    type="button"
-                    onClick={handlePass}
-                    disabled={isLiking}
-                    className="flex h-13 w-13 items-center justify-center rounded-full border border-white/20 bg-white/10 shadow-lg backdrop-blur transition hover:scale-105 hover:bg-white/15 disabled:opacity-50 sm:h-16 sm:w-16"
-                    aria-label="Passer ce profil"
-                  >
-                    <X className="h-6 w-6 text-gray-200 sm:h-7 sm:w-7" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleLike(currentProfile)}
-                    disabled={isLiking || likedIds.has(currentProfile._id)}
-                    className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br shadow-xl transition hover:scale-110 disabled:opacity-50 sm:h-20 sm:w-20 ${accent.actionGradient} ${accent.actionShadow}`}
-                    aria-label="Liker ce profil"
-                  >
-                    {isLiking ? (
-                      <Loader2 className="h-7 w-7 animate-spin text-white sm:h-8 sm:w-8" />
-                    ) : (
-                      <Heart
-                        className={`h-7 w-7 text-white sm:h-8 sm:w-8 ${
-                          likedIds.has(currentProfile._id) ? "fill-white" : ""
-                        }`}
-                      />
-                    )}
-                  </button>
-                </div>
-
-                <p className="mt-2 text-center text-[11px] text-white/35 sm:text-xs">
-                  Glisse la carte ou utilise les boutons.
-                </p>
-              </>
-            ) : (
-              <EmptyState onRefresh={() => fetchProfiles(true)} accent={accent} />
-            )}
-          </section>
-        </main>
+                <button
+                  type="button"
+                  onClick={() => allerPage(page + 1)}
+                  disabled={page >= nombreDePages}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-4 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
+                >
+                  Suivant
+                  <ChevronRight size={15} aria-hidden="true" />
+                </button>
+              </nav>
+            </>
+          )}
+        </div>
       </div>
 
+      {/* ─────────────────────────────
+          Match
+      ───────────────────────────── */}
+      <AnimatePresence>
+        {match && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduireAnimations ? 0 : 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titre-match"
+          >
+            <button
+              type="button"
+              onClick={() => setMatch(null)}
+              aria-label="Fermer"
+              className="absolute inset-0 cursor-default bg-abyss/80 backdrop-blur-sm"
+            />
 
-      {/* Modale signalement profil */}
+            <motion.div
+              initial={{
+                opacity: 0,
+                scale: reduireAnimations ? 1 : 0.94,
+                y: reduireAnimations ? 0 : 16,
+              }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: reduireAnimations ? 1 : 0.96 }}
+              transition={{ duration: reduireAnimations ? 0 : 0.25 }}
+              className="relative z-10 w-full max-w-sm rounded-[1.75rem] border border-lime/25 bg-[#0C222D] p-6 text-center sm:p-8"
+            >
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-lime/15">
+                <Heart
+                  size={22}
+                  className="fill-lime text-lime"
+                  aria-hidden="true"
+                />
+              </span>
+
+              <p className="mt-4 text-[11px] font-bold uppercase tracking-wide text-lime">
+                Réciproque
+              </p>
+
+              <h2
+                id="titre-match"
+                className="font-display [font-stretch:125%] mt-2 text-[22px] font-extrabold leading-tight text-cream"
+              >
+                {match.profil.pseudonyme || "Ce membre"} t&apos;a aussi aimé.
+              </h2>
+
+              <p className="mx-auto mt-3 max-w-xs text-[13px] leading-relaxed text-cream/65">
+                La conversation est ouverte. À toi de commencer, ou pas — un
+                match n&apos;oblige à rien.
+              </p>
+
+              <div className="mt-6 flex flex-col gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => router.push(`/messages/${match.matchId}`)}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange px-5 py-3 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                >
+                  <MessageCircle size={15} aria-hidden="true" />
+                  Écrire maintenant
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMatch(null)}
+                  className={`inline-flex w-full items-center justify-center rounded-xl border border-cream/15 px-5 py-3 text-[13px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream ${focusRing}`}
+                >
+                  Continuer à chercher
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Signalement */}
       <ReportModal
-        isOpen={!!reportProfileId}
-        onClose={() => setReportProfileId(null)}
+        isOpen={profilSignale !== null}
+        onClose={() => setProfilSignale(null)}
         targetType="user"
-        targetId={reportProfileId ?? ""}
+        targetId={profilSignale ?? ""}
       />
-
-      <style jsx global>{`
-        .input-explorer {
-          width: 100%;
-          border-radius: 0.65rem;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          background: rgba(255, 255, 255, 0.1);
-          padding: 0.5rem 0.75rem;
-          font-size: 0.8125rem;
-          color: white;
-          outline: none;
-          transition:
-            border-color 0.15s ease,
-            background 0.15s ease;
-        }
-
-        .input-explorer:focus {
-          border-color: rgba(192, 132, 252, 0.9);
-          background: rgba(255, 255, 255, 0.13);
-        }
-
-        .input-explorer::placeholder {
-          color: rgba(209, 213, 219, 0.7);
-        }
-
-        .select-explorer {
-          width: 100%;
-          border-radius: 0.65rem;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          background: rgb(17, 24, 39);
-          padding: 0.5rem 0.75rem;
-          font-size: 0.8125rem;
-          color: white;
-          outline: none;
-          transition: border-color 0.15s ease;
-        }
-
-        .select-explorer:focus {
-          border-color: rgba(192, 132, 252, 0.9);
-        }
-
-        @media (min-width: 640px) {
-          .input-explorer,
-          .select-explorer {
-            font-size: 0.875rem;
-          }
-        }
-      `}</style>
     </>
   );
 }
 
 // ─────────────────────────────────────────────
-// Carte de profil empilée façon Tinder
+// Carte de l'annuaire
 // ─────────────────────────────────────────────
 
-function ProfileStackCard({
-  profile,
-  stackIndex,
-  isTopCard,
-  isLiking,
-  likedIds,
-  onPass,
-  onLike,
-  onReport,
-  onOpenProfile,
+function CarteProfil({
+  profil,
+  aime,
+  likeEnCours,
+  likesEpuises,
+  onAimer,
+  onOuvrir,
+  onSignaler,
 }: {
-  profile: Profile;
-  stackIndex: number;
-  isTopCard: boolean;
-  isLiking: boolean;
-  likedIds: Set<string>;
-  onPass: () => void;
-  onLike: (profile: Profile) => void;
-  onReport: (profileId: string) => void;
-  onOpenProfile: (profileId: string) => void;
+  profil: Profil;
+  aime: boolean;
+  likeEnCours: boolean;
+  /** Plus aucun like disponible aujourd'hui : le bouton est désactivé. */
+  likesEpuises: boolean;
+  onAimer: () => void;
+  onOuvrir: () => void;
+  onSignaler: () => void;
 }) {
-  /**
-   * Valeur horizontale du drag.
-   * Elle sert à :
-   * - déplacer la carte ;
-   * - incliner la carte ;
-   * - afficher les badges LIKE / PASS.
-   */
-  const x = useMotionValue(0);
+  const lieu = [profil.localisation, getDepartementLabel(profil.departement)]
+    .filter(Boolean)
+    .join(" · ");
 
-  const rotate = useTransform(x, [-220, 0, 220], [-12, 0, 12]);
-  const likeOpacity = useTransform(x, [30, 120], [0, 1]);
-  const passOpacity = useTransform(x, [-120, -30], [1, 0]);
-
-  /**
-   * Quand on lâche la carte :
-   * - si elle est tirée à droite : like ;
-   * - si elle est tirée à gauche : pass ;
-   * - sinon elle revient au centre.
-   */
-  const handleDragEnd = () => {
-    const value = x.get();
-
-    if (value > 120) {
-      onLike(profile);
-      return;
-    }
-
-    if (value < -120) {
-      onPass();
-    }
-  };
-
-  const intentLabels = profile.intentions
-    ?.map((intention) => {
-      return (
-        INTENTIONS_OPTIONS.find((option) => option.value === intention)?.label ??
-        intention
-      );
-    })
-    .slice(0, 2);
+  const intentions = (profil.intentions ?? []).slice(0, 2);
+  const nom = profil.pseudonyme || "Membre";
 
   return (
-    <motion.article
-      layout
-      drag={isTopCard ? "x" : false}
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.82}
-      onDragEnd={handleDragEnd}
-      initial={{
-        opacity: 0,
-        scale: 0.96,
-        y: 20,
-      }}
-      animate={{
-        opacity: 1 - stackIndex * 0.14,
-        scale: 1 - stackIndex * 0.045,
-        y: stackIndex * 12,
-        rotate: stackIndex === 1 ? -2 : stackIndex === 2 ? 2 : 0,
-      }}
-      exit={{
-        opacity: 0,
-        x: isTopCard ? -120 : 0,
-        scale: 0.9,
-        transition: { duration: 0.2 },
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 260,
-        damping: 28,
-      }}
-      style={{
-        x: isTopCard ? x : 0,
-        rotate: isTopCard ? rotate : undefined,
-        zIndex: 10 - stackIndex,
-        pointerEvents: isTopCard ? "auto" : "none",
-      }}
-      className="absolute inset-0 overflow-hidden rounded-[1.7rem] border border-white/12 bg-white/8 shadow-2xl backdrop-blur-xl"
-    >
-      {/* Badges drag */}
-      {isTopCard && (
-        <>
-          <motion.div
-            style={{ opacity: likeOpacity }}
-            className="pointer-events-none absolute left-5 top-6 z-20 rotate-[-10deg] rounded-2xl border-2 border-green-300 bg-green-500/20 px-4 py-2 text-lg font-black uppercase tracking-widest text-green-200 backdrop-blur"
-          >
-            Like
-          </motion.div>
-
-          <motion.div
-            style={{ opacity: passOpacity }}
-            className="pointer-events-none absolute right-5 top-6 z-20 rotate-[10deg] rounded-2xl border-2 border-red-300 bg-red-500/20 px-4 py-2 text-lg font-black uppercase tracking-widest text-red-200 backdrop-blur"
-          >
-            Pass
-          </motion.div>
-        </>
-      )}
-
+    <li className="flex flex-col overflow-hidden rounded-2xl border border-cream/10 bg-[#0C222D]">
       {/* Photo */}
-      <div className="relative h-[360px] bg-gradient-to-br from-purple-800/70 to-pink-800/40 sm:h-[450px]">
-        {profile.image ? (
+      <div className="relative aspect-[4/5] bg-abyss">
+        {profil.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={profile.image}
-            alt={profile.pseudonyme || "Membre"}
+            src={profil.image}
+            alt={`Photo de ${nom}`}
             className="h-full w-full object-cover"
-            draggable={false}
+            loading="lazy"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-5xl font-black shadow-2xl sm:h-32 sm:w-32">
-              {(profile.pseudonyme || "L").charAt(0).toUpperCase()}
-            </div>
+            <span
+              className="font-display [font-stretch:125%] flex h-20 w-20 items-center justify-center rounded-full border border-cream/10 text-[28px] font-extrabold text-cream/40"
+              aria-hidden="true"
+            >
+              {nom.charAt(0).toUpperCase()}
+            </span>
           </div>
         )}
 
-        {/* Filtre sombre bas */}
-        <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
-
-        {/* Bouton signalement */}
         <button
           type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            onReport(profile._id);
-          }}
-          className="absolute right-3 top-3 rounded-xl bg-black/35 p-2 text-gray-200 backdrop-blur-sm transition hover:bg-black/55 hover:text-red-300"
-          title="Signaler ce profil"
+          onClick={onSignaler}
+          aria-label={`Signaler ${nom}`}
+          className={`absolute right-2.5 top-2.5 rounded-lg bg-abyss/70 p-2 text-cream/60 backdrop-blur-sm transition-colors hover:text-orange ${focusRing}`}
         >
-          <Flag className="h-4 w-4" />
+          <Flag size={14} aria-hidden="true" />
         </button>
 
-        {/* Infos principales sur l'image */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="max-w-[220px] truncate text-2xl font-black text-white sm:max-w-none sm:text-3xl">
-              {profile.pseudonyme || "Membre"}
-              {profile.age ? `, ${profile.age}` : ""}
-            </h2>
+        {/* Un profil remonté par un boost le dit, il ne se déguise pas en
+            résultat naturel du classement. */}
+        {profil.miseEnAvant && (
+          <span className="absolute left-2.5 top-2.5 rounded-full bg-orange px-2.5 py-1 text-[11px] font-bold text-abyss">
+            Mis en avant
+          </span>
+        )}
+      </div>
 
-            {profile.identityVerified && (
-              <span className="rounded-full border border-green-400/30 bg-green-500/30 px-2 py-0.5 text-[11px] font-semibold text-green-200">
-                ✓ Vérifié
-              </span>
-            )}
+      {/* Informations */}
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-display [font-stretch:125%] min-w-0 truncate text-[16px] font-bold text-cream">
+            {nom}
+            {profil.age ? `, ${profil.age}` : ""}
+          </h3>
 
-            {/* Un profil remonté par un boost le dit, il ne se déguise pas
-                en résultat naturel du classement. */}
-            {profile.miseEnAvant && (
-              <span className="rounded-full border border-orange-300/40 bg-orange-500/25 px-2 py-0.5 text-[11px] font-semibold text-orange-100">
-                Mis en avant
-              </span>
-            )}
-          </div>
-
-          {(profile.localisation || profile.departement) && (
-            <p className="mt-1 flex items-center gap-1 text-xs text-gray-200 sm:text-sm">
-              <MapPin className="h-3.5 w-3.5" />
-              {[profile.localisation, getDepartementLabel(profile.departement)]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
+          {profil.identityVerified && (
+            <span
+              className="flex shrink-0 items-center gap-1 rounded-full bg-lime/15 px-2 py-0.5 text-[11px] font-bold text-lime"
+              title="Identité vérifiée"
+            >
+              <ShieldCheck size={12} aria-hidden="true" />
+              Vérifié
+            </span>
           )}
+        </div>
+
+        {lieu && (
+          <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-cream/55">
+            <MapPin size={12} className="shrink-0" aria-hidden="true" />
+            <span className="truncate">{lieu}</span>
+          </p>
+        )}
+
+        {intentions.length > 0 && (
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {intentions.map((intention) => (
+              <li
+                key={intention}
+                className="rounded-full border border-cream/12 px-2.5 py-0.5 text-[11px] text-cream/60"
+              >
+                {libelleIntention(intention)}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-auto flex items-center gap-2 pt-4">
+          <button
+            type="button"
+            onClick={onOuvrir}
+            className={`flex-1 rounded-xl border border-cream/15 px-3 py-2.5 text-[12px] font-bold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+          >
+            Voir le profil
+          </button>
 
           <button
             type="button"
-            onClick={() => onOpenProfile(profile._id)}
-            className="mt-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 px-3 py-1.5 text-xs font-bold text-white shadow-lg shadow-pink-500/25 transition hover:scale-105 hover:opacity-90"
+            onClick={onAimer}
+            disabled={aime || likeEnCours || likesEpuises}
+            aria-label={aime ? `${nom} : déjà aimé` : `Aimer ${nom}`}
+            title={
+              likesEpuises && !aime
+                ? "Tu as utilisé tes likes du jour."
+                : undefined
+            }
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors disabled:cursor-not-allowed ${focusRing} ${
+              aime
+                ? "bg-lime/15 text-lime"
+                : "bg-orange text-abyss hover:bg-orange/90 disabled:opacity-40"
+            }`}
           >
-            <User className="h-3.5 w-3.5" />
-            Voir le profil
+            {likeEnCours ? (
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+            ) : (
+              <Heart
+                size={16}
+                className={aime ? "fill-lime" : ""}
+                aria-hidden="true"
+              />
+            )}
           </button>
         </div>
       </div>
-
-      {/* Infos compactes sous image */}
-      <div className="space-y-3 p-3 sm:p-5">
-        {intentLabels?.length > 0 && (
-          <div>
-            <p className="mb-1.5 text-[11px] uppercase tracking-wide text-white/35">
-              Recherche
-            </p>
-
-            <div className="flex flex-wrap gap-1.5">
-              {intentLabels.map((label) => (
-                <span
-                  key={label}
-                  className="rounded-full border border-purple-400/25 bg-purple-500/20 px-2.5 py-1 text-[11px] text-purple-100"
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {profile.interets?.length > 0 && (
-          <div>
-            <p className="mb-1.5 text-[11px] uppercase tracking-wide text-white/35">
-              Centres d&apos;intérêt
-            </p>
-
-            <div className="flex flex-wrap gap-1.5">
-              {profile.interets.slice(0, 4).map((interest) => (
-                <span
-                  key={interest}
-                  className="rounded-full border border-white/10 bg-white/7 px-2.5 py-1 text-[11px] text-gray-200"
-                >
-                  {interest}
-                </span>
-              ))}
-
-              {profile.interets.length > 4 && (
-                <span className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] text-gray-400">
-                  +{profile.interets.length - 4}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {isTopCard && likedIds.has(profile._id) && (
-          <p className="rounded-xl border border-pink-400/20 bg-pink-500/10 px-3 py-2 text-center text-xs text-pink-200">
-            Profil déjà liké 💜
-          </p>
-        )}
-
-        {isTopCard && isLiking && (
-          <p className="flex items-center justify-center gap-2 text-xs text-white/50">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            Action en cours...
-          </p>
-        )}
-      </div>
-    </motion.article>
-  );
-}
-
-// ─────────────────────────────────────────────
-// État vide
-// ─────────────────────────────────────────────
-
-function EmptyState({
-  onRefresh,
-  accent,
-}: {
-  onRefresh: () => void;
-  accent: { titleGradient: string; actionGradient: string; actionShadow: string };
-}) {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-5 py-16 text-center sm:py-24">
-      <div className="flex h-18 w-18 items-center justify-center rounded-full bg-purple-500/20 sm:h-20 sm:w-20">
-        <Sparkles className="h-9 w-9 text-purple-300 sm:h-10 sm:w-10" />
-      </div>
-
-      <div>
-        <h3 className="mb-2 text-xl font-bold">Vous avez tout exploré !</h3>
-
-        <p className="mx-auto max-w-xs text-sm text-gray-400">
-          Il n&apos;y a plus de nouveaux profils pour le moment. Revenez plus
-          tard ou modifiez vos filtres.
-        </p>
-      </div>
-
-      <button
-        type="button"
-        onClick={onRefresh}
-        className={`flex items-center gap-2 rounded-xl bg-gradient-to-r px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 ${accent.actionGradient}`}
-      >
-        <RefreshCw className="h-5 w-5" />
-        Rafraîchir
-      </button>
-
-      <p className="flex items-center gap-1 text-xs text-gray-500">
-        <Crown className="h-4 w-4 text-yellow-400" />
-        Les membres Premium voient plus de profils
-      </p>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Petit wrapper de champ filtre
-// ─────────────────────────────────────────────
-
-function FilterField({
-  label,
-  children,
-  className = "",
-}: {
-  label: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <label className={`block ${className}`}>
-      <span className="mb-1 block text-[11px] text-gray-400 sm:text-xs">
-        {label}
-      </span>
-      {children}
-    </label>
+    </li>
   );
 }

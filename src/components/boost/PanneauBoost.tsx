@@ -245,7 +245,7 @@ export default function PanneauBoost({
         </div>
       )}
 
-      <p className="mt-3 text-[12px] text-cream/50" aria-live="polite">
+      <p className="mt-3 text-[12px] text-cream/60" aria-live="polite">
         {quota.limite <= 0
           ? 'Ton offre actuelle ne comprend pas de boost. Les offres payantes en incluent 1, 3 ou 10 par mois.'
           : quota.restants > 0

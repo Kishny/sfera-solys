@@ -66,9 +66,12 @@ function getOtherUserId(match: any, currentUserId: mongoose.Types.ObjectId) {
  * Next.js App Router peut fournir params directement ou sous forme promise
  * selon versions / typages.
  *
- * Cette fonction rend le code robuste.
+ * Next 15 a tranché : `params` est toujours une promesse, et son validateur de
+ * routes généré rejette l'union (`{ matchId: string } | Promise<…>`) qui était
+ * déclarée ici — deux erreurs de types masquées par `ignoreBuildErrors`. On
+ * garde le helper pour la lisibilité des appels.
  */
-async function resolveParams(params: { matchId: string } | Promise<{ matchId: string }>) {
+async function resolveParams(params: Promise<{ matchId: string }>) {
   return await params;
 }
 
@@ -129,7 +132,7 @@ function serializeMessage(message: any) {
 
 export async function GET(
   req: NextRequest,
-  context: { params: { matchId: string } | Promise<{ matchId: string }> }
+  context: { params: Promise<{ matchId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -288,7 +291,7 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  context: { params: { matchId: string } | Promise<{ matchId: string }> }
+  context: { params: Promise<{ matchId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);

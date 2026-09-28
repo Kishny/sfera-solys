@@ -8,6 +8,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Boost } from "@/models/Boost";
 import { ProfileVisit } from "@/models/ProfileVisit";
+import { quotaLikesDuJour, quotaMessagesDuJour } from "@/lib/quotas";
 import {
   SUBSCRIPTION_PLANS,
   normalizePlanId,
@@ -32,18 +33,12 @@ import {
  *
  * Il affichait `remainingSwipes: limits.dailyLikes`, et pareil pour les trois
  * autres : le « restant » était la limite elle-même, donc un compteur qui ne
- * bougeait jamais. Deux des quatre valeurs sont désormais calculées pour de
- * vrai, à partir des collections qui les portent — boosts (`Boost`) et visites
- * de profil (`ProfileVisit`).
+ * bougeait jamais. Les quatre valeurs sont désormais mesurées sur les
+ * collections qui les portent — `Like`, `Message`, `Boost` et `ProfileVisit`.
  *
- * Les deux autres valent `null`, volontairement. Les quotas quotidiens de
- * likes et de messages reposent sur des champs `dailyLikesCount` /
- * `dailyMessagesCount` du modèle `User` qui **n'existent pas** et ne sont
- * incrémentés nulle part : le compteur lu par `subscription-check` renvoie
- * donc toujours zéro, et ces limites ne sont en réalité pas appliquées.
- * Renvoyer `null` plutôt qu'un nombre évite qu'une interface s'appuie sur un
- * chiffre inventé, et rend le trou visible. À traiter avec le chantier
- * `/explorer` et `/messages`.
+ * `null` ne veut pas dire « zéro restant » mais « illimité » : les offres
+ * payantes n'ont pas de plafond de likes ni de messages, et `Infinity` ne
+ * survit pas à une sérialisation JSON.
  */
 
 function getPlanLabel(plan: PlanId) {
@@ -191,10 +186,19 @@ const limits = getLimits(plan);
      * Usages réellement mesurables aujourd'hui.
      * Un échec de lecture donne 0 : on n'invente pas un quota consommé.
      */
-    const [boostsDuMois, visitesDeProfil] = await Promise.all([
-      compterBoostsDuMois(String(user._id)),
-      compterVisitesDeProfil(String(user._id)),
-    ]);
+    const pourQuota = {
+      plan: user.plan,
+      isPremium: user.isPremium,
+      subscriptionStatus: user.subscriptionStatus,
+    };
+
+    const [boostsDuMois, visitesDeProfil, quotaLikes, quotaMessages] =
+      await Promise.all([
+        compterBoostsDuMois(String(user._id)),
+        compterVisitesDeProfil(String(user._id)),
+        quotaLikesDuJour(String(user._id), pourQuota),
+        quotaMessagesDuJour(String(user._id), pourQuota),
+      ]);
 
     return NextResponse.json(
       {
@@ -226,12 +230,9 @@ const limits = getLimits(plan);
           limits,
 
           usage: {
-            /**
-             * `null` = compteur non branché, pas « zéro restant ».
-             * Voir l'en-tête du fichier.
-             */
-            remainingSwipes: null,
-            remainingMessages: null,
+            /** `null` = illimité, pas « zéro restant ». */
+            remainingSwipes: quotaLikes.restants,
+            remainingMessages: quotaMessages.restants,
 
             remainingBoosts: restant(limits.boostsPerMonth, boostsDuMois),
             remainingProfileVisits: restant(
@@ -242,6 +243,8 @@ const limits = getLimits(plan);
 
           /** Les usages réellement mesurés, pour affichage « x sur y ». */
           usageMesure: {
+            likesDuJour: quotaLikes.utilises,
+            messagesDuJour: quotaMessages.utilises,
             boostsDuMois,
             visitesDeProfil,
           },

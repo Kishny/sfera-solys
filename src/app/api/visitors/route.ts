@@ -42,7 +42,22 @@ export async function GET(req: NextRequest) {
     });
 
     if (!access.allowed || !access.user) {
-      return access.response;
+      /**
+       * `access.response` est typé `NextResponse | null` : renvoyer `null`
+       * depuis un handler de route ferait tomber Next à l'exécution. On
+       * fournit donc une réponse de repli plutôt que de faire confiance.
+       */
+      return (
+        access.response ??
+        NextResponse.json(
+          {
+            success: false,
+            error: "Accès refusé.",
+            code: "SUBSCRIPTION_REQUIRED",
+          },
+          { status: 403 }
+        )
+      );
     }
 
     await connectDB();

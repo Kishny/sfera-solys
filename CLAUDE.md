@@ -793,9 +793,118 @@ inventé — et calcule pour de vrai `remainingBoosts` et
 n'importe**. Les deux définissent une classe `SubscriptionChecker`. Seul celui
 de `lib/` est utilisé. À supprimer.
 
+### 📖 Explorer devient un annuaire (28/09/2026)
+
+Explorer était un swipe façon Tinder : trois cartes empilées,
+glisser-à-droite pour liker, glisser-à-gauche pour passer, et un préchargement
+qui rallongeait la liste sans fin. Or le site affirme deux fois le contraire.
+`/valeurs` : « Le Circle of Six propose six profils le lundi, puis s'arrête. À
+côté, l'annuaire permet de chercher par soi-même. Aucune des deux vues ne
+défile à l'infini : ce n'est pas un oubli, c'est le produit. » Et
+`/fonctionnalites` vend « des liens choisis, pas des milliers de swipes » et
+« moins de fatigue du swipe ».
+
+**L'annuaire promis n'existait pas** : Explorer *était* le swipe. Décision de
+l'utilisateur : transformer la page, pas la copy.
+
+Ce qui remplace la pile : une grille paginée, une recherche, et une
+**pagination explicite** — on demande la page suivante, elle ne vient pas toute
+seule. C'est le cœur du changement ; la grille et les filtres n'en sont que la
+conséquence.
+
+**Ce qui disparaît, et pourquoi**
+
+- Le glisser-pour-liker : un geste rapide et réversible-par-accident est
+  exactement ce que la page prétendait refuser.
+- Le bouton « passer » : dans un annuaire on ne passe pas, on ne like pas.
+  Rien à enregistrer.
+- Le compteur « x profils à découvrir », qui comptait ce qui restait dans la
+  pile chargée et non les membres. L'annuaire affiche le total réel de l'API.
+- **La visite enregistrée passivement.** L'ancienne page envoyait un
+  `POST /api/visitors` pour *chaque carte affichée*. En grille, ça ferait vingt
+  visites par page feuilletée : « qui a vu ton profil » deviendrait du bruit, et
+  le quota de visites (20 sur l'offre gratuite) serait épuisé en une page. La
+  visite part maintenant au clic sur « voir le profil ».
+
+**Trois défauts de fond corrigés au passage**
+
+- Les filtres d'âge partaient de **18 ans** alors que la plateforme est
+  réservée aux 28 ans et plus ; l'API corrigeait silencieusement à 28.
+- Les orientations proposées étaient **toutes au féminin** (« Hétérosexuelle »,
+  « Lesbienne / Homosexuelle », « Curieuse ») — reste du fork.
+- « Toute la France » envoyait un département vide, ce que l'API interprète
+  comme « respecte la portée enregistrée par le membre ». Un membre réglé sur
+  « mon département » restait donc dans son bassin **en ayant demandé le
+  contraire**. L'API attend `all` ; le select a maintenant trois états
+  distincts, dont « Selon ma préférence » par défaut.
+
+**Effet de bord supprimé** : l'ancienne page avait trois effets de chargement
+qui s'alimentaient l'un l'autre, dont un qui incrémentait `page` à l'infini
+quand l'API échouait (commentaire d'origine : « ex: page=271, 272, 273… »). Il
+n'en reste qu'un, déclenché par la page et les filtres appliqués.
+
+**Contraste vérifié par calcul**, pas à l'œil. Quatre choix ont été corrigés
+après mesure : `cream/35` en placeholder (2,90:1), `cream/40` en texte d'aide
+(3,34:1), `cream/50` dans le panneau de boost (4,47:1), et la puce d'intention
+sélectionnée en `text-orange` sur `bg-orange/15` (4,16:1) — remplacée par de
+l'orange plein avec du texte abyss (5,23:1), qui se lit aussi mieux comme état
+« choisi ». Rappels mesurés : cream sur orange plein = 3,00:1 et cream sur lime
+plein = **1,04:1**, donc invisible. L'orange et le lime ne portent que du texte
+abyss.
+
+### 🔒 Les quotas quotidiens appliqués (28/09/2026)
+
+Suite de la façade signalée la veille. `src/lib/quotas.ts` compte désormais les
+likes et les messages du jour **sur les collections** `Like` et `Message`,
+plutôt que sur les champs `dailyLikesCount` / `dailyMessagesCount` qui
+n'existent pas dans `models/User.ts`. `POST /api/likes` refuse au-delà du
+quota — l'offre gratuite donne 5 likes par jour, ce qui n'était vérifié nulle
+part — et renvoie le quota dans sa réponse pour que l'interface l'affiche sans
+second appel.
+
+**Pourquoi compter plutôt qu'incrémenter** : un compteur dénormalisé sur `User`
+demande une migration, une remise à zéro quotidienne fiable, et il dérive au
+premier écrit manqué. Compter la collection est exact par construction, et
+indexé (`Like` porte déjà `{ fromUserId: 1, createdAt: -1 }`).
+
+**Deux pièges traités** : un « re-like » ne consomme rien, parce que la création
+est un upsert — on teste l'existence avant le quota, sinon un membre gratuit
+serait bloqué en rappuyant sur un profil déjà liké. Et le quota ne passe pas par
+`canPerformAction`, qui refuse d'emblée tout membre sans abonnement actif : ça
+bloquerait les 5 likes de l'offre gratuite au lieu de les accorder. Le plan
+effectif exige un abonnement `active`/`trialing` — un abonnement résilié dont
+`user.plan` est resté à « premium » retombe sur les limites gratuites.
+
+**Super likes** : toujours non mesurables, et c'est documenté dans le code —
+aucun modèle ne les stocke (`SuperLike.ts` n'existe pas, `Like.ts` ne distingue
+pas les deux) et l'interface ne les propose nulle part.
+
+`/api/subscription/status` renvoie maintenant les quatre usages mesurés
+(`likesDuJour`, `messagesDuJour`, `boostsDuMois`, `visitesDeProfil`) ; `null` y
+signifie « illimité », pas « zéro restant ».
+
+**Reste à faire sur ce sujet** : `POST /api/messages/[matchId]` n'applique
+toujours pas la limite de 10 messages/jour de l'offre gratuite, ni
+`maxMatches: 3`. Le compteur existe désormais (`quotaMessagesDuJour`) ; il faut
+l'appeler. À traiter avec le chantier `/messages`.
+
+### 🧹 Dette de types réduite : 23 → 21
+
+Trois routes déclaraient `return access.response` alors que `response` est typé
+`NextResponse | null` : renvoyer `null` depuis un handler de route ferait tomber
+Next à l'exécution. Corrigé dans `/api/visitors` et `/api/subscription/check`
+(6 occurrences) avec une réponse de repli. Et
+`/api/messages/[matchId]` typait `params` en
+`{ matchId: string } | Promise<{ matchId: string }>`, union que le validateur de
+routes de Next 15 rejette : `params` est toujours une promesse.
+
+Les erreurs restantes (21) sont toutes dans `models/User.ts` (13, typage
+mongoose), `mon-compte` (5), `models/Subscription.ts` (2, exports manquants) et
+`ui/Button.tsx` (1).
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/explorer /circle /communaute /evenements /mode-fantome /vibementor /matches /messages/[matchId] /profil/[id] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/circle /communaute /evenements /mode-fantome /vibementor /matches /messages/[matchId] /profil/[id] /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire
@@ -804,7 +913,7 @@ de `lib/` est utilisé. À supprimer.
 - [ ] `.npmrc` — retirer tout token privé hérité (commit « passe dédiée » côté SferaLuna)
 - [ ] Fichier racine `sferaluna-app-icon-1024.png` — obsolète (remplacé par `public/app-icon-1024.png`, non référencé dans le code), à déplacer/supprimer
 - [ ] **`/histoire` — page à réécrire, pas à corriger** : la marque et le genre y ont été corrigés, mais le récit lui-même reste celui de SferaLuna (« les applications ne sont pas conçues pour les femmes → nous avons créé ceci »). L'histoire fondatrice de Sfera'Solys n'est pas inventable : c'est au porteur du projet de la raconter. En l'état la page n'est plus fausse sur sa cible, mais elle ne raconte pas encore la bonne histoire.
-- [ ] **26 erreurs de types préexistantes** — voir la section Vérification ci-dessus ; masquées par `ignoreBuildErrors`.
+- [ ] **21 erreurs de types préexistantes** — voir la section Vérification ci-dessus ; masquées par `ignoreBuildErrors`.
 - [ ] **Modèle** `LunaEvent.ts` → `SolysEvent.ts` (+ imports, + libellés « Événements Luna »)
 - [ ] **Critère d'inscription / cible** : vérifier que la copy et les visuels des pages non traitées (onboarding, profil, formulaires) sont bien orientés hommes 28+, sans présomption d'orientation
 - [ ] **OAuth** : nouveau projet Google Cloud + Services ID Apple pour le domaine Sfera'Solys (redirect URIs, `NEXTAUTH_URL` / `NEXT_PUBLIC_APP_URL` alignés sur le domaine canonique)

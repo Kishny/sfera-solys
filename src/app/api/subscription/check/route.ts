@@ -153,7 +153,18 @@ export async function GET() {
       const info = await getCurrentSubscriptionInfo();
   
       if (!info.allowed) {
-        return info.response;
+        // Même raison que dans /api/visitors : jamais `null` depuis un handler.
+        return (
+          info.response ??
+          NextResponse.json(
+            {
+              success: false,
+              error: "Accès refusé.",
+              code: "SUBSCRIPTION_REQUIRED",
+            },
+            { status: 403 }
+          )
+        );
       }
   
       if (!("limits" in info) || !("features" in info)) {
@@ -328,7 +339,13 @@ export async function POST(req: NextRequest) {
       const access = await requireSubscriptionPlan(body.requiredPlan);
 
       if (!access.allowed) {
-        return access.response;
+        return (
+          access.response ??
+          NextResponse.json(
+            { success: false, error: "Accès refusé.", code: "SUBSCRIPTION_REQUIRED" },
+            { status: 403 }
+          )
+        );
       }
 
       return NextResponse.json(
@@ -357,7 +374,13 @@ export async function POST(req: NextRequest) {
       const access = await requireSubscriptionFeature(body.requiredFeature);
 
       if (!access.allowed) {
-        return access.response;
+        return (
+          access.response ??
+          NextResponse.json(
+            { success: false, error: "Accès refusé.", code: "SUBSCRIPTION_REQUIRED" },
+            { status: 403 }
+          )
+        );
       }
 
       return NextResponse.json(
@@ -386,7 +409,13 @@ export async function POST(req: NextRequest) {
       const access = await requireSubscriptionAction(action, count);
 
       if (!access.allowed) {
-        return access.response;
+        return (
+          access.response ??
+          NextResponse.json(
+            { success: false, error: "Accès refusé.", code: "SUBSCRIPTION_REQUIRED" },
+            { status: 403 }
+          )
+        );
       }
 
       return NextResponse.json(
@@ -421,7 +450,13 @@ export async function POST(req: NextRequest) {
     });
 
     if (!access.allowed) {
-      return access.response;
+      return (
+        access.response ??
+        NextResponse.json(
+          { success: false, error: "Accès refusé.", code: "SUBSCRIPTION_REQUIRED" },
+          { status: 403 }
+        )
+      );
     }
 
     return NextResponse.json(

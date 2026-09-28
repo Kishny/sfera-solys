@@ -11,11 +11,13 @@ import { Like } from "@/models/Like";
 import { Match } from "@/models/Match";
 import { pusher } from "@/lib/pusher";
 import { sendNewMatchPush } from "@/lib/push";
+import { quotaLikesDuJour } from "@/lib/quotas";
 
 /**
  * Route Likes Sfera'Solys.
  *
  * POST /api/likes :
+ * - vérifie le quota de likes du jour (voir plus bas) ;
  * - like un profil ;
  * - si le like réciproque existe, crée ou réactive un match ;
  * - notifie les deux utilisateurs via Pusher.
@@ -23,6 +25,15 @@ import { sendNewMatchPush } from "@/lib/push";
  * DELETE /api/likes :
  * - retire un like ;
  * - désactive le match associé si besoin.
+ *
+ * ## Le quota, qui n'existait pas
+ *
+ * L'offre gratuite annonce « 5 likes par jour » sur /tarifs, et les offres
+ * payantes vendent l'illimité comme un avantage. Cette route ne vérifiait
+ * **aucune limite** : le compteur lu par `subscription-check` reposait sur des
+ * champs `dailyLikesCount` absents du modèle User, donc toujours à zéro. Les
+ * likes sont désormais comptés sur la collection elle-même
+ * (`src/lib/quotas.ts`), et un dépassement est refusé.
  */
 
 // ─────────────────────────────────────────────
@@ -94,7 +105,8 @@ async function getCurrentUser() {
   const sessionEmail = session.user.email.toLowerCase().trim();
 
   const user = await User.findOne({ email: sessionEmail }).select(
-    "_id pseudonyme image age localisation identityVerified"
+    // plan / isPremium / subscriptionStatus servent au quota de likes.
+    "_id pseudonyme image age localisation identityVerified plan isPremium subscriptionStatus"
   );
 
   if (!user) {
@@ -271,6 +283,47 @@ export async function POST(req: NextRequest) {
     }
 
     /**
+     * Quota de likes du jour.
+     *
+     * On vérifie d'abord si le like existe déjà : la création est un upsert,
+     * donc re-liker un profil déjà liké ne crée aucun document et ne doit rien
+     * consommer. Sans ce test, un membre gratuit serait bloqué en rappuyant sur
+     * un profil qu'il a déjà liké.
+     */
+    const dejaLike = await Like.exists({
+      fromUserId: currentUserId,
+      toUserId: targetId,
+    });
+
+    if (!dejaLike) {
+      const quota = await quotaLikesDuJour(
+        currentUserId.toString(),
+        currentUser as {
+          plan?: string | null;
+          isPremium?: boolean | null;
+          subscriptionStatus?: string | null;
+        }
+      );
+
+      if (quota.atteint) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Tu as utilisé tes ${quota.limite} likes du jour. Le compteur repart à minuit.`,
+            code: "LIKE_QUOTA_REACHED",
+            quota: {
+              limite: quota.limite,
+              utilises: quota.utilises,
+              restants: quota.restants,
+            },
+            upgradeUrl: "/tarifs",
+          },
+          { status: 403 }
+        );
+      }
+    }
+
+    /**
      * Créer le like.
      *
      * Upsert :
@@ -296,6 +349,19 @@ export async function POST(req: NextRequest) {
     );
 
     /**
+     * Quota après coup, renvoyé dans la réponse : l'interface peut afficher
+     * « x likes restants » sans second appel.
+     */
+    const quotaApres = await quotaLikesDuJour(
+      currentUserId.toString(),
+      currentUser as {
+        plan?: string | null;
+        isPremium?: boolean | null;
+        subscriptionStatus?: string | null;
+      }
+    );
+
+    /**
      * Vérifier si la cible a déjà liké l'utilisateur courant.
      */
     const reciprocalLike = await Like.findOne({
@@ -308,6 +374,11 @@ export async function POST(req: NextRequest) {
         {
           success: true,
           matched: false,
+          quota: {
+            limite: quotaApres.limite,
+            utilises: quotaApres.utilises,
+            restants: quotaApres.restants,
+          },
         },
         {
           status: 200,
@@ -368,6 +439,11 @@ export async function POST(req: NextRequest) {
         success: true,
         matched: true,
         matchId,
+        quota: {
+          limite: quotaApres.limite,
+          utilises: quotaApres.utilises,
+          restants: quotaApres.restants,
+        },
       },
       {
         status: 201,

@@ -37,6 +37,8 @@ import { User } from "@/models/User";
 import { Subscription } from "@/models/Subscription";
 import { Boost } from "@/models/Boost";
 import { ProfileVisit } from "@/models/ProfileVisit";
+import { Like } from "@/models/Like";
+import { Message } from "@/models/Message";
 
 import {
   SUBSCRIPTION_PLANS,
@@ -592,64 +594,61 @@ export class SubscriptionChecker {
   /**
    * Compte les likes du jour.
    *
-   * On suppose que ton User contient éventuellement :
-   * - dailyLikesCount
-   * - dailyLikesDate
+   * Cette méthode lisait `user.dailyLikesCount` et `user.dailyLikesDate` —
+   * **deux champs absents de `models/User.ts`, que rien n'incrémente**. Elle
+   * renvoyait donc toujours zéro, et la limite de 5 likes/jour de l'offre
+   * gratuite n'était jamais atteinte.
    *
-   * Si tu n'as pas encore ces champs, ça renvoie 0 proprement.
+   * On compte maintenant la collection `Like`, qui est la source de vérité :
+   * exact par construction, et indexé (`{ fromUserId: 1, createdAt: -1 }`).
+   *
+   * Note : l'application du quota de likes vit dans `src/lib/quotas.ts`, pas
+   * ici. `canPerformAction` refuse d'emblée tout membre sans abonnement actif,
+   * ce qui bloquerait les 5 likes de l'offre gratuite au lieu de les accorder.
    */
   private async getDailyLikesCount(): Promise<number> {
-    const today = getStartOfToday();
-
-    const lastDate = this.user?.dailyLikesDate
-      ? new Date(this.user.dailyLikesDate)
-      : null;
-
-    if (!lastDate || lastDate < today) return 0;
-
-    return Number(this.user?.dailyLikesCount ?? 0);
+    try {
+      return await Like.countDocuments({
+        fromUserId: this.userId,
+        createdAt: { $gte: getStartOfToday() },
+      });
+    } catch {
+      return 0;
+    }
   }
 
   /**
    * Compte les messages envoyés aujourd'hui.
    *
-   * On suppose que ton User contient éventuellement :
-   * - dailyMessagesCount
-   * - dailyMessagesDate
-   *
-   * Si tu n'as pas encore ces champs, ça renvoie 0 proprement.
+   * Même correctif que pour les likes : `dailyMessagesCount` et
+   * `dailyMessagesDate` n'existent pas. On compte la collection `Message`.
    */
   private async getDailyMessagesCount(): Promise<number> {
-    const today = getStartOfToday();
-
-    const lastDate = this.user?.dailyMessagesDate
-      ? new Date(this.user.dailyMessagesDate)
-      : null;
-
-    if (!lastDate || lastDate < today) return 0;
-
-    return Number(this.user?.dailyMessagesCount ?? 0);
+    try {
+      return await Message.countDocuments({
+        senderId: this.userId,
+        createdAt: { $gte: getStartOfToday() },
+      });
+    } catch {
+      return 0;
+    }
   }
 
   /**
    * Compte les super likes du jour.
    *
-   * On suppose que ton User contient éventuellement :
-   * - dailySuperLikesCount
-   * - dailySuperLikesDate
+   * ⚠️ Non mesurable en l'état : **aucun modèle ne stocke les super likes**
+   * (pas de `SuperLike.ts`, et `Like.ts` ne distingue pas les deux). Les champs
+   * `dailySuperLikesCount` / `dailySuperLikesDate` que cette méthode lisait
+   * n'existent pas davantage.
    *
-   * Si tu n'as pas encore ces champs, ça renvoie 0 proprement.
+   * Renvoyer zéro est le comportement correct aujourd'hui : le super like
+   * n'est proposé nulle part dans l'interface, il n'y a rien à limiter. Le jour
+   * où il sera implémenté, c'est ici qu'il faudra compter — après l'avoir
+   * stocké quelque part.
    */
   private async getDailySuperLikesCount(): Promise<number> {
-    const today = getStartOfToday();
-
-    const lastDate = this.user?.dailySuperLikesDate
-      ? new Date(this.user.dailySuperLikesDate)
-      : null;
-
-    if (!lastDate || lastDate < today) return 0;
-
-    return Number(this.user?.dailySuperLikesCount ?? 0);
+    return 0;
   }
 
   /**
