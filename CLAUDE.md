@@ -1264,9 +1264,60 @@ Le like est optimiste — l'état s'inverse immédiatement et se corrige si le
 serveur refuse : c'est l'action la plus fréquente du fil, elle n'a pas à
 attendre un aller-retour.
 
+### 📅 Événements : `LunaEvent` renommé, et quatre contrôles posés (28/09/2026)
+
+**La dernière trace structurelle de SferaLuna est partie.** Le modèle
+s'appelait `LunaEvent` — nom du modèle, de l'interface, et surtout **nom de la
+collection MongoDB** (`lunaevents`). Tout le reste avait été rebrandé ; la base
+portait encore l'autre marque. Devenu `SolysEvent`, avec les cinq fichiers
+qui l'importaient.
+
+⚠️ **À connaître** : mongoose déduit le nom de la collection du nom du modèle.
+Les écritures vont donc désormais dans `solysevents`, et d'éventuels documents
+de `lunaevents` resteraient orphelins. Sans effet sur ce fork (aucun événement
+réel en base). Si un jour il en existe :
+`db.lunaevents.renameCollection("solysevents")`.
+
+Autre détail : `coverEmoji` avait pour valeur par défaut **la lune** 🌙, posée
+sur chaque événement de la version solaire. Le champ reste pour compatibilité,
+sans valeur par défaut, et n'est plus affiché. La page, elle, titrait
+« Événements Solys 🌙 » — la lune collée au nom solaire — et affichait la même
+lune en grand dans l'état vide.
+
+**Quatre contrôles manquaient à l'inscription :**
+
+- **L'offre.** `eventsAccess` est `false` sur l'offre gratuite et `/tarifs` vend
+  « Événements exclusifs » à partir d'Essentiel. **Aucune des deux routes ne
+  lisait ce drapeau** : tout compte connecté pouvait s'inscrire.
+- **La date.** On pouvait s'inscrire à un événement déjà passé.
+- **La publication.** Un événement non publié était ouvert à qui avait son
+  identifiant.
+- **La place, pour de vrai.** L'ancienne version lisait l'événement, comparait
+  `attendees.length` à `maxAttendees`, puis sauvegardait. Deux inscriptions
+  simultanées sur la dernière place passaient **toutes les deux**. C'est
+  maintenant un `findOneAndUpdate` dont le filtre porte la condition
+  (`$expr: { $lt: [{ $size: "$attendees" }, "$maxAttendees"] }`) : MongoDB
+  arbitre, pas l'ordre d'arrivée dans Node.
+
+**Deux choix de conception :**
+
+- **La liste reste visible par tous, l'inscription non.** Un événement à venir
+  est un argument de vente ; le cacher n'aide personne. La réponse porte
+  `peutSinscrire` pour que la page prévienne **avant** le clic au lieu de
+  laisser découvrir le refus après. C'est un partage différent de `/circle`,
+  entièrement fermé — mais le Circle *est* le contenu, alors qu'ici c'est la
+  présence qui est vendue, pas l'affiche.
+- **Se désinscrire est toujours permis**, avant les contrôles d'accès et quelle
+  que soit l'offre : un abonnement qui expire ne doit pas enfermer quelqu'un
+  dans une inscription.
+
+Structure : comme `/matches`, la page maintenait **deux arbres de cartes**
+(mobile / `md`), soit la même information écrite deux fois. Une seule carte
+responsive.
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/evenements /vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire
@@ -1276,7 +1327,6 @@ attendre un aller-retour.
 - [ ] Fichier racine `sferaluna-app-icon-1024.png` — obsolète (remplacé par `public/app-icon-1024.png`, non référencé dans le code), à déplacer/supprimer
 - [ ] **`/histoire` — page à réécrire, pas à corriger** : la marque et le genre y ont été corrigés, mais le récit lui-même reste celui de SferaLuna (« les applications ne sont pas conçues pour les femmes → nous avons créé ceci »). L'histoire fondatrice de Sfera'Solys n'est pas inventable : c'est au porteur du projet de la raconter. En l'état la page n'est plus fausse sur sa cible, mais elle ne raconte pas encore la bonne histoire.
 - [ ] **21 erreurs de types préexistantes** — voir la section Vérification ci-dessus ; masquées par `ignoreBuildErrors`.
-- [ ] **Modèle** `LunaEvent.ts` → `SolysEvent.ts` (+ imports, + libellés « Événements Luna »)
 - [ ] **Critère d'inscription / cible** : vérifier que la copy et les visuels des pages non traitées (onboarding, profil, formulaires) sont bien orientés hommes 28+, sans présomption d'orientation
 - [ ] **OAuth** : nouveau projet Google Cloud + Services ID Apple pour le domaine Sfera'Solys (redirect URIs, `NEXTAUTH_URL` / `NEXT_PUBLIC_APP_URL` alignés sur le domaine canonique)
 - [ ] **Domaine** : sferasolys.fr/.com + déploiement Vercel séparé

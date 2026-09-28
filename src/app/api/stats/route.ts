@@ -6,7 +6,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Match } from "@/models/Match";
 import { Message } from "@/models/Message";
-import { LunaEvent } from "@/models/LunaEvent";
+import { SolysEvent } from "@/models/SolysEvent";
 
 export const revalidate = 300; // cache 5 minutes
 
@@ -25,7 +25,7 @@ export async function GET() {
         user2Id: { $nin: adminIds },
       }),
       Message.countDocuments({ senderId: { $nin: adminIds } }),
-      LunaEvent.countDocuments({ isPublished: true }),
+      SolysEvent.countDocuments({ isPublished: true }),
     ]);
 
     return NextResponse.json({

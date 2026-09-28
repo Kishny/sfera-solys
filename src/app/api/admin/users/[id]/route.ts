@@ -15,7 +15,7 @@ import { CommunityPost } from "@/models/CommunityPost";
 import { MentorPost } from "@/models/MentorPost";
 import { Boost } from "@/models/Boost";
 import { Testimonial } from "@/models/Testimonial";
-import { LunaEvent } from "@/models/LunaEvent";
+import { SolysEvent } from "@/models/SolysEvent";
 import { stripe } from "@/lib/stripe";
 
 cloudinary.config({
@@ -141,7 +141,7 @@ export async function DELETE(
       MentorPost.deleteMany({ userId }),
       Boost.deleteMany({ userId }),
       Testimonial.deleteMany({ userId }),
-      LunaEvent.updateMany({ attendees: userId }, { $pull: { attendees: userId } }),
+      SolysEvent.updateMany({ attendees: userId }, { $pull: { attendees: userId } }),
     ]);
 
     // ── 4. Supprimer le document User ───────────────────────────────────────
