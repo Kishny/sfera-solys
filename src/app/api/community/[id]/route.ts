@@ -6,9 +6,19 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { CommunityPost } from "@/models/CommunityPost";
+import { Report } from "@/models/Report";
+import { rateLimit } from "@/lib/rate-limiter";
+import { moderateText } from "@/lib/text-moderation";
 import mongoose from "mongoose";
 
-/** POST /api/community/[id] — Liker ou commenter un post */
+/**
+ * POST /api/community/[id] — liker ou commenter un post.
+ *
+ * Deux manques corrigés, les mêmes que sur la création de post : les
+ * commentaires n'étaient **pas filtrés** par la modération anti-harcèlement
+ * (contrairement aux messages privés, pourtant moins exposés), et un membre
+ * banni pouvait commenter et liker.
+ */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -22,10 +32,17 @@ export async function POST(
     await connectDB();
 
     const currentUser = await User.findOne({ email: session.user.email.toLowerCase() })
-      .select("_id")
+      .select("_id banned")
       .lean();
     if (!currentUser) {
-      return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
+      return NextResponse.json({ success: false, error: "Membre introuvable." }, { status: 404 });
+    }
+
+    if (currentUser.banned) {
+      return NextResponse.json(
+        { success: false, error: "Compte suspendu.", code: "ACCOUNT_BANNED" },
+        { status: 403 }
+      );
     }
 
     const { id } = await params;
@@ -64,6 +81,60 @@ export async function POST(
     if (action === "comment") {
       if (!content?.trim() || content.trim().length > 500) {
         return NextResponse.json({ success: false, error: "Commentaire invalide (1–500 caractères)." }, { status: 400 });
+      }
+
+      // Commenter n'est pas une rafale : 20 commentaires / 10 min / IP.
+      const rl = await rateLimit(req, 20, 600);
+
+      if (rl.limited) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Trop de commentaires d'affilée. Réessaie dans quelques minutes.",
+            code: "RATE_LIMITED",
+          },
+          {
+            status: 429,
+            headers: rl.retryAfter ? { "Retry-After": String(rl.retryAfter) } : undefined,
+          }
+        );
+      }
+
+      /** Même filtre que la messagerie privée et que la création de post. */
+      const moderation = moderateText(content);
+
+      if (moderation.blocked) {
+        try {
+          await Report.findOneAndUpdate(
+            {
+              reporterId: currentUser._id,
+              targetType: "user",
+              targetId: currentUser._id,
+            },
+            {
+              $set: {
+                reason: "harcèlement",
+                status: "pending",
+                details:
+                  "[AUTO] Filtre anti-harcèlement : commentaire bloqué dans la Communauté " +
+                  `(${moderation.category ?? "abus"}).`,
+              },
+            },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+          );
+        } catch (reportErr) {
+          console.warn("Signalement auto commentaire échoué :", reportErr);
+        }
+
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Ce commentaire enfreint nos règles de respect et n'a pas été publié.",
+            code: "COMMENT_BLOCKED",
+          },
+          { status: 422 }
+        );
       }
 
       post.comments.push({

@@ -1225,9 +1225,48 @@ vérification, la page serait partie en production avec `method: "PATCH"` sur un
 route qui n'expose que `PUT` — un bouton qui ne sauvegarde rien, c'est-à-dire
 exactement le genre de façade que ce chantier passe son temps à retirer.
 
+### 🗣️ Communauté Solys : le fil public était moins protégé que la messagerie privée (28/09/2026)
+
+Le fil fonctionnait — publication, likes, commentaires, suppression par
+l'auteur ou un admin. Mais il n'avait **aucune** des protections de la
+messagerie privée, alors qu'il est plus exposé : un message privé atteint une
+personne, un post atteint tout le monde.
+
+Cinq manques côté API :
+
+- **Aucun filtre de modération.** `moderateText` protégeait les messages privés
+  et pas le fil public. Un contenu abusif y était publié directement, visible de
+  tous, en attendant qu'un membre le signale. Le même filtre s'applique
+  maintenant aux posts (titre + contenu) et aux commentaires, avec le même
+  signalement automatique pour la modération.
+- **Aucune limite de débit.** 5 publications et 20 commentaires par 10 minutes.
+- **Aucune pagination.** `find(query)` sans `limit` renvoyait *tous* les posts
+  jamais écrits, à chaque chargement. 20 par page, 50 au maximum.
+- **Aucun contrôle de compte.** Un membre banni pouvait publier, commenter et
+  liker, et les posts d'un compte banni restaient affichés. Les trois sont
+  refusés, et le fil filtre les auteurs suspendus.
+- **La catégorie n'était pas validée.** Une valeur hors enum faisait échouer
+  mongoose et répondait 500 au lieu de 400.
+
+Côté page :
+
+- **Aucun signalement possible.** Le fil public était le seul endroit du site où
+  un contenu abusif ne pouvait pas être signalé — alors que `Report` accepte le
+  type `community_post` depuis le début, et le vérifie réellement depuis la
+  correction de `/api/reports`. Le bouton existe.
+- **Pagination explicite**, comme l'annuaire et pour la même raison.
+- **Les emojis disparaissent de l'interface.** Le modèle exige un `emoji` par
+  post et l'ancienne page ouvrait un sélecteur pour le choisir. La catégorie
+  porte désormais une icône, et l'emoji stocké est déduit de la catégorie : un
+  champ de moins à remplir, compatibilité conservée avec les posts déjà en base.
+
+Le like est optimiste — l'état s'inverse immédiatement et se corrige si le
+serveur refuse : c'est l'action la plus fréquente du fil, elle n'a pas à
+attendre un aller-retour.
+
 ### Reste à faire ❌
 
-- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/communaute /evenements /vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
+- [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis l'espace connecté `/evenements /vibementor /mon-compte /paiement /admin` (plus de 10 000 lignes à elles seules). La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
 - [ ] **`/public/og-image.png`** — régénérer une vraie image de partage Sfera'Solys (le fichier actuel est un placeholder quasi vide, hérité)
 - [ ] **Contenu témoignages en base MongoDB** — le composant d'affichage est rebrandé, mais les données existantes (si seed SferaLuna) n'ont pas été vérifiées/nettoyées
 - [ ] `README.md` — réécrire
