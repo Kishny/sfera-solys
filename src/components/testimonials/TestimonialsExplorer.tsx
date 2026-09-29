@@ -69,7 +69,7 @@ export default function TestimonialsExplorer({
         <div
           className={
             isDark
-              ? "flex items-center gap-1.5 rounded-full border border-cream/10 bg-[#0C222D] p-1"
+              ? "flex items-center gap-1.5 rounded-full border border-cream/10 bg-[#123243] p-1"
               : "flex items-center gap-1.5 rounded-full border border-[#E8E0FF] bg-white p-1"
           }
         >

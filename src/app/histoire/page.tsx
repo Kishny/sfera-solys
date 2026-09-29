@@ -201,7 +201,7 @@ export default function HistoirePage() {
                       delay: shouldReduceMotion ? 0 : index * 0.08,
                       ease: 'easeOut',
                     }}
-                    className="rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6"
+                    className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
                   >
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange/15">
                       <Icone size={18} className="text-orange" aria-hidden="true" />
@@ -255,7 +255,7 @@ export default function HistoirePage() {
 
             <motion.div
               {...fadeUp}
-              className="rounded-[1.75rem] border border-cream/10 bg-[#0C222D] p-6 sm:p-8"
+              className="rounded-[1.75rem] border border-cream/10 bg-[#123243] p-6 sm:p-8"
             >
               <span className="text-[11px] font-bold uppercase tracking-wide text-cream/55">
                 Ce que ça coûte
@@ -330,7 +330,7 @@ export default function HistoirePage() {
                     delay: shouldReduceMotion ? 0 : index * 0.06,
                     ease: 'easeOut',
                   }}
-                  className="flex items-start gap-4 rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6"
+                  className="flex items-start gap-4 rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cream/10 bg-abyss">
                     <Ban size={16} className="text-cream/55" aria-hidden="true" />
@@ -396,7 +396,7 @@ export default function HistoirePage() {
                 {chiffres.map((chiffre) => (
                   <div
                     key={chiffre.label}
-                    className="rounded-2xl border border-cream/10 bg-[#0C222D] p-5 text-center"
+                    className="rounded-2xl border border-cream/10 bg-[#123243] p-5 text-center"
                   >
                     <dt className="sr-only">{chiffre.label}</dt>
                     <dd>

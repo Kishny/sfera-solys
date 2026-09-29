@@ -76,28 +76,28 @@ export default function Step3() {
           {...register("departement")}
           className="w-full rounded-xl border border-cream/15 bg-cream/10 px-4 py-3 text-cream outline-none transition-all focus:border-orange focus:ring-2 focus:ring-orange/25"
         >
-          <option value="" className="bg-[#001724] text-cream/70">
+          <option value="" className="bg-[#04202E] text-cream/70">
             Sélectionne ton département…
           </option>
 
-          <optgroup label="France métropolitaine" className="bg-[#001724]">
+          <optgroup label="France métropolitaine" className="bg-[#04202E]">
             {DEPARTEMENTS.filter((d) => !d.outreMer).map((d) => (
               <option
                 key={d.code}
                 value={d.code}
-                className="bg-[#001724] text-cream"
+                className="bg-[#04202E] text-cream"
               >
                 {d.code} — {d.nom}
               </option>
             ))}
           </optgroup>
 
-          <optgroup label="Outre-mer" className="bg-[#001724]">
+          <optgroup label="Outre-mer" className="bg-[#04202E]">
             {DEPARTEMENTS.filter((d) => d.outreMer).map((d) => (
               <option
                 key={d.code}
                 value={d.code}
-                className="bg-[#001724] text-cream"
+                className="bg-[#04202E] text-cream"
               >
                 {d.code} — {d.nom}
               </option>

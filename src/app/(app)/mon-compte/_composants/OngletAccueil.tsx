@@ -169,7 +169,7 @@ export default function OngletAccueil({
       {/* Abonnement */}
       <section
         className={`rounded-2xl border p-4 sm:p-5 ${
-          payante ? "border-lime/25 bg-lime/[0.06]" : "border-cream/10 bg-[#0C222D]"
+          payante ? "border-lime/25 bg-lime/[0.06]" : "border-cream/10 bg-[#123243]"
         }`}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

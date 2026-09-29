@@ -43,8 +43,8 @@ export default function TestimonialCard({
 
   const surfaceClass = isDark
     ? featured
-      ? "bg-[#0C222D] border-orange/40 ring-1 ring-orange/20"
-      : "bg-[#0C222D] border-cream/8"
+      ? "bg-[#123243] border-orange/40 ring-1 ring-orange/20"
+      : "bg-[#123243] border-cream/8"
     : featured
       ? "bg-white border-orange/40 shadow-[0_12px_34px_-12px_rgba(255,65,3,0.35)] ring-1 ring-orange/30"
       : "bg-white border-orange/15 shadow-[0_10px_30px_-12px_rgba(107,27,2,0.25)]";

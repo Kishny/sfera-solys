@@ -340,8 +340,8 @@ export default function CommencerPage() {
                     onKeyDown={(event) => handleTabKeyDown(event, index)}
                     className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-colors ${focusRing} ${
                       isActive
-                        ? 'border-orange/40 bg-[#0C222D] ring-1 ring-orange/20'
-                        : 'border-cream/8 bg-[#0C222D] hover:border-cream/20'
+                        ? 'border-orange/40 bg-[#123243] ring-1 ring-orange/20'
+                        : 'border-cream/8 bg-[#123243] hover:border-cream/20'
                     }`}
                   >
                     <span
@@ -374,7 +374,7 @@ export default function CommencerPage() {
               id={`etape-panneau-${activeStep.number}`}
               aria-labelledby={`etape-onglet-${activeStep.number}`}
               tabIndex={0}
-              className={`mt-3 rounded-2xl border border-cream/8 bg-[#0C222D] p-6 sm:p-8 ${focusRing}`}
+              className={`mt-3 rounded-2xl border border-cream/8 bg-[#123243] p-6 sm:p-8 ${focusRing}`}
             >
               <motion.div
                 key={activeStep.number}
@@ -437,7 +437,7 @@ export default function CommencerPage() {
               {verificationFacts.map(({ icon: Icon, title, description }) => (
                 <div
                   key={title}
-                  className="rounded-2xl border border-cream/8 bg-[#0C222D] p-5 sm:p-6"
+                  className="rounded-2xl border border-cream/8 bg-[#123243] p-5 sm:p-6"
                 >
                   <Icon size={20} className="text-orange" />
 
@@ -477,7 +477,7 @@ export default function CommencerPage() {
               {benefits.map(({ icon: Icon, title, description }) => (
                 <div
                   key={title}
-                  className="rounded-2xl border border-cream/8 bg-[#0C222D] p-5 sm:p-6"
+                  className="rounded-2xl border border-cream/8 bg-[#123243] p-5 sm:p-6"
                 >
                   <Icon size={18} className="text-orange" />
 
@@ -518,7 +518,7 @@ export default function CommencerPage() {
                 return (
                   <div
                     key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#0C222D]"
+                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
                   >
                     <button
                       type="button"
@@ -571,7 +571,7 @@ export default function CommencerPage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#0C222D] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
               <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
                 Ton dossier commence maintenant.
@@ -592,7 +592,7 @@ export default function CommencerPage() {
 
               <Link
                 href="/tarifs"
-                className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
               >
                 voir les offres
                 <ArrowRight size={14} />

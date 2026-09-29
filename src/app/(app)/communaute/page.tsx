@@ -508,10 +508,10 @@ export default function PageCommunaute() {
               <p className="text-[13px] text-cream/55">Chargement du fil…</p>
             </div>
           ) : posts.length === 0 ? (
-            <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+            <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
               <MessageCircle
                 size={26}
-                className="mx-auto mb-4 text-cream/45"
+                className="mx-auto mb-4 text-cream/60"
                 aria-hidden="true"
               />
 
@@ -629,7 +629,7 @@ export default function PageCommunaute() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: reduireAnimations ? 0 : 24 }}
               transition={{ duration: reduireAnimations ? 0 : 0.25 }}
-              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] border border-cream/10 bg-[#0C222D] p-5 sm:rounded-[1.75rem] sm:p-6"
+              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] border border-cream/10 bg-[#123243] p-5 sm:rounded-[1.75rem] sm:p-6"
             >
               <div className="mb-5 flex items-start justify-between gap-4">
                 <h2
@@ -823,7 +823,7 @@ function CartePost({
   const auteur = post.userId?.pseudonyme ?? "Membre retiré";
 
   return (
-    <li className="rounded-2xl border border-cream/10 bg-[#0C222D] p-4 sm:p-5">
+    <li className="rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:p-5">
       {/* En-tête */}
       <div className="flex items-start gap-3">
         <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-cream/12 bg-abyss">

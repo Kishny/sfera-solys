@@ -87,7 +87,7 @@ function AvatarEclipse({
           cx={20 + d * 6}
           cy={20 - d * 3}
           r="6.6"
-          fill="#08202B"
+          fill="#123243"
           fillOpacity="0.96"
         />
       </svg>
@@ -116,7 +116,7 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
         sont côte à côte dans une grille, donc étirés à la même hauteur. Sans
         ça, la carte la plus courte gardait une poche de vide sous son texte.
       */}
-      <div className="flex flex-1 flex-col rounded-2xl border border-cream/10 bg-[#0C222D] p-4 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] sm:p-5">
+      <div className="flex flex-1 flex-col rounded-2xl border border-cream/10 bg-[#123243] p-4 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] sm:p-5">
         {/* En-tête */}
         <div className="mb-4 flex items-center justify-between gap-3">
           <span className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
               <span className="mt-2 block truncate text-[10px] font-semibold text-cream/80">
                 {profil.age} ans · {profil.ville}
               </span>
-              <span className="block text-[9px] leading-tight text-cream/50">
+              <span className="block text-[9px] leading-tight text-cream/60">
                 {profil.communs} intérêts en commun
               </span>
 
@@ -188,7 +188,7 @@ export function AnnuairePreview({ className = '' }: { className?: string }) {
 
   return (
     <figure className={`flex flex-col ${className}`}>
-      <div className="flex-1 rounded-2xl border border-cream/10 bg-[#0C222D] p-4 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] sm:p-5">
+      <div className="flex-1 rounded-2xl border border-cream/10 bg-[#123243] p-4 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] sm:p-5">
         {/* En-tête : bascule annuaire / découverte */}
         <div className="mb-3 flex items-center justify-between gap-3">
           <span className="font-display [font-stretch:125%] text-[13px] font-extrabold text-cream">
@@ -237,7 +237,7 @@ export function AnnuairePreview({ className = '' }: { className?: string }) {
                 <span className="block truncate text-[11px] font-semibold text-cream/80">
                   {row.age} ans · {row.ville}
                 </span>
-                <span className="mt-0.5 flex items-center gap-1 text-[10px] text-cream/50">
+                <span className="mt-0.5 flex items-center gap-1 text-[10px] text-cream/60">
                   <MapPin size={9} className="shrink-0" />à {row.km} km
                 </span>
               </span>

@@ -293,7 +293,7 @@ export default function PageVisibilite() {
                       className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-colors sm:p-5 ${focusRing} ${
                         actif
                           ? "border-orange bg-orange/[0.08]"
-                          : "border-cream/10 bg-[#0C222D] hover:border-cream/25"
+                          : "border-cream/10 bg-[#123243] hover:border-cream/25"
                       } ${verrouille ? "cursor-not-allowed opacity-60" : ""} ${
                         enregistrement !== null && !enCours ? "opacity-60" : ""
                       }`}
@@ -362,7 +362,7 @@ export default function PageVisibilite() {
             )}
 
             {/* Ce que le mode ne fait pas */}
-            <section className="mt-8 rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6">
+            <section className="mt-8 rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6">
               <h2 className="font-display [font-stretch:125%] flex items-center gap-2 text-[15px] font-bold text-cream">
                 <EyeOff size={15} className="text-orange" aria-hidden="true" />
                 Ce que ces réglages ne font pas

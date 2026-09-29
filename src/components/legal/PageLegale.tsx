@@ -96,7 +96,7 @@ export default function PageLegale({
                 return (
                   <article
                     key={section.id}
-                    className="overflow-hidden rounded-2xl border border-cream/10 bg-[#0C222D]"
+                    className="overflow-hidden rounded-2xl border border-cream/10 bg-[#123243]"
                   >
                     <h2>
                       <button
@@ -120,7 +120,7 @@ export default function PageLegale({
                         <ChevronDown
                           size={17}
                           aria-hidden="true"
-                          className={`mt-0.5 shrink-0 text-cream/45 transition-transform sm:hidden ${
+                          className={`mt-0.5 shrink-0 text-cream/60 transition-transform sm:hidden ${
                             estOuverte ? 'rotate-180' : ''
                           }`}
                         />

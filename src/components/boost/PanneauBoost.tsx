@@ -179,7 +179,7 @@ export default function PanneauBoost({
   return (
     <section
       aria-labelledby="titre-boost"
-      className="mb-3 rounded-2xl border border-cream/10 bg-[#0C222D] p-4 sm:mb-5 sm:p-5"
+      className="mb-3 rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:mb-5 sm:p-5"
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
@@ -216,7 +216,7 @@ export default function PanneauBoost({
           ) : quota.limite <= 0 ? (
             <Link
               href="/tarifs"
-              className={`inline-flex items-center justify-center rounded-xl border border-orange/40 px-4 py-2.5 text-[13px] font-bold text-orange transition-colors hover:bg-orange/10 ${focusRing}`}
+              className={`inline-flex items-center justify-center rounded-xl border border-orange/40 px-4 py-2.5 text-[13px] font-bold text-cream transition-colors hover:bg-orange/10 ${focusRing}`}
             >
               Voir les offres
             </Link>

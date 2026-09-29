@@ -198,7 +198,7 @@ export default function OngletAbonnement({
           !user.subscriptionCancelAtPeriodEnd &&
           !user.subscriptionPaused
             ? "border-lime/25 bg-lime/[0.06]"
-            : "border-cream/10 bg-[#0C222D]"
+            : "border-cream/10 bg-[#123243]"
         }`}
       >
         <div className="flex flex-wrap items-center gap-3">
@@ -314,7 +314,7 @@ export default function OngletAbonnement({
                   type="button"
                   disabled={action === "cancel"}
                   onClick={() => actionStripe("/api/stripe/cancel", "cancel")}
-                  className={`rounded-xl border border-orange/30 px-4 py-2.5 text-[12px] font-semibold text-orange transition-colors hover:bg-orange/10 disabled:opacity-50 ${focusRing}`}
+                  className={`rounded-xl border border-orange/30 px-4 py-2.5 text-[12px] font-semibold text-cream transition-colors hover:bg-orange/10 disabled:opacity-50 ${focusRing}`}
                 >
                   {action === "cancel" ? "Annulation…" : "Annuler l’abonnement"}
                 </button>

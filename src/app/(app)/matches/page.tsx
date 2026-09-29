@@ -332,7 +332,7 @@ export default function PageRelations() {
               className={`mb-5 rounded-2xl border px-4 py-3.5 sm:px-5 ${
                 plafond.atteint
                   ? "border-orange/30 bg-orange/10"
-                  : "border-cream/10 bg-[#0C222D]"
+                  : "border-cream/10 bg-[#123243]"
               }`}
             >
               <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13px] leading-relaxed text-cream/80">
@@ -396,7 +396,7 @@ export default function PageRelations() {
                   value={recherche}
                   onChange={(evenement) => setRecherche(evenement.target.value)}
                   placeholder="Pseudonyme, ville, centre d’intérêt…"
-                  className={`w-full rounded-xl border border-cream/12 bg-[#0C222D] py-2.5 pl-10 pr-3 text-[13px] text-cream placeholder:text-cream/55 ${focusRing}`}
+                  className={`w-full rounded-xl border border-cream/12 bg-[#123243] py-2.5 pl-10 pr-3 text-[13px] text-cream placeholder:text-cream/55 ${focusRing}`}
                 />
               </div>
             </div>
@@ -474,10 +474,10 @@ export default function PageRelations() {
               </p>
             </div>
           ) : relations.length === 0 ? (
-            <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+            <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
               <Heart
                 size={26}
-                className="mx-auto mb-4 text-cream/45"
+                className="mx-auto mb-4 text-cream/60"
                 aria-hidden="true"
               />
 
@@ -498,7 +498,7 @@ export default function PageRelations() {
               </Link>
             </div>
           ) : filtrees.length === 0 ? (
-            <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-14 text-center">
+            <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-14 text-center">
               <p className="text-[14px] font-semibold text-cream">
                 Aucune relation ne correspond à « {recherche.trim()} »
               </p>
@@ -580,7 +580,7 @@ function CarteRelation({
    */
   if (!membre) {
     return (
-      <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-5 py-4">
+      <div className="rounded-2xl border border-cream/10 bg-[#123243] px-5 py-4">
         <p className="text-[13px] text-cream/60">
           Ce membre n’est plus disponible. La relation reste comptée tant qu’elle
           n’est pas fermée.
@@ -599,7 +599,7 @@ function CarteRelation({
     formaterDate(relation.lastMessageAt) ?? formaterDate(relation.createdAt);
 
   return (
-    <article className="rounded-2xl border border-cream/10 bg-[#0C222D] p-4 sm:p-5">
+    <article className="rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:p-5">
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <Link
@@ -616,7 +616,7 @@ function CarteRelation({
             />
           ) : (
             <span className="flex h-full w-full items-center justify-center">
-              <UserRound size={22} className="text-cream/45" aria-hidden="true" />
+              <UserRound size={22} className="text-cream/60" aria-hidden="true" />
             </span>
           )}
         </Link>
@@ -754,7 +754,7 @@ function CarteRelation({
           <button
             type="button"
             onClick={onDemanderFin}
-            className={`inline-flex items-center justify-center rounded-xl border border-cream/12 px-4 py-2.5 text-[12px] font-semibold text-cream/70 transition-colors hover:border-orange/40 hover:text-orange ${focusRing}`}
+            className={`inline-flex items-center justify-center rounded-xl border border-cream/12 px-4 py-2.5 text-[12px] font-semibold text-cream/70 transition-colors hover:border-orange/40 hover:text-cream ${focusRing}`}
           >
             Mettre fin
           </button>

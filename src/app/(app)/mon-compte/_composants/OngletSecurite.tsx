@@ -310,7 +310,7 @@ export default function OngletSecurite({ user }: { user: MembreSolys }) {
                 aria-hidden="true"
               />
             ) : (
-              <X size={15} className="shrink-0 text-cream/35" aria-hidden="true" />
+              <X size={15} className="shrink-0 text-cream/55" aria-hidden="true" />
             )}
             {verification.label}
           </motion.li>
@@ -320,7 +320,7 @@ export default function OngletSecurite({ user }: { user: MembreSolys }) {
       <section className={`${carte} p-4 sm:p-5`}>
         <dl className="space-y-3 text-[13px]">
           <div>
-            <dt className="text-[11px] uppercase tracking-wide text-cream/45">
+            <dt className="text-[11px] uppercase tracking-wide text-cream/60">
               Méthode de connexion
             </dt>
             <dd className="mt-0.5 font-semibold capitalize text-cream">
@@ -329,7 +329,7 @@ export default function OngletSecurite({ user }: { user: MembreSolys }) {
           </div>
 
           <div>
-            <dt className="text-[11px] uppercase tracking-wide text-cream/45">
+            <dt className="text-[11px] uppercase tracking-wide text-cream/60">
               Membre depuis
             </dt>
             <dd className="mt-0.5 font-semibold text-cream">
@@ -339,7 +339,7 @@ export default function OngletSecurite({ user }: { user: MembreSolys }) {
 
           {user.lastLoginAt && (
             <div>
-              <dt className="text-[11px] uppercase tracking-wide text-cream/45">
+              <dt className="text-[11px] uppercase tracking-wide text-cream/60">
                 Dernière connexion
               </dt>
               <dd className="mt-0.5 font-semibold text-cream">

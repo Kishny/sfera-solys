@@ -282,7 +282,7 @@ export default function Footer() {
                     <li key={link.href}>
                       <Link
                         href={link.href}
-                        className="text-sm text-cream/55 transition hover:text-orange"
+                        className="text-sm text-cream/55 transition hover:text-cream"
                       >
                         {link.label}
                       </Link>
@@ -343,7 +343,7 @@ export default function Footer() {
         </div>
 
         {/* Bas du footer */}
-        <div className="mt-5 flex flex-col gap-2 border-t border-cream/10 pt-4 text-center text-[11px] text-cream/40 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+        <div className="mt-5 flex flex-col gap-2 border-t border-cream/10 pt-4 text-center text-[11px] text-cream/60 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:text-left">
           <p>© {new Date().getFullYear()} Sfera'Solys. Tous droits réservés.</p>
 
           <p>

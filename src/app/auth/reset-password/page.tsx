@@ -237,7 +237,7 @@ function ResetPasswordContent() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-8">
+        <div className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-8">
           {/* Email envoyé */}
           <AnimatePresence mode="wait">
             {sent && (
@@ -261,7 +261,7 @@ function ResetPasswordContent() {
 
                 <Link
                   href="/auth?mode=login"
-                  className="mt-6 inline-block text-sm font-medium text-orange hover:underline"
+                  className="mt-6 inline-block text-sm font-medium text-cream hover:underline"
                 >
                   ← Retour à la connexion
                 </Link>

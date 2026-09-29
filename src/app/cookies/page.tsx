@@ -89,7 +89,7 @@ export default function CookiesPage() {
             {cookiesUtilises.map((cookie) => (
               <div
                 key={cookie.name}
-                className="rounded-2xl border border-cream/10 bg-[#0C222D] px-5 py-4"
+                className="rounded-2xl border border-cream/10 bg-[#123243] px-5 py-4"
               >
                 <dt className="flex flex-wrap items-center gap-2">
                   <span className="text-[14px] font-semibold text-cream">
@@ -98,7 +98,7 @@ export default function CookiesPage() {
                   <span className="rounded-full border border-orange/30 bg-orange/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-cream">
                     {cookie.type}
                   </span>
-                  <span className="text-[11px] text-cream/50">
+                  <span className="text-[11px] text-cream/60">
                     Durée : {cookie.duree}
                   </span>
                 </dt>

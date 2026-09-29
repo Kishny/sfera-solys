@@ -247,7 +247,7 @@ export default function GuidePage() {
               simple, pas un ordre obligatoire.
             </p>
 
-            <div className="mt-6 flex items-start gap-3 rounded-2xl border border-cream/8 bg-[#0C222D] p-4 sm:p-5">
+            <div className="mt-6 flex items-start gap-3 rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-5">
               <ShieldCheck size={18} className="mt-0.5 shrink-0 text-orange" />
               <p className="text-[13px] leading-relaxed text-cream/70">
                 Avance à ton rythme : tu gardes toujours le contrôle de ce que
@@ -321,7 +321,7 @@ export default function GuidePage() {
                           )
                         }
                         aria-expanded={isOpen}
-                        className={`fx-link mt-3 flex items-center gap-1.5 text-[13px] font-semibold text-orange sm:hidden ${focusRing}`}
+                        className={`fx-link mt-3 flex items-center gap-1.5 text-[13px] font-semibold text-cream sm:hidden ${focusRing}`}
                       >
                         {isOpen ? 'masquer le détail' : 'voir le détail'}
                         <ChevronDown
@@ -333,7 +333,7 @@ export default function GuidePage() {
                       </button>
 
                       <div
-                        className={`mt-4 rounded-2xl border border-cream/8 bg-[#0C222D] p-4 sm:block sm:p-5 ${
+                        className={`mt-4 rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:block sm:p-5 ${
                           isOpen ? 'block' : 'hidden'
                         }`}
                       >
@@ -378,7 +378,7 @@ export default function GuidePage() {
 
             <Link
               href="/commencer"
-              className={`fx-link mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
             >
               commencer la première étape
               <ArrowRight size={14} />
@@ -400,7 +400,7 @@ export default function GuidePage() {
                 return (
                   <div
                     key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#0C222D]"
+                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
                   >
                     <button
                       type="button"
@@ -443,7 +443,7 @@ export default function GuidePage() {
 
             <Link
               href="/faq"
-              className={`fx-link mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
             >
               voir la FAQ complète
               <ArrowRight size={14} />
@@ -470,7 +470,7 @@ export default function GuidePage() {
                 return (
                   <div
                     key={item.tip}
-                    className="flex flex-col rounded-2xl border border-cream/8 bg-[#0C222D] p-5"
+                    className="flex flex-col rounded-2xl border border-cream/8 bg-[#123243] p-5"
                   >
                     <Icon size={22} className="text-orange" />
 
@@ -509,7 +509,7 @@ export default function GuidePage() {
                 <Link
                   key={page.href}
                   href={page.href}
-                  className={`flex items-center justify-between gap-3 rounded-2xl border border-cream/8 bg-[#0C222D] px-4 py-3.5 text-sm font-semibold text-cream transition-colors hover:border-orange/30 ${focusRing}`}
+                  className={`flex items-center justify-between gap-3 rounded-2xl border border-cream/8 bg-[#123243] px-4 py-3.5 text-sm font-semibold text-cream transition-colors hover:border-orange/30 ${focusRing}`}
                 >
                   {page.label}
                   <ArrowRight size={14} className="shrink-0 text-orange" />
@@ -521,7 +521,7 @@ export default function GuidePage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#0C222D] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
               <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
                 Prêt à commencer ton parcours ?

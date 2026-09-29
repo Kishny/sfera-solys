@@ -30,7 +30,7 @@ export default function StarRating({
   variant?: "light" | "dark";
 }) {
   const [hover, setHover] = useState<number | null>(null);
-  const emptyStarClass = variant === "dark" ? "text-cream/35" : "text-abyss/15";
+  const emptyStarClass = variant === "dark" ? "text-cream/55" : "text-abyss/15";
 
   const stars = [1, 2, 3, 4, 5];
   const active = hover ?? value;

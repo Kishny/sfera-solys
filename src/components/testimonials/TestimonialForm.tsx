@@ -114,7 +114,7 @@ export default function TestimonialForm({
       onSubmit={handleSubmit}
       className={
         isDark
-          ? "rounded-3xl border border-cream/10 bg-[#0C222D] p-4 sm:p-6"
+          ? "rounded-3xl border border-cream/10 bg-[#123243] p-4 sm:p-6"
           : "rounded-3xl border border-[#E8E0FF] bg-white p-4 shadow-lg sm:p-6"
       }
     >

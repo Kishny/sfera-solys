@@ -277,7 +277,7 @@ export default function PageCircle() {
 
           {/* Accès réservé */}
           {verrouille ? (
-            <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+            <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
               <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange/15">
                 <Lock size={20} className="text-orange" aria-hidden="true" />
               </span>
@@ -322,7 +322,7 @@ export default function PageCircle() {
             <>
               {/* Bandeau de la semaine */}
               {semaine && (
-                <section className="mb-5 rounded-2xl border border-cream/10 bg-[#0C222D] px-4 py-3.5 sm:px-5">
+                <section className="mb-5 rounded-2xl border border-cream/10 bg-[#123243] px-4 py-3.5 sm:px-5">
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-cream/80">
                     <CalendarClock
                       size={14}
@@ -390,10 +390,10 @@ export default function PageCircle() {
 
               {/* Profils */}
               {profils.length === 0 ? (
-                <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+                <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
                   <Sparkle
                     size={24}
-                    className="mx-auto mb-4 text-cream/45"
+                    className="mx-auto mb-4 text-cream/60"
                     aria-hidden="true"
                   />
 
@@ -464,7 +464,7 @@ export default function PageCircle() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: reduireAnimations ? 1 : 0.96 }}
               transition={{ duration: reduireAnimations ? 0 : 0.25 }}
-              className="relative z-10 w-full max-w-sm rounded-[1.75rem] border border-lime/25 bg-[#0C222D] p-6 text-center sm:p-8"
+              className="relative z-10 w-full max-w-sm rounded-[1.75rem] border border-lime/25 bg-[#123243] p-6 text-center sm:p-8"
             >
               <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-lime/15">
                 <Heart size={22} className="fill-lime text-lime" aria-hidden="true" />
@@ -543,7 +543,7 @@ function CarteCercle({
   const intentions = (profil.intentions ?? []).slice(0, 2);
 
   return (
-    <li className="flex flex-col overflow-hidden rounded-2xl border border-cream/10 bg-[#0C222D]">
+    <li className="flex flex-col overflow-hidden rounded-2xl border border-cream/10 bg-[#123243]">
       <div className="relative aspect-[4/5] bg-abyss">
         {profil.image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -555,7 +555,7 @@ function CarteCercle({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <UserRound size={30} className="text-cream/45" aria-hidden="true" />
+            <UserRound size={30} className="text-cream/60" aria-hidden="true" />
           </div>
         )}
 

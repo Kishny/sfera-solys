@@ -153,7 +153,7 @@ export default async function TemoignagesPage() {
             </p>
 
             {avgRating && count > 0 && (
-              <div className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-cream/10 bg-[#0C222D] px-4 py-2 text-sm">
+              <div className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-cream/10 bg-[#123243] px-4 py-2 text-sm">
                 <Star size={15} className="text-orange" fill="currentColor" />
                 <span className="font-bold text-cream">{avgRating}/5</span>
                 <span className="text-cream/55">
@@ -174,7 +174,7 @@ export default async function TemoignagesPage() {
                 variant="dark"
               />
             ) : (
-              <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-cream/15 bg-[#0C222D] px-4 py-10 text-center">
+              <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-cream/15 bg-[#123243] px-4 py-10 text-center">
                 <p className="text-base font-semibold text-cream">
                   Les premiers témoignages arrivent bientôt
                 </p>
@@ -188,7 +188,7 @@ export default async function TemoignagesPage() {
 
         {/* Partager son expérience */}
         <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-          <div className="mx-auto max-w-3xl rounded-3xl border border-cream/8 bg-[#0C222D] p-6 sm:p-9">
+          <div className="mx-auto max-w-3xl rounded-3xl border border-cream/8 bg-[#123243] p-6 sm:p-9">
             <div className="text-center">
               <h2 className="font-display [font-stretch:125%] text-xl font-extrabold tracking-tight text-cream sm:text-2xl">
                 Tu fais partie de l&apos;aventure ?
@@ -204,7 +204,7 @@ export default async function TemoignagesPage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#0C222D] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
               <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
                 Envie d&apos;écrire le tien ?
@@ -224,7 +224,7 @@ export default async function TemoignagesPage() {
 
               <Link
                 href="/commencer"
-                className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
               >
                 voir comment ça marche
                 <ArrowRight size={14} />

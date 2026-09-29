@@ -138,7 +138,7 @@ function PreferencesModal({
             <h2 className="text-base font-bold text-cream sm:text-lg">
               Gérer mes préférences
             </h2>
-            <p className="mt-1 text-xs text-cream/50">
+            <p className="mt-1 text-xs text-cream/60">
               Les cookies essentiels sont toujours actifs — ils garantissent le bon
               fonctionnement de Sfera'Solys.
             </p>
@@ -146,7 +146,7 @@ function PreferencesModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-cream/40 transition hover:bg-cream/10 hover:text-cream"
+            className="rounded-lg p-1.5 text-cream/60 transition hover:bg-cream/10 hover:text-cream"
             aria-label="Fermer"
           >
             <X className="h-4 w-4" />
@@ -162,7 +162,7 @@ function PreferencesModal({
             </div>
             <Toggle checked disabled onChange={() => {}} />
           </div>
-          <p className="mt-1.5 text-xs text-cream/40">
+          <p className="mt-1.5 text-xs text-cream/60">
             Authentification, session, sécurité — toujours requis.
           </p>
         </div>
@@ -180,7 +180,7 @@ function PreferencesModal({
                 <button
                   type="button"
                   onClick={() => setExpanded(expanded === key ? null : key)}
-                  className="rounded p-0.5 text-cream/40 transition hover:text-cream"
+                  className="rounded p-0.5 text-cream/60 transition hover:text-cream"
                   aria-label={`Détails ${label}`}
                 >
                   <ChevronDown
@@ -201,7 +201,7 @@ function PreferencesModal({
                     transition={{ duration: 0.18 }}
                     className="overflow-hidden"
                   >
-                    <p className="px-4 pb-3 text-xs text-cream/40">{description}</p>
+                    <p className="px-4 pb-3 text-xs text-cream/60">{description}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -270,7 +270,7 @@ export default function CookieConsent() {
                     <p className="text-sm font-semibold text-cream">
                       Sfera'Solys utilise des cookies 🍪
                     </p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-cream/50">
+                    <p className="mt-0.5 text-xs leading-relaxed text-cream/60">
                       Nous utilisons des cookies essentiels au fonctionnement du site et, avec
                       ton accord, des cookies optionnels pour améliorer ton expérience.{" "}
                       <Link

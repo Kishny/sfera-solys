@@ -187,7 +187,7 @@ function ComparisonValue({ value }: { value: string }) {
 
   if (value === 'non') {
     return (
-      <Minus size={16} className="mx-auto text-cream/35" aria-label="Non inclus" />
+      <Minus size={16} className="mx-auto text-cream/55" aria-label="Non inclus" />
     );
   }
 
@@ -240,8 +240,8 @@ export default function TarifsPage() {
                   key={plan.id}
                   className={`relative flex flex-col rounded-2xl border p-5 sm:p-6 ${
                     plan.popular
-                      ? 'border-orange/40 bg-[#0C222D] ring-1 ring-orange/20'
-                      : 'border-cream/8 bg-[#0C222D]'
+                      ? 'border-orange/40 bg-[#123243] ring-1 ring-orange/20'
+                      : 'border-cream/8 bg-[#123243]'
                   }`}
                 >
                   {plan.popular && (
@@ -342,7 +342,7 @@ export default function TarifsPage() {
             <div className="hidden overflow-hidden rounded-2xl border border-cream/8 lg:block">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="bg-[#0C222D]">
+                  <tr className="bg-[#123243]">
                     <th className="px-5 py-3.5 text-left text-[13px] font-semibold text-cream/55">
                       Fonctionnalité
                     </th>
@@ -386,7 +386,7 @@ export default function TarifsPage() {
                 return (
                   <div
                     key={row.feature}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#0C222D]"
+                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
                   >
                     <button
                       type="button"
@@ -418,7 +418,7 @@ export default function TarifsPage() {
                             {plans.map((plan, i) => (
                               <div
                                 key={plan.id}
-                                className="flex items-center justify-between gap-2 bg-[#0C222D] px-4 py-2.5"
+                                className="flex items-center justify-between gap-2 bg-[#123243] px-4 py-2.5"
                               >
                                 <dt
                                   className={`text-[12px] font-semibold ${
@@ -457,7 +457,7 @@ export default function TarifsPage() {
                 return (
                   <div
                     key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#0C222D]"
+                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
                   >
                     <button
                       type="button"
@@ -510,7 +510,7 @@ export default function TarifsPage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#0C222D] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
               <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
                 Commence par le dossier, pas par la carte bancaire.
@@ -531,7 +531,7 @@ export default function TarifsPage() {
 
               <Link
                 href="/guide"
-                className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
               >
                 lire le guide
                 <ArrowRight size={14} />

@@ -84,7 +84,7 @@ export default function NewsletterSignup({
           <Mail
             size={16}
             className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${
-              isLight ? "text-rust" : "text-cream/40"
+              isLight ? "text-rust" : "text-cream/60"
             }`}
           />
           <input
@@ -130,7 +130,7 @@ export default function NewsletterSignup({
 
       <p
         className={`mt-2 text-[11px] ${
-          isLight ? "text-abyss/40" : "text-cream/40"
+          isLight ? "text-abyss/40" : "text-cream/60"
         }`}
       >
         Pas de spam. Désabonnement en un clic à tout moment.

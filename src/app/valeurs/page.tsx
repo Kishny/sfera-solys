@@ -191,7 +191,7 @@ export default function ValeursPage() {
                       delay: shouldReduceMotion ? 0 : index * 0.05,
                       ease: 'easeOut',
                     }}
-                    className="flex flex-col rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6"
+                    className="flex flex-col rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
                   >
                     <span
                       className={`flex h-10 w-10 items-center justify-center rounded-xl ${
@@ -223,7 +223,7 @@ export default function ValeursPage() {
                       onClick={() => setOuverte(estOuverte ? null : valeur.id)}
                       aria-expanded={estOuverte}
                       aria-controls={`valeur-${valeur.id}`}
-                      className={`mt-3 flex items-center gap-1.5 self-start text-[12px] font-semibold text-orange transition-colors hover:text-cream sm:hidden ${focusRing}`}
+ className={`mt-3 flex items-center gap-1.5 self-start text-[12px] font-semibold text-cream transition-colors sm:hidden ${focusRing}`}
                     >
                       {estOuverte ? 'Replier' : 'En savoir plus'}
                       <ChevronDown
@@ -284,7 +284,7 @@ export default function ValeursPage() {
               {regles.map((regle) => (
                 <li
                   key={regle}
-                  className="flex items-start gap-3 rounded-xl border border-cream/10 bg-[#0C222D] px-4 py-3.5"
+                  className="flex items-start gap-3 rounded-xl border border-cream/10 bg-[#123243] px-4 py-3.5"
                 >
                   <span
                     aria-hidden="true"
@@ -303,7 +303,7 @@ export default function ValeursPage() {
         <section className="border-b border-cream/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
           <motion.div
             {...fadeUp}
-            className="mx-auto flex max-w-4xl flex-col items-start justify-between gap-5 rounded-[1.5rem] border border-cream/10 bg-[#0C222D] p-6 sm:flex-row sm:items-center sm:p-8"
+            className="mx-auto flex max-w-4xl flex-col items-start justify-between gap-5 rounded-[1.5rem] border border-cream/10 bg-[#123243] p-6 sm:flex-row sm:items-center sm:p-8"
           >
             <div>
               <h2 className="font-display [font-stretch:125%] text-[19px] font-bold text-cream">

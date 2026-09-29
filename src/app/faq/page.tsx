@@ -31,7 +31,7 @@ import Footer from '@/components/Footer';
  * question.
  *
  * Ce qui change : fond sombre `abyss`, un seul accent (vulcanico), cartes
- * `#0C222D`, accordéons reprenant exactement le pattern de `/tarifs`
+ * `#123243`, accordéons reprenant exactement le pattern de `/tarifs`
  * (AnimatePresence + `aria-expanded` + chevron pivotant), plancher de
  * contraste `cream/55` respecté partout, `id="contenu"` sur le `<main>`.
  *
@@ -274,7 +274,7 @@ export default function FAQPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Rechercher une question…"
-                  className={`w-full rounded-xl border border-cream/15 bg-[#0C222D] py-3 pl-10 pr-11 text-sm text-cream outline-none transition-colors placeholder:text-cream/55 hover:border-cream/30 focus:border-orange/50 ${focusRing}`}
+                  className={`w-full rounded-xl border border-cream/15 bg-[#123243] py-3 pl-10 pr-11 text-sm text-cream outline-none transition-colors placeholder:text-cream/55 hover:border-cream/30 focus:border-orange/50 ${focusRing}`}
                 />
 
                 {searchTerm && (
@@ -388,7 +388,7 @@ export default function FAQPage() {
                 })}
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-cream/15 bg-[#0C222D] p-8 text-center sm:p-10">
+              <div className="rounded-2xl border border-dashed border-cream/15 bg-[#123243] p-8 text-center sm:p-10">
                 <HelpCircle
                   size={28}
                   className="mx-auto text-cream/55"
@@ -409,7 +409,7 @@ export default function FAQPage() {
                     setSearchTerm('');
                     setActiveCategory('all');
                   }}
-                  className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
                 >
                   réinitialiser les filtres
                   <ArrowRight size={14} />
@@ -450,7 +450,7 @@ export default function FAQPage() {
                   </>
                 );
 
-                const className = `flex items-center gap-3 rounded-2xl border border-cream/8 bg-[#0C222D] px-4 py-4 transition-colors hover:border-cream/25 sm:flex-col sm:items-start ${focusRing}`;
+                const className = `flex items-center gap-3 rounded-2xl border border-cream/8 bg-[#123243] px-4 py-4 transition-colors hover:border-cream/25 sm:flex-col sm:items-start ${focusRing}`;
 
                 return link.external ? (
                   <a key={link.href} href={link.href} className={className}>
@@ -464,7 +464,7 @@ export default function FAQPage() {
               })}
             </div>
 
-            <div className="mt-8 flex flex-col items-center gap-3 rounded-3xl border border-orange/25 bg-[#0C222D] p-7 text-center sm:flex-row sm:justify-between sm:p-9 sm:text-left">
+            <div className="mt-8 flex flex-col items-center gap-3 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:flex-row sm:justify-between sm:p-9 sm:text-left">
               <div>
                 <h3 className="font-display [font-stretch:125%] text-xl font-extrabold text-cream">
                   Prêt à constituer ton dossier ?
@@ -485,7 +485,7 @@ export default function FAQPage() {
 
                 <Link
                   href="/tarifs"
-                  className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
                 >
                   voir les tarifs
                   <ArrowRight size={14} />
@@ -525,7 +525,7 @@ function FaqItem({
   const Icon = meta.icon;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-cream/8 bg-[#0C222D]">
+    <div className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]">
       <button
         type="button"
         onClick={() => onToggle(id)}

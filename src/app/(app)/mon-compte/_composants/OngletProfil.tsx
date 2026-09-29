@@ -134,7 +134,7 @@ export default function OngletProfil({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="font-display [font-stretch:125%] text-[24px] font-extrabold text-cream/45">
+              <span className="font-display [font-stretch:125%] text-[24px] font-extrabold text-cream/60">
                 {user.pseudonyme.charAt(0).toUpperCase()}
               </span>
             )}

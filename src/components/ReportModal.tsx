@@ -221,7 +221,7 @@ export default function ReportModal({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.92, opacity: 0, y: 16 }}
             transition={{ type: "spring", stiffness: 300, damping: 24 }}
-            className="relative z-10 flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1a0b2e] to-[#2d1b69] shadow-2xl"
+            className="relative z-10 flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-white/10 bg-teal shadow-2xl"
           >
             {/* Header */}
             <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 pb-3 pt-4 sm:px-6 sm:pb-4 sm:pt-6">

@@ -19,8 +19,8 @@
 
 :root {
   /* Miroir des tokens Tailwind, pour le CSS qui ne passe pas par Tailwind. */
-  --abyss: #001724;
-  --surface: #0c222d;
+  --abyss: #04202E;
+  --surface: #123243;
   --cream: #ffebd1;
   --orange: #ff4103;
   --rust: #6b1b02;

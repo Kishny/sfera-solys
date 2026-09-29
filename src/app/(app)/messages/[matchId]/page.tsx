@@ -518,7 +518,7 @@ export default function PageConversation() {
         {/* ─────────────────────────────
             En-tête
         ───────────────────────────── */}
-        <header className="border-b border-cream/10 bg-[#0C222D] px-4 py-3 sm:px-6">
+        <header className="border-b border-cream/10 bg-[#123243] px-4 py-3 sm:px-6">
           <div className="mx-auto flex max-w-3xl items-center gap-3">
             <button
               type="button"
@@ -651,7 +651,7 @@ export default function PageConversation() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: reduireAnimations ? 0 : -6 }}
                     transition={{ duration: reduireAnimations ? 0 : 0.15 }}
-                    className="absolute right-0 top-full z-20 mt-2 w-52 overflow-hidden rounded-xl border border-cream/12 bg-[#0C222D] shadow-xl"
+                    className="absolute right-0 top-full z-20 mt-2 w-52 overflow-hidden rounded-xl border border-cream/12 bg-[#123243] shadow-xl"
                   >
                     <p className="border-b border-cream/10 px-3.5 py-2.5 text-[11px] font-bold uppercase tracking-wide text-cream/70">
                       Couper les notifications
@@ -675,7 +675,7 @@ export default function PageConversation() {
                           <button
                             type="button"
                             onClick={() => reglerSourdine(0)}
-                            className={`block w-full px-3.5 py-2.5 text-left text-[13px] font-semibold text-orange transition-colors hover:bg-cream/5 ${focusRing}`}
+                            className={`block w-full px-3.5 py-2.5 text-left text-[13px] font-semibold text-cream transition-colors hover:bg-cream/5 ${focusRing}`}
                           >
                             Réactiver les notifications
                           </button>
@@ -736,7 +736,7 @@ export default function PageConversation() {
                 </p>
               </div>
             ) : erreur && messages.length === 0 ? (
-              <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+              <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
                 <AlertCircle
                   size={22}
                   className="mx-auto mb-4 text-orange"
@@ -816,7 +816,7 @@ export default function PageConversation() {
                                 className={`group max-w-[85%] rounded-2xl px-3.5 py-2.5 sm:max-w-[70%] ${
                                   deMoi
                                     ? "bg-orange text-abyss"
-                                    : "border border-cream/10 bg-[#0C222D] text-cream"
+                                    : "border border-cream/10 bg-[#123243] text-cream"
                                 } ${provisoire ? "opacity-60" : ""}`}
                               >
                                 <p className="whitespace-pre-wrap break-words text-[14px] leading-relaxed">
@@ -853,7 +853,7 @@ export default function PageConversation() {
                                         })
                                       }
                                       aria-label="Signaler ce message"
-                                      className={`ml-1 text-cream/45 opacity-0 transition-opacity hover:text-orange focus-visible:opacity-100 group-hover:opacity-100 ${focusRing}`}
+                                      className={`ml-1 text-cream/60 opacity-0 transition-opacity hover:text-orange focus-visible:opacity-100 group-hover:opacity-100 ${focusRing}`}
                                     >
                                       <Flag size={11} aria-hidden="true" />
                                     </button>
@@ -877,7 +877,7 @@ export default function PageConversation() {
         {/* ─────────────────────────────
             Saisie
         ───────────────────────────── */}
-        <div className="border-t border-cream/10 bg-[#0C222D] px-4 py-3 sm:px-6">
+        <div className="border-t border-cream/10 bg-[#123243] px-4 py-3 sm:px-6">
           <div className="mx-auto max-w-3xl">
             {erreur && messages.length > 0 && (
               <div

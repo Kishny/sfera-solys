@@ -164,7 +164,7 @@ export const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
 
 /** Surface des cartes, alignée sur le reste de l'espace connecté. */
-export const carte = "rounded-2xl border border-cream/10 bg-[#0C222D]";
+export const carte = "rounded-2xl border border-cream/10 bg-[#123243]";
 
 /** Champ de formulaire. */
 export const champ =

@@ -106,7 +106,7 @@ export default function ContactPage() {
     }
   };
 
-  const champClasses = `w-full rounded-xl border border-cream/12 bg-cream/5 px-4 py-3 text-[14px] text-cream placeholder:text-cream/40 transition-colors focus:border-orange focus:outline-none focus:ring-2 focus:ring-orange/25`;
+  const champClasses = `w-full rounded-xl border border-cream/12 bg-cream/5 px-4 py-3 text-[14px] text-cream placeholder:text-cream/60 transition-colors focus:border-orange focus:outline-none focus:ring-2 focus:ring-orange/25`;
 
   const fadeUp = {
     initial: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
@@ -141,7 +141,7 @@ export default function ContactPage() {
         <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
             {/* Le formulaire */}
-            <div className="rounded-[1.75rem] border border-cream/10 bg-[#0C222D] p-6 sm:p-8">
+            <div className="rounded-[1.75rem] border border-cream/10 bg-[#123243] p-6 sm:p-8">
               {envoye ? (
                 <div className="py-6 text-center">
                   <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-lime/30 bg-lime/10">
@@ -288,7 +288,7 @@ export default function ContactPage() {
                 return (
                   <div
                     key={repere.titre}
-                    className="rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6"
+                    className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
                   >
                     <div className="flex items-start gap-4">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange/15">
@@ -319,7 +319,7 @@ export default function ContactPage() {
 
                 <Link
                   href="/faq"
-                  className={`fx-link mt-3 inline-flex items-center gap-1.5 text-[13px] font-bold text-orange transition-colors hover:text-cream ${focusRing}`}
+ className={`fx-link mt-3 inline-flex items-center gap-1.5 text-[13px] font-bold text-cream transition-colors ${focusRing}`}
                 >
                   Voir la foire aux questions
                   <ArrowRight size={14} aria-hidden="true" />

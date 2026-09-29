@@ -608,7 +608,7 @@ function Contenu() {
           ))}
         </div>
 
-        <p className="mt-3 text-center text-[11px] uppercase tracking-[0.14em] text-cream/35">
+        <p className="mt-3 text-center text-[11px] uppercase tracking-[0.14em] text-cream/55">
           ou avec ton email
         </p>
       </div>
@@ -738,7 +738,7 @@ function Contenu() {
           </form>
 
           <p
-            className={`${styles.monte} flex items-center justify-center gap-1.5 text-center text-[11px] leading-relaxed text-cream/45`}
+            className={`${styles.monte} flex items-center justify-center gap-1.5 text-center text-[11px] leading-relaxed text-cream/60`}
             style={{ "--rang": 8 } as React.CSSProperties}
           >
             <BadgeCheck size={12} className="shrink-0" aria-hidden="true" />

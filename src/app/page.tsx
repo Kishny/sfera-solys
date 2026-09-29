@@ -339,7 +339,7 @@ export default function Home() {
                   <Link
                     key={feature.title}
                     href={feature.href}
-                    className={`group flex flex-col rounded-2xl border border-cream/8 bg-[#0C222D] p-5 transition-colors hover:border-orange/30 ${focusRing}`}
+                    className={`group flex flex-col rounded-2xl border border-cream/8 bg-[#123243] p-5 transition-colors hover:border-orange/30 ${focusRing}`}
                   >
                     <Icon size={22} className="text-orange" />
 
@@ -351,7 +351,7 @@ export default function Home() {
                       {feature.description}
                     </p>
 
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange">
+                    <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream">
                       en savoir plus
                       <ArrowRight size={13} />
                     </span>
@@ -362,7 +362,7 @@ export default function Home() {
 
             <Link
               href="/fonctionnalites"
-              className={`mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
             >
               voir toutes les fonctionnalités
               <ArrowRight size={14} />
@@ -415,7 +415,7 @@ export default function Home() {
             {trustBadges.map(({ icon: Icon, label }) => (
               <div
                 key={label}
-                className="flex flex-col gap-2.5 rounded-2xl border border-cream/8 bg-[#0C222D] p-4 sm:p-[18px]"
+                className="flex flex-col gap-2.5 rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-[18px]"
               >
                 <Icon size={18} className="text-orange" />
                 <span className="text-[13px] font-semibold text-cream">{label}</span>
@@ -469,7 +469,7 @@ export default function Home() {
               ].map((item) => (
                 <li
                   key={item.title}
-                  className="rounded-2xl border border-cream/8 bg-[#0C222D] p-4 sm:p-5"
+                  className="rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-5"
                 >
                   <p className="flex items-start gap-2 text-sm font-semibold text-cream">
                     <span
@@ -513,7 +513,7 @@ export default function Home() {
 
             <Link
               href="/temoignages"
-              className="mt-1 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss"
+ className="mt-1 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss"
             >
               voir tous les témoignages
               <ArrowRight size={14} />
@@ -535,7 +535,7 @@ export default function Home() {
                 return (
                   <div
                     key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#0C222D]"
+                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
                   >
                     <button
                       type="button"
@@ -578,7 +578,7 @@ export default function Home() {
 
             <Link
               href="/faq"
-              className={`mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
             >
               voir la FAQ complète
               <ArrowRight size={14} />
@@ -593,7 +593,7 @@ export default function Home() {
             className="pointer-events-none absolute bottom-0 left-1/2 h-[280px] w-[620px] -translate-x-1/2 rounded-full bg-orange/[0.07] blur-[100px]"
           />
 
-          <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 overflow-hidden rounded-3xl border border-orange/25 bg-[#0C222D] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 overflow-hidden rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <EclipseMark
               id="cta"
               className="pointer-events-none absolute -right-10 -top-16 h-[240px] w-[240px] text-orange/[0.06]"

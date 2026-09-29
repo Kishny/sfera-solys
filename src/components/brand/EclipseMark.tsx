@@ -21,7 +21,7 @@
  *
  * 1. La morsure est faite avec un `mask` SVG, pas avec un second disque
  *    rempli de la couleur du fond : le centre est réellement transparent,
- *    donc le motif reste juste sur `abyss` comme sur une carte `#0C222D`.
+ *    donc le motif reste juste sur `abyss` comme sur une carte `#123243`.
  * 2. L'`id` est une prop obligatoire au lieu d'un `useId()`. Sans hook, le
  *    composant fonctionne aussi bien dans un composant serveur que client.
  *    Deux instances sur une même page doivent recevoir deux `id`

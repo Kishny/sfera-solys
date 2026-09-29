@@ -251,7 +251,7 @@ const highlightBars = [
   "from-[#FF4103] to-[#FF4103]",
   "from-[#B6FF00] to-[#B6FF00]",
   "from-[#FF4103] to-[#FF4103]",
-  "from-[#0C222D] to-[#6B1B02]",
+  "from-[#123243] to-[#6B1B02]",
 ];
 
 function InscriptionPageContent() {
@@ -733,7 +733,7 @@ function InscriptionPageContent() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#001724] via-[#0C222D] to-[#0C222D] px-4 text-cream">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#04202E] via-[#123243] to-[#123243] px-4 text-cream">
         <div className="text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-cream/20 border-t-white" />
           <p className="text-sm text-cream/70 sm:text-base">
@@ -745,7 +745,7 @@ function InscriptionPageContent() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#001724] via-[#0C222D] to-[#0C222D] font-sans text-cream">
+    <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#04202E] via-[#123243] to-[#123243] font-sans text-cream">
       {/* Éléments décoratifs de fond */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-orange/10 blur-3xl" />
@@ -809,7 +809,7 @@ function InscriptionPageContent() {
         <section className="mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
           {/* Colonne principale */}
           <div className="lg:col-span-2">
-            <div className="rounded-2xl border border-cream/10 bg-gradient-to-br from-abyss/80 to-[#0C222D]/80 p-4 shadow-2xl backdrop-blur-sm sm:p-6 lg:p-8">
+            <div className="rounded-2xl border border-cream/10 bg-gradient-to-br from-abyss/80 to-[#123243]/80 p-4 shadow-2xl backdrop-blur-sm sm:p-6 lg:p-8">
               {/* Erreur globale */}
               {submitError && (
                 <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 sm:mb-6">
@@ -928,7 +928,7 @@ function InscriptionPageContent() {
                             Vérification d&apos;identité
                           </h3>
 
-                          <p className="text-xs font-semibold text-orange">
+                          <p className="text-xs font-semibold text-cream">
                             Obligatoire — requise pour accéder à ton compte
                           </p>
                         </div>
@@ -1043,7 +1043,7 @@ function InscriptionPageContent() {
                     </div>
 
                     {/* Bloc Stripe — paiement optionnel, possible plus tard */}
-                    <div className="rounded-xl border border-cream/10 bg-gradient-to-r from-[#0C222D] to-rust/20 p-5 sm:p-6">
+                    <div className="rounded-xl border border-cream/10 bg-gradient-to-r from-[#123243] to-rust/20 p-5 sm:p-6">
                       <div className="mb-3 flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cream/10">
                           <ShieldCheck className="h-5 w-5 text-cream/70" />
@@ -1200,7 +1200,7 @@ function InscriptionPageContent() {
               )}
 
               {/* Compteur — données réelles, mises à jour automatiquement */}
-              <div className="rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-[#0C222D] to-cyan-900/40 p-5 backdrop-blur-sm sm:p-6">
+              <div className="rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-[#123243] to-cyan-900/40 p-5 backdrop-blur-sm sm:p-6">
                 <div className="text-center">
                   <div className="mb-2 text-sm font-medium text-cyan-400">
                     MEMBRES INSCRITS
@@ -1251,7 +1251,7 @@ export default function InscriptionPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#001724] via-[#0C222D] to-[#0C222D] px-4 text-cream">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#04202E] via-[#123243] to-[#123243] px-4 text-cream">
           <div className="text-center">
             <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-cream/20 border-t-white" />
             <p className="text-sm text-cream/70 sm:text-base">

@@ -333,10 +333,10 @@ export default function PageEvenements() {
             </p>
           </div>
         ) : aVenir.length === 0 ? (
-          <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+          <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
             <CalendarDays
               size={26}
-              className="mx-auto mb-4 text-cream/45"
+              className="mx-auto mb-4 text-cream/60"
               aria-hidden="true"
             />
 
@@ -438,7 +438,7 @@ function CarteEvenement({
 
   return (
     <li
-      className={`rounded-2xl border border-cream/10 bg-[#0C222D] p-4 sm:p-5 ${
+      className={`rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:p-5 ${
         evenement.isPast ? "opacity-70" : ""
       }`}
     >

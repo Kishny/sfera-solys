@@ -133,7 +133,7 @@ function PanneauProfil() {
           <span className="block text-[13px] font-semibold text-cream/85">
             Ton profil
           </span>
-          <span className="mt-0.5 block text-[11px] leading-relaxed text-cream/50">
+          <span className="mt-0.5 block text-[11px] leading-relaxed text-cream/60">
             Photos, prénom, âge et ville
           </span>
         </span>
@@ -241,7 +241,7 @@ function PanneauRelation() {
     <>
       <div className="flex flex-col gap-3">
         <div className="max-w-[80%] rounded-2xl rounded-tl-md border border-cream/10 bg-abyss/60 px-4 py-3">
-          <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-wide text-orange">
+          <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-wide text-cream">
             Suggestion d&apos;ouverture
           </span>
           <span className="block text-[12px] leading-relaxed text-cream/75">
@@ -397,7 +397,7 @@ export default function DossierParcours() {
               onKeyDown={(event) => auClavier(event, index)}
               className={`group relative z-10 flex w-full items-center gap-4 rounded-2xl border p-4 pl-5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss ${
                 estActif
-                  ? 'border-cream/10 bg-[#0C222D]'
+                  ? 'border-cream/10 bg-[#123243]'
                   : 'border-transparent hover:border-cream/12 hover:bg-cream/[0.06]'
               }`}
             >
@@ -458,7 +458,7 @@ export default function DossierParcours() {
                 className={`shrink-0 transition-all duration-200 ${
                   estActif
                     ? 'translate-x-0.5 text-orange'
-                    : 'text-cream/45 group-hover:translate-x-0.5 group-hover:text-cream'
+                    : 'text-cream/60 group-hover:translate-x-0.5 group-hover:text-cream'
                 }`}
               />
             </button>
@@ -492,7 +492,7 @@ export default function DossierParcours() {
         role="tabpanel"
         aria-labelledby={`etape-onglet-${etape.numero}`}
         tabIndex={0}
-        className="relative flex w-full flex-col justify-center self-start rounded-[1.75rem] lg:min-h-[300px] lg:self-center border border-cream/10 bg-[#0C222D] p-5 shadow-[0_35px_80px_-40px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss sm:p-7"
+        className="relative flex w-full flex-col justify-center self-start rounded-[1.75rem] lg:min-h-[300px] lg:self-center border border-cream/10 bg-[#123243] p-5 shadow-[0_35px_80px_-40px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss sm:p-7"
       >
         <div
           aria-hidden="true"

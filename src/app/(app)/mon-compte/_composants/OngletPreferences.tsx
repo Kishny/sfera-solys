@@ -78,7 +78,7 @@ export default function OngletPreferences({
       {/* Mode Fantôme */}
       <section
         className={`rounded-2xl border p-4 sm:p-5 ${
-          invisible ? "border-orange/30 bg-orange/[0.08]" : "border-cream/10 bg-[#0C222D]"
+          invisible ? "border-orange/30 bg-orange/[0.08]" : "border-cream/10 bg-[#123243]"
         }`}
       >
         <div className="flex items-start justify-between gap-4">

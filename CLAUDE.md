@@ -59,11 +59,11 @@ Après plusieurs maquettes comparées (voir la maquette de comparaison, artifact
 
 | Token       | Hex       | Rôle                                                  |
 |-------------|-----------|--------------------------------------------------------|
-| `abyss`     | `#001724` | fond principal (inchangé)                              |
+| `abyss`     | `#04202E` | fond principal — éclairci le 29/09/2026, était `#001724` |
 | `cream`     | `#FFEBD1` | texte sur fond sombre (inchangé)                        |
 | `orange`    | `#FF4103` | **vulcanico** — accent principal, CTA, liens (remplace l'ancien `#FF7A00`) |
 | `rust`      | `#6B1B02` | **ember** — déclinaison sombre du vulcanico, hover/pressé (remplace l'ancien `#79280E`) |
-| `teal`      | `#0C222D` | neutre proche de l'abyss, pour les surfaces/cartes (remplace l'ancien `#15676D` — la teinte teal est retirée, seul le rôle « surface un peu plus claire que le fond » est gardé) |
+| `teal`      | `#123243` | surface des cartes, un cran au-dessus du fond — éclairci le 29/09/2026, était `#0C222D` (et avant lui `#15676D` : la teinte teal est retirée, seul le rôle « surface plus claire que le fond » est gardé) |
 | `lime`      | `#B6FF00` | **nouveau** — accent électrique secondaire, réservé aux petites touches à fort impact (badges, points de statut, glows) — jamais en grande surface ni en texte courant |
 
 > Dette de nommage assumée (documentée en commentaire dans `tailwind.config.js`) : le code dit encore `bg-teal`/`text-rust` alors que ça ne rend plus du tout du teal/rust. À nettoyer (renommer les classes) au fil de la migration page par page, cf. section Restructuration ci-dessous.
@@ -123,7 +123,7 @@ Règles d'usage couleur :
 
 ### Le motif d'éclipse : la géométrie décide si on lit un soleil ou une lune
 
-Composant : `src/components/brand/EclipseMark.tsx`. Un disque plein creusé par un disque occultant (masque SVG, donc centre réellement transparent — le motif reste juste sur `abyss` comme sur une carte `#0C222D`).
+Composant : `src/components/brand/EclipseMark.tsx`. Un disque plein creusé par un disque occultant (masque SVG, donc centre réellement transparent — le motif reste juste sur `abyss` comme sur une carte `#123243`).
 
 **Le piège, constaté au rendu et pas dans le code :** si le disque occultant est trop décalé, le résultat n'est pas une éclipse, c'est un **croissant de lune** — donc le symbole de SferaLuna, l'exact inverse de ce que Solys raconte. La première version (disque r=68 mordu par un disque r=68 décalé de ~41) affichait un croissant lunaire géant en haut de la page d'accueil, sur desktop comme sur mobile.
 
@@ -160,30 +160,57 @@ Le soulignement se déploie depuis la gauche et se **replie vers la droite** qua
 1. **Tailwind élague le contenu de `@layer components`** selon ce qu'il détecte dans `content`. Les classes `fx-*` ne survivent au build que parce qu'elles apparaissent littéralement dans des fichiers `src/**/*.tsx`. Ne jamais les construire dynamiquement.
 2. **Poser des classes par motif exige de vérifier le type d'élément.** Le script d'application, qui reconnaissait les chaînes de classes, a posé `fx-link` sur un `<p>`, un `<th>` et un `<dt>`, et `fx-ghost` sur trois `<input>` — soit un soulignement au survol sur du texte non cliquable et des champs de saisie qui se soulèvent. 8 faux positifs, détectés en remontant à la balise ouvrante de chaque occurrence. Contrôle à refaire après tout traitement de ce genre : compter les `fx-*` posées sur autre chose que `<a>`, `<Link>` ou `<button>` — le compte doit être nul.
 
-### Règles de contraste (calculées, pas estimées — 25/09/2026)
+### Règles de contraste (calculées, pas estimées — mises à jour le 29/09/2026)
 
-Ratios WCAG réels des combinaisons de la palette, sur `abyss #001724` et sur la surface de carte `#0C222D`. Deux pièges qui paraissent bons à l'œil mais échouent au calcul :
+Ratios WCAG réels de la palette, sur le fond `abyss #04202E` et la surface de
+carte `#123243`. **Les valeurs ont changé le 29/09** avec le palier de
+luminosité : le fond est passé de `#001724` à `#04202E`, la surface de
+`#0C222D` à `#123243`. Tout ce qui est en crème y gagne en confort ; l'orange,
+lui, y perd — c'est le prix du palier, et il est assumé.
 
 | combinaison | ratio | verdict |
 | --- | --- | --- |
-| `cream` sur `abyss` | 15,7:1 | ✅ |
-| `cream/70` sur `#0C222D` | 7,5:1 | ✅ |
-| `cream/60` sur `abyss` | 6,2:1 | ✅ |
-| `cream/55` sur `#0C222D` | 5,2:1 | ✅ plancher à respecter |
-| `cream/50` sur `#0C222D` | 4,5:1 | ❌ juste en dessous |
-| `cream/45` sur `abyss` | 4,0:1 | ❌ |
-| `orange` sur `abyss` | 5,2:1 | ✅ même en petit texte |
-| `orange` sur `#0C222D` | 4,7:1 | ✅ de justesse |
-| `lime` sur `abyss` | 15,1:1 | ✅ |
+| `cream` sur `abyss` | 14,4:1 | ✅ |
+| `cream` sur `#123243` | 11,6:1 | ✅ |
+| `cream/70` sur `abyss` | 7,6:1 | ✅ |
+| `cream/60` sur `abyss` | 5,9:1 | ✅ |
+| `cream/55` sur `abyss` | 5,2:1 | ✅ plancher à respecter |
+| `cream/50` sur `abyss` | 4,5:1 | ⚠️ pile sur le seuil, à éviter |
+| `cream/45` sur `abyss` | 3,9:1 | ❌ |
+| `orange` sur `abyss` | 4,8:1 | ✅ de justesse (5,2:1 avant le palier) |
+| **`orange` sur `#123243`** | **3,8:1** | ❌ **ne passe plus en petit texte** (4,7:1 avant) |
+| `lime` sur `abyss` | 13,8:1 | ✅ |
 | **`cream` sur `bg-orange`** | **3,0:1** | ❌ **échoue sur tous les boutons pleins** |
-| **`abyss` sur `bg-orange`** | **5,2:1** | ✅ **c'est la combinaison à utiliser** |
+| **`abyss` sur `bg-orange`** | **4,8:1** | ✅ **c'est la combinaison à utiliser** |
+| `abyss/90` sur `bg-orange` | 4,5:1 | ⚠️ pile sur le seuil |
+| `abyss/70` sur `bg-orange` | 3,6:1 | ❌ |
+| `cream` sur `bg-lime` | 1,0:1 | ❌ invisible, le lime ne porte que de l'abyss |
+| `cream` sur `rust` | 10,1:1 | ✅ |
 
-Deux règles qui en découlent, appliquées partout dans les fichiers migrés :
+Trois règles qui en découlent, appliquées partout dans les fichiers migrés :
 
-1. **Un bouton plein orange porte du texte `abyss`, pas `cream`.** `bg-orange text-cream` ne passe qu'en très gros texte (≥ 18,66 px gras) ; nos libellés de CTA sont en `text-sm font-bold` (14 px), donc non conformes. C'est contre-intuitif parce que les maquettes du canvas utilisaient du crème sur orange — la maquette avait tort, le calcul a raison.
-2. **Plancher `cream/55` pour tout texte.** `text-cream/45`, `/40`, `/30` sont interdits sur du texte (y compris les compteurs, mentions légales et placeholders). En dessous, réserver aux bordures et aux aplats de surface, où le seuil ne s'applique pas.
+1. **Un bouton plein orange porte du texte `abyss`, pas `cream`.**
+   `bg-orange text-cream` ne passe qu'en très gros texte (≥ 18,66 px gras) ;
+   nos libellés de CTA sont en 12-14 px, donc non conformes. C'est
+   contre-intuitif parce que les maquettes utilisaient du crème sur orange —
+   la maquette avait tort, le calcul a raison. Et depuis le palier, `abyss`
+   n'a plus que 4,8:1 de marge : ne pas l'affaiblir en `abyss/90` ou moins.
+2. **Plancher `cream/55` pour tout texte.** `/50`, `/45`, `/40`, `/35` et
+   `/30` sont interdits sur du texte, compteurs, mentions légales et
+   placeholders compris. En dessous, réserver aux bordures et aux aplats de
+   surface, où le seuil ne s'applique pas.
+3. **L'orange n'est pas une couleur de texte courant.** Sur le fond il tient
+   encore (4,8:1), sur une carte il ne tient plus (3,8:1) — et une carte peut
+   se retrouver n'importe où. Un lien ou un bouton fantôme se libelle en
+   `cream` ; l'orange reste dans la bordure, dans l'icône et dans le
+   soulignement `.fx-link` qui se déploie au survol. Il garde en revanche
+   toute sa place en aplat (boutons pleins), en gros titre et en pictogramme,
+   où le seuil applicable est 3:1.
 
-Le script de calcul est trivial à refaire : luminance relative + `(L1+0,05)/(L2+0,05)`, en aplatissant d'abord l'opacité Tailwind sur la couleur de fond réelle — c'est cette étape d'aplatissement qui manque à la plupart des vérifications à l'œil.
+Le script de calcul est trivial à refaire : luminance relative +
+`(L1+0,05)/(L2+0,05)`, en aplatissant d'abord l'opacité Tailwind sur la
+couleur de fond réelle — c'est cette étape d'aplatissement qui manque à la
+plupart des vérifications à l'œil.
 
 ⸻
 
@@ -337,7 +364,7 @@ Auth (Google + Apple + email/bcrypt), onboarding multi-étapes, paiement Stripe 
 * Types partagés cohérents avec `src/models/User.ts`.
 * Connexion MongoDB : toujours via `connectDB()` depuis `src/lib/db.ts`.
 * Accès session serveur : `getServerSession(authOptions)`.
-* **Palette (concept 5 — « lime & vulcanico »)** : `abyss #001724`, `cream #FFEBD1`, `orange #FF4103` (vulcanico), `rust #6B1B02` (ember), `teal #0C222D` (neutre proche abyss), `lime #B6FF00` (nouveau, accent électrique). Remplace les violets/roses de SferaLuna — voir rebranding et section Restructuration.
+* **Palette (concept 5 — « lime & vulcanico »)** : `abyss #04202E`, `cream #FFEBD1`, `orange #FF4103` (vulcanico), `rust #6B1B02` (ember), `teal #123243` (surface), `lime #B6FF00` (nouveau, accent électrique). Remplace les violets/roses de SferaLuna — voir rebranding et section Restructuration.
 * Pages sombres : `<Footer />` reste en dehors du wrapper `text-white`/`text-cream`.
 * Padding top avec header fixe : `pt-24` minimum.
 * Mobile : réduire les gros `py`, `text-2xl`/`text-3xl`, cards compactes, longs contenus en accordéon, éviter les grilles trop larges, boutons principaux `w-full`.
@@ -1614,6 +1641,52 @@ session : ces deux durées ne sont atteignables que si `authorize` est ressorti
 avant bcrypt — compte introuvable — et s'il n'y avait aucun jeton à décoder.
 Autrement dit la connexion n'avait pas pris, et le parcours s'est poursuivi
 comme si de rien n'était. C'est exactement ce que la garde empêche désormais.
+
+### ☀️ Un palier de luminosité (29/09/2026)
+
+Le site était lu comme trop sombre. Quatre paliers de fond ont été rendus côte
+à côte, avec les mêmes composants et les mêmes niveaux de texte, pour choisir
+en regardant plutôt qu'en décrivant. Palier retenu : **le fond passe de
+`#001724` à `#04202E`, la surface des cartes de `#0C222D` à `#123243`.**
+
+C'est le seul cran où tout reste conforme AA, orange compris : `text-abyss`
+sur un bouton orange plein garde 4,80:1 (contre 5,23:1 avant), et l'orange en
+texte sur le fond 4,80:1 aussi. Au palier suivant, les deux tombaient sous le
+seuil.
+
+**Le vrai responsable de la pénombre n'était pas le fond.** 43 occurrences de
+texte crème sous 50 % d'opacité — `/45`, `/40`, `/35`, `/30` — étaient déjà
+sous le seuil de lisibilité avant ce changement : 3,99:1 pour `/45`, 2,44:1
+pour `/30`. Ce sont elles qui donnaient l'impression que la page s'éteignait.
+Plancher relevé en conservant la hiérarchie : `/30` et `/35` passent à `/55`,
+`/40`, `/45` et `/50` à `/60`. 56 remplacements.
+
+**Ce que le palier a coûté, et qu'il a fallu payer.** En petit texte, l'orange
+passait de justesse sur l'ancienne surface (4,69:1) ; sur la nouvelle il tombe
+à 3,84:1. Ce n'était plus tenable, et la règle du projet le disait déjà —
+l'orange aux accents et aux gros éléments, pas au petit texte. 30 libellés de
+liens et de boutons fantômes en 12-13 px sont passés en `cream` dans 22
+fichiers. L'orange ne quitte pas ces éléments : il reste dans la bordure, dans
+l'icône, et dans le soulignement `.fx-link` qui se déploie au survol. Les 16
+`hover:text-cream` devenus sans effet ont été retirés dans la foulée.
+
+**La surface était écrite en dur dans 42 fichiers** — 126 occurrences de
+`#0C222D`, plus 13 de `#001724`. Sans ce balayage, les cartes seraient restées
+à leur ancienne valeur, c'est-à-dire presque exactement la luminosité du
+nouveau fond : elles auraient disparu dedans. Les deux tokens Tailwind et les
+variables `--abyss` / `--surface` de `globals.css` ont été mis à jour de
+concert.
+
+Au passage, `ReportModal` — composant partagé, ouvert depuis la Communauté et
+depuis l'onglet Interactions — portait encore le dégradé violet de SferaLuna
+(`#1a0b2e` → `#2d1b69`). Il est passé sur la surface de la charte. Il reste des
+violets hérités dans `/admin` et `/paiement`, les deux pages non migrées : on
+les traitera avec elles, pas à moitié.
+
+**Le tableau des règles de contraste a été entièrement recalculé** — les
+valeurs documentées depuis le 25/09 portaient sur l'ancien fond et ne
+disaient plus la vérité. Une troisième règle a été ajoutée : l'orange n'est
+pas une couleur de texte courant.
 
 ### Reste à faire ❌
 

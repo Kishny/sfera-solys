@@ -447,7 +447,7 @@ function ContenuMonCompte() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="font-display [font-stretch:125%] text-[26px] font-extrabold text-cream/45">
+                    <span className="font-display [font-stretch:125%] text-[26px] font-extrabold text-cream/60">
                       {user.pseudonyme.charAt(0).toUpperCase()}
                     </span>
                   )}
@@ -511,7 +511,7 @@ function ContenuMonCompte() {
               {user.role === "admin" && (
                 <Link
                   href="/admin"
-                  className={`inline-flex items-center gap-1.5 rounded-xl border border-orange/40 px-3.5 py-2 text-[12px] font-semibold text-orange transition-colors hover:bg-orange/10 ${focusRing}`}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border border-orange/40 px-3.5 py-2 text-[12px] font-semibold text-cream transition-colors hover:bg-orange/10 ${focusRing}`}
                 >
                   Administration
                 </Link>

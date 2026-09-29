@@ -258,7 +258,7 @@ export default function Step4() {
           </p>
 
           {selectedInterets.length >= 5 && (
-            <p className="text-sm text-orange">Maximum atteint</p>
+            <p className="text-sm text-cream">Maximum atteint</p>
           )}
         </div>
 

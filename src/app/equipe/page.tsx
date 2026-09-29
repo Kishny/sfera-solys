@@ -137,7 +137,7 @@ export default function EquipePage() {
                       delay: shouldReduceMotion ? 0 : index * 0.06,
                       ease: 'easeOut',
                     }}
-                    className="rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6"
+                    className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
                   >
                     <div className="flex items-start gap-4">
                       <span

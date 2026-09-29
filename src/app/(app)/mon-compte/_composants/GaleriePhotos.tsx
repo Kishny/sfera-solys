@@ -169,7 +169,7 @@ export default function GaleriePhotos({
                   onClick={() => ajouter(index)}
                   disabled={enCours}
                   aria-label={`Ajouter une photo en position ${index + 1}`}
-                  className={`flex h-full w-full flex-col items-center justify-center gap-2 text-cream/45 transition-colors hover:bg-cream/5 hover:text-cream/70 disabled:opacity-40 ${focusRing}`}
+                  className={`flex h-full w-full flex-col items-center justify-center gap-2 text-cream/60 transition-colors hover:bg-cream/5 hover:text-cream/70 disabled:opacity-40 ${focusRing}`}
                 >
                   {enCours ? (
                     <Loader2 size={22} className="animate-spin" aria-hidden="true" />

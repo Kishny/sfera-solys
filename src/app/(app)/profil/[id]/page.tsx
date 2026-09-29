@@ -303,7 +303,7 @@ function ContenuProfil() {
               <button
                 type="button"
                 onClick={() => setSignalementOuvert(true)}
-                className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-3.5 py-2 text-[12px] font-semibold text-cream/60 transition-colors hover:border-orange/40 hover:text-orange ${focusRing}`}
+                className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-3.5 py-2 text-[12px] font-semibold text-cream/60 transition-colors hover:border-orange/40 hover:text-cream ${focusRing}`}
               >
                 <Flag size={13} aria-hidden="true" />
                 Signaler
@@ -325,7 +325,7 @@ function ContenuProfil() {
 
         {/* Erreur */}
         {!chargement && erreur && (
-          <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+          <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
             <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange/15">
               <AlertCircle size={22} className="text-orange" aria-hidden="true" />
             </span>
@@ -358,7 +358,7 @@ function ContenuProfil() {
             className="space-y-4 sm:space-y-5"
           >
             {/* Identité */}
-            <section className="overflow-hidden rounded-[1.75rem] border border-cream/10 bg-[#0C222D]">
+            <section className="overflow-hidden rounded-[1.75rem] border border-cream/10 bg-[#123243]">
               <div className="flex flex-col items-center gap-5 p-5 text-center sm:flex-row sm:items-center sm:gap-6 sm:p-7 sm:text-left">
                 <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-cream/12 bg-abyss sm:h-28 sm:w-28">
                   {profil.image ? (
@@ -370,7 +370,7 @@ function ContenuProfil() {
                     />
                   ) : (
                     <span
-                      className="font-display [font-stretch:125%] text-[34px] font-extrabold text-cream/45"
+                      className="font-display [font-stretch:125%] text-[34px] font-extrabold text-cream/60"
                       aria-hidden="true"
                     >
                       {nom.charAt(0).toUpperCase()}
@@ -422,7 +422,7 @@ function ContenuProfil() {
             {profil.photos && profil.photos.length > 0 && (
               <section
                 aria-label={`Photos de ${nom}`}
-                className="rounded-2xl border border-cream/10 bg-[#0C222D] p-3 sm:p-4"
+                className="rounded-2xl border border-cream/10 bg-[#123243] p-3 sm:p-4"
               >
                 <ul className="flex gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {profil.photos.map((url, index) => (
@@ -486,10 +486,10 @@ function ContenuProfil() {
 
             {/* Profil encore vide */}
             {profilVide && (
-              <section className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-10 text-center">
+              <section className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-10 text-center">
                 <UserRound
                   size={24}
-                  className="mx-auto mb-3 text-cream/45"
+                  className="mx-auto mb-3 text-cream/60"
                   aria-hidden="true"
                 />
 
@@ -507,7 +507,7 @@ function ContenuProfil() {
 
             {/* Action */}
             {relation && !relation.estMonProfil && (
-              <section className="rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6">
+              <section className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6">
                 {relation.estUnMatch && relation.matchId ? (
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
@@ -620,7 +620,7 @@ function SectionProfil({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-cream/10 bg-[#0C222D] p-5 sm:p-6">
+    <section className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6">
       <h2 className="mb-3 flex items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-cream/70">
         <Icone size={13} className="text-orange" aria-hidden="true" />
         {titre}

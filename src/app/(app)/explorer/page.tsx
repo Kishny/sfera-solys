@@ -474,7 +474,7 @@ export default function AnnuairePage() {
           ───────────────────────────── */}
           <section
             id="panneau-filtres"
-            className={`mb-5 rounded-2xl border border-cream/10 bg-[#0C222D] p-4 sm:p-5 ${
+            className={`mb-5 rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:p-5 ${
               filtresOuverts ? "block" : "hidden lg:block"
             }`}
           >
@@ -735,7 +735,7 @@ export default function AnnuairePage() {
                 type="button"
                 onClick={() => setErreur("")}
                 aria-label="Fermer le message"
-                className={`shrink-0 rounded-lg p-1 text-cream/50 hover:text-cream ${focusRing}`}
+                className={`shrink-0 rounded-lg p-1 text-cream/60 hover:text-cream ${focusRing}`}
               >
                 <X size={15} aria-hidden="true" />
               </button>
@@ -754,10 +754,10 @@ export default function AnnuairePage() {
               <p className="text-[13px] text-cream/55">Recherche en cours…</p>
             </div>
           ) : profils.length === 0 ? (
-            <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+            <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
               <UserRound
                 size={28}
-                className="mx-auto mb-4 text-cream/30"
+                className="mx-auto mb-4 text-cream/55"
                 aria-hidden="true"
               />
 
@@ -865,7 +865,7 @@ export default function AnnuairePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: reduireAnimations ? 1 : 0.96 }}
               transition={{ duration: reduireAnimations ? 0 : 0.25 }}
-              className="relative z-10 w-full max-w-sm rounded-[1.75rem] border border-lime/25 bg-[#0C222D] p-6 text-center sm:p-8"
+              className="relative z-10 w-full max-w-sm rounded-[1.75rem] border border-lime/25 bg-[#123243] p-6 text-center sm:p-8"
             >
               <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-lime/15">
                 <Heart
@@ -955,7 +955,7 @@ function CarteProfil({
   const nom = profil.pseudonyme || "Membre";
 
   return (
-    <li className="flex flex-col overflow-hidden rounded-2xl border border-cream/10 bg-[#0C222D]">
+    <li className="flex flex-col overflow-hidden rounded-2xl border border-cream/10 bg-[#123243]">
       {/* Photo */}
       <div className="relative aspect-[4/5] bg-abyss">
         {profil.image ? (
@@ -969,7 +969,7 @@ function CarteProfil({
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <span
-              className="font-display [font-stretch:125%] flex h-20 w-20 items-center justify-center rounded-full border border-cream/10 text-[28px] font-extrabold text-cream/40"
+              className="font-display [font-stretch:125%] flex h-20 w-20 items-center justify-center rounded-full border border-cream/10 text-[28px] font-extrabold text-cream/60"
               aria-hidden="true"
             >
               {nom.charAt(0).toUpperCase()}

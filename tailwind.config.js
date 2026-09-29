@@ -37,16 +37,22 @@ module.exports = {
         // repassées en revue, on pourra renommer teal→(nouveau nom neutre) et
         // rust→ember dans le code pour que les noms de classes redeviennent
         // fidèles aux couleurs qu'ils décrivent.
-        abyss: "#001724",
-        teal: "#0C222D",
+        // Palier de luminosité (29/09/2026) : le fond est passé de #001724 à
+        // #04202E et la surface de #0C222D à #123243. Le site était lu comme
+        // trop sombre. C'est le seul cran où tout reste conforme AA, y compris
+        // l'orange sur le fond (4,80:1, contre 5,23:1 avant). Le crème tient
+        // 14,4:1 sur le fond et 11,6:1 sur la surface ; `text-abyss` sur un
+        // bouton orange reste à 4,80:1.
+        abyss: "#04202E",
+        teal: "#123243",
         cream: "#FFEBD1",
         orange: "#FF4103",
         rust: "#6B1B02",
         lime: "#B6FF00",
 
         // Alias sémantiques (mêmes valeurs que les tokens ci-dessus)
-        background: "#001724", // abyss
-        surface: "#0C222D", // teal → neutre proche abyss
+        background: "#04202E", // abyss
+        surface: "#123243", // teal → surface, un cran au-dessus du fond
         text: "#FFEBD1", // cream
         accent: "#FF4103", // orange → vulcanico
         "accent-deep": "#6B1B02", // rust → ember

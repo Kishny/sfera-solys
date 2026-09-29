@@ -304,7 +304,7 @@ export default function FonctionnalitesPage() {
 
               <Link
                 href="/tarifs"
-                className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
               >
                 voir ce qui est inclus par offre
                 <ArrowRight size={14} />
@@ -335,8 +335,8 @@ export default function FonctionnalitesPage() {
                     key={feature.id}
                     className={`relative flex flex-col rounded-2xl border p-5 sm:p-6 ${
                       feature.featured
-                        ? 'border-orange/40 bg-[#0C222D] ring-1 ring-orange/20'
-                        : 'border-cream/8 bg-[#0C222D]'
+                        ? 'border-orange/40 bg-[#123243] ring-1 ring-orange/20'
+                        : 'border-cream/8 bg-[#123243]'
                     }`}
                   >
                     <Icon
@@ -399,7 +399,7 @@ export default function FonctionnalitesPage() {
                     {feature.link ? (
                       <Link
                         href={feature.link}
-                        className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
                       >
                         découvrir
                         <ArrowRight size={14} />
@@ -472,7 +472,7 @@ export default function FonctionnalitesPage() {
               {foundations.map(({ icon: Icon, label }) => (
                 <div
                   key={label}
-                  className="flex flex-col gap-2.5 rounded-2xl border border-cream/8 bg-[#0C222D] p-4 sm:p-[18px]"
+                  className="flex flex-col gap-2.5 rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-[18px]"
                 >
                   <Icon size={18} className="text-orange" />
                   <span className="text-[13px] font-semibold text-cream">{label}</span>
@@ -493,7 +493,7 @@ export default function FonctionnalitesPage() {
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-2xl border border-cream/8 bg-[#0C222D] p-4 sm:p-[18px]"
+                  className="rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-[18px]"
                 >
                   <dd className="font-display text-[26px] font-extrabold leading-none text-cream sm:text-[30px]">
                     {stat.value}
@@ -524,7 +524,7 @@ export default function FonctionnalitesPage() {
                 return (
                   <div
                     key={note.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#0C222D]"
+                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
                   >
                     <button
                       type="button"
@@ -577,7 +577,7 @@ export default function FonctionnalitesPage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#0C222D] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
               <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
                 Les fonctionnalités s&apos;ouvrent après la vérification.

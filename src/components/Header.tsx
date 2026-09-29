@@ -518,7 +518,7 @@ export default function Header() {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -6 }}
                           transition={{ duration: shouldReduceMotion ? 0 : 0.16 }}
-                          className="absolute right-0 top-full z-50 mt-2 min-w-[210px] rounded-2xl border border-cream/10 bg-[#0C222D] p-2 shadow-[0_18px_44px_-14px_rgba(0,0,0,0.55)]"
+                          className="absolute right-0 top-full z-50 mt-2 min-w-[210px] rounded-2xl border border-cream/10 bg-[#123243] p-2 shadow-[0_18px_44px_-14px_rgba(0,0,0,0.55)]"
                         >
                           <div className="mb-1 border-b border-cream/10 px-3 py-2">
                             <p className="truncate text-xs font-semibold text-cream/60">
@@ -570,7 +570,7 @@ export default function Header() {
 
                   <Link
                     href="/auth?mode=register"
-                    className={`fx-link flex items-center gap-1.5 rounded-lg text-[13px] font-bold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link flex items-center gap-1.5 rounded-lg text-[13px] font-bold text-cream transition-colors ${focusRing}`}
                   >
                     rejoindre
                     <ArrowRight size={14} />
@@ -658,7 +658,7 @@ export default function Header() {
               exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -8 }}
               transition={{ duration: shouldReduceMotion ? 0 : 0.18, ease: 'easeOut' }}
               aria-labelledby={menuTriggerId(activeMegaMenu.label)}
-              className="absolute inset-x-0 top-full hidden border-b border-cream/10 bg-[#0C222D] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] xl:block"
+              className="absolute inset-x-0 top-full hidden border-b border-cream/10 bg-[#123243] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] xl:block"
             >
               <div className="mx-auto max-w-7xl px-8 py-7">
                 <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -711,7 +711,7 @@ export default function Header() {
                         <Link
                           href={activeMegaMenu.panelCta.href}
                           onClick={() => setOpenDesktopGroup(null)}
-                          className={`fx-link mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+ className={`fx-link mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
                         >
                           {activeMegaMenu.panelCta.label}
                           <ArrowRight size={14} />
@@ -745,7 +745,7 @@ export default function Header() {
               initial="closed"
               animate="open"
               exit="closed"
-              className="fixed left-3 right-3 top-[4.15rem] z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-[1.75rem] border border-cream/10 bg-[#0C222D] shadow-[0_24px_80px_rgba(0,0,0,0.5)] xl:hidden"
+              className="fixed left-3 right-3 top-[4.15rem] z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-[1.75rem] border border-cream/10 bg-[#123243] shadow-[0_24px_80px_rgba(0,0,0,0.5)] xl:hidden"
             >
               <div className="max-h-[calc(100dvh-5rem)] overflow-y-auto p-3">
                 {/* Carte identité */}

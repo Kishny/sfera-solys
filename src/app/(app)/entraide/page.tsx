@@ -472,10 +472,10 @@ export default function PageEntraide() {
               </p>
             </div>
           ) : questions.length === 0 ? (
-            <div className="rounded-2xl border border-cream/10 bg-[#0C222D] px-6 py-16 text-center">
+            <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
               <HeartHandshake
                 size={26}
-                className="mx-auto mb-4 text-cream/45"
+                className="mx-auto mb-4 text-cream/60"
                 aria-hidden="true"
               />
 
@@ -575,7 +575,7 @@ export default function PageEntraide() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: reduireAnimations ? 0 : 24 }}
               transition={{ duration: reduireAnimations ? 0 : 0.25 }}
-              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] border border-cream/10 bg-[#0C222D] p-5 sm:rounded-[1.75rem] sm:p-6"
+              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] border border-cream/10 bg-[#123243] p-5 sm:rounded-[1.75rem] sm:p-6"
             >
               <div className="mb-5 flex items-start justify-between gap-4">
                 <h2
@@ -753,7 +753,7 @@ function CarteQuestion({
   const retenue = reponses.find((reponse) => reponse.isAccepted);
 
   return (
-    <li className="rounded-2xl border border-cream/10 bg-[#0C222D] p-4 sm:p-5">
+    <li className="rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1 rounded-full border border-cream/12 px-2.5 py-0.5 text-[11px] text-cream/70">
           <IconeCategorie size={11} aria-hidden="true" />
