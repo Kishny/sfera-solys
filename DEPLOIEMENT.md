@@ -11,13 +11,26 @@ Le projet démarre avec **quatre** variables. Tout le reste — Stripe, Resend,
 Pusher, Cloudinary, Google, Apple, Upstash — peut rester vide : le service
 concerné se déclare indisponible et le site fonctionne sans lui.
 
+> **Ordre des opérations.** Le tout premier `vercel --prod` peut se lancer
+> sans aucune variable : le build passe, le site s'affiche, et les pages qui
+> lisent des données signalent l'absence de base. C'est ce qui permet de
+> récupérer l'URL de production, dont `NEXTAUTH_URL` et `NEXT_PUBLIC_APP_URL`
+> ont besoin. On pose les quatre variables ensuite, puis on redéploie.
+
 Ce n'était pas le cas avant le 29/09/2026. `src/lib/resend.ts` construisait
 son client à l'import, et **le constructeur de Resend lève quand la clé
 manque** : oublier `RESEND_API_KEY` sur Vercel ne donnait pas un site sans
 e-mails, ça donnait un build qui échoue. `src/lib/stripe.ts` levait aussi, sur
 un message parlant de `.env.local` — qui n'existe pas sur Vercel. Les deux
-sont corrigés, et un build a été vérifié avec ces seules quatre variables :
-83 pages générées.
+sont corrigés — ainsi que `src/lib/db.ts`, qui levait de la même façon et a
+fait échouer le premier déploiement réel sur
+`Failed to collect page data for /api/admin/reports/[id]`.
+
+Vérification faite **en écartant `.env.local`**, sans quoi le test ne prouve
+rien : `next build` lit ce fichier sur le disque, et un simple `env -u` ne
+l'empêche pas. Build lancé sans aucune variable, comme sur un projet Vercel
+vierge : 83 pages générées, avec des messages nommant la variable manquante et
+l'endroit où la poser.
 
 > **Un placeholder n'est pas une configuration.** Toutes les gardes passent
 > par `src/lib/configuration.ts`, qui écarte aussi bien une variable absente
@@ -31,6 +44,7 @@ sont corrigés, et un build a été vérifié avec ces seules quatre variables :
 | Variable | Valeur | Pourquoi |
 |---|---|---|
 | `MONGODB_URI` | la chaîne de connexion Atlas | sans elle, aucune page qui lit des données ne fonctionne |
+| | | *le nom de la base est donné en dur à `mongoose.connect` (`dbName: "sferasolys"`) : inutile de l'ajouter à l'URI* |
 | `NEXTAUTH_SECRET` | une valeur aléatoire longue — `openssl rand -base64 32` | signe les jetons de session |
 | `NEXTAUTH_URL` | l'URL **exacte** du site en production | sans elle, la connexion échoue en ligne |
 | `NEXT_PUBLIC_APP_URL` | la même URL | sinon les URL canoniques, le `sitemap.xml`, le `robots.txt` et les balises Open Graph pointent tous vers `https://sferasolys.com`, codé en dur comme valeur de repli |

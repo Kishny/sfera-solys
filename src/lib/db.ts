@@ -2,17 +2,29 @@
 
 import mongoose from "mongoose";
 
+import { lireVariable } from "@/lib/configuration";
+
 /**
  * URI MongoDB Atlas.
- * Elle doit être présente dans .env.local :
  *
- * MONGODB_URI=mongodb+srv://...
+ * ## Pourquoi la vérification n'est plus au chargement du module
+ *
+ * Elle l'était, et elle faisait **échouer le build** : `next build` importe
+ * chaque route pour en collecter les données, une exception au chargement
+ * arrête tout. Le premier déploiement Vercel s'est arrêté sur
+ * `Failed to collect page data for /api/admin/reports/[id]`, avec un message
+ * disant que la variable manque « dans le fichier .env.local » — fichier qui
+ * n'existe pas sur Vercel, où les variables se posent dans les réglages du
+ * projet. Le message envoyait chercher au mauvais endroit.
+ *
+ * La vérification a lieu maintenant à la première connexion : le build passe,
+ * et une requête sans base configurée échoue avec une phrase qui nomme la
+ * variable et l'endroit où la poser.
+ *
+ * Le nom de la base est donné explicitement à `mongoose.connect` (`dbName`),
+ * il n'a donc pas besoin de figurer dans l'URI.
  */
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error("❌ MONGODB_URI est manquante dans le fichier .env.local");
-}
+const MONGODB_URI = lireVariable("MONGODB_URI");
 
 /**
  * Cache global pour éviter de créer plusieurs connexions MongoDB
@@ -55,8 +67,15 @@ export async function connectDB() {
    * Si une promesse de connexion est déjà en cours,
    * on attend cette même promesse.
    */
+  if (!MONGODB_URI) {
+    throw new Error(
+      "MONGODB_URI n'est pas configurée. En local, la poser dans .env.local ; " +
+        "sur Vercel, dans Settings → Environment Variables."
+    );
+  }
+
   if (!globalForMongoose.mongoose?.promise) {
-    globalForMongoose.mongoose!.promise = mongoose.connect(MONGODB_URI as string, {
+    globalForMongoose.mongoose!.promise = mongoose.connect(MONGODB_URI, {
       dbName: "sferasolys",
       bufferCommands: false,
     });
