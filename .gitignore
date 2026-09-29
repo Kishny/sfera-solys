@@ -58,3 +58,6 @@ _to_delete/
 _migrated-out-of-app-router/
 *.bak
 *.bak.[0-9]*
+
+# Build de vérification, lancé en parallèle du serveur de développement
+/.next-verif/

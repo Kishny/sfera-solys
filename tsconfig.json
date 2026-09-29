@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,16 +23,22 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
+    "next-env.d.ts",
+    "scripts/seed.js",
     "types/**/*.d.ts",
-    "scripts/seed.js"
+    ".next-verif/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "e2e"]
+  "exclude": [
+    "node_modules",
+    "e2e"
+  ]
 }

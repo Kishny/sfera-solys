@@ -1739,6 +1739,37 @@ sur `/mon-compte` que si `hasCompletedProfile` **et** (`identityVerified` ou
 voir le tableau de bord aujourd'hui : passer `identityVerified: true` ou
 `role: "admin"` sur son document dans Atlas.
 
+### 🧨 Le build de vérification écrasait le serveur de développement (29/09/2026)
+
+Symptôme : `/inscription` fige sur « Chargement de ton espace Sfera'Solys… »,
+et la console affiche `Uncaught SyntaxError: Invalid or unexpected token` dans
+`layout.js`. Le code n'y était pour rien — `src/app/layout.tsx` n'avait pas été
+touché depuis des jours, et le build passait au vert.
+
+`next dev` et `next build` écrivent **tous les deux dans `.next`**. Les builds
+de vérification de cette session tournaient pendant que le serveur de
+développement était en marche : ils ont écrasé, puis supprimé, puis réécrit en
+version de production les chunks que ce serveur était en train de servir.
+Le dossier contenait à la fin un `BUILD_ID`, un `prerender-manifest` **et** un
+`static/development` — deux modes de Next dans le même dossier. Le navigateur
+demandait un bundle de développement et recevait autre chose : d'où l'erreur de
+syntaxe, et l'hydratation qui n'a jamais lieu. `useSession()` reste sur
+`loading`, l'écran de chargement ne se referme pas.
+
+`next.config.ts` accepte désormais `distDir: process.env.NEXT_DIST_DIR`. Un
+build de vérification se lance ainsi :
+
+```bash
+NEXT_DIST_DIR=.next-verif npx next build
+```
+
+et laisse `.next` au serveur de développement. `/.next-verif/` est dans
+`.gitignore`.
+
+**Remise en état après coup** : arrêter `npm run dev`, supprimer `.next`,
+relancer. Tant que le dossier reste mélangé, le rechargement de la page ne
+suffit pas.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
@@ -1832,6 +1863,10 @@ Ordre de passage conseillé pour la suite : finir la cohérence visuelle des pag
 
 ```bash
 npm run dev            # développement
+
+# Vérifier un build SANS casser le serveur de développement en cours :
+# next dev et next build écrivent tous les deux dans .next.
+NEXT_DIST_DIR=.next-verif npx next build
 npm run build          # build
 npm test               # tests unitaires Vitest
 npm run test:watch     # tests watch

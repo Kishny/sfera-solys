@@ -1,6 +1,24 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  /**
+   * Dossier de build, surchargeable par `NEXT_DIST_DIR`.
+   *
+   * `next dev` et `next build` écrivent tous les deux dans `.next`. Lancer une
+   * vérification de build pendant que le serveur de développement tourne écrase
+   * les chunks qu'il est en train de servir : la page se fige sur son écran de
+   * chargement et la console affiche un `SyntaxError` dans `layout.js` — le
+   * bundle servi n'est plus celui que le navigateur attend. Le code n'y est
+   * pour rien, c'est le dossier qui a été piétiné.
+   *
+   * Un build de vérification se lance donc ainsi :
+   *
+   *     NEXT_DIST_DIR=.next-verif npx next build
+   *
+   * et laisse `.next` au serveur de développement.
+   */
+  distDir: process.env.NEXT_DIST_DIR || ".next",
+
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   images: {
