@@ -3,49 +3,102 @@
 import Pusher from "pusher";
 
 /**
- * Client Pusher côté serveur uniquement.
+ * Client Pusher, côté serveur uniquement.
  *
- * Utilisé dans les routes API pour envoyer des événements :
- * - new-match
- * - new-message
+ * Porte les évènements temps réel : `new-match`, `new-message`,
+ * `messages-read`.
  *
- * Variables nécessaires dans .env.local :
+ * ## Pourquoi ce fichier a changé
  *
- * PUSHER_APP_ID=
- * PUSHER_KEY=
- * PUSHER_SECRET=
- * PUSHER_CLUSTER=eu
+ * La garde d'origine vérifiait que les variables d'environnement étaient
+ * **présentes**, et levait une exception sinon. Elle ne vérifiait pas
+ * qu'elles voulaient dire quelque chose. `.env.local` livre ces trois
+ * variables remplies avec `A_REMPLACER` : elles passaient la garde, le
+ * client Pusher se construisait avec une clé bidon, et chaque match, chaque
+ * message et chaque accusé de lecture partait vers l'API Pusher pour en
+ * revenir avec un `400 auth_key should be a valid app key` — et une trace
+ * d'exception complète dans le journal du serveur.
+ *
+ * Un placeholder n'est pas une configuration. La garde le sait maintenant,
+ * et le temps réel s'éteint proprement au lieu d'échouer bruyamment : les
+ * messages continuent d'être enregistrés et lus, ils n'arrivent simplement
+ * plus tout seuls.
  */
 
-/**
- * Petite fonction de validation des variables d'environnement.
- * Ça évite les erreurs silencieuses difficiles à comprendre.
- */
-function getRequiredEnv(name: string) {
-  const value = process.env[name];
+/** Valeur que `.env.local` utilise pour les variables non encore remplies. */
+const A_REMPLIR = "A_REMPLACER";
 
-  if (!value) {
-    throw new Error(`Variable d'environnement manquante : ${name}`);
-  }
+function lireVariable(nom: string) {
+  const valeur = process.env[nom]?.trim();
 
-  return value;
+  if (!valeur || valeur === A_REMPLIR) return null;
+
+  return valeur;
 }
 
-const appId = getRequiredEnv("PUSHER_APP_ID");
-const key = getRequiredEnv("PUSHER_KEY");
-const secret = getRequiredEnv("PUSHER_SECRET");
-const cluster = process.env.PUSHER_CLUSTER || "eu";
+const appId = lireVariable("PUSHER_APP_ID");
+const cle = lireVariable("PUSHER_KEY");
+const secret = lireVariable("PUSHER_SECRET");
+const cluster = process.env.PUSHER_CLUSTER?.trim() || "eu";
 
 /**
- * Instance Pusher serveur.
- *
- * Attention :
- * Ce fichier ne doit jamais être importé directement dans un composant client.
+ * Vrai seulement si les trois variables existent **et** ne sont pas des
+ * placeholders. À lire avant toute promesse de temps réel faite à
+ * l'utilisateur.
  */
-export const pusher = new Pusher({
-  appId,
-  key,
-  secret,
-  cluster,
-  useTLS: true,
-});
+export const pusherEstConfigure = Boolean(appId && cle && secret);
+
+/**
+ * Instance serveur, ou `null` quand Pusher n'est pas configuré.
+ *
+ * Ce fichier ne doit jamais être importé depuis un composant client.
+ */
+export const pusher = pusherEstConfigure
+  ? new Pusher({
+      appId: appId as string,
+      key: cle as string,
+      secret: secret as string,
+      cluster,
+      useTLS: true,
+    })
+  : null;
+
+/** Un seul rappel par démarrage du serveur, pas un par évènement. */
+let absenceSignalee = false;
+
+/**
+ * Envoie un évènement, ou ne fait rien si Pusher n'est pas configuré.
+ *
+ * Renvoie `true` si l'évènement est parti. Aucun appelant ne doit dépendre
+ * de ce retour pour son résultat métier : un message enregistré reste
+ * enregistré même si personne n'a pu être prévenu en direct.
+ */
+export async function envoyerPusher(
+  canal: string,
+  evenement: string,
+  donnees: unknown
+): Promise<boolean> {
+  if (!pusher) {
+    if (!absenceSignalee) {
+      absenceSignalee = true;
+      console.info(
+        "Pusher n'est pas configuré (PUSHER_APP_ID / PUSHER_KEY / PUSHER_SECRET). " +
+          "Le temps réel est désactivé : les messages sont bien enregistrés, " +
+          "ils n'arrivent simplement pas tout seuls."
+      );
+    }
+
+    return false;
+  }
+
+  try {
+    await pusher.trigger(canal, evenement, donnees);
+    return true;
+  } catch (erreur) {
+    console.warn(
+      `Pusher : évènement « ${evenement} » non délivré sur ${canal} —`,
+      erreur instanceof Error ? erreur.message : erreur
+    );
+    return false;
+  }
+}

@@ -9,7 +9,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Like } from "@/models/Like";
 import { Match } from "@/models/Match";
-import { pusher } from "@/lib/pusher";
+import { envoyerPusher } from "@/lib/pusher";
 import { sendNewMatchPush } from "@/lib/push";
 import { quotaLikesDuJour } from "@/lib/quotas";
 import { ouvrirEnAttente, quotaMatchs } from "@/lib/matches";
@@ -159,19 +159,24 @@ async function notifyNewMatch({
       getPublicUserProfile(targetId),
     ]);
 
+    /*
+     * `envoyerPusher` ne lève pas : elle renvoie `false` quand Pusher n'est
+     * pas configuré ou quand l'envoi échoue. Le match est déjà créé en base,
+     * il ne dépend pas de cette notification.
+     */
     await Promise.all([
-      pusher.trigger(`private-user-${currentUserId.toString()}`, "new-match", {
+      envoyerPusher(`private-user-${currentUserId.toString()}`, "new-match", {
         matchId,
         profile: targetUserProfile,
       }),
 
-      pusher.trigger(`private-user-${targetId.toString()}`, "new-match", {
+      envoyerPusher(`private-user-${targetId.toString()}`, "new-match", {
         matchId,
         profile: currentUserProfile,
       }),
     ]);
-  } catch (pusherError) {
-    console.error("Erreur notification Pusher new-match :", pusherError);
+  } catch (erreur) {
+    console.warn("Notification de match non envoyée :", erreur);
   }
 
   // Push notifications (silencieux si échec)

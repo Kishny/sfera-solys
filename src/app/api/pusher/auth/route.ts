@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
-import { pusher } from "@/lib/pusher";
+import { pusher, pusherEstConfigure } from "@/lib/pusher";
 import { User } from "@/models/User";
 import { Match } from "@/models/Match";
 
@@ -336,6 +336,21 @@ export async function POST(req: NextRequest) {
      * Pour les private channels, authorizeChannel suffit.
      * Pour les presence channels, il faudrait authorizeChannel avec userData.
      */
+    /*
+     * Sans clés Pusher, il n'y a rien à signer. On le dit en 503 plutôt que
+     * de laisser planter sur un `pusher` nul : le client sait alors que le
+     * temps réel est indisponible, et la conversation continue de
+     * fonctionner sans lui.
+     */
+    if (!pusher || !pusherEstConfigure) {
+      return jsonError({
+        error:
+          "Le temps réel n'est pas configuré sur ce serveur. Les messages sont enregistrés, ils n'arrivent simplement pas tout seuls.",
+        code: "REALTIME_UNAVAILABLE",
+        status: 503,
+      });
+    }
+
     const authResponse = pusher.authorizeChannel(socketId, channelName);
 
     return NextResponse.json(authResponse, {

@@ -10,7 +10,7 @@ import { User } from "@/models/User";
 import { Match } from "@/models/Match";
 import { Message } from "@/models/Message";
 import { Report } from "@/models/Report";
-import { pusher } from "@/lib/pusher";
+import { envoyerPusher } from "@/lib/pusher";
 import { sendNewMessagePush } from "@/lib/push";
 import { moderateText } from "@/lib/text-moderation";
 import { quotaMessagesDuJour } from "@/lib/quotas";
@@ -242,7 +242,7 @@ export async function GET(
     // Notifier l'expéditeur si des messages viennent d'être lus
     if (updateResult.modifiedCount > 0) {
       try {
-        await pusher.trigger(
+        await envoyerPusher(
           `private-match-${match._id.toString()}`,
           'messages-read',
           { readerId: currentUserId.toString(), readAt: readNow.toISOString() }
@@ -485,11 +485,13 @@ export async function POST(
      * on ne bloque pas l'envoi du message.
      */
     try {
-      await pusher.trigger(`private-match-${match._id.toString()}`, "new-message", {
-        ...serializedMessage,
-      });
-    } catch (pusherError) {
-      console.warn("Pusher trigger new-message échoué :", pusherError);
+      await envoyerPusher(
+        `private-match-${match._id.toString()}`,
+        "new-message",
+        { ...serializedMessage }
+      );
+    } catch (erreur) {
+      console.warn("Message non annoncé en temps réel :", erreur);
     }
 
     /**

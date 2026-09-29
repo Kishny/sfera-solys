@@ -53,13 +53,24 @@ type SidebarLink = {
   label: string;
   icon: React.ComponentType<{ size?: number | string; className?: string }>;
   subItems?: SidebarSubItem[];
-  showBadge?: boolean;
+  /**
+   * Compteur affiché en pastille. `messages` = messages non lus,
+   * `matches` = mises en relation nouvelles depuis la dernière visite.
+   *
+   * L'entrée Messages portait `showBadge: true` et affichait le `total` de
+   * `/api/notifications` — une somme qui mélange les messages non lus, un
+   * drapeau « nouveaux matchs » et un drapeau « nouvelles visites de profil ».
+   * Une visite sur le profil allumait donc la pastille de Messages, et on
+   * arrivait sur une boîte vide. La route renvoyait déjà chaque compteur
+   * séparément ; il suffisait de lire le bon.
+   */
+  pastille?: "messages" | "matches";
 };
 
 const links: SidebarLink[] = [
   { href: "/", label: "Accueil", icon: Sun },
   { href: "/explorer", label: "Explorer", icon: Compass },
-  { href: "/matches", label: "Matches", icon: Heart },
+  { href: "/matches", label: "Matches", icon: Heart, pastille: "matches" },
   {
     label: "Cercle & communauté",
     icon: Users2,
@@ -71,7 +82,12 @@ const links: SidebarLink[] = [
       { label: "Communauté", href: "/communaute" },
     ],
   },
-  { href: "/messages", label: "Messages", icon: MessageCircle, showBadge: true },
+  {
+    href: "/messages",
+    label: "Messages",
+    icon: MessageCircle,
+    pastille: "messages",
+  },
 ];
 
 export default function Sidebar() {
@@ -79,7 +95,10 @@ export default function Sidebar() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const [notifCount, setNotifCount] = useState(0);
+  const [compteurs, setCompteurs] = useState({
+    messages: 0,
+    matches: 0,
+  });
   const [circleOpen, setCircleOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -97,7 +116,11 @@ export default function Sidebar() {
         const res = await fetch("/api/notifications", { cache: "no-store" });
         if (!res.ok) return;
         const data = await res.json();
-        setNotifCount(data.total || 0);
+
+        setCompteurs({
+          messages: data.unreadMessages || 0,
+          matches: data.newMatches || 0,
+        });
       } catch {
         // On ignore volontairement l'erreur pour ne pas casser la sidebar.
       }
@@ -119,8 +142,17 @@ export default function Sidebar() {
     const client = getPusherClient();
     const channel = client.subscribe(channelName);
 
+    /*
+     * Le canal `private-user-{id}` porte les nouveaux matchs. Les nouveaux
+     * messages, eux, passent par `private-match-{id}` : la barre latérale
+     * n'y est pas abonnée, c'est la relecture toutes les 30 s qui met leur
+     * compteur à jour.
+     */
     channel.bind("new-match", () => {
-      setNotifCount((prev) => prev + 1);
+      setCompteurs((precedents) => ({
+        ...precedents,
+        matches: precedents.matches + 1,
+      }));
     });
 
     return () => {
@@ -229,9 +261,16 @@ export default function Sidebar() {
             >
               <link.icon size={16} />
               <span className="flex-1">{link.label}</span>
-              {link.showBadge && notifCount > 0 && (
-                <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-lime px-1 text-[10px] font-extrabold text-abyss">
-                  {notifCount > 9 ? "9+" : notifCount}
+              {link.pastille && compteurs[link.pastille] > 0 && (
+                <span
+                  className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-lime px-1 text-[10px] font-extrabold text-abyss"
+                  aria-label={
+                    link.pastille === "messages"
+                      ? `${compteurs.messages} message${compteurs.messages > 1 ? "s" : ""} non lu${compteurs.messages > 1 ? "s" : ""}`
+                      : `${compteurs.matches} nouvelle${compteurs.matches > 1 ? "s" : ""} mise${compteurs.matches > 1 ? "s" : ""} en relation`
+                  }
+                >
+                  {compteurs[link.pastille] > 9 ? "9+" : compteurs[link.pastille]}
                 </span>
               )}
             </Link>

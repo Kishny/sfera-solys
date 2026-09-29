@@ -1858,6 +1858,65 @@ vérifiés contre les 31 routes réellement servies, segments dynamiques
 compris. `/messages` était le seul qui ne menait nulle part. Il n'en reste
 aucun.
 
+### 🔔 La pastille de Messages ne comptait pas des messages (29/09/2026)
+
+Une pastille « 1 » apparaît sur **Messages**, on y va, la boîte est vide.
+Ce n'était pas un bug d'affichage de la liste : la pastille ne comptait pas
+ce qu'elle annonçait.
+
+`Sidebar.tsx` affichait le champ `total` de `/api/notifications`. Or ce total
+vaut :
+
+```
+unreadMessages + (newMatches > 0 ? 1 : 0) + (newVisits > 0 ? 1 : 0)
+```
+
+Une visite sur le profil, ou une nouvelle mise en relation, allumait donc la
+pastille de **Messages**. La route renvoyait pourtant déjà `unreadMessages`,
+`newMatches` et `newVisits` séparément — il suffisait de lire le bon champ.
+
+Chaque entrée déclare maintenant le compteur qu'elle affiche : `messages` pour
+Messages, `matches` pour Matches, qui n'en avait aucun alors que l'information
+existait. Les pastilles portent un `aria-label` explicite (« 2 messages non
+lus ») plutôt qu'un chiffre nu. L'abonnement Pusher `new-match` de la barre
+latérale incrémente désormais le compteur des matchs et non celui des
+messages ; les nouveaux messages passent par `private-match-{id}`, auquel la
+barre n'est pas abonnée, et restent couverts par la relecture toutes les 30 s.
+
+### ⚡ Un placeholder n'est pas une configuration (29/09/2026)
+
+Au premier match, le journal du serveur crachait une trace complète :
+
+```
+PusherRequestError: Unexpected status code 400
+body: 'auth_key should be a valid app key'
+url: '...auth_key=A_REMPLACER...'
+```
+
+`src/lib/pusher.ts` vérifiait que `PUSHER_APP_ID`, `PUSHER_KEY` et
+`PUSHER_SECRET` étaient **présentes**, et levait une exception sinon. Il ne
+vérifiait pas qu'elles voulaient dire quelque chose. `.env.local` les livre
+remplies avec `A_REMPLACER` : elles passaient la garde, le client se
+construisait avec une clé bidon, et chaque match, chaque message et chaque
+accusé de lecture partait vers l'API Pusher pour en revenir en 400.
+
+La garde rejette maintenant le placeholder. `pusher` vaut `null` quand rien
+n'est configuré, `pusherEstConfigure` dit la vérité, et un nouvel
+`envoyerPusher(canal, evenement, donnees)` remplace les appels directs : il
+n'échoue jamais, renvoie `false`, et signale l'absence de configuration **une
+seule fois par démarrage** au lieu d'une trace par évènement. Les cinq points
+d'appel — deux dans `/api/likes`, deux dans `/api/messages/[matchId]`, un dans
+`.../read` — passent par lui.
+
+`POST /api/pusher/auth` renvoie un 503 explicite au lieu de planter sur un
+client nul : le client sait que le temps réel est indisponible, et la
+conversation continue sans lui.
+
+**Rien de tout cela n'empêchait le match.** `POST /api/likes` répondait bien
+201, la relation était créée. Seule la notification en direct manquait — et
+c'est exactement ce que le journal devrait dire en une ligne, pas en une
+trace d'exception.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.

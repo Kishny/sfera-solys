@@ -16,7 +16,7 @@ import { connectDB } from '@/lib/db';
 import { User } from '@/models/User';
 import { Match } from '@/models/Match';
 import { Message } from '@/models/Message';
-import { pusher } from '@/lib/pusher';
+import { envoyerPusher } from '@/lib/pusher';
 import mongoose from 'mongoose';
 
 export async function POST(
@@ -64,7 +64,7 @@ export async function POST(
 
   if (result.modifiedCount > 0) {
     try {
-      await pusher.trigger(
+      await envoyerPusher(
         `private-match-${matchId}`,
         'messages-read',
         { readerId: currentUserId.toString(), readAt: readNow.toISOString() }
