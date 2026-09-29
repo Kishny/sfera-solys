@@ -68,16 +68,26 @@ export async function GET() {
 
     const rawUserId = sessionUser.id || sessionUser._id;
 
+    /*
+     * Les DEUX curseurs, pas un seul.
+     *
+     * `lastSeenMatchesAt` a été ajouté sans être ajouté ici : il était bien
+     * écrit par le POST, mais jamais relu. `dbUser.lastSeenMatchesAt` valait
+     * donc toujours `undefined`, le repli à sept jours s'appliquait, et la
+     * pastille des matchs restait allumée quoi qu'on fasse. Un `select`
+     * énumératif oblige à penser à chaque nouveau champ, à chaque endroit qui
+     * lit.
+     */
+    const champsCurseurs = "_id lastSeenNotificationsAt lastSeenMatchesAt";
+
     if (rawUserId && mongoose.Types.ObjectId.isValid(rawUserId)) {
-      dbUser = await User.findById(rawUserId).select(
-        "_id lastSeenNotificationsAt"
-      );
+      dbUser = await User.findById(rawUserId).select(champsCurseurs);
     }
 
     if (!dbUser && sessionUser.email) {
       dbUser = await User.findOne({
         email: sessionUser.email.toLowerCase().trim(),
-      }).select("_id lastSeenNotificationsAt");
+      }).select(champsCurseurs);
     }
 
     if (!dbUser) {

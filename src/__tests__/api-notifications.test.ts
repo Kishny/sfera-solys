@@ -115,6 +115,101 @@ describe("GET /api/notifications", () => {
     expect(data.code).toBe("USER_NOT_FOUND");
   });
 
+  /**
+   * Ce test existe à cause d'un bug précis : `lastSeenMatchesAt` a été ajouté
+   * au modèle et écrit par le POST, mais oublié dans le `select` du GET. Le
+   * champ valait donc toujours `undefined`, le repli à sept jours
+   * s'appliquait, et la pastille des matchs ne s'éteignait jamais — le POST
+   * marquait dans le vide.
+   *
+   * La chaîne de requête étant simulée, aucun test de comportement ne peut
+   * attraper un `select` incomplet : il faut le vérifier directement.
+   */
+  it("relit le curseur des matchs, pas seulement celui des notifications", async () => {
+    getServerSession.mockResolvedValue(sessionWithId(userId.toString()));
+
+    const chaine = queryChain({
+      _id: userId,
+      lastSeenNotificationsAt: null,
+      lastSeenMatchesAt: null,
+    });
+    userMocks.findById.mockReturnValue(chaine);
+
+    matchMocks.countDocuments.mockResolvedValue(0);
+    matchMocks.find.mockReturnValue(queryChain([]));
+    profileVisitMocks.countDocuments.mockResolvedValue(0);
+
+    await GET();
+
+    const champs = (chaine.select as ReturnType<typeof vi.fn>).mock
+      .calls[0][0] as string;
+
+    expect(champs).toContain("lastSeenMatchesAt");
+    expect(champs).toContain("lastSeenNotificationsAt");
+  });
+
+  it("borne les nouveaux matchs sur leur propre curseur", async () => {
+    const vuLesMatchs = new Date("2026-09-20T10:00:00.000Z");
+    const vuLesNotifs = new Date("2026-09-10T10:00:00.000Z");
+
+    getServerSession.mockResolvedValue(sessionWithId(userId.toString()));
+    userMocks.findById.mockReturnValue(
+      queryChain({
+        _id: userId,
+        lastSeenNotificationsAt: vuLesNotifs,
+        lastSeenMatchesAt: vuLesMatchs,
+      })
+    );
+
+    matchMocks.countDocuments.mockResolvedValue(0);
+    matchMocks.find.mockReturnValue(queryChain([]));
+    profileVisitMocks.countDocuments.mockResolvedValue(0);
+
+    await GET();
+
+    // Les matchs sur leur curseur…
+    expect(matchMocks.countDocuments).toHaveBeenCalledWith(
+      expect.objectContaining({ createdAt: { $gte: vuLesMatchs } })
+    );
+
+    // …les visites sur le leur.
+    expect(profileVisitMocks.countDocuments).toHaveBeenCalledWith(
+      expect.objectContaining({ createdAt: { $gte: vuLesNotifs } })
+    );
+  });
+
+  it("compte les messages non lus sur readAt, pas sur une date", async () => {
+    const unMatch = new mongoose.Types.ObjectId();
+
+    getServerSession.mockResolvedValue(sessionWithId(userId.toString()));
+    userMocks.findById.mockReturnValue(
+      queryChain({
+        _id: userId,
+        lastSeenNotificationsAt: new Date(),
+        lastSeenMatchesAt: new Date(),
+      })
+    );
+
+    matchMocks.countDocuments.mockResolvedValue(0);
+    matchMocks.find.mockReturnValue(queryChain([{ _id: unMatch }]));
+    messageMocks.countDocuments.mockResolvedValue(3);
+    profileVisitMocks.countDocuments.mockResolvedValue(0);
+
+    await GET();
+
+    /*
+     * Sur `readAt: null`, et surtout sans `createdAt` : sinon lire une
+     * conversation ne ferait pas retomber le compteur.
+     */
+    const filtre = messageMocks.countDocuments.mock.calls[0][0] as Record<
+      string,
+      unknown
+    >;
+
+    expect(filtre.readAt).toBeNull();
+    expect(filtre).not.toHaveProperty("createdAt");
+  });
+
   it("calcule correctement le total de notifications", async () => {
     getServerSession.mockResolvedValue(sessionWithId(userId.toString()));
 

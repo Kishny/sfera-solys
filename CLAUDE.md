@@ -1962,6 +1962,40 @@ existe, est complet, et **personne ne l'appelle** — c'est le `GET` de la route
 principale qui marque les messages comme lus. Doublon mort, à supprimer avec
 la passe de nettoyage prévue pour `src/middleware/check-limits.ts`.
 
+### 🩹 Le curseur des matchs était écrit, jamais relu (29/09/2026)
+
+La pastille des matchs restait allumée malgré la correction de la veille.
+Ce n'était pas le serveur de développement : c'était un défaut dans le
+correctif lui-même.
+
+`lastSeenMatchesAt` avait été ajouté au modèle, écrit par
+`POST /api/notifications`, et **oublié dans le `select` du GET** :
+
+```ts
+User.findById(rawUserId).select("_id lastSeenNotificationsAt")
+```
+
+Mongoose ne renvoie que les champs demandés. `dbUser.lastSeenMatchesAt`
+valait donc toujours `undefined`, le repli à sept jours s'appliquait à chaque
+lecture, et le POST marquait dans le vide. Le curseur existait, il était
+correctement écrit, et personne n'allait le chercher.
+
+Les deux lectures passent maintenant par une constante commune,
+`champsCurseurs`, plutôt que par deux chaînes recopiées.
+
+**Trois tests ajoutés**, dont un écrit pour ce bug précis. La chaîne de
+requête Mongoose étant simulée dans ces tests, `select` n'a aucun effet sur
+l'objet renvoyé : **aucun test de comportement ne pouvait attraper un `select`
+incomplet.** Il fallait vérifier l'appel lui-même. Les deux autres couvrent ce
+que la correction de la veille avait établi : les matchs bornés sur leur
+curseur et les visites sur le leur, et les messages non lus comptés sur
+`readAt: null` sans aucun `createdAt`.
+
+Vérification faite dans les deux sens : le bug réintroduit, la suite passe de
+11 tests verts à 1 échec — celui-là. Un test de non-régression qui ne
+retombe pas en rouge sur le bug qu'il vise ne sert à rien ; celui-ci a été
+mis à l'épreuve.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
