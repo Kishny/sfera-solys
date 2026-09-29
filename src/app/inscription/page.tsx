@@ -29,7 +29,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 
 import Step1 from "./steps/Step1";
 import Step2 from "./steps/Step2";
@@ -429,7 +429,28 @@ function InscriptionPageContent() {
    */
   useEffect(() => {
     if (status !== "unauthenticated") return;
-    router.replace("/auth?mode=login");
+
+    let vivant = true;
+
+    /*
+     * On ne renvoie pas sur la foi du seul `status`. Après un `signIn` sans
+     * redirection, le SessionProvider garde l'état qu'il avait avant la
+     * connexion tant qu'il n'a pas relu le cookie : une arrivée ici par
+     * navigation côté client lit donc un « unauthenticated » périmé, et la
+     * garde renvoyait aussitôt vers /auth — en boucle, sans message.
+     *
+     * `getSession()` relit le cookie et met le fournisseur à jour. On ne
+     * conclut qu'après.
+     */
+    getSession().then((fraiche) => {
+      if (!vivant) return;
+      if (fraiche?.user) return;
+      router.replace("/auth?mode=login");
+    });
+
+    return () => {
+      vivant = false;
+    };
   }, [status, router]);
 
   /**
@@ -722,9 +743,9 @@ function InscriptionPageContent() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-abyss px-4 text-cream">
         <div className="text-center">
-          <p className="text-[15px] font-semibold">Connexion requise</p>
+          <p className="text-[15px] font-semibold">Vérification de ta session…</p>
           <p className="mt-1.5 text-[13px] text-cream/60">
-            On t’emmène à la page de connexion.
+            Si tu n’es pas connecté, on t’emmène à la page de connexion.
           </p>
         </div>
       </div>

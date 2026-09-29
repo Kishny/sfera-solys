@@ -39,11 +39,18 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://accounts.google.com",
+              /*
+               * `va.vercel-scripts.com` : la mesure d'audience Vercel est
+               * montée après consentement (`AnalytiqueConsentie`), mais la CSP
+               * ne l'autorisait pas — son script était bloqué et deux erreurs
+               * s'affichaient dans la console à chaque page. Une mesure
+               * annoncée, consentie, et qui ne mesurait rien.
+               */
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://accounts.google.com https://va.vercel-scripts.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://res.cloudinary.com https://lh3.googleusercontent.com",
-              "connect-src 'self' https://api.stripe.com wss://ws-eu.pusher.com https://sockjs-eu.pusher.com",
+              "connect-src 'self' https://api.stripe.com wss://ws-eu.pusher.com https://sockjs-eu.pusher.com https://va.vercel-scripts.com https://vitals.vercel-insights.com",
               "frame-src https://js.stripe.com https://hooks.stripe.com https://www.youtube.com https://www.youtube-nocookie.com",
             ].join("; "),
           },

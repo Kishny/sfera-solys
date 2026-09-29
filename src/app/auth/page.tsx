@@ -66,7 +66,13 @@ type SessionSolys = {
  * reconnu par les navigateurs, mais pas encore typé par React 18.
  */
 function auRepos(actif: boolean) {
-  return (actif ? {} : { inert: "" }) as React.HTMLAttributes<HTMLDivElement>;
+  /*
+   * `inert=""` ne marche pas : React 18 traite la chaîne vide comme `false`
+   * et n'écrit pas l'attribut du tout — il le dit même dans la console. Il
+   * faut une chaîne non vide ; le navigateur, lui, ne regarde que la présence
+   * de l'attribut.
+   */
+  return (actif ? {} : { inert: "true" }) as React.HTMLAttributes<HTMLDivElement>;
 }
 
 const messagesOAuth: Record<string, string> = {
@@ -348,6 +354,22 @@ function Contenu() {
     router.replace("/inscription");
   }, [status, session, router]);
 
+  /**
+   * Après une connexion réussie, on quitte cette page par une **vraie**
+   * navigation, pas par `router.push`.
+   *
+   * `signIn(..., { redirect: false })` pose bien le cookie, mais le
+   * `SessionProvider` de NextAuth garde en mémoire l'état qu'il avait avant —
+   * « unauthenticated », puisqu'on était sur l'écran de connexion. Une
+   * navigation côté client conserve cet état : la page d'arrivée lit un
+   * statut périmé, sa propre garde de session conclut qu'on n'est pas
+   * connecté, et renvoie ici. On revenait donc sur /auth sans le moindre
+   * message d'erreur, en boucle.
+   *
+   * `window.location.assign` recharge l'application : le cookie est relu
+   * côté serveur, la session est reconstruite, et la page d'arrivée voit la
+   * vérité.
+   */
   const redirigerApresConnexion = async () => {
     const reponse = await fetch("/api/auth/session", { cache: "no-store" });
     const fraiche = await reponse.json().catch(() => null);
@@ -356,7 +378,7 @@ function Contenu() {
     const verifie =
       membre?.identityVerified === true || membre?.role === "admin";
 
-    router.push(
+    window.location.assign(
       membre?.hasCompletedProfile === true && verifie
         ? "/mon-compte"
         : "/inscription"
@@ -516,7 +538,8 @@ function Contenu() {
         return;
       }
 
-      window.setTimeout(() => router.push("/inscription"), 600);
+      // Même raison que ci-dessus : navigation réelle, pas router.push.
+      window.setTimeout(() => window.location.assign("/inscription"), 600);
     } catch {
       setErreurs({ form: "Connexion interrompue." });
     } finally {

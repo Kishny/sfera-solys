@@ -1688,6 +1688,57 @@ valeurs documentées depuis le 25/09 portaient sur l'ancien fond et ne
 disaient plus la vérité. Une troisième règle a été ajoutée : l'orange n'est
 pas une couleur de texte courant.
 
+### 🔁 La connexion qui revenait sur elle-même (29/09/2026)
+
+Symptôme : on saisit ses identifiants, rien ne se passe, on reste sur
+`/auth`. Aucun message d'erreur — parce qu'il n'y avait pas d'erreur.
+
+**C'est la garde de session ajoutée la veille qui refermait la porte.**
+`signIn(..., { redirect: false })` pose bien le cookie, mais le
+`SessionProvider` de NextAuth garde en mémoire l'état qu'il avait avant :
+« unauthenticated », puisqu'on venait de l'écran de connexion. Une navigation
+côté client (`router.push`) conserve cet état. `/inscription` montait donc,
+lisait ce statut périmé, sa garde toute neuve en concluait qu'on n'était pas
+connecté — et renvoyait sur `/auth`. Aller-retour invisible : la connexion
+avait réussi, l'écran n'avait pas bougé.
+
+Deux corrections, l'une et l'autre nécessaires :
+
+- **`/auth` quitte la page par une vraie navigation.** `window.location.assign`
+  au lieu de `router.push`, après connexion comme après inscription :
+  l'application se recharge, le cookie est relu côté serveur, la page
+  d'arrivée voit la vérité. Sur une connexion, un rechargement complet est
+  l'attendu, pas un défaut.
+- **La garde de `/inscription` confirme avant de conclure.** Elle ne renvoie
+  plus sur la foi du seul `status` : elle appelle `getSession()`, qui relit le
+  cookie et met le fournisseur à jour, et ne redirige que si le serveur
+  confirme l'absence de session. L'écran d'attente annonçait « On t'emmène à
+  la page de connexion » — il annonce maintenant une vérification, ce qui
+  reste vrai dans les deux cas.
+
+**`inert` ne faisait rien.** La console le disait : *« Received an empty
+string for a boolean attribute `inert` »*. React 18 traite la chaîne vide
+comme `false` et n'écrit pas l'attribut du tout — la moitié au repos de la
+carte `/auth` restait donc dans le parcours clavier, ce que la mesure était
+censée empêcher. Une chaîne non vide suffit ; le navigateur ne regarde que la
+présence de l'attribut.
+
+**La mesure d'audience était bloquée par notre propre CSP.**
+`AnalytiqueConsentie` monte `<Analytics />` après consentement, mais
+`script-src` n'autorisait pas `va.vercel-scripts.com` : le script était
+refusé et deux erreurs s'affichaient dans la console à chaque page. Une
+mesure annoncée, consentie, et qui ne mesurait rien. Le domaine est ajouté à
+`script-src`, et `vitals.vercel-insights.com` à `connect-src` pour la
+remontée.
+
+**À savoir pour tester le tableau de bord.** La vérification d'identité est
+obligatoire avant tout accès au compte : `redirigerApresConnexion` n'envoie
+sur `/mon-compte` que si `hasCompletedProfile` **et** (`identityVerified` ou
+`role === "admin"`). Sans clés Stripe, `identityVerified` ne peut pas passer à
+`true` — la connexion aboutit donc sur `/inscription`, et c'est normal. Pour
+voir le tableau de bord aujourd'hui : passer `identityVerified: true` ou
+`role: "admin"` sur son document dans Atlas.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
