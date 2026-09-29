@@ -1820,6 +1820,44 @@ les types générés (`.next/types/...`), elle est ignorée au build, et elle
 revient à chaque régénération. Le remède est mécanique : déplacer
 `authOptions` dans `src/lib/auth.ts` et mettre à jour les imports.
 
+### 📬 /messages n'existait pas (29/09/2026)
+
+`Sidebar.tsx` propose « Messages » vers `/messages` depuis le début, pastille
+de non-lus comprise. **La page n'a jamais existé** — `git log --diff-filter=D`
+le confirme, elle n'a pas été supprimée, elle n'a jamais été écrite. Seules
+les conversations individuelles étaient servies, sous `/messages/[matchId]`,
+et on ne pouvait y entrer que depuis `/matches`, `/circle`, une fiche de
+profil ou l'onglet Interactions. Il n'existait aucun endroit pour voir ses
+conversations ensemble, et l'entrée de menu la plus visible de l'espace
+connecté renvoyait un 404.
+
+La page existe maintenant. `/api/matches` renvoyait déjà tout ce qu'il
+fallait — `lastMessageAt`, `unreadCount`, `archivee`, `sourdineActive` : il n'y
+a pas une ligne de serveur en plus.
+
+**Ce que la liste n'affiche pas, et pourquoi.** Pas d'aperçu du dernier
+message : la route ne renvoie pas son texte. En inventer un serait une
+promesse d'interface, et aller le chercher demanderait une requête par carte.
+La date suffit à retrouver une conversation ; l'aperçu viendra quand la route
+le renverra.
+
+Le reste suit ce qui existait déjà et que personne ne pouvait voir : les
+conversations rangées ont leur onglet (le rangement est un tri, pas une
+suppression — et une relation rangée occupe toujours une place dans le plafond
+de mises en relation), la sourdine et le rangement ont leur pictogramme, et un
+`user` à `null` — compte supprimé ou suspendu — s'affiche comme « Membre
+indisponible » sans lien, plutôt que d'être masqué : une disparition doit se
+comprendre.
+
+Le tri place les conversations entamées d'abord, de la plus récente à la plus
+ancienne, puis celles où personne n'a encore écrit. Une conversation vide
+n'est pas une vieille conversation, c'est une conversation à commencer.
+
+**Balayage de tous les liens internes dans la foulée** : 25 liens distincts
+vérifiés contre les 31 routes réellement servies, segments dynamiques
+compris. `/messages` était le seul qui ne menait nulle part. Il n'en reste
+aucun.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.
