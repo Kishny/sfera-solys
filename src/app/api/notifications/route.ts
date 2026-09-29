@@ -99,16 +99,28 @@ export async function GET() {
      * Si l'utilisateur n'a jamais ouvert ses notifications,
      * on regarde les 7 derniers jours.
      */
-    const since =
-      dbUser.lastSeenNotificationsAt ||
-      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const repliSeptJours = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    /**
+     * Deux curseurs distincts, et pas un seul.
+     *
+     * `lastSeenNotificationsAt` servait aux trois compteurs. Conséquence :
+     * ouvrir l'onglet Interactions de Mon Compte éteignait aussi la pastille
+     * des matchs, et consulter ses matchs n'éteignait rien, puisque aucune
+     * page ne touchait le curseur. Les visites gardent l'ancien champ — c'est
+     * bien dans cet onglet qu'on les regarde — les matchs ont le leur.
+     */
+    const depuisMatchs =
+      dbUser.lastSeenMatchesAt || dbUser.lastSeenNotificationsAt || repliSeptJours;
+
+    const depuisVisites = dbUser.lastSeenNotificationsAt || repliSeptJours;
 
     /**
      * 1. Nouveaux matches.
      */
     const newMatches = await Match.countDocuments({
       $or: [{ user1Id: userId }, { user2Id: userId }],
-      createdAt: { $gte: since },
+      createdAt: { $gte: depuisMatchs },
       isActive: { $ne: false },
     });
 
@@ -127,12 +139,25 @@ export async function GET() {
      *
      * On exclut les messages envoyés par soi-même.
      */
+    /*
+     * Sur `readAt`, pas sur une date.
+     *
+     * Ce compteur se calculait sur `createdAt >= since` : lire une
+     * conversation ne le faisait donc pas bouger d'un pouce, et la pastille
+     * de la barre latérale restait allumée sur une boîte déjà lue. Pire, elle
+     * contredisait la pastille de la conversation elle-même, qui compte bien
+     * les `readAt: null` via `/api/matches`. Deux chiffres pour la même chose,
+     * et un seul qui disait vrai.
+     *
+     * `GET /api/messages/[matchId]` pose déjà `readAt` à l'ouverture d'une
+     * conversation : ce compteur s'éteint maintenant tout seul, sans curseur.
+     */
     const unreadMessages =
       matchIds.length > 0
         ? await Message.countDocuments({
             matchId: { $in: matchIds },
             senderId: { $ne: userId },
-            createdAt: { $gte: since },
+            readAt: null,
           })
         : 0;
 
@@ -149,7 +174,7 @@ export async function GET() {
     const newVisits = await ProfileVisit.countDocuments({
       visitedId: userId,
       visitorId: { $ne: userId },
-      createdAt: { $gte: since },
+      createdAt: { $gte: depuisVisites },
     });
 
     /**
@@ -170,7 +195,8 @@ export async function GET() {
         unreadMessages,
         newMatches,
         newVisits,
-        since,
+        depuisMatchs,
+        depuisVisites,
       },
       {
         status: 200,
@@ -206,7 +232,17 @@ export async function GET() {
  * il faudra créer :
  * src/app/api/notifications/seen/route.ts
  */
-export async function POST() {
+/**
+ * POST /api/notifications
+ *
+ * Marque des notifications comme vues. Le corps accepte
+ * `{ quoi: "matches" | "visites" | "tout" }` ; sans corps, « tout », comme
+ * avant.
+ *
+ * Les messages n'apparaissent pas dans cette liste : ils se marquent en étant
+ * lus, à l'ouverture de leur conversation.
+ */
+export async function POST(requete: Request) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -231,6 +267,21 @@ export async function POST() {
 
     await connectDB();
 
+    const corps = (await requete.json().catch(() => null)) as
+      | { quoi?: "matches" | "visites" | "tout" }
+      | null;
+
+    const quoi = corps?.quoi ?? "tout";
+    const maintenant = new Date();
+
+    const aMarquer: Record<string, Date> = {};
+    if (quoi === "matches" || quoi === "tout") {
+      aMarquer.lastSeenMatchesAt = maintenant;
+    }
+    if (quoi === "visites" || quoi === "tout") {
+      aMarquer.lastSeenNotificationsAt = maintenant;
+    }
+
     const rawUserId = sessionUser.id || sessionUser._id;
 
     let updatedUser = null;
@@ -238,13 +289,9 @@ export async function POST() {
     if (rawUserId && mongoose.Types.ObjectId.isValid(rawUserId)) {
       updatedUser = await User.findByIdAndUpdate(
         rawUserId,
-        {
-          $set: {
-            lastSeenNotificationsAt: new Date(),
-          },
-        },
+        { $set: aMarquer },
         { new: true }
-      ).select("_id lastSeenNotificationsAt");
+      ).select("_id lastSeenNotificationsAt lastSeenMatchesAt");
     }
 
     if (!updatedUser && sessionUser.email) {
@@ -252,13 +299,9 @@ export async function POST() {
         {
           email: sessionUser.email.toLowerCase().trim(),
         },
-        {
-          $set: {
-            lastSeenNotificationsAt: new Date(),
-          },
-        },
+        { $set: aMarquer },
         { new: true }
-      ).select("_id lastSeenNotificationsAt");
+      ).select("_id lastSeenNotificationsAt lastSeenMatchesAt");
     }
 
     if (!updatedUser) {
@@ -275,8 +318,10 @@ export async function POST() {
     return NextResponse.json(
       {
         success: true,
-        message: "Notifications marquées comme lues.",
+        message: "Notifications marquées comme vues.",
+        quoi,
         lastSeenNotificationsAt: updatedUser.lastSeenNotificationsAt,
+        lastSeenMatchesAt: updatedUser.lastSeenMatchesAt,
       },
       {
         status: 200,

@@ -1917,6 +1917,51 @@ conversation continue sans lui.
 c'est exactement ce que le journal devrait dire en une ligne, pas en une
 trace d'exception.
 
+### 🔕 Les pastilles ne s'éteignaient jamais (29/09/2026)
+
+« Une fois les messages et les matchs consultés, les pastilles devraient
+disparaître, non ? » Oui. Elles ne le faisaient pas, pour deux raisons
+distinctes.
+
+**Le compteur de messages ne regardait pas `readAt`.** Il se calculait sur
+`createdAt >= since` : lire une conversation ne le faisait pas bouger d'un
+pouce. Pire, il contredisait la pastille de la conversation elle-même, qui
+compte bien les `readAt: null` via `/api/matches`. Deux chiffres pour la même
+chose, un seul qui disait vrai. `GET /api/messages/[matchId]` pose déjà
+`readAt` à l'ouverture d'une conversation : le compteur s'éteint maintenant
+tout seul, sans curseur d'aucune sorte.
+
+**Un seul curseur servait aux trois compteurs.** `lastSeenNotificationsAt`
+bornait à la fois les matchs, les messages et les visites de profil. Deux
+conséquences symétriques : ouvrir l'onglet Interactions de Mon Compte —
+la seule page qui touchait ce curseur — éteignait aussi la pastille des
+matchs sans qu'on les ait regardés ; et consulter ses matchs n'éteignait
+rien, puisque `/matches` ne marquait rien. Les mises en relation ont
+maintenant leur propre curseur, `lastSeenMatchesAt`, et `/matches` le pose en
+arrivant. Les visites gardent l'ancien champ — c'est bien dans l'onglet
+Interactions qu'on les regarde.
+
+`POST /api/notifications` accepte désormais `{ quoi: "matches" | "visites" |
+"tout" }`. Sans corps, « tout », comme avant : les appels existants ne
+changent pas de comportement. Les messages n'y figurent pas, puisqu'ils se
+marquent en étant lus.
+
+**Et la pastille se met à jour tout de suite.** La barre latérale relisait
+`/api/notifications` toutes les trente secondes. Rester une demi-minute à
+regarder un compteur qu'on vient de vider, c'est le même mensonge en plus
+court. Un évènement `solys:notifications` est émis par `/matches` après le
+marquage et par la conversation après le chargement ; la barre latérale
+l'écoute et relit aussitôt.
+
+Tests : `api-notifications.test.ts` mis à jour — `POST` prend maintenant une
+requête — et un cas ajouté pour vérifier que `{ quoi: "matches" }` ne touche
+pas au curseur des visites.
+
+**Trouvé au passage, non corrigé** : `POST /api/messages/[matchId]/read`
+existe, est complet, et **personne ne l'appelle** — c'est le `GET` de la route
+principale qui marque les messages comme lus. Doublon mort, à supprimer avec
+la passe de nettoyage prévue pour `src/middleware/check-limits.ts`.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.

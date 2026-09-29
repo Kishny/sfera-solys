@@ -194,6 +194,27 @@ export default function PageRelations() {
     }
   }, []);
 
+  /**
+   * Consulter ses mises en relation les marque comme vues : la pastille de la
+   * barre latérale s'éteint. Elle ne s'éteignait jamais — aucune page ne
+   * touchait le curseur, seul l'onglet Interactions de Mon Compte le faisait,
+   * et il marquait alors les trois compteurs à la fois.
+   *
+   * Appel volontairement silencieux : rater le marquage laisse une pastille
+   * allumée, ce n'est pas une raison pour afficher une erreur.
+   */
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    void fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quoi: "matches" }),
+    })
+      .then(() => window.dispatchEvent(new Event("solys:notifications")))
+      .catch(() => {});
+  }, [status]);
+
   useEffect(() => {
     if (status === "authenticated") void charger();
   }, [status, charger]);

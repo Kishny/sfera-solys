@@ -170,10 +170,25 @@ describe("GET /api/notifications", () => {
 describe("POST /api/notifications", () => {
   const userId = new mongoose.Types.ObjectId();
 
+  /**
+   * `POST` lit maintenant un corps `{ quoi }` pour savoir quel curseur
+   * marquer. Sans corps, il marque tout — c'est le comportement d'avant.
+   */
+  const requete = (corps?: { quoi: "matches" | "visites" | "tout" }) =>
+    new Request("http://localhost/api/notifications", {
+      method: "POST",
+      ...(corps
+        ? {
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(corps),
+          }
+        : {}),
+    });
+
   it("retourne 401 si la session est absente", async () => {
     getServerSession.mockResolvedValue(null);
 
-    const res = await POST();
+    const res = await POST(requete());
     const data = await res.json();
 
     expect(res.status).toBe(401);
@@ -188,7 +203,7 @@ describe("POST /api/notifications", () => {
       queryChain({ _id: userId, lastSeenNotificationsAt: now })
     );
 
-    const res = await POST();
+    const res = await POST(requete());
     const data = await res.json();
 
     expect(res.status).toBe(200);
@@ -199,7 +214,35 @@ describe("POST /api/notifications", () => {
 
     expect(userMocks.findByIdAndUpdate).toHaveBeenCalledWith(
       userId.toString(),
-      { $set: { lastSeenNotificationsAt: expect.any(Date) } },
+      {
+        $set: {
+          lastSeenMatchesAt: expect.any(Date),
+          lastSeenNotificationsAt: expect.any(Date),
+        },
+      },
+      { new: true }
+    );
+  });
+
+  it("ne marque que les matchs quand on le demande", async () => {
+    getServerSession.mockResolvedValue(sessionWithId(userId.toString()));
+    userMocks.findByIdAndUpdate.mockReturnValue(
+      queryChain({ _id: userId, lastSeenMatchesAt: new Date() })
+    );
+
+    const res = await POST(requete({ quoi: "matches" }));
+
+    expect(res.status).toBe(200);
+
+    /*
+     * Le curseur des visites ne doit pas bouger : consulter ses mises en
+     * relation n'est pas consulter ses visiteurs de profil. C'est le mélange
+     * des deux qui faisait qu'une pastille s'éteignait à la place d'une
+     * autre.
+     */
+    expect(userMocks.findByIdAndUpdate).toHaveBeenCalledWith(
+      userId.toString(),
+      { $set: { lastSeenMatchesAt: expect.any(Date) } },
       { new: true }
     );
   });
@@ -209,7 +252,7 @@ describe("POST /api/notifications", () => {
     userMocks.findByIdAndUpdate.mockReturnValue(queryChain(null));
     userMocks.findOneAndUpdate.mockReturnValue(queryChain(null));
 
-    const res = await POST();
+    const res = await POST(requete());
     const data = await res.json();
 
     expect(res.status).toBe(404);

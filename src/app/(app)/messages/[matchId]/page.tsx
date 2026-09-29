@@ -259,6 +259,14 @@ export default function PageConversation() {
 
       // Laisse le DOM se peindre avant de descendre.
       window.setTimeout(() => versLeBas("auto"), 60);
+
+      /*
+       * `GET /api/messages/[matchId]` vient de poser `readAt` sur les messages
+       * reçus : la pastille de la barre latérale n'a plus lieu d'être. On la
+       * fait relire tout de suite plutôt que d'attendre sa relecture
+       * périodique.
+       */
+      window.dispatchEvent(new Event("solys:notifications"));
     } catch {
       setErreur("Connexion interrompue.");
     } finally {

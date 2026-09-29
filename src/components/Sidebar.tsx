@@ -128,7 +128,19 @@ export default function Sidebar() {
 
     fetchNotifs();
     const interval = setInterval(fetchNotifs, 30_000);
-    return () => clearInterval(interval);
+
+    /*
+     * Relecture immédiate quand une page vient de marquer quelque chose comme
+     * vu. Sans ça, la pastille reste allumée jusqu'à la prochaine relecture —
+     * jusqu'à trente secondes à regarder un compteur qu'on vient justement de
+     * vider.
+     */
+    window.addEventListener("solys:notifications", fetchNotifs);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("solys:notifications", fetchNotifs);
+    };
   }, [isLoggedIn]);
 
   useEffect(() => {

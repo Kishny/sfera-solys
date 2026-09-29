@@ -133,6 +133,15 @@ export interface IUser extends Document {
 
   // Notifications
   lastSeenNotificationsAt?: Date | null;
+  /**
+   * Curseur propre aux mises en relation.
+   *
+   * `lastSeenNotificationsAt` servait aux trois compteurs à la fois : ouvrir
+   * l'onglet Interactions éteignait aussi la pastille des matchs, et
+   * inversement consulter ses matchs n'éteignait rien du tout puisque aucune
+   * page ne touchait le curseur. Chaque compteur a maintenant le sien.
+   */
+  lastSeenMatchesAt?: Date | null;
 
   // Vérification d'identité Stripe Identity
   identityVerified: boolean;
@@ -565,6 +574,12 @@ const UserSchema = new Schema<IUser>(
      * Notifications.
      */
     lastSeenNotificationsAt: {
+      type: Date,
+      default: null,
+    },
+
+    /** Curseur propre aux mises en relation — voir l'interface. */
+    lastSeenMatchesAt: {
       type: Date,
       default: null,
     },
