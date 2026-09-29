@@ -2,6 +2,8 @@
 
 import Pusher from "pusher";
 
+import { lireVariable, signalerAbsence } from "@/lib/configuration";
+
 /**
  * Client Pusher, côté serveur uniquement.
  *
@@ -24,17 +26,6 @@ import Pusher from "pusher";
  * messages continuent d'être enregistrés et lus, ils n'arrivent simplement
  * plus tout seuls.
  */
-
-/** Valeur que `.env.local` utilise pour les variables non encore remplies. */
-const A_REMPLIR = "A_REMPLACER";
-
-function lireVariable(nom: string) {
-  const valeur = process.env[nom]?.trim();
-
-  if (!valeur || valeur === A_REMPLIR) return null;
-
-  return valeur;
-}
 
 const appId = lireVariable("PUSHER_APP_ID");
 const cle = lireVariable("PUSHER_KEY");
@@ -63,8 +54,6 @@ export const pusher = pusherEstConfigure
     })
   : null;
 
-/** Un seul rappel par démarrage du serveur, pas un par évènement. */
-let absenceSignalee = false;
 
 /**
  * Envoie un évènement, ou ne fait rien si Pusher n'est pas configuré.
@@ -79,14 +68,12 @@ export async function envoyerPusher(
   donnees: unknown
 ): Promise<boolean> {
   if (!pusher) {
-    if (!absenceSignalee) {
-      absenceSignalee = true;
-      console.info(
-        "Pusher n'est pas configuré (PUSHER_APP_ID / PUSHER_KEY / PUSHER_SECRET). " +
-          "Le temps réel est désactivé : les messages sont bien enregistrés, " +
-          "ils n'arrivent simplement pas tout seuls."
-      );
-    }
+    signalerAbsence(
+      "Pusher",
+      "le temps réel est désactivé — les messages sont bien enregistrés, " +
+        "ils n'arrivent simplement pas tout seuls " +
+        "(PUSHER_APP_ID / PUSHER_KEY / PUSHER_SECRET)."
+    );
 
     return false;
   }

@@ -210,11 +210,20 @@ export async function GET() {
     let stripeRevenue: number | null = null;
     let stripeCurrency = "eur";
     try {
+      /*
+       * Le chiffre d'affaires du mois est un complément, pas le tableau de
+       * bord : sans Stripe configuré, la page s'affiche avec le reste des
+       * statistiques plutôt que de tomber. Une garde, pas un `!` — l'un dit
+       * la vérité, l'autre la cache.
+       */
+      const clientStripe = stripe;
+      if (!clientStripe) throw new Error("Stripe non configuré");
+
       const gte = Math.floor(startOfMonth.getTime() / 1000);
       let grossCents = 0;
       let scanned = 0;
 
-      for await (const charge of stripe.charges.list({
+      for await (const charge of clientStripe.charges.list({
         created: { gte },
         limit: 100,
       })) {

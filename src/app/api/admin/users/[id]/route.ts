@@ -109,7 +109,7 @@ export async function DELETE(
     const userId = target._id;
 
     // ── 1. Annuler l'abonnement Stripe (fin de période, pas de remboursement) ──
-    if (target.stripeSubscriptionId) {
+    if (target.stripeSubscriptionId && stripe) {
       try {
         await stripe.subscriptions.update(target.stripeSubscriptionId, {
           cancel_at_period_end: true,

@@ -56,7 +56,11 @@ export async function DELETE() {
   }
 
   // ── 1. Annuler l'abonnement Stripe (fin de période, pas de remboursement) ──
-  if (user.stripeSubscriptionId) {
+  /*
+   * Stripe absent n'empêche pas la suppression : le droit à l'effacement ne
+   * dépend pas d'un service tiers. On saute simplement la résiliation.
+   */
+  if (user.stripeSubscriptionId && stripe) {
     try {
       await stripe.subscriptions.update(user.stripeSubscriptionId, {
         cancel_at_period_end: true,

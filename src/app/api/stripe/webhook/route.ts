@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-import { stripe } from "@/lib/stripe";
+import { stripe, STRIPE_INDISPONIBLE } from "@/lib/stripe";
 import { connectDB } from "@/lib/db";
 import { User, type SubscriptionStatus, type UserPlan } from "@/models/User";
 import {
@@ -110,7 +110,7 @@ function getPremiumExpirationDateFromSubscription(
  * peut être uniquement une string.
  */
 async function retrieveSubscription(subscriptionId?: string | null) {
-  if (!subscriptionId) return null;
+  if (!subscriptionId || !stripe) return null;
 
   try {
     return await stripe.subscriptions.retrieve(subscriptionId);
@@ -266,6 +266,18 @@ async function disablePremiumUser({
  * - Il faut utiliser req.text(), jamais req.json(), pour vérifier la signature Stripe.
  */
 export async function POST(req: NextRequest) {
+  /*
+   * Sans clés Stripe, une requête arrivant ici ne peut pas être authentifiée :
+   * `constructEvent` a besoin du secret de signature. On refuse plutôt que de
+   * traiter un évènement dont on ne sait rien.
+   */
+  if (!stripe) {
+    return NextResponse.json(
+      { error: STRIPE_INDISPONIBLE, code: "STRIPE_UNAVAILABLE" },
+      { status: 503 }
+    );
+  }
+
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {

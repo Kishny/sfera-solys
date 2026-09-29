@@ -1996,6 +1996,60 @@ Vérification faite dans les deux sens : le bug réintroduit, la suite passe de
 retombe pas en rouge sur le bug qu'il vise ne sert à rien ; celui-ci a été
 mis à l'épreuve.
 
+### 🚀 Préparation du déploiement (29/09/2026)
+
+Objectif : qu'un premier déploiement Vercel tienne debout avec **quatre**
+variables, et que chaque service manquant se déclare indisponible au lieu de
+faire tomber l'application. Guide complet dans `DEPLOIEMENT.md`.
+
+**Le blocage réel, trouvé en cherchant : Resend faisait échouer le build.**
+`src/lib/resend.ts` faisait `new Resend(process.env.RESEND_API_KEY)` à
+l'import, et **le constructeur de Resend lève quand la clé est absente** —
+vérifié directement : « Missing API key ». Trois modules importent ce fichier.
+Oublier `RESEND_API_KEY` sur Vercel ne donnait donc pas un site sans e-mails,
+ça donnait un build qui échoue, sur un message qui ne nomme ni la variable ni
+l'endroit où la poser.
+
+**Et Stripe faisait l'inverse des deux côtés.** Il levait à l'import quand la
+clé manquait — avec un message parlant de `.env.local`, qui n'existe pas sur
+Vercel — et ne bronchait pas quand elle valait `A_REMPLACER`. Neuf routes
+l'importent : une clé oubliée faisait tomber le build entier, une clé
+placeholder passait jusqu'au premier paiement.
+
+**Une garde commune, `src/lib/configuration.ts`.** `lireVariable` écarte
+aussi bien l'absence que le placeholder, `signalerAbsence` ne parle qu'une
+fois par démarrage. Cinq intégrations y passent désormais : Stripe, Resend,
+Cloudinary, Pusher et Upstash — ce dernier envoyait chaque requête limitée
+vers une URL `A_REMPLACER` avant de retomber sur le compteur mémoire.
+
+**Ce que TypeScript a imposé.** Rendre `stripe` nullable a fait apparaître
+**treize** points d'appel à traiter. C'est le bon effet : chacun devait
+décider. Les routes de paiement et de vérification d'identité sortent en 503
+avec un message unique ; le tableau de bord admin affiche ses statistiques
+sans le chiffre d'affaires ; et surtout **la suppression de compte n'est plus
+conditionnée à Stripe** — le droit à l'effacement ne dépend pas d'un service
+tiers, on saute la résiliation et on efface. Une assertion `stripe!` avait été
+posée dans les statistiques admin, puis remplacée par une garde réelle : l'une
+dit la vérité, l'autre la cache.
+
+Les envois d'e-mails passent par un point unique dans `emails.ts` qui n'envoie
+rien sans Resend, plutôt que de lever : la plupart des appelants lancent ces
+envois avec un `.catch()`, une exception n'aurait été vue de personne — alors
+qu'une inscription qui échoue parce que l'e-mail de vérification n'a pas pu
+partir, ça se voit. Le formulaire de contact fait exception et répond 503 :
+c'est la seule voie de recours affichée sur le site, accuser réception d'un
+message qui n'ira nulle part serait pire que de le refuser.
+
+**Vérifié, pas supposé** : build lancé avec `MONGODB_URI`, `NEXTAUTH_SECRET`,
+`NEXTAUTH_URL` et `NEXT_PUBLIC_APP_URL` seules, toutes les autres variables
+retirées de l'environnement. 83 pages générées.
+
+**Deux pièges de configuration documentés**, parce qu'ils ne se voient pas :
+`NEXT_PUBLIC_APP_URL` absente fait pointer les URL canoniques, le sitemap, le
+robots.txt et l'Open Graph vers `https://sferasolys.com` codé en dur ; et les
+fonctions Vercel n'ayant pas d'IP fixe, Atlas doit autoriser `0.0.0.0/0` sans
+quoi la connexion échoue en ligne alors qu'elle marche en local.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.

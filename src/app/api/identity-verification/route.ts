@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { stripe } from "@/lib/stripe";
+import { stripe, STRIPE_INDISPONIBLE } from "@/lib/stripe";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 
@@ -14,6 +14,14 @@ import { User } from "@/models/User";
  * Retourne le client_secret à utiliser côté client avec le SDK Stripe.js.
  */
 export async function POST(req: NextRequest) {
+  // Sans clés Stripe, il n'y a rien à appeler : on le dit au lieu de planter.
+  if (!stripe) {
+    return NextResponse.json(
+      { error: STRIPE_INDISPONIBLE, code: "STRIPE_UNAVAILABLE" },
+      { status: 503 }
+    );
+  }
+
   const session = await getServerSession(authOptions);
   const user = session?.user as { id?: string; email?: string } | undefined;
 

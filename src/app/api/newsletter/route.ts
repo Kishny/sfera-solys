@@ -49,8 +49,8 @@ export async function POST(req: Request) {
 
     // Envoi email de bienvenue newsletter via Resend (non-bloquant)
     try {
-      const { resend, FROM_EMAIL } = await import("@/lib/resend");
-      await resend.emails.send({
+      const { clientResend, FROM_EMAIL } = await import("@/lib/resend");
+      await clientResend()?.emails.send({
         from: FROM_EMAIL,
         to: email,
         subject: "Bienvenue dans la newsletter Sfera'Solys 💜",

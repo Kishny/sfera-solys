@@ -3,7 +3,7 @@
 // Synchronisation des abonnés vers l'Audience Resend + envoi de broadcasts
 // (newsletters / actualités) depuis l'admin Sfera'Solys.
 
-import { resend, FROM_EMAIL, AUDIENCE_ID } from "./resend";
+import { clientResend, FROM_EMAIL, AUDIENCE_ID } from "./resend";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://sferasolys.com";
 
@@ -16,7 +16,7 @@ export async function addNewsletterContact(email: string): Promise<void> {
   if (!AUDIENCE_ID) return;
 
   try {
-    await resend.contacts.create({
+    await clientResend()?.contacts.create({
       audienceId: AUDIENCE_ID,
       email: email.toLowerCase().trim(),
       unsubscribed: false,
@@ -33,7 +33,7 @@ export async function unsubscribeNewsletterContact(email: string): Promise<void>
   if (!AUDIENCE_ID) return;
 
   try {
-    await resend.contacts.update({
+    await clientResend()?.contacts.update({
       audienceId: AUDIENCE_ID,
       email: email.toLowerCase().trim(),
       unsubscribed: true,
@@ -125,7 +125,16 @@ export async function sendNewsletterBroadcast(
   try {
     const html = newsletterWrapper(subject, plainTextToHtml(contentText));
 
-    const created = await resend.broadcasts.create({
+    const client = clientResend();
+
+    if (!client) {
+      return {
+        ok: false,
+        error: "Resend n'est pas configuré : aucune newsletter ne peut partir.",
+      };
+    }
+
+    const created = await client.broadcasts.create({
       audienceId: AUDIENCE_ID,
       from: FROM_EMAIL,
       subject,
@@ -145,7 +154,7 @@ export async function sendNewsletterBroadcast(
       return { ok: false, error: "Création du broadcast : réponse vide de Resend." };
     }
 
-    const sent = await resend.broadcasts.send(broadcastId);
+    const sent = await client.broadcasts.send(broadcastId);
 
     if (sent.error) {
       return { ok: false, error: sent.error.message, broadcastId };

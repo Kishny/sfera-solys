@@ -11,7 +11,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { ModerationLog } from "@/models/ModerationLog";
-import cloudinary from "@/lib/cloudinary";
+import cloudinary, { verifierCloudinary, CLOUDINARY_INDISPONIBLE } from "@/lib/cloudinary";
 import {
   getModerationUploadOption,
   evaluateModeration,
@@ -22,6 +22,14 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
 export async function POST(req: NextRequest) {
+  // Sans clés Cloudinary, il n'y a nulle part où déposer l'image.
+  if (!verifierCloudinary()) {
+    return NextResponse.json(
+      { success: false, error: CLOUDINARY_INDISPONIBLE, code: "UPLOAD_UNAVAILABLE" },
+      { status: 503 }
+    );
+  }
+
   try {
     const session = await getServerSession(authOptions);
 

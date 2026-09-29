@@ -1,7 +1,7 @@
 // src/app/api/contact/route.ts
 
 import { NextResponse } from 'next/server';
-import { resend, FROM_EMAIL } from '@/lib/resend';
+import { clientResend, FROM_EMAIL } from '@/lib/resend';
 import { rateLimit } from '@/lib/rate-limiter';
 
 /**
@@ -92,7 +92,25 @@ export async function POST(req: Request) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
 
-    const { error } = await resend.emails.send({
+    /*
+     * Le formulaire de contact est la seule voie de recours affichée sur le
+     * site : si l'e-mail ne peut pas partir, il faut le dire à la personne
+     * plutôt que d'accuser réception d'un message qui n'ira nulle part.
+     */
+    const client = clientResend();
+
+    if (!client) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "L'envoi de messages est momentanément indisponible. Réessaie plus tard.",
+        },
+        { status: 503 }
+      );
+    }
+
+    const { error } = await client.emails.send({
       from: FROM_EMAIL,
       to: ADRESSE_SUPPORT,
       replyTo: email,

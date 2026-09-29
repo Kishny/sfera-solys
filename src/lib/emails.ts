@@ -1,7 +1,25 @@
 // src/lib/emails.ts
 // Templates HTML pour les emails transactionnels Sfera'Solys
 
-import { resend, FROM_EMAIL } from "./resend";
+import { clientResend, FROM_EMAIL } from "./resend";
+
+/**
+ * Point d'envoi unique.
+ *
+ * Sans clé Resend, on ne part pas en erreur : on n'envoie pas. La plupart des
+ * appelants lancent ces envois en arrière-plan avec un `.catch()`, une
+ * exception ici ne serait vue de personne — alors qu'une inscription qui
+ * échoue parce que l'e-mail de vérification n'a pas pu partir, ça, ça se voit.
+ */
+async function envoyerEmail(
+  options: Parameters<NonNullable<ReturnType<typeof clientResend>>["emails"]["send"]>[0]
+) {
+  const client = clientResend();
+
+  if (!client) return;
+
+  await client.emails.send(options);
+}
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://sferasolys.com";
 
@@ -70,7 +88,7 @@ export async function sendVerificationEmail(
     </p>
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "☀️ Confirme ton adresse email — Sfera'Solys",
@@ -100,7 +118,7 @@ export async function sendResetPasswordEmail(
     </p>
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "🔐 Réinitialisation de ton mot de passe — Sfera'Solys",
@@ -123,7 +141,7 @@ export async function sendWelcomeEmail(
     ${primaryButton("Compléter mon profil", `${APP_URL}/inscription`)}
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "✨ Bienvenue sur Sfera'Solys !",
@@ -175,7 +193,7 @@ export async function sendPaymentSuccessEmail(
     ${primaryButton("Gérer mon abonnement", ACCOUNT_URL)}
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "🧡 Ton abonnement Sfera'Solys est confirmé",
@@ -203,7 +221,7 @@ export async function sendPaymentFailedEmail(
     ${primaryButton("Mettre à jour mon paiement", ACCOUNT_URL)}
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "⚠️ Paiement de ton abonnement Sfera'Solys — action requise",
@@ -237,7 +255,7 @@ export async function sendSubscriptionCanceledEmail(
     ${primaryButton("Réactiver mon abonnement", ACCOUNT_URL)}
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "Ton abonnement Sfera'Solys a été résilié",
@@ -269,7 +287,7 @@ export async function sendRenewalReminderEmail(
     ${primaryButton("Gérer mon abonnement", ACCOUNT_URL)}
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "🔄 Ton abonnement Sfera'Solys se renouvelle bientôt",
@@ -295,7 +313,7 @@ export async function sendReengagementEmail(
     <p style="color:#999;font-size:13px;text-align:center;margin:0;">À très vite 🧡</p>
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "☀️ On t'a gardé une place sur Sfera'Solys",
@@ -323,7 +341,7 @@ export async function sendDunningEmail(
     </p>
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "⚠️ Ton paiement Sfera'Solys n'a pas abouti",
@@ -349,7 +367,7 @@ export async function sendWinbackEmail(
     <p style="color:#999;font-size:13px;text-align:center;margin:0;">On serait ravies de te revoir 🧡</p>
   `);
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: FROM_EMAIL,
     to,
     subject: "🧡 Ta place t'attend sur Sfera'Solys",

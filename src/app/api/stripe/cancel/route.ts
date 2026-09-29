@@ -11,12 +11,20 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
-import { stripe } from "@/lib/stripe";
+import { stripe, STRIPE_INDISPONIBLE } from "@/lib/stripe";
 import { sendSubscriptionCanceledEmail } from "@/lib/emails";
 
 export const runtime = "nodejs";
 
 export async function POST() {
+  // Sans clés Stripe, il n'y a rien à appeler : on le dit au lieu de planter.
+  if (!stripe) {
+    return NextResponse.json(
+      { success: false, error: STRIPE_INDISPONIBLE, code: "STRIPE_UNAVAILABLE" },
+      { status: 503 }
+    );
+  }
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ success: false, error: "Non autorisé." }, { status: 401 });

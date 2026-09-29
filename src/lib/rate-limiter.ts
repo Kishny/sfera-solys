@@ -13,6 +13,7 @@
 // erreur, on ne bloque JAMAIS l'utilisateur — on retombe sur le compteur
 // mémoire. Un incident d'infra ne doit pas empêcher de s'inscrire.
 
+import { lireVariable } from "@/lib/configuration";
 export interface RateLimitResult {
   limited: boolean;
   retryAfter?: number;
@@ -93,8 +94,14 @@ async function rateLimitUpstash(
   points: number,
   durationSec: number
 ): Promise<RateLimitResult | null> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  /*
+   * `lireVariable` écarte aussi les placeholders : sans ça, `A_REMPLACER`
+   * passait pour une URL Redis et chaque appel partait vers le vide avant de
+   * retomber sur le compteur en mémoire — un aller-retour réseau inutile à
+   * chaque requête limitée.
+   */
+  const url = lireVariable("UPSTASH_REDIS_REST_URL");
+  const token = lireVariable("UPSTASH_REDIS_REST_TOKEN");
 
   if (!url || !token) return null;
 

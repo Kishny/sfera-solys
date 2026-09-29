@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
-import { stripe } from "@/lib/stripe";
+import { stripe, STRIPE_INDISPONIBLE } from "@/lib/stripe";
 
 /**
  * Plans Stripe acceptés côté serveur.
@@ -97,6 +97,14 @@ function getCleanAppUrl() {
  * 9. Renvoyer l'URL Stripe au frontend.
  */
 export async function POST(req: NextRequest) {
+  // Sans clés Stripe, il n'y a pas de paiement à ouvrir.
+  if (!stripe) {
+    return NextResponse.json(
+      { success: false, error: STRIPE_INDISPONIBLE, code: "STRIPE_UNAVAILABLE" },
+      { status: 503 }
+    );
+  }
+
   try {
     // ─────────────────────────────────────────────
     // 1. Vérifier que l'utilisateur est connecté
