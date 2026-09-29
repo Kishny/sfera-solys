@@ -1,0 +1,21 @@
+# .vercelignore
+#
+# La CLI Vercel n'applique pas `.gitignore` de façon fiable quand elle
+# téléverse le dossier : un build de vérification local (`.next-verif`, créé
+# par `NEXT_DIST_DIR=.next-verif npx next build`) contient un cache webpack de
+# plus de 100 Mo, et `vercel --prod` échouait sur
+# « File size limit exceeded (100 MB) ».
+#
+# Rien de ce qui est listé ici n'est utile au déploiement : Vercel installe les
+# dépendances et construit le projet lui-même.
+
+node_modules
+.next
+.next-verif
+_to_delete
+.git
+
+# Secrets : ils se posent dans les réglages du projet Vercel, jamais dans le
+# téléversement.
+.env
+.env.*
