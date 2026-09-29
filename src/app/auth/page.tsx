@@ -67,12 +67,13 @@ type SessionSolys = {
  */
 function auRepos(actif: boolean) {
   /*
-   * `inert=""` ne marche pas : React 18 traite la chaîne vide comme `false`
-   * et n'écrit pas l'attribut du tout — il le dit même dans la console. Il
-   * faut une chaîne non vide ; le navigateur, lui, ne regarde que la présence
-   * de l'attribut.
+   * `inert` attend un booléen, pas une chaîne. `""` était traité comme
+   * `false` et l'attribut n'était pas écrit ; `"true"` fonctionnait mais
+   * React prévenait en console qu'il lit la chaîne, pas la valeur — `"false"`
+   * aurait donc activé l'attribut. React 18 ne le type pas encore, d'où le
+   * cast, mais il l'accepte et le rendra en React 19 sans rien changer ici.
    */
-  return (actif ? {} : { inert: "true" }) as React.HTMLAttributes<HTMLDivElement>;
+  return (actif ? {} : { inert: true }) as unknown as React.HTMLAttributes<HTMLDivElement>;
 }
 
 const messagesOAuth: Record<string, string> = {

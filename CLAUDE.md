@@ -1770,6 +1770,56 @@ et laisse `.next` au serveur de développement. `/.next-verif/` est dans
 relancer. Tant que le dossier reste mélangé, le rechargement de la page ne
 suffit pas.
 
+### 🍪 Le cookie de session n'était jamais enregistré (29/09/2026)
+
+Trois symptômes très différents, une seule cause — et elle était dans
+`authOptions` depuis le fork.
+
+En développement, une surcharge posait le cookie de session en
+`SameSite=None` avec `secure: false`, pour qu'une web preview Expo servie sur
+un autre port puisse l'envoyer. Son commentaire affirmait que « Chrome
+l'accepte sans Secure sur localhost ». C'est faux.
+
+**Un cookie `SameSite=None` sans `Secure` est rejeté par le navigateur.** Pas
+ignoré à moitié, pas dégradé : jamais enregistré. L'exception « origine de
+confiance » de localhost autorise à *poser* l'attribut `Secure` sur
+`http://localhost` — elle ne dispense pas de le poser.
+
+Ce qui rendait la panne si difficile à voir, c'est qu'aucune couche ne s'en
+plaignait :
+
+- `POST /api/auth/callback/credentials` répondait **200** ;
+- `signIn()` renvoyait **`ok: true`** — l'identifiant et le mot de passe
+  étaient bel et bien vérifiés côté serveur ;
+- l'écran de connexion partait donc vers la suite, sans message d'erreur ;
+- et le cookie n'existait pas.
+
+D'où, dans l'ordre où on les a rencontrés : `GET /api/auth/session` qui
+répond 200 avec une session vide (et en 15 ms, trop vite pour avoir touché la
+base — l'indice était là dès le premier journal), `POST
+/api/users/update-profile` qui renvoie 401 au dernier écran de l'inscription,
+et enfin la garde de `/inscription` qui renvoie sur `/auth`. On a corrigé les
+trois symptômes à mesure qu'ils apparaissaient ; c'était la cause qu'il
+fallait atteindre.
+
+La surcharge est supprimée. Les réglages par défaut de NextAuth conviennent :
+`SameSite=Lax`, ce qu'attend une application servie sur sa propre origine. Si
+la preview Expo cross-origin redevient un besoin, il lui faudra du HTTPS —
+c'est la seule façon d'avoir `SameSite=None` avec `Secure`.
+
+**Au passage**, `inert` attend un booléen et non une chaîne : `""` était lu
+comme `false` et l'attribut n'était pas écrit, `"true"` marchait mais React
+prévenait qu'il lit la chaîne et non la valeur (`"false"` aurait donc activé
+l'attribut). Passé en `inert={true}` — React 18 ne le type pas encore, d'où le
+cast, mais il l'accepte et React 19 le rendra sans rien changer.
+
+**À nettoyer un jour, sans urgence** : `authOptions` est exporté depuis
+`src/app/api/auth/[...nextauth]/route.ts`, et Next 15 refuse tout export
+autre qu'un handler dans un fichier de route. L'erreur n'apparaît que dans
+les types générés (`.next/types/...`), elle est ignorée au build, et elle
+revient à chaque régénération. Le remède est mécanique : déplacer
+`authOptions` dans `src/lib/auth.ts` et mettre à jour les imports.
+
 ### Reste à faire ❌
 
 - [ ] **Pages encore sur l'identité SferaLuna** (violets codés en dur, structure d'origine). Migrées à ce jour : `/`, `/tarifs`, `/fonctionnalites`, `/commencer`, `/temoignages`, `/guide`, `/faq`, `/auth`, `/auth/reset-password`. Restent : `/histoire /valeurs /equipe /contact` (atteignables depuis les mega-menus, donc prioritaires), `/inscription`, les pages légales, puis les deux dernières pages de l'espace connecté, `/paiement` et `/admin`. La marque et le genre y sont corrigés depuis le balayage de fond — c'est le visuel et la structure qui restent.

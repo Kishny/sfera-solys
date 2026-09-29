@@ -461,57 +461,34 @@ export const authOptions: NextAuthOptions = {
 
   secret: process.env.NEXTAUTH_SECRET,
 
-  /**
-   * En développement, la web preview Expo (localhost:8082) appelle le backend
-   * (localhost:3000) cross-origin. Les cookies SameSite=Lax (défaut NextAuth)
-   * ne sont pas envoyés sur les requêtes fetch cross-origin.
+  /*
+   * Pas de surcharge de cookies.
    *
-   * On passe à SameSite=none pour localhost. Chrome l'accepte sans Secure
-   * sur localhost (exception trustworthy origin depuis Chrome 91).
-   * Cette config ne s'applique qu'en NODE_ENV=development.
+   * Il y en avait une, active uniquement en développement, qui passait le
+   * cookie de session en `SameSite=None` avec `secure: false`, pour qu'une
+   * web preview Expo sur un autre port puisse l'envoyer. Son commentaire
+   * affirmait que « Chrome l'accepte sans Secure sur localhost ». C'est faux,
+   * et c'est ce qui cassait toute l'authentification :
+   *
+   *   **Un cookie `SameSite=None` sans `Secure` est rejeté par le
+   *   navigateur.** Pas ignoré à moitié, pas dégradé : jamais enregistré.
+   *   L'exception « origine de confiance » de localhost autorise à *poser*
+   *   l'attribut `Secure` sur http://localhost — elle ne dispense pas de le
+   *   poser.
+   *
+   * Conséquence, invisible parce qu'aucune couche ne se plaignait :
+   * `POST /api/auth/callback/credentials` répondait 200, `signIn()` renvoyait
+   * `ok: true`, l'écran de connexion partait vers la suite — et le cookie
+   * n'existait pas. `GET /api/auth/session` renvoyait donc `{}` (200, session
+   * vide), `POST /api/users/update-profile` renvoyait 401, et la garde de
+   * `/inscription` renvoyait sur `/auth`. Trois symptômes très différents,
+   * une seule cause.
+   *
+   * Les réglages par défaut de NextAuth conviennent : `SameSite=Lax`, ce
+   * qu'attend une application servie sur sa propre origine. Si la preview
+   * Expo cross-origin redevient un besoin, il lui faudra du HTTPS — c'est la
+   * seule façon d'avoir `SameSite=None` avec `Secure`.
    */
-  ...(process.env.NODE_ENV === "development"
-    ? {
-        cookies: {
-          sessionToken: {
-            name: "next-auth.session-token",
-            options: {
-              httpOnly: true,
-              sameSite: "none" as const,
-              path: "/",
-              secure: false,
-            },
-          },
-          callbackUrl: {
-            name: "next-auth.callback-url",
-            options: {
-              httpOnly: false,
-              sameSite: "none" as const,
-              path: "/",
-              secure: false,
-            },
-          },
-          csrfToken: {
-            name: "next-auth.csrf-token",
-            options: {
-              httpOnly: false,
-              sameSite: "none" as const,
-              path: "/",
-              secure: false,
-            },
-          },
-          pkceCodeVerifier: {
-            name: "next-auth.pkce.code_verifier",
-            options: {
-              httpOnly: true,
-              sameSite: "none" as const,
-              path: "/",
-              secure: false,
-            },
-          },
-        },
-      }
-    : {}),
 };
 
 const handler = NextAuth(authOptions);
