@@ -1,6 +1,9 @@
 // src/app/layout.tsx
 
 import type { Metadata } from "next";
+
+// En premier : le contrôle doit parler avant que next-auth ne lève.
+import { URL_SITE, verifierNextAuthUrl } from "@/lib/configuration";
 import AnalytiqueConsentie from "@/components/AnalytiqueConsentie";
 
 import "./globals.css";
@@ -9,7 +12,6 @@ import { archivo, fraunces, instrumentSans } from "./fonts";
 import ClientProvider from "./ClientProvider";
 import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
-import { URL_SITE } from "@/lib/configuration";
 
 /**
  * URL publique du site.
@@ -17,6 +19,8 @@ import { URL_SITE } from "@/lib/configuration";
  * En production, mets bien dans ton .env :
  * NEXT_PUBLIC_APP_URL=https://sferasolys.fr
  */
+verifierNextAuthUrl();
+
 const baseUrl = URL_SITE;
 
 /**

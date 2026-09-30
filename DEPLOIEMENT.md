@@ -49,6 +49,17 @@ l'endroit où la poser.
 | `NEXTAUTH_URL` | l'URL **exacte** du site en production | sans elle, la connexion échoue en ligne |
 | `NEXT_PUBLIC_APP_URL` | la même URL | sinon les URL canoniques, le `sitemap.xml`, le `robots.txt` et les balises Open Graph pointent tous vers `https://sferasolys.com`, codé en dur comme valeur de repli |
 
+> **Les deux URL doivent commencer par `https://`, sans espace.** C'est la
+> cause des deux premiers échecs de déploiement réels de ce projet.
+> `NEXT_PUBLIC_APP_URL` alimente `new URL(...)` dans `metadataBase` ; et
+> `parseUrl` de next-auth préfixe `NEXTAUTH_URL` par `https://` quand le
+> schéma manque, si bien qu'une valeur comportant une espace devient
+> `https:// mon-site.app` — que `new URL` refuse. Le build s'arrête au
+> prérendu de `/_not-found`, et si la variable est marquée « Secret », le
+> journal masque la valeur : plus rien ne désigne la coupable. Les poser en
+> **Config**, pas en Secret : ce sont des adresses publiques, et une
+> `NEXT_PUBLIC_*` finit de toute façon dans le JavaScript du navigateur.
+
 Les deux dernières sont à corriger **le jour où un domaine personnalisé est
 branché**. Tant qu'elles pointent ailleurs, le site se référence lui-même à
 une adresse qui n'est pas la sienne.

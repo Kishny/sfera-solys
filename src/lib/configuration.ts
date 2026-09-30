@@ -103,3 +103,48 @@ function normaliserUrl(valeur: string | null): string {
 
 /** Adresse publique du site, sans barre oblique finale. */
 export const URL_SITE = normaliserUrl(lireVariable("NEXT_PUBLIC_APP_URL"));
+
+/**
+ * Contrôle de `NEXTAUTH_URL`, appelé au plus tôt dans le layout racine.
+ *
+ * ## Pourquoi un contrôle et pas une réparation
+ *
+ * `parseUrl` de next-auth (`node_modules/next-auth/utils/parse-url.js`) fait :
+ *
+ * ```js
+ * if (url && !url.startsWith("http")) { url = `https://${url}`; }
+ * const _url = new URL(url ?? defaultUrl);
+ * ```
+ *
+ * Une valeur sans schéma est donc préfixée automatiquement — et si elle
+ * contient une espace, la concaténation devient `https:// mon-site.app`,
+ * que `new URL` refuse. Le déploiement s'arrête au prérendu de `/_not-found`
+ * sur un `ERR_INVALID_URL` dont la valeur est masquée dans le journal : rien
+ * ne désigne la variable fautive.
+ *
+ * On ne corrige pas la valeur à la volée. Une `NEXTAUTH_URL` mal formée casse
+ * aussi les retours OAuth et le domaine des cookies de session : la réparer en
+ * silence déplacerait la panne au lieu de la montrer. On prévient, en nommant
+ * la variable et le défaut.
+ */
+export function verifierNextAuthUrl() {
+  const brut = process.env.NEXTAUTH_URL;
+
+  if (!brut) return;
+
+  if (brut !== brut.trim()) {
+    console.warn(
+      "NEXTAUTH_URL commence ou finit par une espace. next-auth la préfixe " +
+        "par « https:// » si le schéma manque, ce qui donne une adresse " +
+        "invalide et fait échouer le build au prérendu."
+    );
+    return;
+  }
+
+  if (!brut.startsWith("http")) {
+    console.warn(
+      `NEXTAUTH_URL ne commence pas par « http » (${brut}). next-auth va la ` +
+        `préfixer par « https:// » ; donne-lui plutôt l'adresse complète.`
+    );
+  }
+}
