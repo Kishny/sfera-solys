@@ -1,6 +1,7 @@
 // src/app/sitemap.ts
 
 import type { MetadataRoute } from "next";
+import { URL_SITE } from "@/lib/configuration";
 
 /**
  * Sitemap officiel Sfera'Solys.
@@ -19,7 +20,7 @@ import type { MetadataRoute } from "next";
  * Le sitemap doit rester orienté SEO public.
  */
 
-const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.com";
+const rawBaseUrl = URL_SITE;
 
 /**
  * Nettoie l'URL de base pour éviter :

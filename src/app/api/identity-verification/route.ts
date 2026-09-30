@@ -6,6 +6,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { stripe, STRIPE_INDISPONIBLE } from "@/lib/stripe";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { URL_SITE } from "@/lib/configuration";
 
 /**
  * POST /api/identity-verification
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.com";
+  const appUrl = URL_SITE;
 
   const verificationSession = await stripe.identity.verificationSessions.create({
     type: "document",

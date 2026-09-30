@@ -58,3 +58,48 @@ export function signalerAbsence(service: string, consequence: string) {
   dejaSignales.add(service);
   console.info(`${service} n'est pas configuré : ${consequence}`);
 }
+
+/**
+ * Adresse publique du site, normalisée.
+ *
+ * ## Ce que cette fonction évite
+ *
+ * `layout.tsx` faisait `metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL)`.
+ * Next évalue cette expression en collectant la configuration de **chaque**
+ * page, y compris `/_not-found` : une valeur sans schéma — `mon-site.vercel.app`
+ * au lieu de `https://mon-site.vercel.app` — lève `ERR_INVALID_URL` et **fait
+ * échouer le déploiement entier**. C'est arrivé au deuxième essai, avec en
+ * prime une valeur masquée dans le journal (`input: '[REDACTED]'`), parce que
+ * la variable avait été marquée « Secret » côté Vercel : l'erreur ne disait
+ * même pas quelle adresse posait problème.
+ *
+ * Une adresse mal formée est une erreur de configuration, pas une raison de ne
+ * pas livrer le site. On prévient, et on retombe sur le repli.
+ *
+ * Quatre fichiers lisaient cette variable chacun de son côté, avec **deux
+ * replis différents** (`sferasolys.fr` dans `layout.tsx`, `sferasolys.com`
+ * ailleurs) : le site pouvait donc se décrire sous deux domaines selon la
+ * balise. Un seul endroit désormais.
+ */
+const REPLI_URL = "https://sferasolys.com";
+
+function normaliserUrl(valeur: string | null): string {
+  if (!valeur) return REPLI_URL;
+
+  try {
+    // `new URL` exige un schéma ; c'est précisément ce qui manquait.
+    const url = new URL(valeur);
+    return url.origin;
+  } catch {
+    console.warn(
+      `NEXT_PUBLIC_APP_URL n'est pas une adresse valide (${valeur}) : il lui ` +
+        `manque sans doute « https:// ». Repli sur ${REPLI_URL} — les URL ` +
+        `canoniques, le sitemap et les balises de partage seront fausses tant ` +
+        `que ce n'est pas corrigé.`
+    );
+    return REPLI_URL;
+  }
+}
+
+/** Adresse publique du site, sans barre oblique finale. */
+export const URL_SITE = normaliserUrl(lireVariable("NEXT_PUBLIC_APP_URL"));

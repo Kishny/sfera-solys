@@ -1,6 +1,7 @@
 // src/app/robots.ts
 
 import type { MetadataRoute } from "next";
+import { URL_SITE } from "@/lib/configuration";
 
 /**
  * Robots.txt officiel Sfera'Solys.
@@ -12,7 +13,7 @@ import type { MetadataRoute } from "next";
  */
 
 export default function robots(): MetadataRoute.Robots {
-  const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.com";
+  const rawBaseUrl = URL_SITE;
 
   /**
    * Évite les doubles slashs si NEXT_PUBLIC_APP_URL finit par "/".

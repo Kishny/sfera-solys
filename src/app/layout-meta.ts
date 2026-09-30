@@ -1,6 +1,7 @@
 // src/app/layout-meta.ts
 
 import type { Metadata } from "next";
+import { URL_SITE } from "@/lib/configuration";
 
 /**
  * Helper SEO Sfera'Solys.
@@ -31,7 +32,7 @@ import type { Metadata } from "next";
  *
  * Sans slash final.
  */
-const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.com";
+const rawBaseUrl = URL_SITE;
 
 /**
  * Nettoie l'URL de base pour éviter :

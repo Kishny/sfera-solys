@@ -9,6 +9,7 @@ import { archivo, fraunces, instrumentSans } from "./fonts";
 import ClientProvider from "./ClientProvider";
 import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
+import { URL_SITE } from "@/lib/configuration";
 
 /**
  * URL publique du site.
@@ -16,7 +17,7 @@ import CookieConsent from "@/components/CookieConsent";
  * En production, mets bien dans ton .env :
  * NEXT_PUBLIC_APP_URL=https://sferasolys.fr
  */
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.fr";
+const baseUrl = URL_SITE;
 
 /**
  * Métadonnées globales du site.

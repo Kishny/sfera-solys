@@ -12,6 +12,7 @@ import TestimonialSubmitSection from "@/components/testimonials/TestimonialSubmi
 import { buildMeta } from "@/app/layout-meta";
 import { connectDB } from "@/lib/db";
 import { Testimonial } from "@/models/Testimonial";
+import { URL_SITE } from "@/lib/configuration";
 
 /**
  * Page Témoignages Sfera'Solys — direction A (« dossier de vérification »).
@@ -41,7 +42,7 @@ export const metadata = buildMeta(
 export const revalidate = 300;
 
 const baseUrl = (
-  process.env.NEXT_PUBLIC_APP_URL || "https://sferasolys.com"
+  URL_SITE
 ).replace(/\/$/, "");
 
 /**
