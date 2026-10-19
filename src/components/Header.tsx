@@ -20,6 +20,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { clientPusherOuNull } from '@/lib/pusher-client';
+import { Logo } from '@/components/ui/Logo';
 
 /**
  * Header Sfera'Solys — nav publique, direction A (« dossier de vérification »).
@@ -365,21 +366,14 @@ export default function Header() {
           <div className="flex h-14 items-center justify-between sm:h-16 xl:h-20">
             {/* Logo + badge de confiance */}
             <div className="flex shrink-0 items-center">
-              <Link
-                href="/"
-                className={`group flex items-center gap-2.5 rounded-lg ${focusRing}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/logo-icon.png"
-                  alt=""
-                  aria-hidden="true"
-                  className="h-7 w-7 shrink-0 sm:h-8 sm:w-8"
-                />
-                <span className="font-display text-base font-extrabold tracking-tight text-champagne sm:text-lg">
-                  Sfera'Solys
-                </span>
-              </Link>
+              {/*
+                L'en-tête rendait son propre mot-symbole — un PNG hérité de
+                SferaLuna et un `font-extrabold` d'Archivo — au lieu
+                d'utiliser le composant Logo, qui existait déjà. Deux
+                définitions de la marque dans le même projet, dont une qui
+                n'avait pas suivi les changements de charte.
+              */}
+              <Logo size="sm" withMark markId="entete" className={focusRing} />
 
               <div className="ml-4 hidden items-center gap-1.5 rounded-full border border-cuivre/25 bg-cuivre/[0.08] px-3 py-1 2xl:flex">
                 <ShieldCheck size={12} className="text-cuivre" />

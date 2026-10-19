@@ -42,6 +42,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { clientPusherOuNull } from "@/lib/pusher-client";
+import { Logo } from "@/components/ui/Logo";
 
 type SidebarSubItem = {
   label: string;
@@ -190,18 +191,9 @@ export default function Sidebar() {
       aria-label="Navigation principale"
       className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col border-r border-champagne/10 bg-nuit px-4 py-6 lg:flex"
     >
-      <Link href="/" className="flex items-center gap-2.5 px-2 pb-7">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/logo-icon.png"
-          alt=""
-          aria-hidden="true"
-          className="h-5 w-5 shrink-0"
-        />
-        <span className="font-display text-base font-extrabold tracking-tight text-champagne">
-          Sfera'Solys
-        </span>
-      </Link>
+      <div className="px-2 pb-7">
+        <Logo size="sm" withMark markId="barre-laterale" />
+      </div>
 
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
         {links.map((link) => {

@@ -119,21 +119,11 @@ export default function Footer() {
         <div className="grid gap-5 lg:grid-cols-[1.2fr_2fr] lg:gap-10">
           {/* Branding compact */}
           <div className="rounded-[1.75rem] border border-champagne/10 bg-champagne/[0.04] p-4 backdrop-blur-sm sm:p-5">
-            <Link href="/" className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/logo-icon.png"
-                alt=""
-                aria-hidden="true"
-                className="h-12 w-12 shrink-0 sm:h-14 sm:w-14"
-              />
-
-              <div>
-                <Logo href={null} size="sm" />
-                <p className="mt-1 text-xs text-champagne/55">
-                  Rencontrer au masculin, librement.
-                </p>
-              </div>
+            <Link href="/" className="flex flex-col items-start gap-1">
+              <Logo href={null} size="md" withMark markId="pied" />
+              <p className="mt-1 text-xs text-champagne/55">
+                Rencontrer au masculin, librement.
+              </p>
             </Link>
 
             <p className="mt-4 text-sm leading-relaxed text-champagne/60">
