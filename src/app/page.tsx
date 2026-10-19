@@ -239,7 +239,8 @@ export default function Home() {
           <EclipseMark
             id="hero"
             strokeWidth={5}
-            className="pointer-events-none absolute -right-24 top-16 -z-10 h-[300px] w-[300px] opacity-60 sm:h-[360px] sm:w-[360px] lg:right-auto lg:left-[34%] lg:top-[4%] lg:h-[400px] lg:w-[400px] lg:opacity-90"
+            attenuation={0}
+            className="pointer-events-none absolute -right-24 top-10 -z-10 h-[260px] w-[260px] opacity-50 sm:h-[320px] sm:w-[320px] lg:right-auto lg:left-[30%] lg:top-[-10%] lg:h-[360px] lg:w-[360px] lg:opacity-80"
           />
 
           <div className="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-16 lg:pb-24 lg:pt-32">
@@ -469,6 +470,7 @@ export default function Home() {
         <section className="relative overflow-hidden border-t border-champagne/8 px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
           <EclipseMark
             id="age"
+            attenuation={0}
             className="pointer-events-none absolute -left-32 bottom-[-18%] h-[380px] w-[380px] rotate-[200deg] opacity-25 lg:left-[-6%] lg:h-[460px] lg:w-[460px]"
           />
 

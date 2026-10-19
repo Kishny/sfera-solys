@@ -43,11 +43,28 @@ export default function EclipseMark({
    * trait doit être épais en proportion.
    */
   strokeWidth = 11,
+  /**
+   * Opacité du côté éteint de l'anneau, de 0 à 1.
+   *
+   * C'est le réglage qui décide si le motif se lit comme un **anneau** ou
+   * comme un **croissant**, et les deux sont voulus selon la taille :
+   *
+   * - à 0, le côté sombre disparaît complètement. C'est l'éclipse du
+   *   héros : grande, fondue, à moitié cachée par le titre.
+   * - à 0,35, l'anneau reste entier avec un côté lumineux. C'est le logo :
+   *   à 36 px, un croissant fondu ne se lit plus comme une marque mais
+   *   comme une virgule — vérifié au rendu, pas supposé.
+   *
+   * Une valeur intermédiaire malheureuse (0,12, essayée deux fois) donne
+   * le pire des deux : un cercle complet, à peine plus clair d'un côté.
+   */
+  attenuation = 0.35,
 }: {
   id: string;
   className?: string;
   withCorona?: boolean;
   strokeWidth?: number;
+  attenuation?: number;
 }) {
   const gradId = `eclipse-grad-${id}`;
   const glowId = `eclipse-glow-${id}`;
@@ -66,17 +83,21 @@ export default function EclipseMark({
           bas-gauche s'éteint. C'est ce déséquilibre qui fait lire une
           éclipse plutôt qu'un cercle.
         */}
-        <linearGradient id={gradId} x1="85%" y1="15%" x2="10%" y2="95%">
-          <stop offset="0%" stopColor="#866137" stopOpacity="0.12" />
-          <stop offset="30%" stopColor="#866137" stopOpacity="0.5" />
-          <stop offset="62%" stopColor="#BD9365" />
-          <stop offset="85%" stopColor="#EAD9BD" />
+        <linearGradient id={gradId} x1="100%" y1="70%" x2="5%" y2="15%">
+          <stop offset="0%" stopColor="#866137" stopOpacity={attenuation} />
+          <stop offset="30%" stopColor="#866137" stopOpacity={attenuation} />
+          <stop
+            offset="55%"
+            stopColor="#BD9365"
+            stopOpacity={((attenuation + 1) / 2) * 0.8}
+          />
+          <stop offset="80%" stopColor="#EAD9BD" />
           <stop offset="100%" stopColor="#F7F3ED" />
         </linearGradient>
 
-        <radialGradient id={glowId}>
-          <stop offset="55%" stopColor="#BD9365" stopOpacity="0" />
-          <stop offset="78%" stopColor="#BD9365" stopOpacity="0.22" />
+        <radialGradient id={glowId} cx="30%" cy="35%">
+          <stop offset="50%" stopColor="#BD9365" stopOpacity="0" />
+          <stop offset="76%" stopColor="#BD9365" stopOpacity="0.18" />
           <stop offset="100%" stopColor="#BD9365" stopOpacity="0" />
         </radialGradient>
       </defs>
