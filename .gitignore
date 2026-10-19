@@ -61,3 +61,4 @@ _migrated-out-of-app-router/
 
 # Build de vérification, lancé en parallèle du serveur de développement
 /.next-verif/
+public/new-visuel/
