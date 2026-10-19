@@ -41,7 +41,7 @@ import {
   LogOut,
   ShieldCheck,
 } from "lucide-react";
-import { getPusherClient } from "@/lib/pusher-client";
+import { clientPusherOuNull } from "@/lib/pusher-client";
 
 type SidebarSubItem = {
   label: string;
@@ -150,8 +150,10 @@ export default function Sidebar() {
     const userId = sessionUser?.id;
     if (!userId) return;
 
+    const client = clientPusherOuNull();
+    if (!client) return;
+
     const channelName = `private-user-${userId}`;
-    const client = getPusherClient();
     const channel = client.subscribe(channelName);
 
     /*

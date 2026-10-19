@@ -91,3 +91,34 @@ export function disconnectPusherClient() {
     pusherClient = null;
   }
 }
+
+/**
+ * Vrai si la clé publique existe. Lue au build par Next.js, donc constante
+ * pour toute la durée de vie du bundle.
+ */
+export const pusherClientEstConfigure = Boolean(
+  process.env.NEXT_PUBLIC_PUSHER_KEY
+);
+
+/**
+ * Variante tolérante de `getPusherClient()`.
+ *
+ * `getPusherClient()` lève quand `NEXT_PUBLIC_PUSHER_KEY` manque. C'est le
+ * bon comportement là où l'appelant sait rattraper — la page de conversation
+ * le fait, et affiche « temps réel indisponible ». Mais le Header et la
+ * Sidebar l'appelaient sans filet, dans un `useEffect` : l'exception
+ * remontait jusqu'à la frontière d'erreur de React et emportait toute la
+ * page, alors que ces deux composants ne font qu'incrémenter une pastille.
+ *
+ * Une pastille qui ne s'anime pas n'est pas une raison de refuser d'afficher
+ * l'application.
+ */
+export function clientPusherOuNull(): PusherType | null {
+  if (typeof window === "undefined" || !pusherClientEstConfigure) return null;
+
+  try {
+    return getPusherClient();
+  } catch {
+    return null;
+  }
+}

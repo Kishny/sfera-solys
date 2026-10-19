@@ -19,7 +19,7 @@ import {
   ShieldCheck,
   ArrowRight,
 } from 'lucide-react';
-import { getPusherClient } from '@/lib/pusher-client';
+import { clientPusherOuNull } from '@/lib/pusher-client';
 
 /**
  * Header Sfera'Solys — nav publique, direction A (« dossier de vérification »).
@@ -275,8 +275,10 @@ export default function Header() {
     const userId = sessionUser?.id;
     if (!userId) return;
 
+    const client = clientPusherOuNull();
+    if (!client) return;
+
     const channelName = `private-user-${userId}`;
-    const client = getPusherClient();
     const channel = client.subscribe(channelName);
 
     channel.bind('new-match', () => {
