@@ -479,7 +479,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                 </p>
 
                 <Link
-                  href="/paiement"
+                  href="/tarifs"
                   className={`mt-5 inline-flex items-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
                 >
                   Voir les offres

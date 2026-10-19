@@ -38,7 +38,7 @@ export const runtime = "nodejs";
  *
  * Ces valeurs doivent correspondre exactement à :
  * - src/models/User.ts
- * - src/app/paiement/page.tsx
+ * - src/app/tarifs/page.tsx
  * - src/app/api/stripe/create-checkout-session/route.ts
  */
 type LunaPlan = Exclude<UserPlan, "free">;

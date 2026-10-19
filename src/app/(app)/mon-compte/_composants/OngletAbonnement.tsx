@@ -282,7 +282,7 @@ export default function OngletAbonnement({
           {!payante && !user.subscriptionCancelAtPeriodEnd && (
             <button
               type="button"
-              onClick={() => router.push("/paiement")}
+              onClick={() => router.push("/tarifs")}
               className={`rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
             >
               Choisir une offre
@@ -293,13 +293,21 @@ export default function OngletAbonnement({
             !user.subscriptionCancelAtPeriodEnd &&
             !user.subscriptionPaused && (
               <>
-                <button
-                  type="button"
-                  onClick={() => router.push("/paiement")}
-                  className={`rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
-                >
-                  Changer d’offre
-                </button>
+                {/*
+                  * Le bouton « Changer d'offre » a été retiré. Il ouvrait une
+                  * nouvelle session Stripe Checkout, or
+                  * `create-checkout-session` écrit `isPremium = false` et
+                  * `subscriptionStatus = "inactive"` AVANT la redirection.
+                  * Un abonné qui cliquait puis renonçait au paiement perdait
+                  * donc son accès premium tout en continuant d'être prélevé —
+                  * et s'il payait, il se retrouvait avec deux abonnements
+                  * Stripe actifs, aucun changement de forfait n'étant
+                  * implémenté (seules les routes cancel, pause et reactivate
+                  * existent).
+                  *
+                  * À remettre le jour où un vrai changement de forfait
+                  * (`subscriptions.update` avec proration) sera écrit.
+                  */}
 
                 <button
                   type="button"

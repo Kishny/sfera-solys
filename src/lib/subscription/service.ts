@@ -83,7 +83,6 @@ export class SubscriptionService {
 
   /**
    * Retourne le statut d'une feature avec infos de limite.
-   * Compatible avec UsageLimits.tsx.
    */
   async getFeatureStatus(feature: string): Promise<{
     hasAccess: boolean;

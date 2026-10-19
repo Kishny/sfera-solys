@@ -24,7 +24,7 @@ export type UserRole = "user" | "admin";
  * Plans disponibles sur Sfera'Solys.
  *
  * Ces valeurs doivent rester synchronisées avec :
- * - src/app/paiement/page.tsx
+ * - src/app/tarifs/page.tsx
  * - src/app/api/stripe/create-checkout-session/route.ts
  * - src/app/api/stripe/webhook/route.ts
  */

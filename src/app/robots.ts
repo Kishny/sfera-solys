@@ -44,7 +44,6 @@ export default function robots(): MetadataRoute.Robots {
           "/api/",
           "/admin/",
           "/mon-compte",
-          "/paiement",
           "/checkout",
           "/success",
           "/cancel",

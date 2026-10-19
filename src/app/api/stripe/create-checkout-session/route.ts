@@ -314,7 +314,7 @@ export async function POST(req: NextRequest) {
        * la vraie activation Premium doit être faite par le webhook Stripe.
        */
       success_url: `${appUrl}/mon-compte?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/paiement?payment=cancelled`,
+      cancel_url: `${appUrl}/tarifs?payment=cancelled`,
 
       /**
        * Metadata attachée à la session Checkout.

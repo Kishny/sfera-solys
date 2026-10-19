@@ -10,7 +10,7 @@
  * - un formulaire multi-étapes avec React Hook Form ;
  * - la validation Zod ;
  * - l'enregistrement du profil via /api/users/update-profile ;
- * - la redirection vers /paiement après profil complet ;
+ * - la redirection vers /tarifs après profil complet ;
  * - un écran final avant les offres Premium.
  *
  * Correction importante :
@@ -71,7 +71,7 @@ const optionalString = z.preprocess(
  *
  * Important :
  * - cette page ne gère plus le choix du plan Stripe ;
- * - le choix Essentiel / Premium / Elite se fait uniquement sur /paiement ;
+ * - le choix Essentiel / Premium / Elite se fait uniquement sur /tarifs ;
  * - ici, on complète seulement le profil utilisateur.
  */
 const formSchema = z.object({
@@ -153,7 +153,7 @@ const stepFields: FieldPath<FormData>[][] = [
 
 /**
  * Liste complète des champs du profil.
- * Elle sert à valider tout le formulaire avant la redirection vers /paiement.
+ * Elle sert à valider tout le formulaire avant la redirection vers /tarifs.
  */
 const allProfileFields: FieldPath<FormData>[] = stepFields.flat();
 
@@ -172,7 +172,7 @@ const lunaBenefits = [
 ];
 
 /**
- * Cartes affichées sur l'écran final avant /paiement.
+ * Cartes affichées sur l'écran final avant /tarifs.
  */
 const finalHighlights = [
   {
@@ -263,7 +263,7 @@ function InscriptionPageContent() {
    * step de navigation.
    *
    * 0 à 4 : étapes du profil
-   * 5 : écran final avant redirection vers /paiement
+   * 5 : écran final avant redirection vers /tarifs
    */
   const [step, setStep] = useState(0);
 
@@ -600,7 +600,7 @@ function InscriptionPageContent() {
    * - enregistre le profil dans MongoDB via /api/users/update-profile ;
    * - marque hasCompletedProfile à true.
    *
-   * Important : elle ne redirige plus automatiquement vers /paiement.
+   * Important : elle ne redirige plus automatiquement vers /tarifs.
    * La vérification d'identité est désormais obligatoire avant tout accès
    * au compte (gratuit ou payant) — l'utilisateur reste sur cet écran
    * pour la réaliser.
@@ -733,7 +733,7 @@ function InscriptionPageContent() {
    */
   const handleGoToOffers = () => {
     if (identityStatus !== "verified") return;
-    router.push("/paiement");
+    router.push("/tarifs");
   };
 
   /**

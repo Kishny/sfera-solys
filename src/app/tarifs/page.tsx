@@ -1,149 +1,250 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
+  AlertCircle,
+  ArrowRight,
   Check,
+  ChevronDown,
+  Crown,
+  Loader2,
   Minus,
+  Sparkles,
   Star,
   Zap,
-  Crown,
-  Sparkles,
-  ChevronDown,
-  ArrowRight,
 } from 'lucide-react';
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { SUBSCRIPTION_PLANS, PLAN_ORDER, type PlanId } from '@/lib/subscription/config';
 
 /**
  * Page Tarifs Sfera'Solys — direction A (« dossier de vérification »).
  *
- * Restructuration + rebranding (voir CLAUDE.md § Restructuration) :
- * cette page était restée intégralement Sfera'Solys — violets codés en dur
- * (#8E7AB5, #9D4EDD, #FFD166...), un dégradé différent par offre, et une
- * copy adressée à des femmes (« Pour les plus engagées », « réduction
- * pour les étudiantes », « Rejoins des femmes... »).
+ * ## Pourquoi cette page a été réécrite
  *
- * Ce qui change ici : identité sombre, un seul accent (vulcanico) pour
- * l'offre recommandée au lieu d'un arc-en-ciel de dégradés, lime réservé
- * au badge « recommandé », copy corrigée (marque + cible hommes 28+).
+ * Elle avait deux défauts qu'on ne voyait pas en la regardant.
  *
- * Ce qui ne change pas : les 4 offres, leurs prix, leurs listes de
- * fonctionnalités, le tableau comparatif, la FAQ et les destinations des
- * CTA. La page reste purement présentationnelle (le paiement passe par
- * /api/stripe/create-checkout-session, déclenché ailleurs).
+ * **1. Elle ne menait nulle part.** Les quatre boutons — « Choisir Elite »
+ * compris — pointaient vers `/auth?mode=register`. La seule page qui appelait
+ * `/api/stripe/create-checkout-session` était `/paiement`, atteignable par un
+ * unique lien enfoui dans un onglet de `/mon-compte`. Un visiteur décidé à
+ * payer n'avait aucun chemin pour le faire. `/paiement` a été supprimée et
+ * son appel Stripe vit désormais ici.
+ *
+ * **2. Elle promettait ce que le code ne livre pas.** Les listes étaient
+ * écrites à la main, à côté de `src/lib/subscription/config.ts` qui est la
+ * source de vérité appliquée par les routes serveur. Elles annonçaient la
+ * Communauté Solys sur l'offre gratuite (`vipCommunity: false`), des filtres
+ * avancés sur Essentiel (`premiumFilters: false`), et un « Badge Essentiel /
+ * Premium / Elite » qui n'existe nulle part dans l'interface utilisateur —
+ * `planBadgeColor` ne vit que dans la console d'administration.
+ *
+ * Désormais tout ce que la page affiche est **dérivé de `SUBSCRIPTION_PLANS`**
+ * (voir `lignesOffre` et `lignesComparatif`). Changer une limite dans la
+ * configuration change la page ; aucune divergence n'est plus possible sans
+ * qu'elle se voie à la compilation.
+ *
+ * ## Ce qui n'est volontairement pas affiché
+ *
+ * `limits.profileVisits` est compté par `ProfileVisit.countDocuments({
+ * visitorId })` dans `/api/subscription/status`, **sans filtre de date** : ce
+ * n'est pas un quota mensuel mais un plafond à vie (20 profils en gratuit,
+ * 100 en Essentiel). C'est vraisemblablement involontaire. Plutôt que
+ * d'annoncer un chiffre faux ou un chiffre absurde, la page n'en parle pas.
+ * À trancher séparément.
  */
 
-type Plan = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  icon: React.ComponentType<{ size?: number | string; className?: string }>;
-  features: string[];
-  cta: string;
-  ctaLink: string;
-  popular: boolean;
+// ─────────────────────────────────────────────
+// Présentation des offres, dérivée de la config
+// ─────────────────────────────────────────────
+
+/** Habillage propre à la page : icône et accroche par offre. */
+const habillage: Record<
+  PlanId,
+  {
+    icon: React.ComponentType<{ size?: number | string; className?: string }>;
+    accroche: string;
+    populaire: boolean;
+  }
+> = {
+  free: {
+    icon: Star,
+    accroche: "Découvre Sfera'Solys à ton rythme",
+    populaire: false,
+  },
+  'essential-monthly': {
+    icon: Zap,
+    accroche: 'Pour aller plus loin dans tes rencontres',
+    populaire: false,
+  },
+  'premium-monthly': {
+    icon: Crown,
+    accroche: "L'expérience Sfera'Solys complète",
+    populaire: true,
+  },
+  'elite-monthly': {
+    icon: Sparkles,
+    accroche: 'Pour les plus engagés',
+    populaire: false,
+  },
 };
 
-const plans: Plan[] = [
-  {
-    id: 'free',
-    name: 'Gratuit',
-    description: "Découvre Sfera'Solys à ton rythme",
-    price: 0,
-    icon: Star,
-    features: [
-      'Profil complet',
-      '5 likes par jour',
-      '3 matchs maximum',
-      'Messagerie limitée (10 messages/jour)',
-      'Communauté Solys',
-      'Support par formulaire',
-    ],
-    cta: 'Commencer gratuitement',
-    ctaLink: '/auth?mode=register',
-    popular: false,
-  },
-  {
-    id: 'essential-monthly',
-    name: 'Essentiel',
-    description: 'Pour aller plus loin dans tes rencontres',
-    price: 9.99,
-    icon: Zap,
-    features: [
-      'Tout du plan Gratuit',
-      'Circle of Six hebdomadaire',
-      '1 boost de visibilité par mois',
-      'Filtres avancés',
-      'Événements exclusifs',
-      'Badge Essentiel',
-      'Support prioritaire 5j/7',
-    ],
-    cta: 'Choisir Essentiel',
-    ctaLink: '/auth?mode=register',
-    popular: false,
-  },
-  {
-    id: 'premium-monthly',
-    name: 'Premium',
-    description: "L'expérience Sfera'Solys complète",
-    price: 19.99,
-    icon: Crown,
-    features: [
-      'Tout du plan Essentiel',
-      '3 boosts de visibilité par mois',
-      'Mode Fantôme',
-      'Voir les visiteurs de ton profil',
-      'Filtres premium (distance, actif…)',
-      'Badge Premium',
-      'Support prioritaire 7j/7',
-    ],
-    cta: 'Choisir Premium',
-    ctaLink: '/auth?mode=register',
-    popular: true,
-  },
-  {
-    id: 'elite-monthly',
-    name: 'Elite',
-    description: 'Pour les plus engagés',
-    price: 34.99,
-    icon: Sparkles,
-    features: [
-      'Tout du plan Premium',
-      '10 boosts de visibilité par mois',
-      'Cercle privé VIP',
-      'Accès anticipé aux nouvelles fonctionnalités',
-      'Rencontres organisées exclusives',
-      'Badge Elite',
-      'Support dédié 7j/7',
-    ],
-    cta: 'Choisir Elite',
-    ctaLink: '/auth?mode=register',
-    popular: false,
-  },
-];
+/** « 5 » ou « illimité », selon que la limite est finie ou non. */
+function nombreOuIllimite(valeur: number): string {
+  return Number.isFinite(valeur) ? String(valeur) : 'illimité';
+}
 
-const comparisonRows = [
-  { feature: 'Likes par jour', values: ['5/jour', 'Illimité', 'Illimité', 'Illimité'] },
-  { feature: 'Matchs simultanés', values: ['3 max', 'Illimité', 'Illimité', 'Illimité'] },
-  { feature: 'Messagerie', values: ['10 msg/jour', 'Illimitée', 'Illimitée', 'Illimitée'] },
-  { feature: 'Circle of Six', values: ['non', '1/semaine', '1/semaine', '1/semaine'] },
-  { feature: 'Mode Fantôme', values: ['non', 'non', 'oui', 'oui'] },
-  { feature: 'Visiteurs du profil', values: ['non', 'non', 'oui', 'oui'] },
-  { feature: 'Filtres premium', values: ['non', 'Basiques', 'Avancés', 'Complets'] },
-  { feature: 'Événements', values: ['Gratuits', 'Exclusifs', 'Exclusifs', 'VIP'] },
-  { feature: 'Support', values: ['Formulaire', '5j/7', '7j/7', 'Dédié 7j/7'] },
-  { feature: 'Badge', values: ['non', 'Essentiel', 'Premium', 'Elite'] },
-];
+/**
+ * Construit la liste affichée d'une offre à partir de ses limites et de ses
+ * drapeaux. Les offres payantes héritent de la précédente, donc on n'y répète
+ * que ce qui s'ajoute.
+ */
+function lignesOffre(id: PlanId): string[] {
+  const offre = SUBSCRIPTION_PLANS[id];
+  const { limits, features } = offre;
+  const lignes: string[] = [];
 
+  if (id === 'free') {
+    lignes.push('Profil complet et vérification d’identité');
+    lignes.push(`${limits.dailyLikes} likes par jour`);
+    lignes.push(`${limits.maxMatches} matchs simultanés`);
+    lignes.push(`${limits.dailyMessages} messages par jour`);
+
+    return lignes;
+  }
+
+  const rangPrecedent = PLAN_ORDER[PLAN_ORDER.indexOf(id) - 1];
+  const precedente = SUBSCRIPTION_PLANS[rangPrecedent];
+
+  lignes.push(`Tout du plan ${precedente.name}`);
+
+  // Les illimités n'apparaissent qu'au moment où ils arrivent.
+  const passeEnIllimite =
+    !Number.isFinite(limits.dailyLikes) &&
+    Number.isFinite(precedente.limits.dailyLikes);
+
+  if (passeEnIllimite) {
+    lignes.push('Likes, messages et matchs illimités');
+  }
+
+  if (limits.superLikesPerDay !== precedente.limits.superLikesPerDay) {
+    lignes.push(
+      Number.isFinite(limits.superLikesPerDay)
+        ? `${limits.superLikesPerDay} super-likes par jour`
+        : 'Super-likes illimités'
+    );
+  }
+
+  if (limits.boostsPerMonth !== precedente.limits.boostsPerMonth) {
+    const n = limits.boostsPerMonth;
+    lignes.push(
+      n === 1
+        ? '1 boost de visibilité par mois'
+        : `${nombreOuIllimite(n)} boosts de visibilité par mois`
+    );
+  }
+
+  const nouveautes: Array<[boolean, boolean, string]> = [
+    [features.circleOfSix, precedente.features.circleOfSix, 'Circle of Six chaque semaine'],
+    [features.ghostMode, precedente.features.ghostMode, 'Mode Fantôme'],
+    [features.profileVisitors, precedente.features.profileVisitors, 'Voir les visiteurs de ton profil'],
+    [features.premiumFilters, precedente.features.premiumFilters, 'Filtres avancés'],
+    [features.eventsAccess, precedente.features.eventsAccess, 'Accès aux événements'],
+    [features.vipCommunity, precedente.features.vipCommunity, 'Cercle privé VIP'],
+    [features.prioritySupport, precedente.features.prioritySupport, 'Support prioritaire'],
+  ];
+
+  for (const [actuel, avant, libelle] of nouveautes) {
+    if (actuel && !avant) lignes.push(libelle);
+  }
+
+  return lignes;
+}
+
+/**
+ * Tableau comparatif, lui aussi dérivé. Chaque ligne lit la même
+ * configuration que les routes serveur qui appliquent la règle.
+ */
+function lignesComparatif() {
+  const ids = PLAN_ORDER;
+  const valeur = (f: (p: PlanId) => string) => ids.map(f);
+
+  const limite = (p: PlanId) => SUBSCRIPTION_PLANS[p].limits;
+  const drapeau = (p: PlanId) => SUBSCRIPTION_PLANS[p].features;
+  const ouiNon = (v: boolean) => (v ? 'oui' : 'non');
+
+  return [
+    {
+      feature: 'Likes par jour',
+      values: valeur((p) => nombreOuIllimite(limite(p).dailyLikes)),
+    },
+    {
+      feature: 'Matchs simultanés',
+      values: valeur((p) => nombreOuIllimite(limite(p).maxMatches)),
+    },
+    {
+      feature: 'Messages par jour',
+      values: valeur((p) => nombreOuIllimite(limite(p).dailyMessages)),
+    },
+    {
+      feature: 'Super-likes par jour',
+      values: valeur((p) =>
+        limite(p).superLikesPerDay === 0
+          ? 'non'
+          : nombreOuIllimite(limite(p).superLikesPerDay)
+      ),
+    },
+    {
+      feature: 'Boosts par mois',
+      values: valeur((p) =>
+        limite(p).boostsPerMonth === 0
+          ? 'non'
+          : nombreOuIllimite(limite(p).boostsPerMonth)
+      ),
+    },
+    { feature: 'Circle of Six', values: valeur((p) => ouiNon(drapeau(p).circleOfSix)) },
+    { feature: 'Mode Fantôme', values: valeur((p) => ouiNon(drapeau(p).ghostMode)) },
+    {
+      feature: 'Visiteurs du profil',
+      values: valeur((p) => ouiNon(drapeau(p).profileVisitors)),
+    },
+    {
+      feature: 'Filtres avancés',
+      values: valeur((p) => ouiNon(drapeau(p).premiumFilters)),
+    },
+    { feature: 'Événements', values: valeur((p) => ouiNon(drapeau(p).eventsAccess)) },
+    { feature: 'Cercle privé VIP', values: valeur((p) => ouiNon(drapeau(p).vipCommunity)) },
+    {
+      feature: 'Support prioritaire',
+      values: valeur((p) => ouiNon(drapeau(p).prioritySupport)),
+    },
+  ];
+}
+
+// ─────────────────────────────────────────────
+// FAQ
+// ─────────────────────────────────────────────
+
+/**
+ * Deux réponses ont été corrigées parce qu'elles décrivaient des
+ * fonctionnalités absentes :
+ *
+ * - « réduction de 30 % pour les étudiants » : aucun coupon, aucun dispositif
+ *   de vérification du statut étudiant n'existe dans le code ;
+ * - « changer de forfait, ajusté au prorata » : seules les routes `cancel`,
+ *   `pause` et `reactivate` existent. Aucun changement de forfait n'est
+ *   implémenté.
+ */
 const faqs = [
   {
     question: 'Puis-je annuler à tout moment ?',
     answer:
-      "Oui, tu peux annuler ton abonnement à tout moment depuis ton espace Mon Compte. Tu conserves l'accès premium jusqu'à la fin de la période payée.",
+      "Oui, tu peux annuler ton abonnement à tout moment depuis ton espace Mon Compte. Tu conserves l'accès premium jusqu'à la fin de la période déjà payée.",
   },
   {
     question: 'Y a-t-il un engagement minimum ?',
@@ -153,22 +254,22 @@ const faqs = [
   {
     question: 'Comment changer de forfait ?',
     answer:
-      'Tu peux changer de forfait à tout moment depuis Mon Compte → onglet Premium. La différence sera ajustée au prorata.',
+      "Le changement de forfait depuis l'application n'est pas encore disponible. En attendant, résilie ton offre actuelle depuis Mon Compte, puis souscris la nouvelle à la fin de ta période en cours.",
   },
   {
-    question: 'Proposez-vous des tarifs étudiants ?',
+    question: 'Proposez-vous des codes promotionnels ?',
     answer:
-      'Oui, nous avons une réduction de 30 % pour les étudiants. Contacte notre support avec ta carte étudiante.',
+      "Le paiement Stripe accepte les codes promotionnels, mais nous n'en diffusons aucun pour le moment. Si cela change, tu le verras ici.",
   },
   {
     question: "Que se passe-t-il si j'annule mon abonnement ?",
     answer:
-      'Ton compte revient automatiquement en version gratuite à la fin de la période payée. Tu ne perdras ni tes matchs ni tes messages.',
+      'Ton compte revient automatiquement en version gratuite à la fin de la période payée. Tu ne perds ni tes matchs ni tes messages.',
   },
   {
     question: 'Les paiements sont-ils sécurisés ?',
     answer:
-      'Oui, tous les paiements sont gérés par Stripe, leader mondial du paiement en ligne. Nous ne stockons jamais tes données bancaires.',
+      'Oui, tous les paiements sont gérés par Stripe. Aucune donnée bancaire ne transite par Sfera’Solys ni n’y est stockée.',
   },
 ];
 
@@ -178,7 +279,7 @@ const focusRing =
 
 /**
  * Rend une valeur du tableau comparatif : « oui »/« non » deviennent des
- * icônes (plus sobre que les emojis ✅/❌ d'avant), le reste reste du texte.
+ * icônes, le reste reste du texte.
  */
 function ComparisonValue({ value }: { value: string }) {
   if (value === 'oui') {
@@ -195,6 +296,9 @@ function ComparisonValue({ value }: { value: string }) {
 }
 
 export default function TarifsPage() {
+  const router = useRouter();
+  const { status } = useSession();
+
   /**
    * Sur mobile, la liste de fonctionnalités de chaque offre est repliable
    * pour que les 4 offres restent parcourables au pouce. À partir de `sm`,
@@ -203,6 +307,69 @@ export default function TarifsPage() {
   const [openPlan, setOpenPlan] = useState<string | null>('premium-monthly');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [openComparisonIndex, setOpenComparisonIndex] = useState<number | null>(0);
+
+  /** Offre dont on attend la redirection Stripe. */
+  const [planEnCours, setPlanEnCours] = useState<PlanId | null>(null);
+  const [erreur, setErreur] = useState('');
+
+  const offres = useMemo(
+    () =>
+      PLAN_ORDER.map((id) => ({
+        id,
+        nom: SUBSCRIPTION_PLANS[id].name,
+        prix: SUBSCRIPTION_PLANS[id].price,
+        lignes: lignesOffre(id),
+        ...habillage[id],
+      })),
+    []
+  );
+
+  const comparatif = useMemo(() => lignesComparatif(), []);
+
+  /**
+   * Lance Stripe Checkout pour une offre payante.
+   *
+   * Le serveur ne reçoit qu'un identifiant de plan — jamais un prix. Il
+   * choisit lui-même le `price_…` correspondant. Un visiteur non connecté est
+   * envoyé vers l'inscription : `create-checkout-session` exige une session.
+   */
+  const souscrire = async (plan: PlanId) => {
+    if (plan === 'free') return;
+    if (planEnCours) return;
+
+    if (status !== 'authenticated') {
+      router.push('/auth?mode=register');
+      return;
+    }
+
+    setPlanEnCours(plan);
+    setErreur('');
+
+    try {
+      const reponse = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      });
+
+      const donnees = await reponse.json().catch(() => null);
+
+      if (!reponse.ok || !donnees?.success || !donnees?.url) {
+        setErreur(
+          donnees?.error ||
+            "Le paiement n'a pas pu être lancé. Réessaie dans un instant."
+        );
+        setPlanEnCours(null);
+        return;
+      }
+
+      // On ne remet pas `planEnCours` à null : la page est en train de partir.
+      window.location.href = donnees.url;
+    } catch {
+      setErreur("Le paiement n'a pas pu être lancé. Vérifie ta connexion.");
+      setPlanEnCours(null);
+    }
+  };
 
   return (
     <>
@@ -230,21 +397,39 @@ export default function TarifsPage() {
 
         {/* Offres */}
         <section className="border-b border-cream/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
+          {erreur && (
+            <div
+              role="alert"
+              className="mx-auto mb-6 flex max-w-2xl items-start gap-3 rounded-2xl border border-rust/50 bg-rust/20 px-4 py-3.5 text-[13px] leading-relaxed text-cream"
+            >
+              <AlertCircle size={16} className="mt-0.5 shrink-0 text-cream" />
+              <p>{erreur}</p>
+            </div>
+          )}
+
           <div className="mx-auto grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {plans.map((plan) => {
-              const Icon = plan.icon;
-              const isOpen = openPlan === plan.id;
+            {offres.map((offre) => {
+              const Icon = offre.icon;
+              const isOpen = openPlan === offre.id;
+              const estGratuit = offre.id === 'free';
+              const enCours = planEnCours === offre.id;
+
+              const classesCta = `fx-btn mt-5 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-center text-[13px] font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${focusRing} ${
+                offre.populaire
+                  ? 'bg-orange text-abyss hover:bg-orange/90'
+                  : 'border border-cream/15 text-cream/85 hover:border-cream/30'
+              }`;
 
               return (
                 <div
-                  key={plan.id}
+                  key={offre.id}
                   className={`relative flex flex-col rounded-2xl border p-5 sm:p-6 ${
-                    plan.popular
+                    offre.populaire
                       ? 'border-orange/40 bg-[#123243] ring-1 ring-orange/20'
                       : 'border-cream/8 bg-[#123243]'
                   }`}
                 >
-                  {plan.popular && (
+                  {offre.populaire && (
                     <span className="absolute -top-2.5 left-5 rounded-full bg-lime px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-abyss">
                       Recommandé
                     </span>
@@ -252,24 +437,24 @@ export default function TarifsPage() {
 
                   <Icon
                     size={22}
-                    className={plan.popular ? 'text-orange' : 'text-cream/55'}
+                    className={offre.populaire ? 'text-orange' : 'text-cream/55'}
                   />
 
                   <h2 className="font-display [font-stretch:125%] mt-3 text-lg font-extrabold text-cream">
-                    {plan.name}
+                    {offre.nom}
                   </h2>
 
                   <p className="mt-1 text-[13px] leading-relaxed text-cream/55">
-                    {plan.description}
+                    {offre.accroche}
                   </p>
 
                   <div className="mt-4 flex items-baseline gap-1.5">
                     <span className="font-display text-[32px] font-extrabold leading-none text-cream">
-                      {plan.price === 0
+                      {estGratuit
                         ? 'gratuit'
-                        : plan.price.toFixed(2).replace('.', ',')}
+                        : offre.prix.toFixed(2).replace('.', ',')}
                     </span>
-                    {plan.price > 0 && (
+                    {!estGratuit && (
                       <span className="text-[13px] text-cream/55">€ / mois</span>
                     )}
                   </div>
@@ -278,7 +463,9 @@ export default function TarifsPage() {
                   <button
                     type="button"
                     onClick={() =>
-                      setOpenPlan((current) => (current === plan.id ? null : plan.id))
+                      setOpenPlan((current) =>
+                        current === offre.id ? null : offre.id
+                      )
                     }
                     aria-expanded={isOpen}
                     className={`mt-4 flex items-center justify-between border-t border-cream/8 pt-3 text-[13px] font-semibold text-cream/70 sm:hidden ${focusRing}`}
@@ -295,39 +482,52 @@ export default function TarifsPage() {
                       isOpen ? 'block' : 'hidden'
                     }`}
                   >
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-2">
+                    {offre.lignes.map((ligne) => (
+                      <li key={ligne} className="flex items-start gap-2">
                         <Check
                           size={14}
                           className={`mt-[3px] shrink-0 ${
-                            plan.popular ? 'text-orange' : 'text-lime'
+                            offre.populaire ? 'text-orange' : 'text-lime'
                           }`}
                         />
                         <span className="text-[13px] leading-relaxed text-cream/70">
-                          {feature}
+                          {ligne}
                         </span>
                       </li>
                     ))}
                   </ul>
 
-                  <Link
-                    href={plan.ctaLink}
-                    className={`fx-btn mt-5 block rounded-xl px-4 py-3 text-center text-[13px] font-bold transition-colors ${focusRing} ${
-                      plan.popular
-                        ? 'bg-orange text-abyss hover:bg-orange/90'
-                        : 'border border-cream/15 text-cream/85 hover:border-cream/30'
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
+                  {estGratuit ? (
+                    <Link href="/auth?mode=register" className={classesCta}>
+                      Commencer gratuitement
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => souscrire(offre.id)}
+                      disabled={planEnCours !== null}
+                      className={classesCta}
+                    >
+                      {enCours ? (
+                        <>
+                          <Loader2 size={15} className="animate-spin" />
+                          redirection…
+                        </>
+                      ) : (
+                        `Choisir ${offre.nom}`
+                      )}
+                    </button>
+                  )}
                 </div>
               );
             })}
           </div>
 
-          <p className="mx-auto mt-6 max-w-7xl text-center text-[13px] text-cream/55">
-            Paiement géré par Stripe, sans mauvaise surprise. Résiliation
-            depuis Mon Compte, à tout moment.
+          <p className="mx-auto mt-6 max-w-7xl text-center text-[13px] leading-relaxed text-cream/55">
+            Paiement géré par Stripe, sans mauvaise surprise. Résiliation depuis
+            Mon Compte, à tout moment.
+            <br />
+            TVA non applicable, article 293 B du CGI.
           </p>
         </section>
 
@@ -346,20 +546,20 @@ export default function TarifsPage() {
                     <th className="px-5 py-3.5 text-left text-[13px] font-semibold text-cream/55">
                       Fonctionnalité
                     </th>
-                    {plans.map((plan) => (
+                    {offres.map((offre) => (
                       <th
-                        key={plan.id}
+                        key={offre.id}
                         className={`px-5 py-3.5 text-center text-[13px] font-bold ${
-                          plan.popular ? 'text-orange' : 'text-cream/85'
+                          offre.populaire ? 'text-orange' : 'text-cream/85'
                         }`}
                       >
-                        {plan.name}
+                        {offre.nom}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {comparisonRows.map((row) => (
+                  {comparatif.map((row) => (
                     <tr key={row.feature} className="border-t border-cream/8">
                       <td className="px-5 py-3.5 text-[13px] text-cream/70">
                         {row.feature}
@@ -380,7 +580,7 @@ export default function TarifsPage() {
 
             {/* Mobile / tablette : accordéons par ligne */}
             <div className="space-y-1.5 lg:hidden">
-              {comparisonRows.map((row, index) => {
+              {comparatif.map((row, index) => {
                 const isOpen = openComparisonIndex === index;
 
                 return (
@@ -415,17 +615,17 @@ export default function TarifsPage() {
                           className="overflow-hidden"
                         >
                           <dl className="grid grid-cols-2 gap-px border-t border-cream/8 bg-cream/[0.04]">
-                            {plans.map((plan, i) => (
+                            {offres.map((offre, i) => (
                               <div
-                                key={plan.id}
+                                key={offre.id}
                                 className="flex items-center justify-between gap-2 bg-[#123243] px-4 py-2.5"
                               >
                                 <dt
                                   className={`text-[12px] font-semibold ${
-                                    plan.popular ? 'text-orange' : 'text-cream/55'
+                                    offre.populaire ? 'text-orange' : 'text-cream/55'
                                   }`}
                                 >
-                                  {plan.name}
+                                  {offre.nom}
                                 </dt>
                                 <dd className="text-[12px]">
                                   <ComparisonValue value={row.values[i]} />
@@ -531,7 +731,7 @@ export default function TarifsPage() {
 
               <Link
                 href="/guide"
- className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+                className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
               >
                 lire le guide
                 <ArrowRight size={14} />

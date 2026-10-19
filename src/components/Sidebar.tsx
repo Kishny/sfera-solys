@@ -292,7 +292,7 @@ export default function Sidebar() {
         })}
 
         <Link
-          href="/paiement"
+          href="/tarifs"
           className="mt-1 flex items-center gap-3 rounded-xl px-3 py-[11px] text-sm font-medium text-cream/65 transition-colors hover:bg-cream/5 hover:text-cream"
         >
           <Crown size={16} />
