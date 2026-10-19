@@ -198,6 +198,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
               </button>
 
               <TestimonialForm
+                variant="dark"
                 profileImage={user.image || null}
                 onSuccess={() => {
                   setATemoigne(true);

@@ -146,7 +146,7 @@ const sections: SectionLegale[] = [
           Pour toute question relative aux présentes CGU :{" "}
           <a
             href="mailto:contact@sferasolys.com"
-            className="font-medium text-[#8E7AB5] underline-offset-2 hover:underline"
+            className="font-medium text-orange underline-offset-2 hover:underline"
           >
             contact@sferasolys.com
           </a>

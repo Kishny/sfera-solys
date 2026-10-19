@@ -72,7 +72,7 @@ const sections: SectionLegale[] = [
               Email :{" "}
               <a
                 href="mailto:contact@sferasolys.com"
-                className="font-medium text-[#8E7AB5] underline-offset-2 hover:underline"
+                className="font-medium text-orange underline-offset-2 hover:underline"
               >
                 contact@sferasolys.com
               </a>
@@ -81,7 +81,7 @@ const sections: SectionLegale[] = [
               Via notre{" "}
               <Link
                 href="/contact"
-                className="font-medium text-[#8E7AB5] underline-offset-2 hover:underline"
+                className="font-medium text-orange underline-offset-2 hover:underline"
               >
                 formulaire de contact
               </Link>

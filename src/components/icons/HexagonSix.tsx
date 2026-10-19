@@ -1,5 +1,7 @@
 // src/components/icons/HexagonSix.tsx
-// Icône custom Circle of Six — hexagone avec 6 points aux sommets
+// Icône custom Circle of Six — hexagone avec 6 points aux sommets.
+// Teintes alignées sur l'éclipse solaire : orange pour les six profils,
+// dégradé orange→rust pour la structure, cream pour les liaisons.
 
 interface HexagonSixProps {
   size?: number | string;
@@ -38,21 +40,21 @@ export default function HexagonSix({ size = 32, className = "" }: HexagonSixProp
       {/* Dégradé hexagone */}
       <defs>
         <linearGradient id="hex-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#8E7AB5" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="#D9B8FF" stopOpacity="0.15" />
+          <stop offset="0%" stopColor="#FF4103" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#6B1B02" stopOpacity="0.18" />
         </linearGradient>
         <linearGradient id="hex-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#8E7AB5" />
-          <stop offset="100%" stopColor="#D9B8FF" />
+          <stop offset="0%" stopColor="#FF4103" />
+          <stop offset="100%" stopColor="#6B1B02" />
         </linearGradient>
         <linearGradient id="dot-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#8E7AB5" />
-          <stop offset="100%" stopColor="#c084fc" />
+          <stop offset="0%" stopColor="#FF4103" />
+          <stop offset="100%" stopColor="#FF4103" />
         </linearGradient>
         {/* Lignes de connexion dégradé */}
         <linearGradient id="line-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#8E7AB5" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#D9B8FF" stopOpacity="0.4" />
+          <stop offset="0%" stopColor="#FFEBD1" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#FFEBD1" stopOpacity="0.35" />
         </linearGradient>
       </defs>
 
