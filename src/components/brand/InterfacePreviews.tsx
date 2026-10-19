@@ -31,10 +31,10 @@ import HexagonSix from '@/components/icons/HexagonSix';
 
 /** Dégradés de fond des avatars, alternés pour que six vignettes ne soient pas six fois la même. */
 const TEINTES = [
-  'from-orange/30 via-rust/30 to-abyss',
-  'from-rust/40 via-abyss to-abyss',
-  'from-orange/20 via-abyss to-rust/25',
-  'from-rust/25 via-orange/15 to-abyss',
+  'from-cuivre/30 via-cuivre-sombre/30 to-nuit',
+  'from-cuivre-sombre/40 via-nuit to-nuit',
+  'from-cuivre/20 via-nuit to-cuivre-sombre/25',
+  'from-cuivre-sombre/25 via-cuivre/15 to-nuit',
 ];
 
 /**
@@ -78,16 +78,16 @@ function AvatarEclipse({
           cy="20"
           r="12.5"
           fill="none"
-          stroke="#FF4103"
+          stroke="#BD9365"
           strokeOpacity="0.22"
           strokeWidth="1"
         />
-        <circle cx="20" cy="20" r="9.5" fill="#FF4103" fillOpacity="0.92" />
+        <circle cx="20" cy="20" r="9.5" fill="#BD9365" fillOpacity="0.92" />
         <circle
           cx={20 + d * 6}
           cy={20 - d * 3}
           r="6.6"
-          fill="#123243"
+          fill="#1D2835"
           fillOpacity="0.96"
         />
       </svg>
@@ -116,17 +116,17 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
         sont côte à côte dans une grille, donc étirés à la même hauteur. Sans
         ça, la carte la plus courte gardait une poche de vide sous son texte.
       */}
-      <div className="flex flex-1 flex-col rounded-2xl border border-cream/10 bg-[#123243] p-4 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] sm:p-5">
+      <div className="flex flex-1 flex-col rounded-2xl border border-champagne/10 bg-minuit p-4 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] sm:p-5">
         {/* En-tête */}
         <div className="mb-4 flex items-center justify-between gap-3">
           <span className="flex items-center gap-2">
             <HexagonSix size={18} className="shrink-0" />
-            <span className="font-display [font-stretch:125%] text-[13px] font-extrabold text-cream">
+            <span className="font-display text-[13px] font-extrabold text-champagne">
               Circle of Six
             </span>
           </span>
 
-          <span className="rounded-full border border-lime/30 bg-lime/[0.08] px-2 py-0.5 text-[10px] font-bold text-lime">
+          <span className="rounded-full border border-succes/30 bg-succes/[0.08] px-2 py-0.5 text-[10px] font-bold text-succes">
             Cette semaine
           </span>
         </div>
@@ -138,20 +138,20 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
               key={profil.ville}
               className={`rounded-xl border p-2 ${
                 slot === 1
-                  ? 'border-orange/40 bg-orange/[0.06]'
-                  : 'border-cream/8 bg-abyss/50'
+                  ? 'border-cuivre/40 bg-cuivre/[0.06]'
+                  : 'border-champagne/8 bg-nuit/50'
               }`}
             >
               <AvatarEclipse index={slot} className="h-12 w-full sm:h-14" />
 
-              <span className="mt-2 block truncate text-[10px] font-semibold text-cream/80">
+              <span className="mt-2 block truncate text-[10px] font-semibold text-champagne/80">
                 {profil.age} ans · {profil.ville}
               </span>
-              <span className="block text-[9px] leading-tight text-cream/60">
+              <span className="block text-[9px] leading-tight text-champagne/60">
                 {profil.communs} intérêts en commun
               </span>
 
-              <span className="mt-1.5 flex items-center gap-1 text-[9px] font-bold text-lime">
+              <span className="mt-1.5 flex items-center gap-1 text-[9px] font-bold text-succes">
                 <Check size={9} strokeWidth={3} />
                 Vérifié
               </span>
@@ -159,14 +159,14 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
           ))}
         </div>
 
-        <p className="mt-auto border-t border-cream/8 pt-3 text-[11px] text-cream/55">
+        <p className="mt-auto border-t border-champagne/8 pt-3 text-[11px] text-champagne/55">
           <span className="block pt-1">
             6 profils, renouvelés chaque lundi. Aucun défilement infini.
           </span>
         </p>
       </div>
 
-      <figcaption className="mt-3 text-[12px] text-cream/55">
+      <figcaption className="mt-3 text-[12px] text-champagne/55">
         Aperçu de l&apos;interface — données d&apos;exemple, aucun profil réel.
       </figcaption>
     </figure>
@@ -188,21 +188,21 @@ export function AnnuairePreview({ className = '' }: { className?: string }) {
 
   return (
     <figure className={`flex flex-col ${className}`}>
-      <div className="flex-1 rounded-2xl border border-cream/10 bg-[#123243] p-4 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] sm:p-5">
+      <div className="flex-1 rounded-2xl border border-champagne/10 bg-minuit p-4 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] sm:p-5">
         {/* En-tête : bascule annuaire / découverte */}
         <div className="mb-3 flex items-center justify-between gap-3">
-          <span className="font-display [font-stretch:125%] text-[13px] font-extrabold text-cream">
+          <span className="font-display text-[13px] font-extrabold text-champagne">
             Explorer
           </span>
 
           <span
             aria-hidden="true"
-            className="flex items-center rounded-lg border border-cream/10 bg-abyss/60 p-0.5"
+            className="flex items-center rounded-lg border border-champagne/10 bg-nuit/60 p-0.5"
           >
-            <span className="rounded-md bg-orange px-2 py-1 text-[10px] font-bold text-abyss">
+            <span className="rounded-md bg-cuivre px-2 py-1 text-[10px] font-bold text-nuit">
               Annuaire
             </span>
-            <span className="px-2 py-1 text-[10px] font-semibold text-cream/55">
+            <span className="px-2 py-1 text-[10px] font-semibold text-champagne/55">
               Découverte
             </span>
           </span>
@@ -210,34 +210,34 @@ export function AnnuairePreview({ className = '' }: { className?: string }) {
 
         {/* Filtres */}
         <div className="mb-3 flex items-center gap-1.5">
-          <SlidersHorizontal size={11} className="shrink-0 text-cream/55" />
-          <span className="rounded-full border border-orange/35 bg-orange/[0.1] px-2 py-0.5 text-[10px] font-semibold text-cream">
+          <SlidersHorizontal size={11} className="shrink-0 text-champagne/55" />
+          <span className="rounded-full border border-cuivre/35 bg-cuivre/[0.1] px-2 py-0.5 text-[10px] font-semibold text-champagne">
             À proximité
           </span>
-          <span className="rounded-full border border-cream/12 px-2 py-0.5 text-[10px] font-semibold text-cream/60">
+          <span className="rounded-full border border-champagne/12 px-2 py-0.5 text-[10px] font-semibold text-champagne/60">
             28-35 ans
           </span>
-          <span className="hidden rounded-full border border-cream/12 px-2 py-0.5 text-[10px] font-semibold text-cream/60 sm:inline">
+          <span className="hidden rounded-full border border-champagne/12 px-2 py-0.5 text-[10px] font-semibold text-champagne/60 sm:inline">
             Vérifié uniquement
           </span>
         </div>
 
         {/* Lignes */}
-        <div className="divide-y divide-cream/8 border-t border-cream/8">
+        <div className="divide-y divide-champagne/8 border-t border-champagne/8">
           {rows.map((row, index) => (
             <div
               key={row.ville}
               className={`flex items-center gap-3 py-2.5 ${
-                row.highlight ? 'bg-orange/[0.04]' : ''
+                row.highlight ? 'bg-cuivre/[0.04]' : ''
               }`}
             >
               <AvatarEclipse index={index} className="h-9 w-9" />
 
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[11px] font-semibold text-cream/80">
+                <span className="block truncate text-[11px] font-semibold text-champagne/80">
                   {row.age} ans · {row.ville}
                 </span>
-                <span className="mt-0.5 flex items-center gap-1 text-[10px] text-cream/60">
+                <span className="mt-0.5 flex items-center gap-1 text-[10px] text-champagne/60">
                   <MapPin size={9} className="shrink-0" />à {row.km} km
                 </span>
               </span>
@@ -246,25 +246,25 @@ export function AnnuairePreview({ className = '' }: { className?: string }) {
                 {row.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full border border-cream/12 px-2 py-0.5 text-[10px] text-cream/60"
+                    className="rounded-full border border-champagne/12 px-2 py-0.5 text-[10px] text-champagne/60"
                   >
                     {tag}
                   </span>
                 ))}
               </span>
 
-              <span className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-lime">
+              <span className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-succes">
                 <Check size={10} strokeWidth={3} />
                 Vérifié
               </span>
 
-              <ArrowRight size={13} className="shrink-0 text-orange" />
+              <ArrowRight size={13} className="shrink-0 text-cuivre" />
             </div>
           ))}
         </div>
       </div>
 
-      <figcaption className="mt-3 text-[12px] text-cream/55">
+      <figcaption className="mt-3 text-[12px] text-champagne/55">
         La vue annuaire, à côté du mode découverte — tu choisis ton rythme.
         Données d&apos;exemple.
       </figcaption>

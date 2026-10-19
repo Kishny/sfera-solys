@@ -55,21 +55,21 @@ export async function POST(req: Request) {
         to: email,
         subject: "Bienvenue dans la newsletter Sfera'Solys",
         html: `
-          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #04202E;">
-            <div style="background: #123243; border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 24px;">
-              <h1 style="color: #FFEBD1; margin: 0; font-size: 28px; font-weight: 700;">Sfera<span style="color: #FF4103;">&rsquo;</span>Solys</h1>
-              <p style="color: rgba(255,235,209,0.7); margin: 8px 0 0; font-size: 15px;">La newsletter de la communauté</p>
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px; background: #0A0D12;">
+            <div style="background: #1D2835; border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 24px;">
+              <h1 style="color: #EAD9BD; margin: 0; font-size: 28px; font-weight: 700;">Sfera<span style="color: #BD9365;">&rsquo;</span>Solys</h1>
+              <p style="color: rgba(234,217,189,0.7); margin: 8px 0 0; font-size: 15px;">La newsletter de la communauté</p>
             </div>
-            <h2 style="color: #FFEBD1; font-size: 20px; margin-bottom: 12px;">Tu es inscrit.</h2>
-            <p style="color: rgba(255,235,209,0.75); line-height: 1.7; margin-bottom: 16px;">
+            <h2 style="color: #EAD9BD; font-size: 20px; margin-bottom: 12px;">Tu es inscrit.</h2>
+            <p style="color: rgba(234,217,189,0.75); line-height: 1.7; margin-bottom: 16px;">
               Merci. Tu recevras désormais :
             </p>
-            <ul style="color: rgba(255,235,209,0.75); line-height: 2; padding-left: 20px; margin-bottom: 24px;">
+            <ul style="color: rgba(234,217,189,0.75); line-height: 2; padding-left: 20px; margin-bottom: 24px;">
               <li>Les conseils de la communauté Solys</li>
               <li>Les événements à venir</li>
               <li>Les nouvelles fonctionnalités en avant-première</li>
             </ul>
-            <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,235,209,0.15); color: rgba(255,235,209,0.55); font-size: 12px;">
+            <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(234,217,189,0.15); color: rgba(234,217,189,0.55); font-size: 12px;">
               &copy; ${new Date().getFullYear()} Sfera&rsquo;Solys &mdash; rencontres vérifiées, hommes de 28 ans et plus
             </div>
           </div>

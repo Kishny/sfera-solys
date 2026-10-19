@@ -70,43 +70,43 @@ function BlocVerificationIdentite({ user }: { user: MembreSolys }) {
     <section
       className={`rounded-2xl border p-4 sm:p-5 ${
         user.identityVerified
-          ? "border-lime/25 bg-lime/[0.06]"
-          : "border-orange/25 bg-orange/[0.06]"
+          ? "border-succes/25 bg-succes/[0.06]"
+          : "border-cuivre/25 bg-cuivre/[0.06]"
       }`}
     >
       <div className="flex items-center gap-2.5">
         <BadgeCheck
           size={17}
-          className={user.identityVerified ? "text-lime" : "text-orange"}
+          className={user.identityVerified ? "text-succes" : "text-cuivre"}
           aria-hidden="true"
         />
 
-        <h3 className="font-display [font-stretch:125%] text-[15px] font-bold text-cream">
+        <h3 className="font-display text-[15px] font-bold text-champagne">
           Vérification d’identité
         </h3>
 
         {user.identityVerified && (
-          <span className="ml-auto flex items-center gap-1 rounded-full bg-lime/15 px-2.5 py-1 text-[11px] font-bold text-lime">
+          <span className="ml-auto flex items-center gap-1 rounded-full bg-succes/15 px-2.5 py-1 text-[11px] font-bold text-succes">
             <CheckCircle2 size={12} aria-hidden="true" />
             Vérifiée
           </span>
         )}
       </div>
 
-      <p className="mt-2 text-[13px] leading-relaxed text-cream/70">
+      <p className="mt-2 text-[13px] leading-relaxed text-champagne/70">
         Une pièce d’identité officielle, vérifiée par Stripe. C’est ce qui
         donne le badge « Profil vérifié » — et ce qui fait que les membres d’en
         face sont de vraies personnes.
       </p>
 
       {etat === "pending" && (
-        <p className="mt-3 text-[13px] text-cream/75" role="status">
+        <p className="mt-3 text-[13px] text-champagne/75" role="status">
           Vérification en cours — Stripe nous prévient dès qu’elle aboutit.
         </p>
       )}
 
       {etat === "failed" && (
-        <p className="mt-3 text-[13px] text-cream/85" role="status">
+        <p className="mt-3 text-[13px] text-champagne/85" role="status">
           La vérification n’a pas abouti. Tu peux recommencer.
         </p>
       )}
@@ -116,7 +116,7 @@ function BlocVerificationIdentite({ user }: { user: MembreSolys }) {
           type="button"
           onClick={verifier}
           disabled={enCours}
-          className={`mt-4 inline-flex items-center gap-2 rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 disabled:opacity-50 ${focusRing}`}
+          className={`mt-4 inline-flex items-center gap-2 rounded-xl bg-cuivre px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:opacity-50 ${focusRing}`}
         >
           {enCours && (
             <Loader2 size={13} className="animate-spin" aria-hidden="true" />
@@ -126,7 +126,7 @@ function BlocVerificationIdentite({ user }: { user: MembreSolys }) {
       )}
 
       {erreur && (
-        <p className="mt-3 text-[13px] text-cream/85" role="alert">
+        <p className="mt-3 text-[13px] text-champagne/85" role="alert">
           {erreur}
         </p>
       )}
@@ -184,12 +184,12 @@ function SuppressionCompte() {
   };
 
   return (
-    <section className="rounded-2xl border border-rust/40 bg-rust/[0.12] p-4 sm:p-5">
-      <p className="text-[14px] font-semibold text-cream">
+    <section className="rounded-2xl border border-erreur/40 bg-erreur/[0.12] p-4 sm:p-5">
+      <p className="text-[14px] font-semibold text-champagne">
         Supprimer mon compte
       </p>
 
-      <p className="mt-1.5 text-[13px] leading-relaxed text-cream/70">
+      <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/70">
         Ton profil, tes photos, tes mises en relation et tes messages sont
         effacés définitivement. Un abonnement en cours est résilié chez Stripe.
         Cette action ne peut pas être annulée.
@@ -199,7 +199,7 @@ function SuppressionCompte() {
         <button
           type="button"
           onClick={() => setOuvert(true)}
-          className={`mt-4 rounded-xl border border-cream/20 px-4 py-2.5 text-[12px] font-semibold text-cream transition-colors hover:border-cream/40 ${focusRing}`}
+          className={`mt-4 rounded-xl border border-champagne/20 px-4 py-2.5 text-[12px] font-semibold text-champagne transition-colors hover:border-champagne/40 ${focusRing}`}
         >
           Supprimer mon compte
         </button>
@@ -207,9 +207,9 @@ function SuppressionCompte() {
         <div className="mt-4">
           <label
             htmlFor="confirmation-suppression"
-            className="mb-2 block text-[13px] text-cream/75"
+            className="mb-2 block text-[13px] text-champagne/75"
           >
-            Écris <strong className="text-cream">SUPPRIMER</strong> pour
+            Écris <strong className="text-champagne">SUPPRIMER</strong> pour
             confirmer.
           </label>
 
@@ -223,7 +223,7 @@ function SuppressionCompte() {
           />
 
           {erreur && (
-            <p className="mt-3 text-[13px] text-cream/85" role="alert">
+            <p className="mt-3 text-[13px] text-champagne/85" role="alert">
               {erreur}
             </p>
           )}
@@ -235,7 +235,7 @@ function SuppressionCompte() {
               disabled={
                 enCours || confirmation.trim().toUpperCase() !== "SUPPRIMER"
               }
-              className={`rounded-xl border border-cream/25 bg-rust px-4 py-2.5 text-[12px] font-bold text-cream transition-colors hover:bg-rust/80 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+              className={`rounded-xl border border-champagne/25 bg-erreur px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-erreur/80 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
             >
               {enCours ? "Suppression…" : "Supprimer définitivement"}
             </button>
@@ -248,7 +248,7 @@ function SuppressionCompte() {
                 setErreur("");
               }}
               disabled={enCours}
-              className={`rounded-xl border border-cream/15 px-4 py-2.5 text-[12px] font-semibold text-cream/80 transition-colors hover:border-cream/30 disabled:opacity-50 ${focusRing}`}
+              className={`rounded-xl border border-champagne/15 px-4 py-2.5 text-[12px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 disabled:opacity-50 ${focusRing}`}
             >
               Annuler
             </button>
@@ -281,10 +281,10 @@ export default function OngletSecurite({ user }: { user: MembreSolys }) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-display [font-stretch:125%] text-[19px] font-bold text-cream">
+        <h2 className="font-display text-[19px] font-bold text-champagne">
           Sécurité du compte
         </h2>
-        <p className="mt-1 text-[13px] text-cream/60">
+        <p className="mt-1 text-[13px] text-champagne/60">
           Ce qui protège ton compte, et ce qui manque encore.
         </p>
       </div>
@@ -299,18 +299,18 @@ export default function OngletSecurite({ user }: { user: MembreSolys }) {
             animate="visible"
             className={`flex items-center gap-3 rounded-xl border px-3.5 py-3 text-[13px] ${
               verification.ok
-                ? "border-lime/20 bg-lime/[0.05] text-cream"
-                : "border-cream/10 text-cream/60"
+                ? "border-succes/20 bg-succes/[0.05] text-champagne"
+                : "border-champagne/10 text-champagne/60"
             }`}
           >
             {verification.ok ? (
               <CheckCircle2
                 size={15}
-                className="shrink-0 text-lime"
+                className="shrink-0 text-succes"
                 aria-hidden="true"
               />
             ) : (
-              <X size={15} className="shrink-0 text-cream/55" aria-hidden="true" />
+              <X size={15} className="shrink-0 text-champagne/55" aria-hidden="true" />
             )}
             {verification.label}
           </motion.li>
@@ -320,29 +320,29 @@ export default function OngletSecurite({ user }: { user: MembreSolys }) {
       <section className={`${carte} p-4 sm:p-5`}>
         <dl className="space-y-3 text-[13px]">
           <div>
-            <dt className="text-[11px] uppercase tracking-wide text-cream/60">
+            <dt className="text-[11px] uppercase tracking-wide text-champagne/60">
               Méthode de connexion
             </dt>
-            <dd className="mt-0.5 font-semibold capitalize text-cream">
+            <dd className="mt-0.5 font-semibold capitalize text-champagne">
               {user.provider === "google" ? "Google" : "Email et mot de passe"}
             </dd>
           </div>
 
           <div>
-            <dt className="text-[11px] uppercase tracking-wide text-cream/60">
+            <dt className="text-[11px] uppercase tracking-wide text-champagne/60">
               Membre depuis
             </dt>
-            <dd className="mt-0.5 font-semibold text-cream">
+            <dd className="mt-0.5 font-semibold text-champagne">
               {formaterDate(user.createdAt)}
             </dd>
           </div>
 
           {user.lastLoginAt && (
             <div>
-              <dt className="text-[11px] uppercase tracking-wide text-cream/60">
+              <dt className="text-[11px] uppercase tracking-wide text-champagne/60">
                 Dernière connexion
               </dt>
-              <dd className="mt-0.5 font-semibold text-cream">
+              <dd className="mt-0.5 font-semibold text-champagne">
                 {formaterDate(user.lastLoginAt)}
               </dd>
             </div>
@@ -353,10 +353,10 @@ export default function OngletSecurite({ user }: { user: MembreSolys }) {
       <BlocVerificationIdentite user={user} />
 
       {user.provider !== "google" && (
-        <p className="flex items-start gap-2.5 rounded-xl border border-cream/10 px-3.5 py-3 text-[13px] leading-relaxed text-cream/70">
+        <p className="flex items-start gap-2.5 rounded-xl border border-champagne/10 px-3.5 py-3 text-[13px] leading-relaxed text-champagne/70">
           <ShieldCheck
             size={15}
-            className="mt-0.5 shrink-0 text-lime"
+            className="mt-0.5 shrink-0 text-succes"
             aria-hidden="true"
           />
           Ton mot de passe est stocké sous forme de condensat chiffré (bcrypt),

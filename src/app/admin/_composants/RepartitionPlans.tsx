@@ -30,33 +30,33 @@ export default function RepartitionPlans({
   return (
     <div>
       <div className="mb-5 flex items-baseline gap-2">
-        <span className="font-display text-3xl font-extrabold text-cream">
+        <span className="font-display text-3xl font-extrabold text-champagne">
           {formatNumber(total)}
         </span>
-        <span className="text-[13px] text-cream/60">membres au total</span>
+        <span className="text-[13px] text-champagne/60">membres au total</span>
       </div>
 
       <ul className="space-y-3">
         {lignes.map((l) => (
           <li key={l.plan}>
             <div className="mb-1.5 flex items-center gap-2 text-[13px]">
-              <span className="flex items-center gap-1 text-cream/70">
+              <span className="flex items-center gap-1 text-champagne/70">
                 {l.label}
                 {l.plan === "elite-monthly" && (
-                  <Crown className="h-3 w-3 text-orange" aria-hidden="true" />
+                  <Crown className="h-3 w-3 text-cuivre" aria-hidden="true" />
                 )}
               </span>
-              <span className="ml-auto font-semibold text-cream">
+              <span className="ml-auto font-semibold text-champagne">
                 {formatNumber(l.count)}
               </span>
-              <span className="w-9 text-right text-xs text-cream/60">
+              <span className="w-9 text-right text-xs text-champagne/60">
                 {l.pct}%
               </span>
             </div>
 
-            <div className="h-1.5 overflow-hidden rounded-full bg-cream/10">
+            <div className="h-1.5 overflow-hidden rounded-full bg-champagne/10">
               <div
-                className="h-full rounded-full bg-orange"
+                className="h-full rounded-full bg-cuivre"
                 style={{ width: `${l.pct}%` }}
               />
             </div>

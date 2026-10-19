@@ -188,7 +188,7 @@ export default function Sidebar() {
   return (
     <aside
       aria-label="Navigation principale"
-      className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col border-r border-cream/10 bg-abyss px-4 py-6 lg:flex"
+      className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col border-r border-champagne/10 bg-nuit px-4 py-6 lg:flex"
     >
       <Link href="/" className="flex items-center gap-2.5 px-2 pb-7">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -198,7 +198,7 @@ export default function Sidebar() {
           aria-hidden="true"
           className="h-5 w-5 shrink-0"
         />
-        <span className="font-display text-base font-extrabold tracking-tight text-cream">
+        <span className="font-display text-base font-extrabold tracking-tight text-champagne">
           Sfera'Solys
         </span>
       </Link>
@@ -216,8 +216,8 @@ export default function Sidebar() {
                   onClick={() => setCircleOpen((current) => !current)}
                   className={`flex w-full items-center gap-3 rounded-xl px-3 py-[11px] text-sm font-medium transition-colors ${
                     active
-                      ? "bg-orange/15 text-cream"
-                      : "text-cream/65 hover:bg-cream/5 hover:text-cream"
+                      ? "bg-cuivre/15 text-champagne"
+                      : "text-champagne/65 hover:bg-champagne/5 hover:text-champagne"
                   }`}
                 >
                   <link.icon size={16} />
@@ -239,7 +239,7 @@ export default function Sidebar() {
                       transition={{ duration: 0.18, ease: "easeOut" }}
                       className="overflow-hidden"
                     >
-                      <div className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-cream/10 pl-4">
+                      <div className="ml-4 mt-1 flex flex-col gap-0.5 border-l border-champagne/10 pl-4">
                         {link.subItems.map((sub) => (
                           <Link
                             key={sub.href}
@@ -247,8 +247,8 @@ export default function Sidebar() {
                             aria-current={pathname === sub.href ? "page" : undefined}
                             className={`rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
                               pathname === sub.href
-                                ? "text-orange"
-                                : "text-cream/55 hover:text-cream"
+                                ? "text-cuivre"
+                                : "text-champagne/55 hover:text-champagne"
                             }`}
                           >
                             {sub.label}
@@ -269,15 +269,15 @@ export default function Sidebar() {
               aria-current={active ? "page" : undefined}
               className={`flex items-center gap-3 rounded-xl px-3 py-[11px] text-sm font-medium transition-colors ${
                 active
-                  ? "bg-orange/15 text-cream"
-                  : "text-cream/65 hover:bg-cream/5 hover:text-cream"
+                  ? "bg-cuivre/15 text-champagne"
+                  : "text-champagne/65 hover:bg-champagne/5 hover:text-champagne"
               }`}
             >
               <link.icon size={16} />
               <span className="flex-1">{link.label}</span>
               {link.pastille && compteurs[link.pastille] > 0 && (
                 <span
-                  className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-lime px-1 text-[10px] font-extrabold text-abyss"
+                  className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-succes px-1 text-[10px] font-extrabold text-nuit"
                   aria-label={
                     link.pastille === "messages"
                       ? `${compteurs.messages} message${compteurs.messages > 1 ? "s" : ""} non lu${compteurs.messages > 1 ? "s" : ""}`
@@ -293,7 +293,7 @@ export default function Sidebar() {
 
         <Link
           href="/tarifs"
-          className="mt-1 flex items-center gap-3 rounded-xl px-3 py-[11px] text-sm font-medium text-cream/65 transition-colors hover:bg-cream/5 hover:text-cream"
+          className="mt-1 flex items-center gap-3 rounded-xl px-3 py-[11px] text-sm font-medium text-champagne/65 transition-colors hover:bg-champagne/5 hover:text-champagne"
         >
           <Crown size={16} />
           <span>Premium</span>
@@ -306,9 +306,9 @@ export default function Sidebar() {
           type="button"
           onClick={() => setUserMenuOpen((current) => !current)}
           aria-expanded={userMenuOpen}
-          className="flex w-full items-center gap-2.5 rounded-xl bg-cream/[0.04] px-3 py-2.5 text-left transition-colors hover:bg-cream/[0.07]"
+          className="flex w-full items-center gap-2.5 rounded-xl bg-champagne/[0.04] px-3 py-2.5 text-left transition-colors hover:bg-champagne/[0.07]"
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange text-abyss">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cuivre text-nuit">
             {session?.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -321,10 +321,10 @@ export default function Sidebar() {
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[13px] font-semibold text-cream">
+            <div className="truncate text-[13px] font-semibold text-champagne">
               {session?.user?.name || "mon compte"}
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-lime">
+            <div className="flex items-center gap-1 text-[11px] text-succes">
               <ShieldCheck size={11} /> vérifié
             </div>
           </div>
@@ -336,19 +336,19 @@ export default function Sidebar() {
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
-              className="absolute bottom-full left-0 right-0 z-50 mb-2 rounded-2xl border border-cream/10 bg-abyss p-2 shadow-[0_18px_44px_-14px_rgba(0,0,0,0.5)]"
+              className="absolute bottom-full left-0 right-0 z-50 mb-2 rounded-2xl border border-champagne/10 bg-nuit p-2 shadow-[0_18px_44px_-14px_rgba(0,0,0,0.5)]"
             >
               <Link
                 href="/mon-compte"
                 onClick={() => setUserMenuOpen(false)}
-                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-cream/70 transition-colors hover:bg-cream/5 hover:text-cream"
+                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-champagne/70 transition-colors hover:bg-champagne/5 hover:text-champagne"
               >
                 <User size={15} /> mon dossier
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-cream/55 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-champagne/55 transition-colors hover:bg-red-500/10 hover:text-red-400"
               >
                 <LogOut size={15} /> déconnexion
               </button>

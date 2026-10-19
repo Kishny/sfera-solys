@@ -58,10 +58,10 @@ export default function TestimonialSubmitSection() {
 
   if (!sessionUser?.id) {
     return (
-      <p className="mt-4 text-center text-xs text-cream/55 sm:mt-6 sm:text-sm">
+      <p className="mt-4 text-center text-xs text-champagne/55 sm:mt-6 sm:text-sm">
         <Link
           href="/auth?mode=login"
-          className="font-semibold text-orange underline underline-offset-2 hover:text-orange/80"
+          className="font-semibold text-cuivre underline underline-offset-2 hover:text-cuivre/80"
         >
           Connecte-toi
         </Link>{" "}
@@ -77,7 +77,7 @@ export default function TestimonialSubmitSection() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-cream/15 px-5 py-2.5 text-sm font-semibold text-cream/85 transition-colors hover:border-orange/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss sm:px-6 sm:py-3"
+            className="inline-flex items-center gap-2 rounded-xl border border-champagne/15 px-5 py-2.5 text-sm font-semibold text-champagne/85 transition-colors hover:border-cuivre/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit sm:px-6 sm:py-3"
           >
             <MessageSquarePlus size={16} />
             {alreadySubmitted

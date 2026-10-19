@@ -19,15 +19,17 @@
 
 :root {
   /* Miroir des tokens Tailwind, pour le CSS qui ne passe pas par Tailwind. */
-  --abyss: #04202E;
-  --surface: #123243;
-  --cream: #ffebd1;
-  --orange: #ff4103;
-  --rust: #6b1b02;
-  --lime: #b6ff00;
+  --nuit: #0a0d12;
+  --minuit: #1d2835;
+  --cuivre: #bd9365;
+  --cuivre-sombre: #866137;
+  --champagne: #ead9bd;
+  --ivoire: #f7f3ed;
+  --succes: #83b28c;
+  --erreur: #cb7871;
 
-  --background: var(--abyss);
-  --foreground: var(--cream);
+  --background: var(--nuit);
+  --foreground: var(--champagne);
 
   /*
     Indique au navigateur que l'interface est sombre : il adapte les
@@ -72,7 +74,7 @@ body {
 */
 ::selection {
   background: rgba(255, 65, 3, 0.3);
-  color: var(--cream);
+  color: var(--champagne);
 }
 
 /*
@@ -81,7 +83,7 @@ body {
   l'utilisateur sans repère.
 */
 :focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--cuivre);
   outline-offset: 2px;
 }
 
@@ -91,16 +93,16 @@ body {
 
 /* Firefox */
 /*
-  Valeurs littérales et non `var(--orange)` : les pseudo-éléments de barre de
+  Valeurs littérales et non `var(--cuivre)` : les pseudo-éléments de barre de
   défilement de WebKit ont un historique de mauvais support des variables CSS
   (ils sont peints par un chemin de rendu distinct). Sur un élément décoratif
   on s'en remettrait au hasard ; ici une variable non résolue rendrait la
-  barre invisible. Les valeurs sont celles des tokens : orange #FF4103,
-  rust #6B1B02, lime #B6FF00.
+  barre invisible. Les valeurs sont celles des tokens : orange #BD9365,
+  rust #CB7871, lime #83B28C.
 */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #ff4103 transparent;
+  scrollbar-color: #BD9365 transparent;
 }
 
 /* WebKit / Chromium */
@@ -120,23 +122,23 @@ body {
   coller aux bords — et une zone de préhension qui reste large au pointeur.
 */
 ::-webkit-scrollbar-thumb {
-  background-color: #ff4103;
-  background-image: linear-gradient(180deg, #ff4103, #6b1b02);
+  background-color: #BD9365;
+  background-image: linear-gradient(180deg, #BD9365, #CB7871);
   background-clip: padding-box;
   border: 3px solid transparent;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #ff5c26;
-  background-image: linear-gradient(180deg, #ff5c26, #ff4103);
+  background-color: #EAD9BD;
+  background-image: linear-gradient(180deg, #EAD9BD, #BD9365);
   background-clip: padding-box;
 }
 
-/* Au glissé, une pointe de lime : le même accent que les badges. */
+/* Au glissé, la barre s'éclaircit jusqu'à l'ivoire. */
 ::-webkit-scrollbar-thumb:active {
-  background-color: #b6ff00;
-  background-image: linear-gradient(180deg, #b6ff00, #ff4103);
+  background-color: #F7F3ED;
+  background-image: linear-gradient(180deg, #F7F3ED, #EAD9BD);
   background-clip: padding-box;
 }
 
@@ -163,7 +165,7 @@ body {
     inset: 0 0 auto 0;
     height: 2px;
     z-index: 60;
-    background: linear-gradient(90deg, #ff4103, #b6ff00);
+    background: linear-gradient(90deg, #BD9365, #83B28C);
     transform: scaleX(0);
     transform-origin: 0 50%;
     animation: solys-lecture linear;
@@ -207,18 +209,18 @@ body {
 
 .stars::before {
   background-image:
-    radial-gradient(1px 1px at 20px 30px, rgba(255, 235, 209, 0.75), transparent),
-    radial-gradient(1px 1px at 40px 70px, rgba(255, 235, 209, 0.5), transparent),
+    radial-gradient(1px 1px at 20px 30px, rgba(234,217,189, 0.75), transparent),
+    radial-gradient(1px 1px at 40px 70px, rgba(234,217,189, 0.5), transparent),
     radial-gradient(1.5px 1.5px at 50px 160px, rgba(255, 65, 3, 0.55), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(255, 235, 209, 0.55), transparent);
+    radial-gradient(1px 1px at 90px 40px, rgba(234,217,189, 0.55), transparent);
   background-size: 200px 200px;
 }
 
 .stars::after {
   background-image:
-    radial-gradient(1px 1px at 130px 80px, rgba(255, 235, 209, 0.45), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(234,217,189, 0.45), transparent),
     radial-gradient(1.5px 1.5px at 160px 120px, rgba(255, 65, 3, 0.45), transparent),
-    radial-gradient(1px 1px at 200px 60px, rgba(255, 235, 209, 0.6), transparent),
+    radial-gradient(1px 1px at 200px 60px, rgba(234,217,189, 0.6), transparent),
     radial-gradient(1px 1px at 240px 90px, rgba(182, 255, 0, 0.35), transparent);
   background-size: 300px 300px;
   animation: solys-poussiere 9s ease-in-out infinite alternate;
@@ -277,7 +279,7 @@ body {
     background: linear-gradient(
       115deg,
       transparent 20%,
-      rgba(255, 235, 209, 0.4) 45%,
+      rgba(234,217,189, 0.4) 45%,
       transparent 70%
     );
     transform: translateX(-120%);
@@ -346,7 +348,7 @@ body {
     bottom: -3px;
     height: 2px;
     border-radius: 2px;
-    background: linear-gradient(90deg, #ff4103, #b6ff00);
+    background: linear-gradient(90deg, #BD9365, #83B28C);
     transform: scaleX(0);
     transform-origin: right center;
     transition: transform 0.32s cubic-bezier(0.2, 0.7, 0.3, 1);

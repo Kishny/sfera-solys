@@ -82,10 +82,10 @@ export default function OngletAccueil({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-display [font-stretch:125%] text-[19px] font-bold text-cream">
+        <h2 className="font-display text-[19px] font-bold text-champagne">
           Bonjour {user.pseudonyme}
         </h2>
-        <p className="mt-1 text-[13px] text-cream/60">
+        <p className="mt-1 text-[13px] text-champagne/60">
           Un aperçu de ton espace Sfera&apos;Solys.
         </p>
       </div>
@@ -101,8 +101,8 @@ export default function OngletAccueil({
             animate="visible"
             className={`${carte} p-3.5`}
           >
-            <p className="text-[11px] text-cream/55">{tuile.label}</p>
-            <p className="mt-1 truncate text-[15px] font-bold text-cream">
+            <p className="text-[11px] text-champagne/55">{tuile.label}</p>
+            <p className="mt-1 truncate text-[15px] font-bold text-champagne">
               {tuile.valeur}
             </p>
           </motion.div>
@@ -112,14 +112,14 @@ export default function OngletAccueil({
       {/* Complétion */}
       <section className={`${carte} p-4 sm:p-5`}>
         <div className="mb-3 flex items-center justify-between gap-3">
-          <p className="text-[13px] font-semibold text-cream">
+          <p className="text-[13px] font-semibold text-champagne">
             Complétion du profil
           </p>
-          <p className="text-[13px] font-bold text-cream">{completion} %</p>
+          <p className="text-[13px] font-bold text-champagne">{completion} %</p>
         </div>
 
         <div
-          className="h-2 overflow-hidden rounded-full bg-cream/10"
+          className="h-2 overflow-hidden rounded-full bg-champagne/10"
           role="presentation"
         >
           <motion.div
@@ -127,19 +127,19 @@ export default function OngletAccueil({
             animate={{ width: `${completion}%` }}
             transition={{ duration: 0.9, delay: 0.15, ease: "easeOut" }}
             className={`h-full rounded-full ${
-              completion >= 100 ? "bg-lime" : "bg-orange"
+              completion >= 100 ? "bg-succes" : "bg-cuivre"
             }`}
           />
         </div>
 
         {completion < 100 && (
-          <p className="mt-2.5 text-[12px] leading-relaxed text-cream/60">
+          <p className="mt-2.5 text-[12px] leading-relaxed text-champagne/60">
             Un profil rempli remonte plus souvent dans l’annuaire — et donne
             surtout à quelqu’un une raison d’écrire.{" "}
             <button
               type="button"
               onClick={() => onOnglet("profil")}
-              className={`font-semibold text-cream underline underline-offset-2 hover:text-orange ${focusRing}`}
+              className={`font-semibold text-champagne underline underline-offset-2 hover:text-cuivre ${focusRing}`}
             >
               Compléter mon profil
             </button>
@@ -154,11 +154,11 @@ export default function OngletAccueil({
 
           return (
             <div key={info.label} className={`${carte} p-3.5`}>
-              <p className="flex items-center gap-1.5 text-[11px] text-cream/55">
+              <p className="flex items-center gap-1.5 text-[11px] text-champagne/55">
                 <Icone size={11} aria-hidden="true" />
                 {info.label}
               </p>
-              <p className="mt-1 truncate text-[13px] font-medium text-cream/85">
+              <p className="mt-1 truncate text-[13px] font-medium text-champagne/85">
                 {info.valeur}
               </p>
             </div>
@@ -169,16 +169,16 @@ export default function OngletAccueil({
       {/* Abonnement */}
       <section
         className={`rounded-2xl border p-4 sm:p-5 ${
-          payante ? "border-lime/25 bg-lime/[0.06]" : "border-cream/10 bg-[#123243]"
+          payante ? "border-succes/25 bg-succes/[0.06]" : "border-champagne/10 bg-minuit"
         }`}
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="font-display [font-stretch:125%] text-[15px] font-bold text-cream">
+            <p className="font-display text-[15px] font-bold text-champagne">
               {payante ? `Offre ${offre} active` : "Offre gratuite"}
             </p>
 
-            <p className="mt-1 text-[13px] leading-relaxed text-cream/65">
+            <p className="mt-1 text-[13px] leading-relaxed text-champagne/65">
               {payante
                 ? "Tu profites des fonctionnalités incluses dans ton abonnement."
                 : "La vérification, l’annuaire, l’Entraide et la messagerie sont déjà ouverts. Les offres payantes ajoutent le Circle, les boosts et le Mode Fantôme."}
@@ -187,7 +187,7 @@ export default function OngletAccueil({
 
           <Link
             href={payante ? "/mon-compte?tab=premium" : "/tarifs"}
-            className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+            className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-cuivre px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
           >
             {payante ? "Gérer mon abonnement" : "Voir les offres"}
             <ChevronRight size={14} aria-hidden="true" />

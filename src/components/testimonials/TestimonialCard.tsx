@@ -40,32 +40,32 @@ export default function TestimonialCard({
   const initial = authorName?.[0]?.toUpperCase() ?? "S";
 
   const surfaceClass = featured
-    ? "bg-[#123243] border-orange/40 ring-1 ring-orange/20"
-    : "bg-[#123243] border-cream/8";
+    ? "bg-minuit border-cuivre/40 ring-1 ring-cuivre/20"
+    : "bg-minuit border-champagne/8";
 
   return (
     <figure
       className={`relative flex h-full flex-col overflow-hidden rounded-3xl border p-5 sm:p-6 ${surfaceClass} ${className}`}
     >
       {/* Guillemet décoratif */}
-      <span className="pointer-events-none absolute right-4 top-2 select-none text-5xl text-orange/10 sm:text-6xl">
+      <span className="pointer-events-none absolute right-4 top-2 select-none text-5xl text-cuivre/10 sm:text-6xl">
         &quot;
       </span>
 
       {featured && (
-        <span className="relative z-10 mb-2 inline-flex w-fit items-center gap-1 rounded-full bg-lime px-2.5 py-0.5 text-[11px] font-bold text-abyss">
+        <span className="relative z-10 mb-2 inline-flex w-fit items-center gap-1 rounded-full bg-succes px-2.5 py-0.5 text-[11px] font-bold text-nuit">
           À la une
         </span>
       )}
 
       <StarRating value={rating} readOnly size={16} className="relative z-10 mb-3" />
 
-      <blockquote className="relative z-10 mb-5 flex-1 text-sm font-light leading-relaxed text-cream/85 sm:text-base">
+      <blockquote className="relative z-10 mb-5 flex-1 text-sm font-light leading-relaxed text-champagne/85 sm:text-base">
         « {content} »
       </blockquote>
 
       <figcaption className="relative z-10 flex items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange text-base font-bold text-abyss">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cuivre text-base font-bold text-nuit">
           {avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -79,12 +79,12 @@ export default function TestimonialCard({
         </div>
 
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-cream">
+          <div className="truncate text-sm font-semibold text-champagne">
             {authorName}
             {age ? `, ${age} ans` : ""}
           </div>
 
-          <div className="truncate text-xs text-cream/55">
+          <div className="truncate text-xs text-champagne/55">
             {city ? `${city} · ` : ""}Membre Sfera&apos;Solys
           </div>
         </div>

@@ -70,11 +70,11 @@ export default function Step2() {
     <div className="space-y-6 sm:space-y-8">
       {/* Titre de l'étape */}
       <div>
-        <h2 className="text-xl font-bold text-cream sm:text-2xl">
+        <h2 className="text-xl font-bold text-champagne sm:text-2xl">
           Orientation et intentions
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-cream/70">
+        <p className="mt-2 text-sm leading-relaxed text-champagne/70">
           Ces informations nous aident à proposer des rencontres plus
           compatibles avec tes attentes.
         </p>
@@ -82,8 +82,8 @@ export default function Step2() {
 
       {/* Bloc orientation */}
       <section className="space-y-4">
-        <label className="block text-sm font-semibold text-cream/90">
-          Orientation <span className="text-orange">*</span>
+        <label className="block text-sm font-semibold text-champagne/90">
+          Orientation <span className="text-cuivre">*</span>
         </label>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -95,20 +95,20 @@ export default function Step2() {
                 key={orientation.value}
                 className={`flex cursor-pointer items-center rounded-xl border p-3 transition-all sm:p-4 ${
                   isSelected
-                    ? "border-orange bg-orange/15 shadow-lg shadow-orange/10"
-                    : "border-cream/15 bg-cream/5 hover:border-orange/50 hover:bg-cream/10"
+                    ? "border-cuivre bg-cuivre/15 shadow-lg shadow-cuivre/10"
+                    : "border-champagne/15 bg-champagne/5 hover:border-cuivre/50 hover:bg-champagne/10"
                 }`}
               >
                 <input
                   type="radio"
                   {...register("orientation")}
                   value={orientation.value}
-                  className="h-4 w-4 accent-orange"
+                  className="h-4 w-4 accent-cuivre"
                 />
 
                 <span
                   className={`ml-3 text-sm font-medium ${
-                    isSelected ? "text-cream" : "text-cream/90"
+                    isSelected ? "text-champagne" : "text-champagne/90"
                   }`}
                 >
                   {orientation.label}
@@ -128,12 +128,12 @@ export default function Step2() {
       {/* Bloc intentions */}
       <section className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-cream/90">
+          <label className="block text-sm font-semibold text-champagne/90">
             Quelles sont tes intentions ?{" "}
-            <span className="text-orange">*</span>
+            <span className="text-cuivre">*</span>
           </label>
 
-          <p className="mt-2 text-sm text-cream/70">
+          <p className="mt-2 text-sm text-champagne/70">
             Sélectionne une ou plusieurs options.
           </p>
         </div>
@@ -149,24 +149,24 @@ export default function Step2() {
                 onClick={() => toggleIntention(intention.value)}
                 className={`rounded-xl border p-3 text-left transition-all sm:p-4 ${
                   isSelected
-                    ? "border-orange bg-orange/15 shadow-lg shadow-orange/10"
-                    : "border-cream/15 bg-cream/5 hover:border-orange/50 hover:bg-cream/10"
+                    ? "border-cuivre bg-cuivre/15 shadow-lg shadow-cuivre/10"
+                    : "border-champagne/15 bg-champagne/5 hover:border-cuivre/50 hover:bg-champagne/10"
                 }`}
               >
                 <div className="flex items-center">
                   <div
                     className={`mr-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
                       isSelected
-                        ? "border-orange bg-orange"
-                        : "border-cream/15 bg-cream/5"
+                        ? "border-cuivre bg-cuivre"
+                        : "border-champagne/15 bg-champagne/5"
                     }`}
                   >
-                    {isSelected && <Check className="h-3.5 w-3.5 text-abyss" />}
+                    {isSelected && <Check className="h-3.5 w-3.5 text-nuit" />}
                   </div>
 
                   <span
                     className={`text-sm font-medium ${
-                      isSelected ? "text-cream" : "text-cream/90"
+                      isSelected ? "text-champagne" : "text-champagne/90"
                     }`}
                   >
                     {intention.label}

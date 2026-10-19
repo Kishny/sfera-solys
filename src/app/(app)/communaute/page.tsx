@@ -128,7 +128,7 @@ const CONTENU_MAX = 2000;
 const COMMENTAIRE_MAX = 500;
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 function categorie(valeur: Categorie) {
   return CATEGORIES.find((item) => item.valeur === valeur) ?? CATEGORIES[5];
@@ -401,8 +401,8 @@ export default function PageCommunaute() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-abyss">
-        <Loader2 className="h-8 w-8 animate-spin text-orange" aria-hidden="true" />
+      <div className="flex min-h-screen items-center justify-center bg-nuit">
+        <Loader2 className="h-8 w-8 animate-spin text-cuivre" aria-hidden="true" />
         <span className="sr-only">Chargement</span>
       </div>
     );
@@ -410,16 +410,16 @@ export default function PageCommunaute() {
 
   return (
     <>
-      <div className="min-h-screen bg-abyss px-4 py-6 text-cream sm:px-6 sm:py-8 lg:px-10">
+      <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-3xl">
           {/* En-tête */}
           <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div className="min-w-0">
-              <h1 className="font-display [font-stretch:125%] text-[26px] font-extrabold leading-tight tracking-tight text-cream sm:text-[32px]">
+              <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
                 Communauté Solys
               </h1>
 
-              <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-cream/60 sm:text-sm">
+              <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm">
                 Un fil public entre membres vérifiés. Accessible dès l’offre
                 gratuite — et modéré comme la messagerie.
               </p>
@@ -428,7 +428,7 @@ export default function PageCommunaute() {
             <button
               type="button"
               onClick={() => setFormulaire(true)}
-              className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-orange px-4 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+              className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-cuivre px-4 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
             >
               <Plus size={15} aria-hidden="true" />
               Publier
@@ -443,8 +443,8 @@ export default function PageCommunaute() {
               aria-pressed={filtre === "all"}
               className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
                 filtre === "all"
-                  ? "border-orange bg-orange text-abyss"
-                  : "border-cream/15 text-cream/70 hover:border-cream/30"
+                  ? "border-cuivre bg-cuivre text-nuit"
+                  : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
               }`}
             >
               Tout
@@ -462,8 +462,8 @@ export default function PageCommunaute() {
                   aria-pressed={actif}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
                     actif
-                      ? "border-orange bg-orange text-abyss"
-                      : "border-cream/15 text-cream/70 hover:border-cream/30"
+                      ? "border-cuivre bg-cuivre text-nuit"
+                      : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
                   }`}
                 >
                   <Icone size={13} aria-hidden="true" />
@@ -477,21 +477,21 @@ export default function PageCommunaute() {
           {erreur && (
             <div
               role="alert"
-              className="mb-5 flex items-start gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-4 py-3"
+              className="mb-5 flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-4 py-3"
             >
               <AlertCircle
                 size={16}
-                className="mt-0.5 shrink-0 text-orange"
+                className="mt-0.5 shrink-0 text-cuivre"
                 aria-hidden="true"
               />
-              <p className="flex-1 text-[13px] leading-relaxed text-cream/85">
+              <p className="flex-1 text-[13px] leading-relaxed text-champagne/85">
                 {erreur}
               </p>
               <button
                 type="button"
                 onClick={() => setErreur("")}
                 aria-label="Fermer le message"
-                className={`shrink-0 rounded-lg p-1 text-cream/55 hover:text-cream ${focusRing}`}
+                className={`shrink-0 rounded-lg p-1 text-champagne/55 hover:text-champagne ${focusRing}`}
               >
                 <X size={15} aria-hidden="true" />
               </button>
@@ -502,26 +502,26 @@ export default function PageCommunaute() {
           {chargement ? (
             <div className="flex flex-col items-center gap-3 py-24">
               <Loader2
-                className="h-7 w-7 animate-spin text-orange"
+                className="h-7 w-7 animate-spin text-cuivre"
                 aria-hidden="true"
               />
-              <p className="text-[13px] text-cream/55">Chargement du fil…</p>
+              <p className="text-[13px] text-champagne/55">Chargement du fil…</p>
             </div>
           ) : posts.length === 0 ? (
-            <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
+            <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
               <MessageCircle
                 size={26}
-                className="mx-auto mb-4 text-cream/60"
+                className="mx-auto mb-4 text-champagne/60"
                 aria-hidden="true"
               />
 
-              <h2 className="font-display [font-stretch:125%] text-[18px] font-bold text-cream">
+              <h2 className="font-display text-[18px] font-bold text-champagne">
                 {filtre === "all"
                   ? "Le fil est vide"
                   : "Rien dans cette catégorie"}
               </h2>
 
-              <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/60">
+              <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
                 {filtre === "all"
                   ? "Personne n’a encore écrit. La première publication a toujours l’air de rien, et elle lance tout."
                   : "Essaie une autre catégorie, ou ouvre le sujet toi-même."}
@@ -530,7 +530,7 @@ export default function PageCommunaute() {
               <button
                 type="button"
                 onClick={() => setFormulaire(true)}
-                className={`mt-6 inline-flex items-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`mt-6 inline-flex items-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 <Plus size={15} aria-hidden="true" />
                 Publier
@@ -577,14 +577,14 @@ export default function PageCommunaute() {
                     type="button"
                     onClick={() => allerPage(page - 1)}
                     disabled={page <= 1}
-                    className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-4 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
+                    className={`inline-flex items-center gap-1.5 rounded-xl border border-champagne/12 px-4 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
                   >
                     <ChevronLeft size={15} aria-hidden="true" />
                     Précédent
                   </button>
 
-                  <p className="min-w-[7.5rem] text-center text-[13px] text-cream/60">
-                    Page <span className="font-bold text-cream">{page}</span> sur{" "}
+                  <p className="min-w-[7.5rem] text-center text-[13px] text-champagne/60">
+                    Page <span className="font-bold text-champagne">{page}</span> sur{" "}
                     {pagination.totalPages}
                   </p>
 
@@ -592,7 +592,7 @@ export default function PageCommunaute() {
                     type="button"
                     onClick={() => allerPage(page + 1)}
                     disabled={page >= pagination.totalPages}
-                    className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-4 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
+                    className={`inline-flex items-center gap-1.5 rounded-xl border border-champagne/12 px-4 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
                   >
                     Suivant
                     <ChevronRight size={15} aria-hidden="true" />
@@ -621,7 +621,7 @@ export default function PageCommunaute() {
               type="button"
               onClick={() => setFormulaire(false)}
               aria-label="Fermer"
-              className="absolute inset-0 cursor-default bg-abyss/80 backdrop-blur-sm"
+              className="absolute inset-0 cursor-default bg-nuit/80 backdrop-blur-sm"
             />
 
             <motion.div
@@ -629,12 +629,12 @@ export default function PageCommunaute() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: reduireAnimations ? 0 : 24 }}
               transition={{ duration: reduireAnimations ? 0 : 0.25 }}
-              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] border border-cream/10 bg-[#123243] p-5 sm:rounded-[1.75rem] sm:p-6"
+              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] border border-champagne/10 bg-minuit p-5 sm:rounded-[1.75rem] sm:p-6"
             >
               <div className="mb-5 flex items-start justify-between gap-4">
                 <h2
                   id="titre-formulaire"
-                  className="font-display [font-stretch:125%] text-[19px] font-bold text-cream"
+                  className="font-display text-[19px] font-bold text-champagne"
                 >
                   Publier dans la Communauté
                 </h2>
@@ -643,7 +643,7 @@ export default function PageCommunaute() {
                   type="button"
                   onClick={() => setFormulaire(false)}
                   aria-label="Fermer"
-                  className={`shrink-0 rounded-lg p-1.5 text-cream/55 hover:text-cream ${focusRing}`}
+                  className={`shrink-0 rounded-lg p-1.5 text-champagne/55 hover:text-champagne ${focusRing}`}
                 >
                   <X size={16} aria-hidden="true" />
                 </button>
@@ -659,7 +659,7 @@ export default function PageCommunaute() {
                 <div>
                   <label
                     htmlFor="titre-post"
-                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                    className="mb-1.5 block text-[12px] font-semibold text-champagne/70"
                   >
                     Titre
                   </label>
@@ -672,12 +672,12 @@ export default function PageCommunaute() {
                       setTitre(evenement.target.value.slice(0, TITRE_MAX))
                     }
                     placeholder="De quoi veux-tu parler ?"
-                    className={`w-full rounded-xl border border-cream/12 bg-abyss px-3.5 py-2.5 text-[14px] text-cream placeholder:text-cream/55 ${focusRing}`}
+                    className={`w-full rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[14px] text-champagne placeholder:text-champagne/55 ${focusRing}`}
                   />
                 </div>
 
                 <fieldset>
-                  <legend className="mb-2 text-[12px] font-semibold text-cream/70">
+                  <legend className="mb-2 text-[12px] font-semibold text-champagne/70">
                     Catégorie
                   </legend>
 
@@ -694,8 +694,8 @@ export default function PageCommunaute() {
                           aria-pressed={actif}
                           className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
                             actif
-                              ? "border-orange bg-orange text-abyss"
-                              : "border-cream/15 text-cream/70 hover:border-cream/30"
+                              ? "border-cuivre bg-cuivre text-nuit"
+                              : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
                           }`}
                         >
                           <Icone size={13} aria-hidden="true" />
@@ -709,7 +709,7 @@ export default function PageCommunaute() {
                 <div>
                   <label
                     htmlFor="contenu-post"
-                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                    className="mb-1.5 block text-[12px] font-semibold text-champagne/70"
                   >
                     Contenu
                   </label>
@@ -722,10 +722,10 @@ export default function PageCommunaute() {
                       setContenu(evenement.target.value.slice(0, CONTENU_MAX))
                     }
                     placeholder="Écris ce que tu as en tête."
-                    className={`w-full resize-y rounded-xl border border-cream/12 bg-abyss px-3.5 py-2.5 text-[14px] leading-relaxed text-cream placeholder:text-cream/55 ${focusRing}`}
+                    className={`w-full resize-y rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[14px] leading-relaxed text-champagne placeholder:text-champagne/55 ${focusRing}`}
                   />
 
-                  <p className="mt-1.5 text-[11px] text-cream/55">
+                  <p className="mt-1.5 text-[11px] text-champagne/55">
                     {contenu.length} / {CONTENU_MAX} caractères. Les publications
                     passent par le même filtre que la messagerie.
                   </p>
@@ -734,11 +734,11 @@ export default function PageCommunaute() {
                 {erreurFormulaire && (
                   <p
                     role="alert"
-                    className="flex items-start gap-2 rounded-xl border border-orange/30 bg-orange/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-cream/85"
+                    className="flex items-start gap-2 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-champagne/85"
                   >
                     <AlertCircle
                       size={14}
-                      className="mt-0.5 shrink-0 text-orange"
+                      className="mt-0.5 shrink-0 text-cuivre"
                       aria-hidden="true"
                     />
                     {erreurFormulaire}
@@ -749,7 +749,7 @@ export default function PageCommunaute() {
                   <button
                     type="submit"
                     disabled={publication || !titre.trim() || !contenu.trim()}
-                    className={`inline-flex items-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+                    className={`inline-flex items-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
                   >
                     {publication ? (
                       <Loader2 size={14} className="animate-spin" aria-hidden="true" />
@@ -762,7 +762,7 @@ export default function PageCommunaute() {
                   <button
                     type="button"
                     onClick={() => setFormulaire(false)}
-                    className={`inline-flex items-center rounded-xl border border-cream/15 px-4 py-2.5 text-[13px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream ${focusRing}`}
+                    className={`inline-flex items-center rounded-xl border border-champagne/15 px-4 py-2.5 text-[13px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne ${focusRing}`}
                   >
                     Annuler
                   </button>
@@ -823,10 +823,10 @@ function CartePost({
   const auteur = post.userId?.pseudonyme ?? "Membre retiré";
 
   return (
-    <li className="rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:p-5">
+    <li className="rounded-2xl border border-champagne/10 bg-minuit p-4 sm:p-5">
       {/* En-tête */}
       <div className="flex items-start gap-3">
-        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-cream/12 bg-abyss">
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-champagne/12 bg-nuit">
           {post.userId?.image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -836,7 +836,7 @@ function CartePost({
               loading="lazy"
             />
           ) : (
-            <span className="flex h-full w-full items-center justify-center text-[14px] font-bold text-cream/55">
+            <span className="flex h-full w-full items-center justify-center text-[14px] font-bold text-champagne/55">
               {auteur.charAt(0).toUpperCase()}
             </span>
           )}
@@ -844,40 +844,40 @@ function CartePost({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[13px] font-bold text-cream">{auteur}</span>
+            <span className="text-[13px] font-bold text-champagne">{auteur}</span>
 
-            <span className="inline-flex items-center gap-1 rounded-full border border-cream/12 px-2 py-0.5 text-[11px] text-cream/70">
+            <span className="inline-flex items-center gap-1 rounded-full border border-champagne/12 px-2 py-0.5 text-[11px] text-champagne/70">
               <IconeCategorie size={11} aria-hidden="true" />
               {cat.label}
             </span>
 
             {post.isPinned && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-orange px-2 py-0.5 text-[11px] font-bold text-abyss">
+              <span className="inline-flex items-center gap-1 rounded-full bg-cuivre px-2 py-0.5 text-[11px] font-bold text-nuit">
                 <Pin size={10} aria-hidden="true" />
                 Épinglé
               </span>
             )}
           </div>
 
-          <p className="mt-0.5 text-[11px] text-cream/55">
+          <p className="mt-0.5 text-[11px] text-champagne/55">
             {formaterDate(post.createdAt)}
           </p>
         </div>
       </div>
 
       {/* Contenu */}
-      <h2 className="font-display [font-stretch:125%] mt-3.5 text-[16px] font-bold leading-snug text-cream">
+      <h2 className="font-display mt-3.5 text-[16px] font-bold leading-snug text-champagne">
         {post.title}
       </h2>
 
-      <p className="mt-2 whitespace-pre-line text-[14px] leading-relaxed text-cream/80">
+      <p className="mt-2 whitespace-pre-line text-[14px] leading-relaxed text-champagne/80">
         {post.content}
       </p>
 
       {/* Actions */}
       {suppressionDemandee ? (
-        <div className="mt-4 rounded-xl border border-orange/30 bg-orange/10 p-3.5">
-          <p className="text-[13px] leading-relaxed text-cream/85">
+        <div className="mt-4 rounded-xl border border-cuivre/30 bg-cuivre/10 p-3.5">
+          <p className="text-[13px] leading-relaxed text-champagne/85">
             Retirer cette publication la supprime pour tout le monde, avec ses
             commentaires. C’est définitif.
           </p>
@@ -886,7 +886,7 @@ function CartePost({
             <button
               type="button"
               onClick={onConfirmerSuppression}
-              className={`rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+              className={`rounded-xl bg-cuivre px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
             >
               Retirer
             </button>
@@ -894,7 +894,7 @@ function CartePost({
             <button
               type="button"
               onClick={onAnnulerSuppression}
-              className={`rounded-xl border border-cream/15 px-4 py-2.5 text-[12px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream ${focusRing}`}
+              className={`rounded-xl border border-champagne/15 px-4 py-2.5 text-[12px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne ${focusRing}`}
             >
               Annuler
             </button>
@@ -909,13 +909,13 @@ function CartePost({
             aria-pressed={post.likedByMe}
             className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[12px] font-semibold transition-colors disabled:opacity-60 ${focusRing} ${
               post.likedByMe
-                ? "border-lime/30 bg-lime/15 text-lime"
-                : "border-cream/12 text-cream/70 hover:border-cream/25 hover:text-cream"
+                ? "border-succes/30 bg-succes/15 text-succes"
+                : "border-champagne/12 text-champagne/70 hover:border-champagne/25 hover:text-champagne"
             }`}
           >
             <Heart
               size={13}
-              className={post.likedByMe ? "fill-lime" : ""}
+              className={post.likedByMe ? "fill-succes" : ""}
               aria-hidden="true"
             />
             {post.likesCount}
@@ -928,7 +928,7 @@ function CartePost({
             type="button"
             onClick={onDeplier}
             aria-expanded={deplie}
-            className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-3.5 py-2 text-[12px] font-semibold text-cream/70 transition-colors hover:border-cream/25 hover:text-cream ${focusRing}`}
+            className={`inline-flex items-center gap-1.5 rounded-xl border border-champagne/12 px-3.5 py-2 text-[12px] font-semibold text-champagne/70 transition-colors hover:border-champagne/25 hover:text-champagne ${focusRing}`}
           >
             <MessageCircle size={13} aria-hidden="true" />
             {post.commentsCount}
@@ -941,7 +941,7 @@ function CartePost({
             type="button"
             onClick={onSignaler}
             aria-label="Signaler cette publication"
-            className={`rounded-xl border border-cream/12 p-2 text-cream/55 transition-colors hover:border-orange/40 hover:text-orange ${focusRing}`}
+            className={`rounded-xl border border-champagne/12 p-2 text-champagne/55 transition-colors hover:border-cuivre/40 hover:text-cuivre ${focusRing}`}
           >
             <Flag size={13} aria-hidden="true" />
           </button>
@@ -951,7 +951,7 @@ function CartePost({
             onClick={onDemanderSuppression}
             aria-label="Retirer cette publication"
             title="Retirer — possible si tu en es l’auteur"
-            className={`rounded-xl border border-cream/12 p-2 text-cream/55 transition-colors hover:border-orange/40 hover:text-orange ${focusRing}`}
+            className={`rounded-xl border border-champagne/12 p-2 text-champagne/55 transition-colors hover:border-cuivre/40 hover:text-cuivre ${focusRing}`}
           >
             <Trash2 size={13} aria-hidden="true" />
           </button>
@@ -960,26 +960,26 @@ function CartePost({
 
       {/* Commentaires */}
       {deplie && (
-        <div className="mt-4 border-t border-cream/10 pt-4">
+        <div className="mt-4 border-t border-champagne/10 pt-4">
           {(post.comments ?? []).length > 0 ? (
             <ul className="space-y-3">
               {(post.comments ?? []).map((commentaire) => (
                 <li key={commentaire._id} className="flex gap-3">
-                  <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-cream/12 bg-abyss text-[11px] font-bold text-cream/55">
+                  <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-champagne/12 bg-nuit text-[11px] font-bold text-champagne/55">
                     {(commentaire.userId?.pseudonyme ?? "?")
                       .charAt(0)
                       .toUpperCase()}
                   </span>
 
                   <div className="min-w-0 flex-1">
-                    <p className="text-[12px] font-bold text-cream">
+                    <p className="text-[12px] font-bold text-champagne">
                       {commentaire.userId?.pseudonyme ?? "Membre retiré"}
-                      <span className="ml-2 font-normal text-cream/55">
+                      <span className="ml-2 font-normal text-champagne/55">
                         {formaterDate(commentaire.createdAt)}
                       </span>
                     </p>
 
-                    <p className="mt-0.5 whitespace-pre-line text-[13px] leading-relaxed text-cream/80">
+                    <p className="mt-0.5 whitespace-pre-line text-[13px] leading-relaxed text-champagne/80">
                       {commentaire.content}
                     </p>
                   </div>
@@ -987,7 +987,7 @@ function CartePost({
               ))}
             </ul>
           ) : (
-            <p className="text-[12px] text-cream/55">
+            <p className="text-[12px] text-champagne/55">
               Aucun commentaire pour l’instant.
             </p>
           )}
@@ -1012,7 +1012,7 @@ function CartePost({
                   onBrouillon(evenement.target.value.slice(0, COMMENTAIRE_MAX))
                 }
                 placeholder="Répondre…"
-                className={`w-full rounded-xl border border-cream/12 bg-abyss px-3.5 py-2.5 text-[13px] text-cream placeholder:text-cream/55 ${focusRing}`}
+                className={`w-full rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[13px] text-champagne placeholder:text-champagne/55 ${focusRing}`}
               />
             </div>
 
@@ -1020,7 +1020,7 @@ function CartePost({
               type="submit"
               disabled={!brouillon.trim() || envoiCommentaire}
               aria-label="Envoyer le commentaire"
-              className={`shrink-0 rounded-xl bg-orange p-2.5 text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+              className={`shrink-0 rounded-xl bg-cuivre p-2.5 text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
             >
               {envoiCommentaire ? (
                 <Loader2 size={15} className="animate-spin" aria-hidden="true" />

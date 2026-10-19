@@ -67,10 +67,10 @@ export default function OngletPreferences({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-display [font-stretch:125%] text-[19px] font-bold text-cream">
+        <h2 className="font-display text-[19px] font-bold text-champagne">
           Préférences
         </h2>
-        <p className="mt-1 text-[13px] text-cream/60">
+        <p className="mt-1 text-[13px] text-champagne/60">
           Tes intentions, ton orientation, et qui peut te voir.
         </p>
       </div>
@@ -78,14 +78,14 @@ export default function OngletPreferences({
       {/* Mode Fantôme */}
       <section
         className={`rounded-2xl border p-4 sm:p-5 ${
-          invisible ? "border-orange/30 bg-orange/[0.08]" : "border-cream/10 bg-[#123243]"
+          invisible ? "border-cuivre/30 bg-cuivre/[0.08]" : "border-champagne/10 bg-minuit"
         }`}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
             <span
               className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                invisible ? "bg-orange text-abyss" : "bg-cream/[0.06] text-cream/70"
+                invisible ? "bg-cuivre text-nuit" : "bg-champagne/[0.06] text-champagne/70"
               }`}
             >
               <Ghost size={16} aria-hidden="true" />
@@ -93,41 +93,41 @@ export default function OngletPreferences({
 
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-[14px] font-semibold text-cream">
+                <p className="text-[14px] font-semibold text-champagne">
                   Mode Fantôme
                 </p>
 
                 {invisible && payante && (
-                  <span className="rounded-full bg-orange px-2 py-0.5 text-[11px] font-bold text-abyss">
+                  <span className="rounded-full bg-cuivre px-2 py-0.5 text-[11px] font-bold text-nuit">
                     Actif
                   </span>
                 )}
 
                 {!payante && (
-                  <span className="rounded-full border border-cream/15 px-2 py-0.5 text-[11px] font-semibold text-cream/70">
+                  <span className="rounded-full border border-champagne/15 px-2 py-0.5 text-[11px] font-semibold text-champagne/70">
                     Offres Premium et Elite
                   </span>
                 )}
               </div>
 
-              <p className="mt-1 text-[12px] leading-relaxed text-cream/60">
+              <p className="mt-1 text-[12px] leading-relaxed text-champagne/60">
                 {invisible
                   ? "Ton profil n’apparaît ni dans l’annuaire ni dans les Circle, et tu consultes les autres sans laisser de trace. Tes conversations restent ouvertes."
                   : "Disparaître de l’annuaire et des Circle, et consulter les autres profils sans laisser de trace — sans perdre tes conversations."}
               </p>
 
               {!payante && (
-                <p className="mt-2 text-[12px] text-cream/60">
+                <p className="mt-2 text-[12px] text-champagne/60">
                   <Link
                     href="/tarifs"
-                    className={`font-semibold text-cream underline underline-offset-2 hover:text-orange ${focusRing}`}
+                    className={`font-semibold text-champagne underline underline-offset-2 hover:text-cuivre ${focusRing}`}
                   >
                     Voir les offres
                   </Link>{" "}
                   · les trois autres visibilités sont accessibles à tous, sur{" "}
                   <Link
                     href="/mode-fantome"
-                    className={`font-semibold text-cream underline underline-offset-2 hover:text-orange ${focusRing}`}
+                    className={`font-semibold text-champagne underline underline-offset-2 hover:text-cuivre ${focusRing}`}
                   >
                     la page dédiée
                   </Link>
@@ -145,19 +145,19 @@ export default function OngletPreferences({
             aria-checked={invisible}
             aria-label="Mode Fantôme"
             className={`relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${focusRing} ${
-              invisible ? "bg-orange" : "bg-cream/20"
+              invisible ? "bg-cuivre" : "bg-champagne/20"
             }`}
           >
             <motion.span
               animate={{ x: invisible ? 22 : 3 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="absolute top-0.5 block h-6 w-6 rounded-full bg-cream"
+              className="absolute top-0.5 block h-6 w-6 rounded-full bg-champagne"
             />
 
             {bascule && (
               <Loader2
                 size={13}
-                className="absolute inset-0 m-auto animate-spin text-abyss"
+                className="absolute inset-0 m-auto animate-spin text-nuit"
                 aria-hidden="true"
               />
             )}
@@ -218,7 +218,7 @@ export default function OngletPreferences({
               className={champ}
               placeholder="Rencontre sérieuse, Amitié…"
             />
-            <span className="mt-1.5 block text-[11px] text-cream/55">
+            <span className="mt-1.5 block text-[11px] text-champagne/55">
               Séparées par des virgules.
             </span>
           </Champ>
@@ -247,7 +247,7 @@ export default function OngletPreferences({
                 </option>
               ))}
             </select>
-            <span className="mt-1.5 block text-[11px] leading-relaxed text-cream/55">
+            <span className="mt-1.5 block text-[11px] leading-relaxed text-champagne/55">
               Ce réglage s’enregistre à la sauvegarde. Le basculeur du Mode
               Fantôme, lui, s’applique tout de suite.
             </span>

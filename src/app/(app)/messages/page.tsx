@@ -67,7 +67,7 @@ interface Relation {
 }
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 /** Date relative, en français, sans dépendance. */
 function tempsRelatif(valeur: string | null) {
@@ -181,15 +181,15 @@ export default function PageMessages() {
   return (
     // Même gabarit que /matches et /circle : la marge et la largeur de
     // lecture de l'espace connecté sont communes à toutes ses pages.
-    <div className="min-h-screen px-4 py-6 text-cream sm:px-6 sm:py-8 lg:px-10">
+    <div className="min-h-screen px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
       <div className="mx-auto max-w-3xl">
         <header className="mb-6">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h1 className="font-display [font-stretch:125%] text-[26px] font-bold leading-tight text-cream">
+              <h1 className="font-display text-[26px] font-bold leading-tight text-champagne">
                 Messages
               </h1>
-              <p className="mt-1 text-[13px] text-cream/60">
+              <p className="mt-1 text-[13px] text-champagne/60">
                 {nonLus > 0
                   ? `${nonLus} message${nonLus > 1 ? "s" : ""} non lu${nonLus > 1 ? "s" : ""}.`
                   : "Toutes tes conversations, au même endroit."}
@@ -200,7 +200,7 @@ export default function PageMessages() {
               type="button"
               onClick={() => void lire()}
               disabled={chargement}
-              className={`fx-ghost inline-flex items-center gap-2 rounded-xl border border-cream/15 px-3.5 py-2 text-[12px] font-semibold text-cream disabled:opacity-50 ${focusRing}`}
+              className={`fx-ghost inline-flex items-center gap-2 rounded-xl border border-champagne/15 px-3.5 py-2 text-[12px] font-semibold text-champagne disabled:opacity-50 ${focusRing}`}
             >
               <RefreshCw
                 size={13}
@@ -217,7 +217,7 @@ export default function PageMessages() {
           <div className="relative flex-1">
             <Search
               size={14}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-cream/45"
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-champagne/45"
               aria-hidden="true"
             />
             <input
@@ -226,12 +226,12 @@ export default function PageMessages() {
               onChange={(evenement) => setRecherche(evenement.target.value)}
               placeholder="Chercher un pseudonyme"
               aria-label="Chercher une conversation"
-              className={`w-full rounded-xl border border-cream/12 bg-teal py-2.5 pl-10 pr-3.5 text-[13px] text-cream placeholder:text-cream/55 ${focusRing}`}
+              className={`w-full rounded-xl border border-champagne/12 bg-minuit py-2.5 pl-10 pr-3.5 text-[13px] text-champagne placeholder:text-champagne/55 ${focusRing}`}
             />
           </div>
 
           <div
-            className="flex shrink-0 gap-1 rounded-xl border border-cream/10 bg-teal p-1"
+            className="flex shrink-0 gap-1 rounded-xl border border-champagne/10 bg-minuit p-1"
             role="tablist"
             aria-label="Filtrer les conversations"
           >
@@ -249,8 +249,8 @@ export default function PageMessages() {
                 onClick={() => setOnglet(item.id)}
                 className={`rounded-lg px-3.5 py-2 text-[12px] font-semibold transition-colors ${focusRing} ${
                   onglet === item.id
-                    ? "bg-orange text-abyss"
-                    : "text-cream/70 hover:text-cream"
+                    ? "bg-cuivre text-nuit"
+                    : "text-champagne/70 hover:text-champagne"
                 }`}
               >
                 {item.label}
@@ -261,7 +261,7 @@ export default function PageMessages() {
 
         {erreur && (
           <p
-            className="mb-4 rounded-xl border border-orange/35 bg-orange/[0.08] px-4 py-3 text-[13px] text-cream/85"
+            className="mb-4 rounded-xl border border-cuivre/35 bg-cuivre/[0.08] px-4 py-3 text-[13px] text-champagne/85"
             role="alert"
           >
             {erreur}
@@ -272,40 +272,40 @@ export default function PageMessages() {
           <div className="flex justify-center py-16">
             <Loader2
               size={26}
-              className="animate-spin text-cream/40"
+              className="animate-spin text-champagne/40"
               aria-hidden="true"
             />
           </div>
         ) : visibles.length === 0 ? (
-          <div className="rounded-2xl border border-cream/10 bg-teal px-6 py-14 text-center">
+          <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-14 text-center">
             <Inbox
               size={26}
-              className="mx-auto mb-3 text-cream/35"
+              className="mx-auto mb-3 text-champagne/35"
               aria-hidden="true"
             />
 
             {recherche.trim() ? (
-              <p className="text-[14px] text-cream/70">
+              <p className="text-[14px] text-champagne/70">
                 Aucune conversation avec ce pseudonyme.
               </p>
             ) : onglet === "rangees" ? (
-              <p className="text-[14px] text-cream/70">
+              <p className="text-[14px] text-champagne/70">
                 Rien de rangé. Les conversations mises de côté depuis une
                 conversation atterrissent ici.
               </p>
             ) : (
               <>
-                <p className="text-[14px] text-cream/70">
+                <p className="text-[14px] text-champagne/70">
                   Pas encore de conversation.
                 </p>
-                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/55">
+                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/55">
                   Une conversation s’ouvre dès qu’une mise en relation est
                   acceptée des deux côtés.
                 </p>
 
                 <Link
                   href="/explorer"
-                  className={`mt-5 inline-flex items-center gap-2 rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                  className={`mt-5 inline-flex items-center gap-2 rounded-xl bg-cuivre px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
                 >
                   Parcourir l’annuaire
                 </Link>
@@ -336,21 +336,21 @@ export default function PageMessages() {
                   return (
                     <li
                       key={relation.matchId}
-                      className="flex items-center gap-4 rounded-2xl border border-cream/10 bg-teal p-4 opacity-70"
+                      className="flex items-center gap-4 rounded-2xl border border-champagne/10 bg-minuit p-4 opacity-70"
                     >
-                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-cream/12 bg-abyss">
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-champagne/12 bg-nuit">
                         <UserRound
                           size={18}
-                          className="text-cream/35"
+                          className="text-champagne/35"
                           aria-hidden="true"
                         />
                       </span>
 
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[14px] font-semibold text-cream/70">
+                        <span className="block text-[14px] font-semibold text-champagne/70">
                           Membre indisponible
                         </span>
-                        <span className="mt-0.5 block text-[12px] text-cream/50">
+                        <span className="mt-0.5 block text-[12px] text-champagne/50">
                           Ce compte a été supprimé ou suspendu.
                         </span>
                       </span>
@@ -368,13 +368,13 @@ export default function PageMessages() {
                   >
                     <Link
                       href={`/messages/${relation.matchId}`}
-                      className={`flex items-center gap-4 rounded-2xl border bg-teal p-4 transition-colors ${focusRing} ${
+                      className={`flex items-center gap-4 rounded-2xl border bg-minuit p-4 transition-colors ${focusRing} ${
                         nonLu
-                          ? "border-orange/40 hover:border-orange/60"
-                          : "border-cream/10 hover:border-cream/25"
+                          ? "border-cuivre/40 hover:border-cuivre/60"
+                          : "border-champagne/10 hover:border-champagne/25"
                       }`}
                     >
-                      <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-cream/12 bg-abyss font-display [font-stretch:125%] text-[17px] font-bold text-cream/70">
+                      <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-champagne/12 bg-nuit font-display text-[17px] font-bold text-champagne/70">
                         {membre.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -389,10 +389,10 @@ export default function PageMessages() {
 
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-2">
-                          <span className="truncate text-[14px] font-semibold text-cream">
+                          <span className="truncate text-[14px] font-semibold text-champagne">
                             {membre.pseudonyme}
                             {membre.age ? (
-                              <span className="font-normal text-cream/55">
+                              <span className="font-normal text-champagne/55">
                                 , {membre.age} ans
                               </span>
                             ) : null}
@@ -401,7 +401,7 @@ export default function PageMessages() {
                           {relation.sourdineActive && (
                             <BellOff
                               size={12}
-                              className="shrink-0 text-cream/45"
+                              className="shrink-0 text-champagne/45"
                               aria-label="Conversation en sourdine"
                             />
                           )}
@@ -409,14 +409,14 @@ export default function PageMessages() {
                           {relation.archivee && (
                             <Archive
                               size={12}
-                              className="shrink-0 text-cream/45"
+                              className="shrink-0 text-champagne/45"
                               aria-label="Conversation rangée"
                             />
                           )}
                         </span>
 
                         {lieu && (
-                          <span className="mt-0.5 flex items-center gap-1 text-[12px] text-cream/55">
+                          <span className="mt-0.5 flex items-center gap-1 text-[12px] text-champagne/55">
                             <MapPin size={11} aria-hidden="true" />
                             {lieu}
                           </span>
@@ -424,7 +424,7 @@ export default function PageMessages() {
 
                         <span
                           className={`mt-0.5 block text-[12px] ${
-                            nonLu ? "font-semibold text-orange" : "text-cream/55"
+                            nonLu ? "font-semibold text-cuivre" : "text-champagne/55"
                           }`}
                         >
                           {nonLu
@@ -437,7 +437,7 @@ export default function PageMessages() {
 
                       <span className="flex shrink-0 items-center gap-2">
                         {nonLu && (
-                          <span className="flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-orange px-1.5 text-[11px] font-bold text-abyss">
+                          <span className="flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-cuivre px-1.5 text-[11px] font-bold text-nuit">
                             {(relation.unreadCount ?? 0) > 9
                               ? "9+"
                               : relation.unreadCount}
@@ -446,7 +446,7 @@ export default function PageMessages() {
 
                         <MessageCircle
                           size={16}
-                          className="text-cream/35"
+                          className="text-champagne/35"
                           aria-hidden="true"
                         />
                       </span>

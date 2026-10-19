@@ -39,9 +39,9 @@ function emailWrapper(content: string): string {
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
         <!-- Header -->
         <tr>
-          <td style="background:linear-gradient(135deg,#04202E,#123243);padding:32px 40px;text-align:center;">
+          <td style="background:linear-gradient(135deg,#0A0D12,#1D2835);padding:32px 40px;text-align:center;">
             <span style="font-size:28px;">☀️</span>
-            <h1 style="color:#FFEBD1;margin:8px 0 0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">Sfera'Solys</h1>
+            <h1 style="color:#EAD9BD;margin:8px 0 0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">Sfera'Solys</h1>
           </td>
         </tr>
         <!-- Content -->
@@ -62,7 +62,7 @@ function emailWrapper(content: string): string {
 
 function primaryButton(text: string, url: string): string {
   return `<div style="text-align:center;margin:32px 0;">
-    <a href="${url}" style="display:inline-block;background:#FF4103;color:#04202E;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:700;font-size:16px;">${text}</a>
+    <a href="${url}" style="display:inline-block;background:#BD9365;color:#0A0D12;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:700;font-size:16px;">${text}</a>
   </div>`;
 }
 
@@ -84,7 +84,7 @@ export async function sendVerificationEmail(
     <p style="color:#999;font-size:13px;text-align:center;margin:0;">
       Ce lien expire dans <strong>24 heures</strong>.<br/>
       Si le bouton ne fonctionne pas, copie ce lien : <br/>
-      <span style="color:#6B1B02;word-break:break-all;">${verifyUrl}</span>
+      <span style="color:#CB7871;word-break:break-all;">${verifyUrl}</span>
     </p>
   `);
 

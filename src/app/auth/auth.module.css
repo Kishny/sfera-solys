@@ -11,17 +11,18 @@
   élément, illisibles. Ici c'est un module CSS : la portée est locale, rien ne
   fuit dans le reste du site, et aucune feuille n'est injectée à l'exécution.
 
-  Les couleurs viennent de la charte (abyss, teal, cream, orange, rust, lime).
-  Elles sont écrites en dur ici parce qu'un module CSS ne lit pas la config
-  Tailwind — c'est le seul endroit du fichier où c'est le cas, et les valeurs
-  sont celles de tailwind.config.js.
+  Les couleurs viennent de la charte (nuit, minuit, champagne, ivoire,
+  cuivre). Elles sont écrites en dur ici parce qu'un module CSS ne lit pas la
+  config Tailwind — c'est le seul endroit du fichier où c'est le cas, et les
+  valeurs sont celles de tailwind.config.js.
 
   ## Contraste
 
-  Le panneau coulissant ne peut pas être orange plein : le crème sur
-  #FF4103 tombe à 3,0:1, sous le seuil AA. Il est donc en dégradé de rust
-  (#6B1B02), où le crème atteint 10,1:1, et l'orange reste ce qu'il doit
-  être — un accent, et le disque de l'éclipse.
+  Le panneau coulissant ne peut pas être cuivre plein : le champagne sur
+  #BD9365 tombe à 2,01:1, très en dessous du seuil AA. Il est donc en
+  dégradé de cuivre profond (#4A351C → #5C4223), où le champagne tient
+  6,71:1 au point le plus clair, et le cuivre reste ce qu'il doit être — un
+  accent, et l'anneau de l'éclipse.
 */
 
 .scene {
@@ -44,8 +45,8 @@
   width: min(980px, 100%);
   height: 660px;
   border-radius: 28px;
-  border: 1px solid rgba(255, 235, 209, 0.1);
-  background: #123243;
+  border: 1px solid rgba(234,217,189, 0.1);
+  background: #1D2835;
   box-shadow:
     0 60px 120px -50px rgba(0, 0, 0, 0.95),
     0 0 0 1px rgba(255, 65, 3, 0.06);
@@ -74,7 +75,7 @@
       rgba(255, 65, 3, 0.45) 0%,
       transparent 60%
     ),
-    linear-gradient(155deg, #8a2508 0%, #6b1b02 45%, #2a0a02 100%);
+    linear-gradient(155deg, #4A351C 0%, #5C4223 45%, #1A1208 100%);
   translate: 0 0;
   transition: translate 0.75s cubic-bezier(0.76, 0, 0.24, 1);
 }
@@ -91,18 +92,18 @@
   opacity: 0.22;
   mix-blend-mode: overlay;
   background-image: radial-gradient(
-    rgba(255, 235, 209, 0.35) 0.5px,
+    rgba(234,217,189, 0.35) 0.5px,
     transparent 0.5px
   );
   background-size: 4px 4px;
 }
 
-/* L'éclipse : un disque sombre qui mord un disque solaire. */
+/* L'éclipse : un anneau fin, embrasé d'un côté. */
 /*
   L'éclipse est volontairement décentrée, en bas à gauche et débordante.
-  Au centre du panneau, le fond reste le rust du dégradé, où le crème tient
-  10,1:1 ; si le disque solaire passait derrière le texte, on retomberait à
-  3,0:1. Le graphisme cède la place à la lisibilité.
+  Au centre du panneau, le fond reste le cuivre profond du dégradé, où le
+  champagne tient 6,71:1 ; si l'anneau passait derrière le texte, on
+  retomberait à 2,01:1. Le graphisme cède la place à la lisibilité.
 */
 .eclipse {
   position: absolute;
@@ -194,7 +195,7 @@
   gap: 18px;
   padding: 0 44px;
   text-align: center;
-  color: #ffebd1;
+  color: #EAD9BD;
   opacity: 0;
   transition:
     translate 0.75s cubic-bezier(0.76, 0, 0.24, 1),
@@ -232,7 +233,7 @@
   justify-content: center;
   gap: 14px;
   padding: 36px 44px;
-  background: #123243;
+  background: #1D2835;
   overflow-y: auto;
   scrollbar-width: none;
   transition: translate 0.75s cubic-bezier(0.76, 0, 0.24, 1);
@@ -291,12 +292,12 @@
 
 .champ input {
   width: 100%;
-  border: 1px solid rgba(255, 235, 209, 0.12);
+  border: 1px solid rgba(234,217,189, 0.12);
   border-radius: 12px;
-  background: #04202E;
+  background: #0A0D12;
   padding: 13px 42px 13px 40px;
   font-size: 14px;
-  color: #ffebd1;
+  color: #EAD9BD;
   transition:
     border-color 0.22s ease,
     background-color 0.22s ease,
@@ -304,11 +305,11 @@
 }
 
 .champ input::placeholder {
-  color: rgba(255, 235, 209, 0.45);
+  color: rgba(234,217,189, 0.45);
 }
 
 .champ input:hover {
-  border-color: rgba(255, 235, 209, 0.24);
+  border-color: rgba(234,217,189, 0.24);
 }
 
 .champ input:focus {
@@ -322,7 +323,7 @@
 }
 
 .champ input:focus ~ .icone {
-  color: #ff4103;
+  color: #BD9365;
 }
 
 .icone {
@@ -330,7 +331,7 @@
   top: 50%;
   left: 14px;
   translate: 0 -50%;
-  color: rgba(255, 235, 209, 0.45);
+  color: rgba(234,217,189, 0.45);
   pointer-events: none;
 }
 
@@ -344,15 +345,15 @@
   justify-content: center;
   padding: 6px;
   border-radius: 8px;
-  color: rgba(255, 235, 209, 0.5);
+  color: rgba(234,217,189, 0.5);
   transition:
     color 0.2s ease,
     background-color 0.2s ease;
 }
 
 .oeil:hover {
-  color: #ffebd1;
-  background: rgba(255, 235, 209, 0.08);
+  color: #EAD9BD;
+  background: rgba(234,217,189, 0.08);
 }
 
 /* Le trait qui se déploie sous le champ au focus. */
@@ -364,7 +365,7 @@
   height: 2px;
   width: 0;
   border-radius: 2px;
-  background: linear-gradient(90deg, #ff4103, #b6ff00);
+  background: linear-gradient(90deg, #BD9365, #EAD9BD);
   transition:
     width 0.35s cubic-bezier(0.2, 0.7, 0.3, 1),
     left 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);

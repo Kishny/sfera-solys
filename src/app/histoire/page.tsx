@@ -59,7 +59,7 @@ function formatStat(n: number): string {
 
 /** Anneau de focus commun à toutes les pages migrées. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 const constats = [
   {
@@ -147,28 +147,28 @@ export default function HistoirePage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <motion.div
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: 'easeOut' }}
             className="mx-auto max-w-3xl py-12 text-center sm:py-16"
           >
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-champagne">
               Notre histoire
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
               Pourquoi ce site existe.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/70 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70 sm:text-base">
               Sfera&apos;Solys n&apos;est pas né d&apos;une envie de faire une
               application de rencontre de plus. Il est né d&apos;un agacement
               précis, et d&apos;une décision qui coûte cher :{' '}
-              <span className="text-cream">
+              <span className="text-champagne">
                 personne n&apos;entre sans avoir prouvé qui il est.
               </span>
             </p>
@@ -176,13 +176,13 @@ export default function HistoirePage() {
         </section>
 
         {/* Le constat */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-6xl">
             <motion.div {...fadeUp}>
-              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
                 Le constat
               </h2>
-              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
                 Trois choses reviennent, toujours les mêmes, dans ce que les
                 gens reprochent aux applications de rencontre.
               </p>
@@ -201,17 +201,17 @@ export default function HistoirePage() {
                       delay: shouldReduceMotion ? 0 : index * 0.08,
                       ease: 'easeOut',
                     }}
-                    className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
+                    className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6"
                   >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange/15">
-                      <Icone size={18} className="text-orange" aria-hidden="true" />
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cuivre/15">
+                      <Icone size={18} className="text-cuivre" aria-hidden="true" />
                     </span>
 
-                    <h3 className="font-display [font-stretch:125%] mt-4 text-[17px] font-bold text-cream">
+                    <h3 className="font-display mt-4 text-[17px] font-bold text-champagne">
                       {constat.titre}
                     </h3>
 
-                    <p className="mt-2 text-[14px] leading-relaxed text-cream/65">
+                    <p className="mt-2 text-[14px] leading-relaxed text-champagne/65">
                       {constat.texte}
                     </p>
                   </motion.article>
@@ -222,23 +222,23 @@ export default function HistoirePage() {
         </section>
 
         {/* Le parti pris */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-14">
             <motion.div {...fadeUp}>
-              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
                 Le parti pris
               </h2>
 
-              <p className="mt-4 text-[15px] leading-relaxed text-cream/70">
+              <p className="mt-4 text-[15px] leading-relaxed text-champagne/70">
                 Il n&apos;y en a qu&apos;un, et tout le reste en découle :{' '}
-                <span className="text-cream">
+                <span className="text-champagne">
                   aucun compte ne s&apos;ouvre sans document officiel vérifié
                 </span>
                 . Carte d&apos;identité, passeport ou permis, comparés à un
                 selfie pris en direct — pas une photo choisie dans une galerie.
               </p>
 
-              <p className="mt-4 text-[15px] leading-relaxed text-cream/70">
+              <p className="mt-4 text-[15px] leading-relaxed text-champagne/70">
                 Le contrôle passe par Stripe Identity et prend quelques
                 instants. Ce qu&apos;il coûte n&apos;est donc pas du temps, mais
                 des inscriptions : une partie des visiteurs referme la page au
@@ -247,7 +247,7 @@ export default function HistoirePage() {
                 ailleurs.
               </p>
 
-              <p className="font-accent mt-5 text-[17px] italic leading-relaxed text-orange">
+              <p className="font-display italic mt-5 text-[17px] italic leading-relaxed text-cuivre">
                 Un site de rencontre ne vaut que ce que vaut la certitude
                 d&apos;avoir en face quelqu&apos;un de réel.
               </p>
@@ -255,20 +255,20 @@ export default function HistoirePage() {
 
             <motion.div
               {...fadeUp}
-              className="rounded-[1.75rem] border border-cream/10 bg-[#123243] p-6 sm:p-8"
+              className="rounded-[1.75rem] border border-champagne/10 bg-minuit p-6 sm:p-8"
             >
-              <span className="text-[11px] font-bold uppercase tracking-wide text-cream/55">
+              <span className="text-[11px] font-bold uppercase tracking-wide text-champagne/55">
                 Ce que ça coûte
               </span>
 
               <dl className="mt-5 space-y-5">
                 <div className="flex items-start gap-3">
-                  <IdCard size={17} className="mt-0.5 shrink-0 text-orange" aria-hidden="true" />
+                  <IdCard size={17} className="mt-0.5 shrink-0 text-cuivre" aria-hidden="true" />
                   <div>
-                    <dt className="text-[14px] font-semibold text-cream">
+                    <dt className="text-[14px] font-semibold text-champagne">
                       Une pièce d&apos;identité à sortir
                     </dt>
-                    <dd className="mt-1 text-[13px] leading-relaxed text-cream/60">
+                    <dd className="mt-1 text-[13px] leading-relaxed text-champagne/60">
                       C&apos;est le vrai coût : la démarche rebute, et elle
                       écarte d&apos;emblée ceux qui ne voulaient pas être
                       identifiables. C&apos;est aussi tout l&apos;intérêt.
@@ -277,12 +277,12 @@ export default function HistoirePage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Users size={17} className="mt-0.5 shrink-0 text-orange" aria-hidden="true" />
+                  <Users size={17} className="mt-0.5 shrink-0 text-cuivre" aria-hidden="true" />
                   <div>
-                    <dt className="text-[14px] font-semibold text-cream">
+                    <dt className="text-[14px] font-semibold text-champagne">
                       Une communauté qui grandit lentement
                     </dt>
-                    <dd className="mt-1 text-[13px] leading-relaxed text-cream/60">
+                    <dd className="mt-1 text-[13px] leading-relaxed text-champagne/60">
                       Chaque vérification a un coût, à notre charge et jamais à
                       la tienne. Ça interdit la course au volume — et ça donne
                       un annuaire où chaque profil tient debout.
@@ -291,12 +291,12 @@ export default function HistoirePage() {
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <ShieldCheck size={17} className="mt-0.5 shrink-0 text-lime" aria-hidden="true" />
+                  <ShieldCheck size={17} className="mt-0.5 shrink-0 text-succes" aria-hidden="true" />
                   <div>
-                    <dt className="text-[14px] font-semibold text-cream">
+                    <dt className="text-[14px] font-semibold text-champagne">
                       Ce que ça rapporte
                     </dt>
-                    <dd className="mt-1 text-[13px] leading-relaxed text-cream/60">
+                    <dd className="mt-1 text-[13px] leading-relaxed text-champagne/60">
                       Une seule chose, mais elle change tout : personne
                       n&apos;a besoin de se demander si l&apos;autre existe.
                     </dd>
@@ -308,13 +308,13 @@ export default function HistoirePage() {
         </section>
 
         {/* Les refus */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-6xl">
             <motion.div {...fadeUp}>
-              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
                 Ce qu&apos;on a choisi de ne pas faire
               </h2>
-              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
                 Un produit se définit autant par ce qu&apos;il refuse que par
                 ce qu&apos;il propose.
               </p>
@@ -330,17 +330,17 @@ export default function HistoirePage() {
                     delay: shouldReduceMotion ? 0 : index * 0.06,
                     ease: 'easeOut',
                   }}
-                  className="flex items-start gap-4 rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
+                  className="flex items-start gap-4 rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6"
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cream/10 bg-abyss">
-                    <Ban size={16} className="text-cream/55" aria-hidden="true" />
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-champagne/10 bg-nuit">
+                    <Ban size={16} className="text-champagne/55" aria-hidden="true" />
                   </span>
 
                   <div className="min-w-0">
-                    <h3 className="font-display [font-stretch:125%] text-[16px] font-bold text-cream">
+                    <h3 className="font-display text-[16px] font-bold text-champagne">
                       {item.titre}
                     </h3>
-                    <p className="mt-1.5 text-[14px] leading-relaxed text-cream/65">
+                    <p className="mt-1.5 text-[14px] leading-relaxed text-champagne/65">
                       {item.texte}
                     </p>
                   </div>
@@ -351,7 +351,7 @@ export default function HistoirePage() {
         </section>
 
         {/* Le nom */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <motion.div
             {...fadeUp}
             className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center sm:flex-row sm:gap-10 sm:text-left"
@@ -366,15 +366,15 @@ export default function HistoirePage() {
             <EclipseMark
               id="histoire-eclipse"
               withCorona
-              className="h-20 w-20 shrink-0 text-orange sm:h-24 sm:w-24"
+              className="h-20 w-20 shrink-0 text-cuivre sm:h-24 sm:w-24"
             />
 
             <div>
-              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
                 Le nom
               </h2>
-              <p className="mt-3 text-[15px] leading-relaxed text-cream/70">
-                <span className="text-cream">Solys</span>, pour le soleil. Le
+              <p className="mt-3 text-[15px] leading-relaxed text-champagne/70">
+                <span className="text-champagne">Solys</span>, pour le soleil. Le
                 symbole est une éclipse : un disque qui en mord un autre et
                 laisse un anneau. On y a vu ce que fait la vérification —
                 cacher juste ce qu&apos;il faut pour que le reste devienne
@@ -386,9 +386,9 @@ export default function HistoirePage() {
 
         {/* Les chiffres — uniquement s'il y a quelque chose à montrer */}
         {aDesChiffres && (
-          <section className="border-b border-cream/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
+          <section className="border-b border-champagne/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
             <div className="mx-auto max-w-6xl">
-              <h2 className="font-display [font-stretch:125%] text-center text-[13px] font-bold uppercase tracking-wide text-cream/55">
+              <h2 className="font-display text-center text-[13px] font-bold uppercase tracking-wide text-champagne/55">
                 Là où on en est
               </h2>
 
@@ -396,14 +396,14 @@ export default function HistoirePage() {
                 {chiffres.map((chiffre) => (
                   <div
                     key={chiffre.label}
-                    className="rounded-2xl border border-cream/10 bg-[#123243] p-5 text-center"
+                    className="rounded-2xl border border-champagne/10 bg-minuit p-5 text-center"
                   >
                     <dt className="sr-only">{chiffre.label}</dt>
                     <dd>
-                      <span className="font-display [font-stretch:125%] block text-2xl font-extrabold text-orange sm:text-3xl">
+                      <span className="font-display block text-2xl font-extrabold text-cuivre sm:text-3xl">
                         {chiffre.valeur}
                       </span>
-                      <span className="mt-1 block text-[12px] text-cream/60">
+                      <span className="mt-1 block text-[12px] text-champagne/60">
                         {chiffre.label}
                       </span>
                     </dd>
@@ -417,11 +417,11 @@ export default function HistoirePage() {
         {/* CTA */}
         <section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-16">
           <motion.div {...fadeUp} className="mx-auto max-w-2xl text-center">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[28px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[28px]">
               La suite s&apos;écrit avec ceux qui entrent.
             </h2>
 
-            <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-cream/65">
+            <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-champagne/65">
               Le dossier prend dix minutes, la vérification quelques instants.
               Rien ne t&apos;est demandé de plus que ce qui sert à te croire sur
               parole.
@@ -430,7 +430,7 @@ export default function HistoirePage() {
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/inscription"
-                className={`fx-btn inline-flex items-center justify-center gap-2 rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn inline-flex items-center justify-center gap-2 rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 Constituer mon dossier
                 <ArrowRight size={16} aria-hidden="true" />
@@ -438,7 +438,7 @@ export default function HistoirePage() {
 
               <Link
                 href="/valeurs"
-                className={`fx-ghost inline-flex items-center justify-center rounded-xl border border-cream/15 px-7 py-3.5 text-sm font-bold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+                className={`fx-ghost inline-flex items-center justify-center rounded-xl border border-champagne/15 px-7 py-3.5 text-sm font-bold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
               >
                 Nos valeurs
               </Link>

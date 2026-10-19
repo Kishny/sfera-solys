@@ -41,7 +41,7 @@ import PageLegale, { type SectionLegale } from '@/components/legal/PageLegale';
  */
 
 const A_COMPLETER = (
-  <strong className="rounded bg-orange px-1.5 py-0.5 text-abyss">
+  <strong className="rounded bg-cuivre px-1.5 py-0.5 text-nuit">
     [À COMPLÉTER]
   </strong>
 );
@@ -298,15 +298,15 @@ export default function ConfidentialitePage() {
       chapeau="Quelles données sont collectées, pourquoi, par qui elles sont traitées, et comment reprendre la main dessus."
       miseAJour="27 septembre 2026"
       avertissement={
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-5 py-4">
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-5 py-4">
           <AlertTriangle
             size={18}
-            className="mt-0.5 shrink-0 text-orange"
+            className="mt-0.5 shrink-0 text-cuivre"
             aria-hidden="true"
           />
-          <p className="text-[13px] leading-relaxed text-cream/80">
-            <strong className="text-cream">Document en cours de finalisation.</strong>{' '}
-            Les mentions signalées <span className="text-orange">[À COMPLÉTER]</span>{' '}
+          <p className="text-[13px] leading-relaxed text-champagne/80">
+            <strong className="text-champagne">Document en cours de finalisation.</strong>{' '}
+            Les mentions signalées <span className="text-cuivre">[À COMPLÉTER]</span>{' '}
             attendent des informations que seul l&apos;éditeur peut fournir :
             identité juridique, adresse, durées de conservation, délégué à la
             protection des données. Cette page doit être relue par un juriste

@@ -7,7 +7,7 @@ import { URL_SITE, verifierNextAuthUrl } from "@/lib/configuration";
 import AnalytiqueConsentie from "@/components/AnalytiqueConsentie";
 
 import "./globals.css";
-import { archivo, fraunces, instrumentSans } from "./fonts";
+import { instrumentSans, playfair } from "./fonts";
 
 import ClientProvider from "./ClientProvider";
 import JsonLd from "@/components/JsonLd";
@@ -182,7 +182,7 @@ export default function RootLayout({
       </head>
 
       <body
-        className={`${archivo.variable} ${fraunces.variable} ${instrumentSans.variable} font-sans antialiased`}
+        className={`${playfair.variable} ${instrumentSans.variable} font-sans antialiased`}
       >
         <ClientProvider>{children}</ClientProvider>
         <CookieConsent />

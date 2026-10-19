@@ -114,7 +114,7 @@ const INTENTIONS: Record<string, string> = {
 };
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 /** Destination du bouton retour, selon la page d'origine. */
 const RETOURS: Record<string, string> = {
@@ -260,15 +260,15 @@ function ContenuProfil() {
     (profil.interets?.length ?? 0) === 0;
 
   return (
-    <div className="min-h-screen bg-abyss px-4 py-6 text-cream sm:px-6 sm:py-8 lg:px-10">
+    <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
       <div className="mx-auto max-w-3xl">
         {/* Mode aperçu */}
         {apercu && (
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-4 py-3">
-            <p className="flex items-center gap-2.5 text-[13px] leading-relaxed text-cream/85">
-              <Eye size={15} className="shrink-0 text-orange" aria-hidden="true" />
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-4 py-3">
+            <p className="flex items-center gap-2.5 text-[13px] leading-relaxed text-champagne/85">
+              <Eye size={15} className="shrink-0 text-cuivre" aria-hidden="true" />
               <span>
-                <strong className="text-cream">Aperçu</strong> — voici ton profil
+                <strong className="text-champagne">Aperçu</strong> — voici ton profil
                 tel que les autres membres le voient.
               </span>
             </p>
@@ -276,7 +276,7 @@ function ContenuProfil() {
             <button
               type="button"
               onClick={() => window.close()}
-              className={`shrink-0 rounded-xl border border-cream/15 px-3.5 py-1.5 text-[12px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream ${focusRing}`}
+              className={`shrink-0 rounded-xl border border-champagne/15 px-3.5 py-1.5 text-[12px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne ${focusRing}`}
             >
               Fermer
             </button>
@@ -289,7 +289,7 @@ function ContenuProfil() {
             <button
               type="button"
               onClick={revenir}
-              className={`group inline-flex items-center gap-2 rounded-xl border border-cream/12 px-3.5 py-2 text-[13px] font-semibold text-cream/75 transition-colors hover:border-cream/25 hover:text-cream ${focusRing}`}
+              className={`group inline-flex items-center gap-2 rounded-xl border border-champagne/12 px-3.5 py-2 text-[13px] font-semibold text-champagne/75 transition-colors hover:border-champagne/25 hover:text-champagne ${focusRing}`}
             >
               <ArrowLeft
                 size={15}
@@ -303,7 +303,7 @@ function ContenuProfil() {
               <button
                 type="button"
                 onClick={() => setSignalementOuvert(true)}
-                className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-3.5 py-2 text-[12px] font-semibold text-cream/60 transition-colors hover:border-orange/40 hover:text-cream ${focusRing}`}
+                className={`inline-flex items-center gap-1.5 rounded-xl border border-champagne/12 px-3.5 py-2 text-[12px] font-semibold text-champagne/60 transition-colors hover:border-cuivre/40 hover:text-champagne ${focusRing}`}
               >
                 <Flag size={13} aria-hidden="true" />
                 Signaler
@@ -316,32 +316,32 @@ function ContenuProfil() {
         {chargement && (
           <div className="flex flex-col items-center gap-3 py-24">
             <Loader2
-              className="h-7 w-7 animate-spin text-orange"
+              className="h-7 w-7 animate-spin text-cuivre"
               aria-hidden="true"
             />
-            <p className="text-[13px] text-cream/55">Chargement du profil…</p>
+            <p className="text-[13px] text-champagne/55">Chargement du profil…</p>
           </div>
         )}
 
         {/* Erreur */}
         {!chargement && erreur && (
-          <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
-            <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange/15">
-              <AlertCircle size={22} className="text-orange" aria-hidden="true" />
+          <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
+            <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-cuivre/15">
+              <AlertCircle size={22} className="text-cuivre" aria-hidden="true" />
             </span>
 
-            <h1 className="font-display [font-stretch:125%] text-[19px] font-bold text-cream">
+            <h1 className="font-display text-[19px] font-bold text-champagne">
               Profil indisponible
             </h1>
 
-            <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/60">
+            <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
               {erreur}
             </p>
 
             <button
               type="button"
               onClick={revenir}
-              className={`mt-6 inline-flex items-center gap-2 rounded-xl border border-cream/15 px-5 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+              className={`mt-6 inline-flex items-center gap-2 rounded-xl border border-champagne/15 px-5 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
             >
               <ArrowLeft size={14} aria-hidden="true" />
               Revenir
@@ -358,9 +358,9 @@ function ContenuProfil() {
             className="space-y-4 sm:space-y-5"
           >
             {/* Identité */}
-            <section className="overflow-hidden rounded-[1.75rem] border border-cream/10 bg-[#123243]">
+            <section className="overflow-hidden rounded-[1.75rem] border border-champagne/10 bg-minuit">
               <div className="flex flex-col items-center gap-5 p-5 text-center sm:flex-row sm:items-center sm:gap-6 sm:p-7 sm:text-left">
-                <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-cream/12 bg-abyss sm:h-28 sm:w-28">
+                <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-champagne/12 bg-nuit sm:h-28 sm:w-28">
                   {profil.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -370,7 +370,7 @@ function ContenuProfil() {
                     />
                   ) : (
                     <span
-                      className="font-display [font-stretch:125%] text-[34px] font-extrabold text-cream/60"
+                      className="font-display text-[34px] font-extrabold text-champagne/60"
                       aria-hidden="true"
                     >
                       {nom.charAt(0).toUpperCase()}
@@ -380,25 +380,25 @@ function ContenuProfil() {
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                    <h1 className="font-display [font-stretch:125%] min-w-0 max-w-full truncate text-[24px] font-extrabold leading-tight tracking-tight text-cream sm:text-[30px]">
+                    <h1 className="font-display min-w-0 max-w-full truncate text-[24px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[30px]">
                       {profil.pseudonyme || "Membre"}
                     </h1>
 
                     {profil.identityVerified && (
-                      <span className="flex items-center gap-1 rounded-full bg-lime/15 px-2.5 py-1 text-[11px] font-bold text-lime">
+                      <span className="flex items-center gap-1 rounded-full bg-succes/15 px-2.5 py-1 text-[11px] font-bold text-succes">
                         <ShieldCheck size={12} aria-hidden="true" />
                         Vérifié
                       </span>
                     )}
 
                     {relation?.estUnMatch && (
-                      <span className="rounded-full bg-orange px-2.5 py-1 text-[11px] font-bold text-abyss">
+                      <span className="rounded-full bg-cuivre px-2.5 py-1 text-[11px] font-bold text-nuit">
                         En relation
                       </span>
                     )}
                   </div>
 
-                  <div className="mt-2.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px] text-cream/60 sm:justify-start">
+                  <div className="mt-2.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px] text-champagne/60 sm:justify-start">
                     {profil.age && <span>{profil.age} ans</span>}
 
                     {lieu && (
@@ -422,13 +422,13 @@ function ContenuProfil() {
             {profil.photos && profil.photos.length > 0 && (
               <section
                 aria-label={`Photos de ${nom}`}
-                className="rounded-2xl border border-cream/10 bg-[#123243] p-3 sm:p-4"
+                className="rounded-2xl border border-champagne/10 bg-minuit p-3 sm:p-4"
               >
                 <ul className="flex gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {profil.photos.map((url, index) => (
                     <li
                       key={url}
-                      className="aspect-[4/5] w-36 shrink-0 overflow-hidden rounded-xl border border-cream/10 bg-abyss sm:w-44"
+                      className="aspect-[4/5] w-36 shrink-0 overflow-hidden rounded-xl border border-champagne/10 bg-nuit sm:w-44"
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -446,7 +446,7 @@ function ContenuProfil() {
             {/* Bio */}
             {profil.bio && (
               <SectionProfil titre="À propos" icone={Quote}>
-                <p className="whitespace-pre-line text-[14px] leading-relaxed text-cream/80">
+                <p className="whitespace-pre-line text-[14px] leading-relaxed text-champagne/80">
                   {profil.bio}
                 </p>
               </SectionProfil>
@@ -459,7 +459,7 @@ function ContenuProfil() {
                   {profil.intentions?.map((intention) => (
                     <li
                       key={intention}
-                      className="rounded-full border border-orange/35 bg-orange/[0.12] px-3 py-1.5 text-[12px] font-semibold text-cream"
+                      className="rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3 py-1.5 text-[12px] font-semibold text-champagne"
                     >
                       {INTENTIONS[intention] ?? intention}
                     </li>
@@ -475,7 +475,7 @@ function ContenuProfil() {
                   {profil.interets?.map((interet) => (
                     <li
                       key={interet}
-                      className="rounded-full border border-cream/12 px-3 py-1.5 text-[12px] text-cream/70"
+                      className="rounded-full border border-champagne/12 px-3 py-1.5 text-[12px] text-champagne/70"
                     >
                       {interet}
                     </li>
@@ -486,18 +486,18 @@ function ContenuProfil() {
 
             {/* Profil encore vide */}
             {profilVide && (
-              <section className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-10 text-center">
+              <section className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-10 text-center">
                 <UserRound
                   size={24}
-                  className="mx-auto mb-3 text-cream/60"
+                  className="mx-auto mb-3 text-champagne/60"
                   aria-hidden="true"
                 />
 
-                <p className="font-display [font-stretch:125%] text-[16px] font-bold text-cream">
+                <p className="font-display text-[16px] font-bold text-champagne">
                   Profil encore discret
                 </p>
 
-                <p className="mx-auto mt-1.5 max-w-sm text-[13px] leading-relaxed text-cream/60">
+                <p className="mx-auto mt-1.5 max-w-sm text-[13px] leading-relaxed text-champagne/60">
                   {relation?.estMonProfil
                     ? "Ton profil est vérifié, mais vide. Une description et quelques intentions changent tout pour qui te découvre."
                     : "Ce membre n’a pas encore rempli sa description. L’identité, elle, est vérifiée."}
@@ -507,21 +507,21 @@ function ContenuProfil() {
 
             {/* Action */}
             {relation && !relation.estMonProfil && (
-              <section className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6">
+              <section className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6">
                 {relation.estUnMatch && relation.matchId ? (
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
-                      <p className="font-display [font-stretch:125%] text-[15px] font-bold text-cream">
+                      <p className="font-display text-[15px] font-bold text-champagne">
                         Vous êtes en relation
                       </p>
-                      <p className="mt-1 text-[13px] leading-relaxed text-cream/60">
+                      <p className="mt-1 text-[13px] leading-relaxed text-champagne/60">
                         La conversation est ouverte. Un match n’oblige à rien.
                       </p>
                     </div>
 
                     <Link
                       href={`/messages/${relation.matchId}`}
-                      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-orange px-5 py-3 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cuivre px-5 py-3 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
                     >
                       <MessageCircle size={15} aria-hidden="true" />
                       Écrire
@@ -530,27 +530,27 @@ function ContenuProfil() {
                 ) : relation.dejaAime ? (
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
-                      <p className="font-display [font-stretch:125%] text-[15px] font-bold text-cream">
+                      <p className="font-display text-[15px] font-bold text-champagne">
                         Tu as aimé ce profil
                       </p>
-                      <p className="mt-1 text-[13px] leading-relaxed text-cream/60">
+                      <p className="mt-1 text-[13px] leading-relaxed text-champagne/60">
                         Si c’est réciproque, la conversation s’ouvrira. Rien
                         n’est envoyé à {nom} en attendant.
                       </p>
                     </div>
 
-                    <span className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-lime/15 px-5 py-3 text-[13px] font-bold text-lime">
-                      <Heart size={15} className="fill-lime" aria-hidden="true" />
+                    <span className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-succes/15 px-5 py-3 text-[13px] font-bold text-succes">
+                      <Heart size={15} className="fill-succes" aria-hidden="true" />
                       Aimé
                     </span>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
-                      <p className="font-display [font-stretch:125%] text-[15px] font-bold text-cream">
+                      <p className="font-display text-[15px] font-bold text-champagne">
                         Ce profil t’intéresse ?
                       </p>
-                      <p className="mt-1 text-[13px] leading-relaxed text-cream/60">
+                      <p className="mt-1 text-[13px] leading-relaxed text-champagne/60">
                         {nom} ne saura rien tant que ce n’est pas réciproque.
                       </p>
                     </div>
@@ -559,7 +559,7 @@ function ContenuProfil() {
                       type="button"
                       onClick={aimer}
                       disabled={likeEnCours}
-                      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-orange px-5 py-3 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 disabled:opacity-50 ${focusRing}`}
+                      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cuivre px-5 py-3 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:opacity-50 ${focusRing}`}
                     >
                       {likeEnCours ? (
                         <Loader2
@@ -578,11 +578,11 @@ function ContenuProfil() {
                 {erreurLike && (
                   <p
                     role="alert"
-                    className="mt-4 flex items-start gap-2 rounded-xl border border-orange/30 bg-orange/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-cream/85"
+                    className="mt-4 flex items-start gap-2 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-champagne/85"
                   >
                     <AlertCircle
                       size={14}
-                      className="mt-0.5 shrink-0 text-orange"
+                      className="mt-0.5 shrink-0 text-cuivre"
                       aria-hidden="true"
                     />
                     {erreurLike}
@@ -620,9 +620,9 @@ function SectionProfil({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6">
-      <h2 className="mb-3 flex items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-cream/70">
-        <Icone size={13} className="text-orange" aria-hidden="true" />
+    <section className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6">
+      <h2 className="mb-3 flex items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-champagne/70">
+        <Icone size={13} className="text-cuivre" aria-hidden="true" />
         {titre}
       </h2>
 
@@ -639,9 +639,9 @@ export default function PageProfil() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-abyss">
+        <div className="flex min-h-screen items-center justify-center bg-nuit">
           <Loader2
-            className="h-7 w-7 animate-spin text-orange"
+            className="h-7 w-7 animate-spin text-cuivre"
             aria-hidden="true"
           />
           <span className="sr-only">Chargement</span>

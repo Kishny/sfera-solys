@@ -79,7 +79,7 @@ async function getApprovedTestimonials(): Promise<PublicTestimonial[]> {
 }
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 export default async function TemoignagesPage() {
   const testimonials = await getApprovedTestimonials();
@@ -134,19 +134,19 @@ export default async function TemoignagesPage() {
       <Header />
       <JsonLd data={jsonLd} />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <div className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
               Paroles de membres vérifiés
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
               Ils parlent de Sfera&apos;Solys.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/60 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
               Chaque témoignage vient d&apos;un compte dont l&apos;identité a
               été vérifiée. Pas d&apos;avis achetés, pas de profils
               inventés — ce que vivent réellement les membres, avant même que
@@ -154,10 +154,10 @@ export default async function TemoignagesPage() {
             </p>
 
             {avgRating && count > 0 && (
-              <div className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-cream/10 bg-[#123243] px-4 py-2 text-sm">
-                <Star size={15} className="text-orange" fill="currentColor" />
-                <span className="font-bold text-cream">{avgRating}/5</span>
-                <span className="text-cream/55">
+              <div className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-champagne/10 bg-minuit px-4 py-2 text-sm">
+                <Star size={15} className="text-cuivre" fill="currentColor" />
+                <span className="font-bold text-champagne">{avgRating}/5</span>
+                <span className="text-champagne/55">
                   · {count} témoignage{count > 1 ? "s" : ""}
                 </span>
               </div>
@@ -166,7 +166,7 @@ export default async function TemoignagesPage() {
         </section>
 
         {/* Grille de témoignages */}
-        <section className="border-b border-cream/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
           <div className="mx-auto max-w-7xl">
             {count > 0 ? (
               <TestimonialsExplorer
@@ -174,11 +174,11 @@ export default async function TemoignagesPage() {
                 pageSize={12}
               />
             ) : (
-              <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-cream/15 bg-[#123243] px-4 py-10 text-center">
-                <p className="text-base font-semibold text-cream">
+              <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-champagne/15 bg-minuit px-4 py-10 text-center">
+                <p className="text-base font-semibold text-champagne">
                   Les premiers témoignages arrivent bientôt
                 </p>
-                <p className="mt-1.5 text-sm text-cream/55">
+                <p className="mt-1.5 text-sm text-champagne/55">
                   Sois parmi les premiers à partager ton expérience.
                 </p>
               </div>
@@ -187,13 +187,13 @@ export default async function TemoignagesPage() {
         </section>
 
         {/* Partager son expérience */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-          <div className="mx-auto max-w-3xl rounded-3xl border border-cream/8 bg-[#123243] p-6 sm:p-9">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-3xl rounded-3xl border border-champagne/8 bg-minuit p-6 sm:p-9">
             <div className="text-center">
-              <h2 className="font-display [font-stretch:125%] text-xl font-extrabold tracking-tight text-cream sm:text-2xl">
+              <h2 className="font-display text-xl font-extrabold tracking-tight text-champagne sm:text-2xl">
                 Tu fais partie de l&apos;aventure ?
               </h2>
-              <p className="mt-1.5 text-sm text-cream/60">
+              <p className="mt-1.5 text-sm text-champagne/60">
                 Partage ton expérience pour aider les prochains à se lancer.
               </p>
             </div>
@@ -204,12 +204,12 @@ export default async function TemoignagesPage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
-              <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
+              <h2 className="font-display mb-1.5 text-xl font-extrabold text-champagne sm:text-2xl">
                 Envie d&apos;écrire le tien ?
               </h2>
-              <p className="text-sm text-cream/60">
+              <p className="text-sm text-champagne/60">
                 Constitution du dossier gratuite, vérification immédiate.
               </p>
             </div>
@@ -217,14 +217,14 @@ export default async function TemoignagesPage() {
             <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
               <Link
                 href="/auth?mode=register"
-                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 constituer mon dossier
               </Link>
 
               <Link
                 href="/commencer"
- className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
               >
                 voir comment ça marche
                 <ArrowRight size={14} />

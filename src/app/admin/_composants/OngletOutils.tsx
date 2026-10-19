@@ -25,12 +25,12 @@ export default function OngletOutils({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <div className="rounded-2xl border border-rust/20 bg-rust/5 p-4">
-        <p className="flex items-center gap-2 text-sm font-semibold text-cream">
+      <div className="rounded-2xl border border-erreur/20 bg-erreur/5 p-4">
+        <p className="flex items-center gap-2 text-sm font-semibold text-champagne">
           <AlertCircle className="h-4 w-4" aria-hidden="true" />
           Zone sensible
         </p>
-        <p className="mt-1 text-xs text-cream/60">
+        <p className="mt-1 text-xs text-champagne/60">
           Ces actions suppriment définitivement des données pour l&apos;ensemble
           du site, tous les membres confondus, sans toucher aux comptes
           eux-mêmes. Utile pour repartir avec des statistiques propres après des
@@ -39,13 +39,13 @@ export default function OngletOutils({
       </div>
 
       {resetMessage && (
-        <div className="flex items-center gap-3 rounded-xl border border-lime/20 bg-lime/10 px-4 py-3 text-sm text-lime">
+        <div className="flex items-center gap-3 rounded-xl border border-succes/20 bg-succes/10 px-4 py-3 text-sm text-succes">
           <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span className="flex-1">{resetMessage}</span>
           <button
             onClick={onCloseMessage}
             aria-label="Fermer le message"
-            className="text-lime transition hover:text-cream"
+            className="text-succes transition hover:text-champagne"
           >
             ✕
           </button>
@@ -56,17 +56,17 @@ export default function OngletOutils({
         {resetTargets.map((rt) => (
           <div
             key={rt.id}
-            className="flex flex-col gap-3 rounded-2xl border border-cream/10 bg-cream/5 p-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 rounded-2xl border border-champagne/10 bg-champagne/5 p-4 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
               <p className="text-sm font-semibold">{rt.label}</p>
-              <p className="text-xs text-cream/60">{rt.description}</p>
+              <p className="text-xs text-champagne/60">{rt.description}</p>
             </div>
 
             <button
               onClick={() => onReset(rt.id, rt.confirmMessage)}
               disabled={actionLoading === "reset-" + rt.id}
-              className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-rust/30 bg-rust/20 px-4 py-2 text-xs font-semibold text-cream transition hover:bg-rust/30 disabled:opacity-50"
+              className="flex shrink-0 items-center justify-center gap-2 rounded-xl border border-erreur/30 bg-erreur/20 px-4 py-2 text-xs font-semibold text-champagne transition hover:bg-erreur/30 disabled:opacity-50"
             >
               {actionLoading === "reset-" + rt.id ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />

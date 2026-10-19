@@ -29,7 +29,7 @@ import Footer from '@/components/Footer';
 
 /** Anneau de focus commun à toutes les pages migrées. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 const ADRESSE_SUPPORT = 'contact@sferasolys.com';
 
@@ -106,7 +106,7 @@ export default function ContactPage() {
     }
   };
 
-  const champClasses = `w-full rounded-xl border border-cream/12 bg-cream/5 px-4 py-3 text-[14px] text-cream placeholder:text-cream/60 transition-colors focus:border-orange focus:outline-none focus:ring-2 focus:ring-orange/25`;
+  const champClasses = `w-full rounded-xl border border-champagne/12 bg-champagne/5 px-4 py-3 text-[14px] text-champagne placeholder:text-champagne/60 transition-colors focus:border-cuivre focus:outline-none focus:ring-2 focus:ring-cuivre/25`;
 
   const fadeUp = {
     initial: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
@@ -118,19 +118,19 @@ export default function ContactPage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <motion.div {...fadeUp} className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-champagne">
               Contact
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
               Une question, un souci ?
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/70 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70 sm:text-base">
               Écris-nous. Une personne lit, une personne répond — sous 24 à
               48 heures en jours ouvrés.
             </p>
@@ -138,21 +138,21 @@ export default function ContactPage() {
         </section>
 
         {/* Formulaire + repères */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
             {/* Le formulaire */}
-            <div className="rounded-[1.75rem] border border-cream/10 bg-[#123243] p-6 sm:p-8">
+            <div className="rounded-[1.75rem] border border-champagne/10 bg-minuit p-6 sm:p-8">
               {envoye ? (
                 <div className="py-6 text-center">
-                  <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-lime/30 bg-lime/10">
-                    <CheckCircle2 size={24} className="text-lime" aria-hidden="true" />
+                  <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-succes/30 bg-succes/10">
+                    <CheckCircle2 size={24} className="text-succes" aria-hidden="true" />
                   </span>
 
-                  <h2 className="font-display [font-stretch:125%] mt-5 text-xl font-extrabold text-cream">
+                  <h2 className="font-display mt-5 text-xl font-extrabold text-champagne">
                     Message transmis
                   </h2>
 
-                  <p className="mx-auto mt-2 max-w-sm text-[14px] leading-relaxed text-cream/65">
+                  <p className="mx-auto mt-2 max-w-sm text-[14px] leading-relaxed text-champagne/65">
                     Il est arrivé à {ADRESSE_SUPPORT}. On revient vers toi sous
                     24 à 48 heures.
                   </p>
@@ -160,7 +160,7 @@ export default function ContactPage() {
                   <button
                     type="button"
                     onClick={() => setEnvoye(false)}
-                    className={`fx-ghost mt-6 rounded-xl border border-cream/15 px-5 py-2.5 text-[13px] font-bold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+                    className={`fx-ghost mt-6 rounded-xl border border-champagne/15 px-5 py-2.5 text-[13px] font-bold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
                   >
                     Écrire un autre message
                   </button>
@@ -170,9 +170,9 @@ export default function ContactPage() {
                   <div>
                     <label
                       htmlFor="contact-nom"
-                      className="mb-1.5 block text-[13px] font-semibold text-cream/90"
+                      className="mb-1.5 block text-[13px] font-semibold text-champagne/90"
                     >
-                      Ton nom <span className="text-orange">*</span>
+                      Ton nom <span className="text-cuivre">*</span>
                     </label>
                     <input
                       id="contact-nom"
@@ -191,9 +191,9 @@ export default function ContactPage() {
                   <div>
                     <label
                       htmlFor="contact-email"
-                      className="mb-1.5 block text-[13px] font-semibold text-cream/90"
+                      className="mb-1.5 block text-[13px] font-semibold text-champagne/90"
                     >
-                      Ton email <span className="text-orange">*</span>
+                      Ton email <span className="text-cuivre">*</span>
                     </label>
                     <input
                       id="contact-email"
@@ -210,9 +210,9 @@ export default function ContactPage() {
                   <div>
                     <label
                       htmlFor="contact-sujet"
-                      className="mb-1.5 block text-[13px] font-semibold text-cream/90"
+                      className="mb-1.5 block text-[13px] font-semibold text-champagne/90"
                     >
-                      Sujet <span className="text-orange">*</span>
+                      Sujet <span className="text-cuivre">*</span>
                     </label>
                     <input
                       id="contact-sujet"
@@ -231,9 +231,9 @@ export default function ContactPage() {
                   <div>
                     <label
                       htmlFor="contact-message"
-                      className="mb-1.5 block text-[13px] font-semibold text-cream/90"
+                      className="mb-1.5 block text-[13px] font-semibold text-champagne/90"
                     >
-                      Ton message <span className="text-orange">*</span>
+                      Ton message <span className="text-cuivre">*</span>
                     </label>
                     <textarea
                       id="contact-message"
@@ -266,13 +266,13 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={envoi}
-                    className={`fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`}
+                    className={`fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-60 ${focusRing}`}
                   >
                     {envoi ? 'Envoi en cours…' : 'Envoyer le message'}
                     {!envoi && <ArrowRight size={16} aria-hidden="true" />}
                   </button>
 
-                  <p className="text-center text-[12px] leading-relaxed text-cream/55">
+                  <p className="text-center text-[12px] leading-relaxed text-champagne/55">
                     Ton adresse ne sert qu&apos;à te répondre. Elle n&apos;est
                     ajoutée à aucune liste de diffusion.
                   </p>
@@ -288,21 +288,21 @@ export default function ContactPage() {
                 return (
                   <div
                     key={repere.titre}
-                    className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
+                    className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6"
                   >
                     <div className="flex items-start gap-4">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange/15">
-                        <Icone size={18} className="text-orange" aria-hidden="true" />
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cuivre/15">
+                        <Icone size={18} className="text-cuivre" aria-hidden="true" />
                       </span>
 
                       <div className="min-w-0">
-                        <h2 className="font-display [font-stretch:125%] text-[15px] font-bold text-cream">
+                        <h2 className="font-display text-[15px] font-bold text-champagne">
                           {repere.titre}
                         </h2>
-                        <p className="mt-0.5 break-words text-[14px] font-semibold text-orange">
+                        <p className="mt-0.5 break-words text-[14px] font-semibold text-cuivre">
                           {repere.valeur}
                         </p>
-                        <p className="mt-1.5 text-[13px] leading-relaxed text-cream/60">
+                        <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/60">
                           {repere.detail}
                         </p>
                       </div>
@@ -311,15 +311,15 @@ export default function ContactPage() {
                 );
               })}
 
-              <div className="rounded-2xl border border-cream/10 bg-abyss p-5 sm:p-6">
-                <p className="text-[13px] leading-relaxed text-cream/65">
+              <div className="rounded-2xl border border-champagne/10 bg-nuit p-5 sm:p-6">
+                <p className="text-[13px] leading-relaxed text-champagne/65">
                   Une question sur le fonctionnement du site ? La réponse est
                   peut-être déjà écrite.
                 </p>
 
                 <Link
                   href="/faq"
- className={`fx-link mt-3 inline-flex items-center gap-1.5 text-[13px] font-bold text-cream transition-colors ${focusRing}`}
+ className={`fx-link mt-3 inline-flex items-center gap-1.5 text-[13px] font-bold text-champagne transition-colors ${focusRing}`}
                 >
                   Voir la foire aux questions
                   <ArrowRight size={14} aria-hidden="true" />

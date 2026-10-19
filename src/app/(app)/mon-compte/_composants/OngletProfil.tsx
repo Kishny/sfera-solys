@@ -100,10 +100,10 @@ export default function OngletProfil({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-display [font-stretch:125%] text-[19px] font-bold text-cream">
+        <h2 className="font-display text-[19px] font-bold text-champagne">
           Mon profil
         </h2>
-        <p className="mt-1 text-[13px] text-cream/60">
+        <p className="mt-1 text-[13px] text-champagne/60">
           {edition
             ? "Mode édition — rien n’est enregistré tant que tu n’as pas sauvegardé."
             : "Appuie sur « Modifier » en bas de page pour éditer."}
@@ -111,10 +111,10 @@ export default function OngletProfil({
       </div>
 
       {edition && (
-        <p className="flex items-start gap-2 rounded-xl border border-orange/30 bg-orange/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-cream/85">
+        <p className="flex items-start gap-2 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-champagne/85">
           <Pencil
             size={13}
-            className="mt-0.5 shrink-0 text-orange"
+            className="mt-0.5 shrink-0 text-cuivre"
             aria-hidden="true"
           />
           Tes modifications restent locales jusqu’à la sauvegarde. « Annuler »
@@ -125,7 +125,7 @@ export default function OngletProfil({
       {/* Avatar */}
       <section className={`${carte} p-4 sm:p-5`}>
         <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:text-left">
-          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-cream/12 bg-abyss">
+          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-champagne/12 bg-nuit">
             {image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -134,16 +134,16 @@ export default function OngletProfil({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="font-display [font-stretch:125%] text-[24px] font-extrabold text-cream/60">
+              <span className="font-display text-[24px] font-extrabold text-champagne/60">
                 {user.pseudonyme.charAt(0).toUpperCase()}
               </span>
             )}
 
             {envoi && (
-              <div className="absolute inset-0 flex items-center justify-center bg-abyss/70">
+              <div className="absolute inset-0 flex items-center justify-center bg-nuit/70">
                 <Loader2
                   size={18}
-                  className="animate-spin text-orange"
+                  className="animate-spin text-cuivre"
                   aria-hidden="true"
                 />
               </div>
@@ -151,18 +151,18 @@ export default function OngletProfil({
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-semibold text-cream">
+            <p className="text-[13px] font-semibold text-champagne">
               Photo de profil
             </p>
 
-            <p className="mt-0.5 text-[11px] text-cream/55">
+            <p className="mt-0.5 text-[11px] text-champagne/55">
               JPG, PNG ou WebP · 5 Mo maximum · recadrée en 400 × 400.
             </p>
 
             {message && (
               <p
                 className={`mt-2 text-[12px] ${
-                  message.type === "success" ? "text-lime" : "text-orange"
+                  message.type === "success" ? "text-succes" : "text-cuivre"
                 }`}
                 role={message.type === "error" ? "alert" : "status"}
               >
@@ -179,7 +179,7 @@ export default function OngletProfil({
                   ? "Passe en mode édition pour changer ta photo."
                   : undefined
               }
-              className={`mt-3 rounded-xl border border-cream/15 px-4 py-2 text-[12px] font-semibold text-cream transition-colors hover:border-cream/30 disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
+              className={`mt-3 rounded-xl border border-champagne/15 px-4 py-2 text-[12px] font-semibold text-champagne transition-colors hover:border-champagne/30 disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
             >
               {envoi ? "Envoi en cours…" : "Changer la photo"}
             </button>
@@ -214,7 +214,7 @@ export default function OngletProfil({
             placeholder="Quelques mots sur toi : ce qui t’occupe, ce que tu cherches…"
             maxLength={500}
           />
-          <span className="mt-1 block text-right text-[11px] text-cream/55">
+          <span className="mt-1 block text-right text-[11px] text-champagne/55">
             {(user.bio || "").length} / 500
           </span>
         </Champ>
@@ -234,7 +234,7 @@ export default function OngletProfil({
 
           <Champ label="Adresse e-mail">
             <input disabled value={user.email || ""} className={champ} />
-            <span className="mt-1.5 block text-[11px] text-cream/55">
+            <span className="mt-1.5 block text-[11px] text-champagne/55">
               L’adresse ne se change pas ici — écris-nous via la page contact.
             </span>
           </Champ>
@@ -319,7 +319,7 @@ export default function OngletProfil({
               className={champ}
               placeholder="voyage, musique, sport…"
             />
-            <span className="mt-1.5 block text-[11px] text-cream/55">
+            <span className="mt-1.5 block text-[11px] text-champagne/55">
               Séparés par des virgules.
             </span>
           </Champ>
@@ -355,7 +355,7 @@ export default function OngletProfil({
             />
 
             {user.hasReponse && (
-              <span className="mt-1.5 block text-[11px] text-cream/60">
+              <span className="mt-1.5 block text-[11px] text-champagne/60">
                 {edition
                   ? "Laisse vide pour conserver ta réponse actuelle."
                   : "Une réponse est enregistrée. Elle ne s’affiche jamais, même pour toi."}

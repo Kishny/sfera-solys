@@ -191,7 +191,7 @@ const relatedPages = [
 
 /** Anneau de focus clavier, identique partout dans la direction A. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 export default function GuidePage() {
   /**
@@ -208,48 +208,48 @@ export default function GuidePage() {
       <Header />
 
       {/* id="contenu" : cible du lien d'évitement du header. */}
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <div className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
               Guide du débutant · niveau débutant
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
               Ton parcours, étape par étape.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/60 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
               Ce guide t&apos;accompagne dans tes premiers pas sur
               Sfera&apos;Solys. Ici, le but n&apos;est pas d&apos;aller vite,
               mais de créer des connexions qui ont du sens.
             </p>
 
-            <p className="mt-5 inline-flex items-center gap-2 text-[13px] text-cream/55">
-              <Clock size={14} className="text-orange" />
+            <p className="mt-5 inline-flex items-center gap-2 text-[13px] text-champagne/55">
+              <Clock size={14} className="text-cuivre" />
               5 étapes · environ 30 minutes de lecture
             </p>
           </div>
         </section>
 
         {/* Avant de commencer */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] mb-4 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-4 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Avant de commencer
             </h2>
 
-            <p className="text-[15px] leading-relaxed text-cream/60 sm:text-base">
+            <p className="text-[15px] leading-relaxed text-champagne/60 sm:text-base">
               Rien ici n&apos;est un compte à rebours. Tu peux constituer ton
               dossier en une fois ou y revenir plus tard, ouvrir une étape et
               laisser les suivantes de côté. Le guide suit l&apos;ordre le plus
               simple, pas un ordre obligatoire.
             </p>
 
-            <div className="mt-6 flex items-start gap-3 rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-5">
-              <ShieldCheck size={18} className="mt-0.5 shrink-0 text-orange" />
-              <p className="text-[13px] leading-relaxed text-cream/70">
+            <div className="mt-6 flex items-start gap-3 rounded-2xl border border-champagne/8 bg-minuit p-4 sm:p-5">
+              <ShieldCheck size={18} className="mt-0.5 shrink-0 text-cuivre" />
+              <p className="text-[13px] leading-relaxed text-champagne/70">
                 Avance à ton rythme : tu gardes toujours le contrôle de ce que
                 tu partages, de ce que tu montres et du moment où tu te lances.
               </p>
@@ -258,13 +258,13 @@ export default function GuidePage() {
         </section>
 
         {/* Les 5 étapes */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Ton parcours en 5 étapes
             </h2>
 
-            <p className="mb-10 mt-2 max-w-xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mb-10 mt-2 max-w-xl text-[15px] leading-relaxed text-champagne/60">
               Une progression simple, claire et sans mauvaise surprise.
             </p>
 
@@ -280,15 +280,15 @@ export default function GuidePage() {
                       <span
                         className={`font-display flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-extrabold ${
                           step.dot === 'orange'
-                            ? 'bg-orange text-abyss'
-                            : 'bg-lime text-abyss'
+                            ? 'bg-cuivre text-nuit'
+                            : 'bg-succes text-nuit'
                         }`}
                       >
                         {index + 1}
                       </span>
 
                       {!isLast && (
-                        <span className="my-1.5 w-[2px] flex-1 bg-lime/35" />
+                        <span className="my-1.5 w-[2px] flex-1 bg-succes/35" />
                       )}
                     </div>
 
@@ -298,17 +298,17 @@ export default function GuidePage() {
                       }
                     >
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <h3 className="font-display [font-stretch:125%] text-[17px] font-bold text-cream">
+                        <h3 className="font-display text-[17px] font-bold text-champagne">
                           {step.title}
                         </h3>
 
-                        <span className="inline-flex items-center gap-1.5 text-[12px] text-cream/55">
+                        <span className="inline-flex items-center gap-1.5 text-[12px] text-champagne/55">
                           <Clock size={12} />
                           {step.duration}
                         </span>
                       </div>
 
-                      <p className="mt-2 max-w-md text-sm leading-relaxed text-cream/60">
+                      <p className="mt-2 max-w-md text-sm leading-relaxed text-champagne/60">
                         {step.content}
                       </p>
 
@@ -321,7 +321,7 @@ export default function GuidePage() {
                           )
                         }
                         aria-expanded={isOpen}
-                        className={`fx-link mt-3 flex items-center gap-1.5 text-[13px] font-semibold text-cream sm:hidden ${focusRing}`}
+                        className={`fx-link mt-3 flex items-center gap-1.5 text-[13px] font-semibold text-champagne sm:hidden ${focusRing}`}
                       >
                         {isOpen ? 'masquer le détail' : 'voir le détail'}
                         <ChevronDown
@@ -333,13 +333,13 @@ export default function GuidePage() {
                       </button>
 
                       <div
-                        className={`mt-4 rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:block sm:p-5 ${
+                        className={`mt-4 rounded-2xl border border-champagne/8 bg-minuit p-4 sm:block sm:p-5 ${
                           isOpen ? 'block' : 'hidden'
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <Icon size={18} className="text-orange" />
-                          <span className="text-[12px] font-semibold uppercase tracking-wide text-cream/55">
+                          <Icon size={18} className="text-cuivre" />
+                          <span className="text-[12px] font-semibold uppercase tracking-wide text-champagne/55">
                             Ce qu&apos;il y a à faire
                           </span>
                         </div>
@@ -349,9 +349,9 @@ export default function GuidePage() {
                             <li key={detail} className="flex items-start gap-2">
                               <Check
                                 size={14}
-                                className="mt-[3px] shrink-0 text-lime"
+                                className="mt-[3px] shrink-0 text-succes"
                               />
-                              <span className="text-[13px] leading-relaxed text-cream/70">
+                              <span className="text-[13px] leading-relaxed text-champagne/70">
                                 {detail}
                               </span>
                             </li>
@@ -359,11 +359,11 @@ export default function GuidePage() {
                         </ul>
 
                         {step.tip && (
-                          <div className="mt-4 rounded-xl border border-orange/25 bg-orange/[0.08] px-3.5 py-3">
-                            <p className="flex items-start gap-2 text-[13px] leading-relaxed text-cream/70">
+                          <div className="mt-4 rounded-xl border border-cuivre/25 bg-cuivre/[0.08] px-3.5 py-3">
+                            <p className="flex items-start gap-2 text-[13px] leading-relaxed text-champagne/70">
                               <Lightbulb
                                 size={15}
-                                className="mt-[2px] shrink-0 text-orange"
+                                className="mt-[2px] shrink-0 text-cuivre"
                               />
                               {step.tip}
                             </p>
@@ -378,7 +378,7 @@ export default function GuidePage() {
 
             <Link
               href="/commencer"
- className={`fx-link mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`fx-link mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
             >
               commencer la première étape
               <ArrowRight size={14} />
@@ -387,9 +387,9 @@ export default function GuidePage() {
         </section>
 
         {/* FAQ intégrée */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Questions fréquentes
             </h2>
 
@@ -400,7 +400,7 @@ export default function GuidePage() {
                 return (
                   <div
                     key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
+                    className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit"
                   >
                     <button
                       type="button"
@@ -410,12 +410,12 @@ export default function GuidePage() {
                         )
                       }
                       aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-cream sm:px-5 ${focusRing}`}
+                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-champagne sm:px-5 ${focusRing}`}
                     >
                       {faq.question}
                       <ChevronDown
                         size={16}
-                        className={`shrink-0 text-cream/55 transition-transform ${
+                        className={`shrink-0 text-champagne/55 transition-transform ${
                           isOpen ? 'rotate-180' : ''
                         }`}
                       />
@@ -430,7 +430,7 @@ export default function GuidePage() {
                           transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                           className="overflow-hidden"
                         >
-                          <p className="border-t border-cream/8 px-4 py-4 text-[13px] leading-relaxed text-cream/60 sm:px-5">
+                          <p className="border-t border-champagne/8 px-4 py-4 text-[13px] leading-relaxed text-champagne/60 sm:px-5">
                             {faq.answer}
                           </p>
                         </motion.div>
@@ -443,7 +443,7 @@ export default function GuidePage() {
 
             <Link
               href="/faq"
- className={`fx-link mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`fx-link mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
             >
               voir la FAQ complète
               <ArrowRight size={14} />
@@ -452,13 +452,13 @@ export default function GuidePage() {
         </section>
 
         {/* Conseils de la communauté */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Conseils de la communauté
             </h2>
 
-            <p className="mb-8 mt-2 max-w-xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mb-8 mt-2 max-w-xl text-[15px] leading-relaxed text-champagne/60">
               Trois réflexes que les membres arrivés avant toi répètent le plus
               souvent.
             </p>
@@ -470,19 +470,19 @@ export default function GuidePage() {
                 return (
                   <div
                     key={item.tip}
-                    className="flex flex-col rounded-2xl border border-cream/8 bg-[#123243] p-5"
+                    className="flex flex-col rounded-2xl border border-champagne/8 bg-minuit p-5"
                   >
-                    <Icon size={22} className="text-orange" />
+                    <Icon size={22} className="text-cuivre" />
 
-                    <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold text-cream">
+                    <h3 className="font-display mt-3 text-[17px] font-extrabold text-champagne">
                       {item.tip}
                     </h3>
 
-                    <p className="mt-2 flex-1 text-[13px] leading-relaxed text-cream/70">
+                    <p className="mt-2 flex-1 text-[13px] leading-relaxed text-champagne/70">
                       {item.details}
                     </p>
 
-                    <span className="mt-4 text-[12px] font-semibold text-cream/55">
+                    <span className="mt-4 text-[12px] font-semibold text-champagne/55">
                       — {item.author}
                     </span>
                   </div>
@@ -493,13 +493,13 @@ export default function GuidePage() {
         </section>
 
         {/* Pour aller plus loin */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Pour aller plus loin
             </h2>
 
-            <p className="mb-8 mt-2 max-w-xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mb-8 mt-2 max-w-xl text-[15px] leading-relaxed text-champagne/60">
               Le détail de chaque fonctionnalité citée dans le guide, sur sa
               propre page.
             </p>
@@ -509,10 +509,10 @@ export default function GuidePage() {
                 <Link
                   key={page.href}
                   href={page.href}
-                  className={`flex items-center justify-between gap-3 rounded-2xl border border-cream/8 bg-[#123243] px-4 py-3.5 text-sm font-semibold text-cream transition-colors hover:border-orange/30 ${focusRing}`}
+                  className={`flex items-center justify-between gap-3 rounded-2xl border border-champagne/8 bg-minuit px-4 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-cuivre/30 ${focusRing}`}
                 >
                   {page.label}
-                  <ArrowRight size={14} className="shrink-0 text-orange" />
+                  <ArrowRight size={14} className="shrink-0 text-cuivre" />
                 </Link>
               ))}
             </div>
@@ -521,12 +521,12 @@ export default function GuidePage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
-              <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
+              <h2 className="font-display mb-1.5 text-xl font-extrabold text-champagne sm:text-2xl">
                 Prêt à commencer ton parcours ?
               </h2>
-              <p className="text-sm text-cream/60">
+              <p className="text-sm text-champagne/60">
                 Rejoins des hommes qui créent des connexions authentiques grâce
                 à Sfera&apos;Solys.
               </p>
@@ -535,14 +535,14 @@ export default function GuidePage() {
             <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
               <Link
                 href="/auth?mode=register"
-                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 commencer maintenant
               </Link>
 
               <Link
                 href="/tarifs"
-                className={`fx-ghost rounded-xl border border-cream/15 px-7 py-3.5 text-sm font-bold text-cream/85 transition-colors hover:border-cream/30 ${focusRing}`}
+                className={`fx-ghost rounded-xl border border-champagne/15 px-7 py-3.5 text-sm font-bold text-champagne/85 transition-colors hover:border-champagne/30 ${focusRing}`}
               >
                 voir les tarifs
               </Link>

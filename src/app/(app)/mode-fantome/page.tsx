@@ -105,7 +105,7 @@ const NIVEAUX: Niveau[] = [
 ];
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 // ─────────────────────────────────────────────
 // Page
@@ -191,22 +191,22 @@ export default function PageVisibilite() {
 
   if (status === "loading" || chargementOffre) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-abyss">
-        <Loader2 className="h-8 w-8 animate-spin text-orange" aria-hidden="true" />
+      <div className="flex min-h-screen items-center justify-center bg-nuit">
+        <Loader2 className="h-8 w-8 animate-spin text-cuivre" aria-hidden="true" />
         <span className="sr-only">Chargement</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-abyss px-4 py-6 text-cream sm:px-6 sm:py-8 lg:px-10">
+    <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
       <div className="mx-auto max-w-3xl">
         <header className="mb-6">
-          <h1 className="font-display [font-stretch:125%] text-[26px] font-extrabold leading-tight tracking-tight text-cream sm:text-[32px]">
+          <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
             Qui te voit
           </h1>
 
-          <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-cream/60 sm:text-sm">
+          <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm">
             Quatre réglages, modifiables à tout moment. Aucun ne touche à tes
             conversations en cours : quoi que tu choisisses, tu ne perds aucun
             échange.
@@ -217,21 +217,21 @@ export default function PageVisibilite() {
         {confirmation && (
           <div
             role="status"
-            className="mb-5 flex items-start gap-3 rounded-2xl border border-lime/25 bg-lime/10 px-4 py-3"
+            className="mb-5 flex items-start gap-3 rounded-2xl border border-succes/25 bg-succes/10 px-4 py-3"
           >
             <Check
               size={16}
-              className="mt-0.5 shrink-0 text-lime"
+              className="mt-0.5 shrink-0 text-succes"
               aria-hidden="true"
             />
-            <p className="flex-1 text-[13px] leading-relaxed text-cream/85">
+            <p className="flex-1 text-[13px] leading-relaxed text-champagne/85">
               {confirmation}
             </p>
             <button
               type="button"
               onClick={() => setConfirmation("")}
               aria-label="Fermer"
-              className={`shrink-0 rounded-lg p-1 text-cream/55 hover:text-cream ${focusRing}`}
+              className={`shrink-0 rounded-lg p-1 text-champagne/55 hover:text-champagne ${focusRing}`}
             >
               <X size={15} aria-hidden="true" />
             </button>
@@ -242,21 +242,21 @@ export default function PageVisibilite() {
         {erreur && (
           <div
             role="alert"
-            className="mb-5 flex items-start gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-4 py-3"
+            className="mb-5 flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-4 py-3"
           >
             <AlertCircle
               size={16}
-              className="mt-0.5 shrink-0 text-orange"
+              className="mt-0.5 shrink-0 text-cuivre"
               aria-hidden="true"
             />
-            <p className="flex-1 text-[13px] leading-relaxed text-cream/85">
+            <p className="flex-1 text-[13px] leading-relaxed text-champagne/85">
               {erreur}
             </p>
             <button
               type="button"
               onClick={() => setErreur("")}
               aria-label="Fermer"
-              className={`shrink-0 rounded-lg p-1 text-cream/55 hover:text-cream ${focusRing}`}
+              className={`shrink-0 rounded-lg p-1 text-champagne/55 hover:text-champagne ${focusRing}`}
             >
               <X size={15} aria-hidden="true" />
             </button>
@@ -266,10 +266,10 @@ export default function PageVisibilite() {
         {chargement ? (
           <div className="flex flex-col items-center gap-3 py-24">
             <Loader2
-              className="h-7 w-7 animate-spin text-orange"
+              className="h-7 w-7 animate-spin text-cuivre"
               aria-hidden="true"
             />
-            <p className="text-[13px] text-cream/55">
+            <p className="text-[13px] text-champagne/55">
               Lecture de ton réglage actuel…
             </p>
           </div>
@@ -292,15 +292,15 @@ export default function PageVisibilite() {
                       onClick={() => choisir(niveau)}
                       className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-colors sm:p-5 ${focusRing} ${
                         actif
-                          ? "border-orange bg-orange/[0.08]"
-                          : "border-cream/10 bg-[#123243] hover:border-cream/25"
+                          ? "border-cuivre bg-cuivre/[0.08]"
+                          : "border-champagne/10 bg-minuit hover:border-champagne/25"
                       } ${verrouille ? "cursor-not-allowed opacity-60" : ""} ${
                         enregistrement !== null && !enCours ? "opacity-60" : ""
                       }`}
                     >
                       <span
                         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                          actif ? "bg-orange text-abyss" : "bg-cream/[0.06] text-cream/70"
+                          actif ? "bg-cuivre text-nuit" : "bg-champagne/[0.06] text-champagne/70"
                         }`}
                       >
                         {enCours ? (
@@ -316,29 +316,29 @@ export default function PageVisibilite() {
 
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-2">
-                          <span className="font-display [font-stretch:125%] text-[15px] font-bold text-cream">
+                          <span className="font-display text-[15px] font-bold text-champagne">
                             {niveau.titre}
                           </span>
 
                           {actif && (
-                            <span className="rounded-full bg-orange px-2 py-0.5 text-[11px] font-bold text-abyss">
+                            <span className="rounded-full bg-cuivre px-2 py-0.5 text-[11px] font-bold text-nuit">
                               Actif
                             </span>
                           )}
 
                           {verrouille && (
-                            <span className="flex items-center gap-1 rounded-full border border-cream/15 px-2 py-0.5 text-[11px] font-semibold text-cream/70">
+                            <span className="flex items-center gap-1 rounded-full border border-champagne/15 px-2 py-0.5 text-[11px] font-semibold text-champagne/70">
                               <Lock size={10} aria-hidden="true" />
                               Premium
                             </span>
                           )}
                         </span>
 
-                        <span className="mt-1 block text-[13px] font-semibold text-cream/80">
+                        <span className="mt-1 block text-[13px] font-semibold text-champagne/80">
                           {niveau.resume}
                         </span>
 
-                        <span className="mt-1.5 block text-[12px] leading-relaxed text-cream/60">
+                        <span className="mt-1.5 block text-[12px] leading-relaxed text-champagne/60">
                           {niveau.detail}
                         </span>
                       </span>
@@ -349,11 +349,11 @@ export default function PageVisibilite() {
             </ul>
 
             {!isPremium && (
-              <p className="mt-5 text-[12px] leading-relaxed text-cream/60">
+              <p className="mt-5 text-[12px] leading-relaxed text-champagne/60">
                 Le Mode Fantôme fait partie des offres Premium et Elite.{" "}
                 <Link
                   href="/tarifs"
-                  className={`font-semibold text-cream underline underline-offset-2 hover:text-orange ${focusRing}`}
+                  className={`font-semibold text-champagne underline underline-offset-2 hover:text-cuivre ${focusRing}`}
                 >
                   Voir les offres
                 </Link>
@@ -362,13 +362,13 @@ export default function PageVisibilite() {
             )}
 
             {/* Ce que le mode ne fait pas */}
-            <section className="mt-8 rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6">
-              <h2 className="font-display [font-stretch:125%] flex items-center gap-2 text-[15px] font-bold text-cream">
-                <EyeOff size={15} className="text-orange" aria-hidden="true" />
+            <section className="mt-8 rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6">
+              <h2 className="font-display flex items-center gap-2 text-[15px] font-bold text-champagne">
+                <EyeOff size={15} className="text-cuivre" aria-hidden="true" />
                 Ce que ces réglages ne font pas
               </h2>
 
-              <ul className="mt-3 space-y-2.5 text-[13px] leading-relaxed text-cream/70">
+              <ul className="mt-3 space-y-2.5 text-[13px] leading-relaxed text-champagne/70">
                 <li>
                   Ils ne floutent pas tes photos. Une photo que tu as publiée
                   reste telle quelle pour ceux qui peuvent voir ton profil.

@@ -59,7 +59,7 @@ function MarqueEclipse() {
           <circle cx="29" cy="13" r="12" fill="#000" />
         </mask>
       </defs>
-      <circle cx="20" cy="20" r="14" fill="#FF4103" mask="url(#admin-eclipse)" />
+      <circle cx="20" cy="20" r="14" fill="#BD9365" mask="url(#admin-eclipse)" />
     </svg>
   );
 }
@@ -493,10 +493,10 @@ export default function AdminPage() {
 
   if (status === "loading" || isLoadingStats) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-abyss">
+      <div className="flex min-h-screen items-center justify-center bg-nuit">
         <div className="text-center">
-          <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-cream" />
-          <p className="text-sm text-cream/60">Chargement du dashboard admin…</p>
+          <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-champagne" />
+          <p className="text-sm text-champagne/60">Chargement du dashboard admin…</p>
         </div>
       </div>
     );
@@ -505,20 +505,20 @@ export default function AdminPage() {
   const pendingReports = reports.filter((r) => r.status === "pending");
 
   return (
-    <div className="min-h-screen bg-abyss text-cream antialiased">
+    <div className="min-h-screen bg-nuit text-champagne antialiased">
       {/* Halos d'ambiance */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/3 h-[28rem] w-[28rem] rounded-full bg-orange/15 blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-orange/12 blur-[120px]" />
-        <div className="absolute top-1/2 -left-20 h-72 w-72 rounded-full bg-orange/8 blur-[120px]" />
+        <div className="absolute -top-40 left-1/3 h-[28rem] w-[28rem] rounded-full bg-cuivre/15 blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-cuivre/12 blur-[120px]" />
+        <div className="absolute top-1/2 -left-20 h-72 w-72 rounded-full bg-cuivre/8 blur-[120px]" />
       </div>
 
       <div className="relative z-10 flex">
         {/* Barre latérale — desktop */}
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-cream/10 bg-cream/[0.03] px-4 py-6 backdrop-blur-xl lg:flex">
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-champagne/10 bg-champagne/[0.03] px-4 py-6 backdrop-blur-xl lg:flex">
           <button
             onClick={() => router.push("/mon-compte")}
-            className="mb-6 flex items-center gap-2 px-2 text-xs text-cream/60 transition hover:text-cream"
+            className="mb-6 flex items-center gap-2 px-2 text-xs text-champagne/60 transition hover:text-champagne"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Mon compte
@@ -528,9 +528,9 @@ export default function AdminPage() {
             <MarqueEclipse />
             <div>
               <p className="text-base font-bold leading-none tracking-tight">
-                Sfera<span className="text-orange">&apos;Solys</span>
+                Sfera<span className="text-cuivre">&apos;Solys</span>
               </p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-cream/55">
+              <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-champagne/55">
                 Admin
               </p>
             </div>
@@ -551,20 +551,20 @@ export default function AdminPage() {
                   aria-current={isActive ? "page" : undefined}
                   className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                     isActive
-                      ? "bg-orange/15 text-cream ring-1 ring-orange/30"
-                      : "text-cream/60 hover:bg-cream/5 hover:text-cream"
+                      ? "bg-cuivre/15 text-champagne ring-1 ring-cuivre/30"
+                      : "text-champagne/60 hover:bg-champagne/5 hover:text-champagne"
                   }`}
                 >
                   <item.icon
-                    className={`h-[18px] w-[18px] ${isActive ? "text-orange" : ""}`}
+                    className={`h-[18px] w-[18px] ${isActive ? "text-cuivre" : ""}`}
                   />
                   {item.label}
                   {badge ? (
-                    <span className="ml-auto rounded-full bg-rust/25 px-1.5 py-0.5 text-[10px] font-bold text-cream">
+                    <span className="ml-auto rounded-full bg-erreur/25 px-1.5 py-0.5 text-[10px] font-bold text-champagne">
                       {badge}
                     </span>
                   ) : isActive ? (
-                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-orange" />
+                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-cuivre" />
                   ) : null}
                 </button>
               );
@@ -573,7 +573,7 @@ export default function AdminPage() {
 
           <button
             onClick={() => router.push("/mon-compte")}
-            className="mt-4 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-cream/60 transition hover:bg-rust/10 hover:text-cream"
+            className="mt-4 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-champagne/60 transition hover:bg-erreur/10 hover:text-champagne"
           >
             <LogOut className="h-[18px] w-[18px]" />
             Quitter la console
@@ -586,7 +586,7 @@ export default function AdminPage() {
               <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
                 {sectionTitle[activeTab].title}
               </h1>
-              <p className="mt-1 text-sm text-cream/60">
+              <p className="mt-1 text-sm text-champagne/60">
                 {sectionTitle[activeTab].sub}
               </p>
             </div>
@@ -594,7 +594,7 @@ export default function AdminPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleRefresh}
-                className="flex items-center gap-2 rounded-xl border border-cream/10 bg-cream/5 px-3.5 py-2.5 text-sm text-cream/70 transition hover:bg-cream/10 hover:text-cream"
+                className="flex items-center gap-2 rounded-xl border border-champagne/10 bg-champagne/5 px-3.5 py-2.5 text-sm text-champagne/70 transition hover:bg-champagne/10 hover:text-champagne"
               >
                 <RefreshCw className="h-4 w-4" />
                 <span className="hidden sm:inline">Actualiser</span>
@@ -607,21 +607,21 @@ export default function AdminPage() {
                     ? `${pendingReports.length} signalement(s) en attente`
                     : "Aucun signalement en attente"
                 }
-                className="relative rounded-xl border border-cream/10 bg-cream/5 p-2.5 text-cream/70 transition hover:bg-cream/10"
+                className="relative rounded-xl border border-champagne/10 bg-champagne/5 p-2.5 text-champagne/70 transition hover:bg-champagne/10"
               >
                 <Bell className="h-4 w-4" />
                 {pendingReports.length > 0 && (
-                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-orange ring-2 ring-abyss" />
+                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-cuivre ring-2 ring-nuit" />
                 )}
               </button>
 
-              <div className="flex items-center gap-2.5 rounded-xl border border-cream/10 bg-cream/5 py-1.5 pl-1.5 pr-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange text-sm font-bold text-abyss">
+              <div className="flex items-center gap-2.5 rounded-xl border border-champagne/10 bg-champagne/5 py-1.5 pl-1.5 pr-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cuivre text-sm font-bold text-nuit">
                   A
                 </div>
                 <div className="hidden sm:block">
                   <p className="text-sm font-semibold leading-none">Admin</p>
-                  <p className="mt-0.5 flex items-center gap-1 text-[10px] text-cream">
+                  <p className="mt-0.5 flex items-center gap-1 text-[10px] text-champagne">
                     <Crown className="h-2.5 w-2.5" /> Super Admin
                   </p>
                 </div>
@@ -638,8 +638,8 @@ export default function AdminPage() {
                 aria-current={activeTab === item.id ? "page" : undefined}
                 className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition ${
                   activeTab === item.id
-                    ? "border-cream/20 bg-cream/15 text-cream"
-                    : "border-cream/10 bg-cream/5 text-cream/60"
+                    ? "border-champagne/20 bg-champagne/15 text-champagne"
+                    : "border-champagne/10 bg-champagne/5 text-champagne/60"
                 }`}
               >
                 <item.icon className="h-3.5 w-3.5" />
@@ -658,14 +658,14 @@ export default function AdminPage() {
               >
                 <div
                   role="alert"
-                  className="flex items-center gap-3 rounded-xl border border-rust/30 bg-rust/10 px-4 py-3 text-sm text-cream"
+                  className="flex items-center gap-3 rounded-xl border border-erreur/30 bg-erreur/10 px-4 py-3 text-sm text-champagne"
                 >
                   <AlertCircle className="h-4 w-4 shrink-0" />
                   <span className="flex-1">{error}</span>
                   <button
                     onClick={() => setError("")}
                     aria-label="Fermer l'alerte"
-                    className="text-cream transition hover:text-cream/70"
+                    className="text-champagne transition hover:text-champagne/70"
                   >
                     ✕
                   </button>
@@ -749,7 +749,7 @@ export default function AdminPage() {
             />
           )}
 
-          <p className="mt-8 text-center text-[11px] text-cream/40">
+          <p className="mt-8 text-center text-[11px] text-champagne/40">
             Sfera&apos;Solys · console d&apos;administration
           </p>
         </main>

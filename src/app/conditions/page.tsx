@@ -146,7 +146,7 @@ const sections: SectionLegale[] = [
           Pour toute question relative aux présentes CGU :{" "}
           <a
             href="mailto:contact@sferasolys.com"
-            className="font-medium text-orange underline-offset-2 hover:underline"
+            className="font-medium text-cuivre underline-offset-2 hover:underline"
           >
             contact@sferasolys.com
           </a>
@@ -163,14 +163,14 @@ export default function ConditionsPage() {
       chapeau="Ce que tu acceptes en créant un compte, et ce à quoi la plateforme s'engage en retour."
       miseAJour="27 septembre 2026"
       avertissement={
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-5 py-4">
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-5 py-4">
           <AlertTriangle
             size={18}
-            className="mt-0.5 shrink-0 text-orange"
+            className="mt-0.5 shrink-0 text-cuivre"
             aria-hidden="true"
           />
-          <p className="text-[13px] leading-relaxed text-cream/80">
-            <strong className="text-cream">Document à faire relire.</strong> Ces
+          <p className="text-[13px] leading-relaxed text-champagne/80">
+            <strong className="text-champagne">Document à faire relire.</strong> Ces
             conditions ont été adaptées au service actuel, notamment l'âge
             minimum porté à 28 ans. Une relecture juridique est nécessaire avant
             la mise en ligne.

@@ -29,11 +29,11 @@ export default function Step1() {
     <div className="space-y-6 sm:space-y-8">
       {/* Titre de l'étape */}
       <div>
-        <h2 className="text-xl font-bold text-cream sm:text-2xl">
+        <h2 className="text-xl font-bold text-champagne sm:text-2xl">
           Informations de base
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-cream/70">
+        <p className="mt-2 text-sm leading-relaxed text-champagne/70">
           On commence par créer ton identité Sfera'Solys. Ces informations
           seront utilisées pour configurer ton profil.
         </p>
@@ -154,13 +154,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-cream/90">
-        {label} {required && <span className="text-orange">*</span>}
+      <label className="mb-2 block text-sm font-semibold text-champagne/90">
+        {label} {required && <span className="text-cuivre">*</span>}
       </label>
 
       {children}
 
-      {helper && <p className="mt-2 text-sm text-cream/70">{helper}</p>}
+      {helper && <p className="mt-2 text-sm text-champagne/70">{helper}</p>}
 
       {error && <p className="mt-2 text-sm text-red-300">{error}</p>}
     </div>

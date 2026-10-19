@@ -81,7 +81,7 @@ export default function CookiesPage() {
       sections={sections}
       apres={
         <div className="mt-8">
-          <h2 className="font-display [font-stretch:125%] text-[17px] font-bold text-cream">
+          <h2 className="font-display text-[17px] font-bold text-champagne">
             Cookies utilisés
           </h2>
 
@@ -89,20 +89,20 @@ export default function CookiesPage() {
             {cookiesUtilises.map((cookie) => (
               <div
                 key={cookie.name}
-                className="rounded-2xl border border-cream/10 bg-[#123243] px-5 py-4"
+                className="rounded-2xl border border-champagne/10 bg-minuit px-5 py-4"
               >
                 <dt className="flex flex-wrap items-center gap-2">
-                  <span className="text-[14px] font-semibold text-cream">
+                  <span className="text-[14px] font-semibold text-champagne">
                     {cookie.name}
                   </span>
-                  <span className="rounded-full border border-orange/30 bg-orange/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-cream">
+                  <span className="rounded-full border border-cuivre/30 bg-cuivre/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-champagne">
                     {cookie.type}
                   </span>
-                  <span className="text-[11px] text-cream/60">
+                  <span className="text-[11px] text-champagne/60">
                     Durée : {cookie.duree}
                   </span>
                 </dt>
-                <dd className="mt-1.5 text-[13px] leading-relaxed text-cream/65">
+                <dd className="mt-1.5 text-[13px] leading-relaxed text-champagne/65">
                   {cookie.desc}
                 </dd>
               </div>

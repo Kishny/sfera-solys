@@ -79,7 +79,7 @@ function formatStat(n: number): string {
 
 /** Anneau de focus clavier, identique partout dans la direction A. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 const features: FeatureItem[] = [
   {
@@ -275,19 +275,19 @@ export default function FonctionnalitesPage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <motion.div {...fadeUp} className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
               7 fonctionnalités · vérification incluse
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
               Tout ce que fait Sfera&apos;Solys.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/60 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
               Chaque fonctionnalité répond à un moment précis : découvrir des
               profils, te protéger, échanger, puis rencontrer. Rien de
               décoratif, et rien qui se cache derrière un abonnement sans le
@@ -297,14 +297,14 @@ export default function FonctionnalitesPage() {
             <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/commencer"
-                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 constituer mon dossier
               </Link>
 
               <Link
                 href="/tarifs"
- className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
               >
                 voir ce qui est inclus par offre
                 <ArrowRight size={14} />
@@ -314,13 +314,13 @@ export default function FonctionnalitesPage() {
         </section>
 
         {/* Les 7 fonctionnalités */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] mb-2 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-2 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Les fonctionnalités
             </h2>
 
-            <p className="mb-8 max-w-xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mb-8 max-w-xl text-[15px] leading-relaxed text-champagne/60">
               Toutes sont pensées pour des hommes de 28 ans et plus, et ne
               fonctionnent qu&apos;entre profils vérifiés.
             </p>
@@ -335,20 +335,20 @@ export default function FonctionnalitesPage() {
                     key={feature.id}
                     className={`relative flex flex-col rounded-2xl border p-5 sm:p-6 ${
                       feature.featured
-                        ? 'border-orange/40 bg-[#123243] ring-1 ring-orange/20'
-                        : 'border-cream/8 bg-[#123243]'
+                        ? 'border-cuivre/40 bg-minuit ring-1 ring-cuivre/20'
+                        : 'border-champagne/8 bg-minuit'
                     }`}
                   >
                     <Icon
                       size={22}
-                      className={feature.featured ? 'text-orange' : 'text-cream/55'}
+                      className={feature.featured ? 'text-cuivre' : 'text-champagne/55'}
                     />
 
-                    <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold text-cream">
+                    <h3 className="font-display mt-3 text-[17px] font-extrabold text-champagne">
                       {feature.title}
                     </h3>
 
-                    <p className="mt-1 text-[13px] leading-relaxed text-cream/55">
+                    <p className="mt-1 text-[13px] leading-relaxed text-champagne/55">
                       {feature.description}
                     </p>
 
@@ -361,7 +361,7 @@ export default function FonctionnalitesPage() {
                         )
                       }
                       aria-expanded={isOpen}
-                      className={`mt-4 flex items-center justify-between border-t border-cream/8 pt-3 text-[13px] font-semibold text-cream/70 sm:hidden ${focusRing}`}
+                      className={`mt-4 flex items-center justify-between border-t border-champagne/8 pt-3 text-[13px] font-semibold text-champagne/70 sm:hidden ${focusRing}`}
                     >
                       {isOpen ? 'masquer le détail' : 'voir le détail'}
                       <ChevronDown
@@ -371,11 +371,11 @@ export default function FonctionnalitesPage() {
                     </button>
 
                     <div
-                      className={`flex-1 border-cream/8 sm:mt-4 sm:block sm:border-t sm:pt-4 ${
+                      className={`flex-1 border-champagne/8 sm:mt-4 sm:block sm:border-t sm:pt-4 ${
                         isOpen ? 'mt-4 block' : 'hidden'
                       }`}
                     >
-                      <p className="text-[13px] leading-relaxed text-cream/70">
+                      <p className="text-[13px] leading-relaxed text-champagne/70">
                         {feature.details}
                       </p>
 
@@ -385,10 +385,10 @@ export default function FonctionnalitesPage() {
                             <Check
                               size={14}
                               className={`mt-[3px] shrink-0 ${
-                                feature.featured ? 'text-orange' : 'text-lime'
+                                feature.featured ? 'text-cuivre' : 'text-succes'
                               }`}
                             />
-                            <span className="text-[13px] leading-relaxed text-cream/70">
+                            <span className="text-[13px] leading-relaxed text-champagne/70">
                               {benefit}
                             </span>
                           </li>
@@ -399,13 +399,13 @@ export default function FonctionnalitesPage() {
                     {feature.link ? (
                       <Link
                         href={feature.link}
- className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
                       >
                         découvrir
                         <ArrowRight size={14} />
                       </Link>
                     ) : (
-                      <p className="mt-5 text-[13px] text-cream/55">
+                      <p className="mt-5 text-[13px] text-champagne/55">
                         Incluse partout, sans réglage.
                       </p>
                     )}
@@ -417,9 +417,9 @@ export default function FonctionnalitesPage() {
         </section>
 
         {/* Comment elles s'enchaînent */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] mb-10 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-10 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Comment elles s&apos;enchaînent
             </h2>
 
@@ -430,22 +430,22 @@ export default function FonctionnalitesPage() {
                     <span
                       className={`font-display flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-extrabold ${
                         step.dot === 'orange'
-                          ? 'bg-orange text-abyss'
-                          : 'bg-lime text-abyss'
+                          ? 'bg-cuivre text-nuit'
+                          : 'bg-succes text-nuit'
                       }`}
                     >
                       {i + 1}
                     </span>
                     {i < journey.length - 1 && (
-                      <span className="my-1.5 w-[2px] flex-1 bg-lime/35" />
+                      <span className="my-1.5 w-[2px] flex-1 bg-succes/35" />
                     )}
                   </div>
 
                   <div className={i < journey.length - 1 ? 'pb-10' : ''}>
-                    <h3 className="font-display [font-stretch:125%] mb-1.5 text-[17px] font-bold text-cream">
+                    <h3 className="font-display mb-1.5 text-[17px] font-bold text-champagne">
                       {step.title}
                     </h3>
-                    <p className="max-w-md text-sm leading-relaxed text-cream/60">
+                    <p className="max-w-md text-sm leading-relaxed text-champagne/60">
                       {step.description}
                     </p>
                   </div>
@@ -456,13 +456,13 @@ export default function FonctionnalitesPage() {
         </section>
 
         {/* Socle commun */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] mb-2 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-2 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Le socle commun
             </h2>
 
-            <p className="mb-8 max-w-xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mb-8 max-w-xl text-[15px] leading-relaxed text-champagne/60">
               Ces quatre règles ne dépendent d&apos;aucune fonctionnalité ni
               d&apos;aucune offre. Elles s&apos;appliquent à tous les comptes,
               dès la validation du dossier.
@@ -472,10 +472,10 @@ export default function FonctionnalitesPage() {
               {foundations.map(({ icon: Icon, label }) => (
                 <div
                   key={label}
-                  className="flex flex-col gap-2.5 rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-[18px]"
+                  className="flex flex-col gap-2.5 rounded-2xl border border-champagne/8 bg-minuit p-4 sm:p-[18px]"
                 >
-                  <Icon size={18} className="text-orange" />
-                  <span className="text-[13px] font-semibold text-cream">{label}</span>
+                  <Icon size={18} className="text-cuivre" />
+                  <span className="text-[13px] font-semibold text-champagne">{label}</span>
                 </div>
               ))}
             </div>
@@ -483,9 +483,9 @@ export default function FonctionnalitesPage() {
         </section>
 
         {/* Chiffres */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Sfera&apos;Solys en chiffres
             </h2>
 
@@ -493,17 +493,17 @@ export default function FonctionnalitesPage() {
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-[18px]"
+                  className="rounded-2xl border border-champagne/8 bg-minuit p-4 sm:p-[18px]"
                 >
-                  <dd className="font-display text-[26px] font-extrabold leading-none text-cream sm:text-[30px]">
+                  <dd className="font-display text-[26px] font-extrabold leading-none text-champagne sm:text-[30px]">
                     {stat.value}
                   </dd>
-                  <dt className="mt-2 text-[13px] text-cream/55">{stat.label}</dt>
+                  <dt className="mt-2 text-[13px] text-champagne/55">{stat.label}</dt>
                 </div>
               ))}
             </dl>
 
-            <p className="mt-6 text-[13px] text-cream/55">
+            <p className="mt-6 text-[13px] text-champagne/55">
               Chiffres mis à jour en continu depuis la plateforme. Un tiret
               signifie qu&apos;un compteur n&apos;a pas encore démarré.
             </p>
@@ -511,9 +511,9 @@ export default function FonctionnalitesPage() {
         </section>
 
         {/* Bon à savoir */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Bon à savoir
             </h2>
 
@@ -524,7 +524,7 @@ export default function FonctionnalitesPage() {
                 return (
                   <div
                     key={note.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
+                    className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit"
                   >
                     <button
                       type="button"
@@ -532,12 +532,12 @@ export default function FonctionnalitesPage() {
                         setOpenNoteIndex((current) => (current === index ? null : index))
                       }
                       aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-cream sm:px-5 ${focusRing}`}
+                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-champagne sm:px-5 ${focusRing}`}
                     >
                       {note.question}
                       <ChevronDown
                         size={16}
-                        className={`shrink-0 text-cream/55 transition-transform ${
+                        className={`shrink-0 text-champagne/55 transition-transform ${
                           isOpen ? 'rotate-180' : ''
                         }`}
                       />
@@ -552,7 +552,7 @@ export default function FonctionnalitesPage() {
                           transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                           className="overflow-hidden"
                         >
-                          <p className="border-t border-cream/8 px-4 py-4 text-[13px] leading-relaxed text-cream/60 sm:px-5">
+                          <p className="border-t border-champagne/8 px-4 py-4 text-[13px] leading-relaxed text-champagne/60 sm:px-5">
                             {note.answer}
                           </p>
                         </motion.div>
@@ -563,11 +563,11 @@ export default function FonctionnalitesPage() {
               })}
             </div>
 
-            <p className="mt-6 text-center text-[13px] text-cream/55">
+            <p className="mt-6 text-center text-[13px] text-champagne/55">
               Une autre question ?{' '}
               <Link
                 href="/faq"
-                className={`fx-link font-semibold text-orange hover:text-orange/80 ${focusRing}`}
+                className={`fx-link font-semibold text-cuivre hover:text-cuivre/80 ${focusRing}`}
               >
                 voir la FAQ complète
               </Link>
@@ -577,12 +577,12 @@ export default function FonctionnalitesPage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
-              <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
+              <h2 className="font-display mb-1.5 text-xl font-extrabold text-champagne sm:text-2xl">
                 Les fonctionnalités s&apos;ouvrent après la vérification.
               </h2>
-              <p className="text-sm text-cream/60">
+              <p className="text-sm text-champagne/60">
                 Constitution du dossier gratuite, sans engagement. Tu choisiras
                 une offre ensuite, si tu en as envie.
               </p>
@@ -591,14 +591,14 @@ export default function FonctionnalitesPage() {
             <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
               <Link
                 href="/commencer"
-                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 constituer mon dossier
               </Link>
 
               <Link
                 href="/tarifs"
-                className={`fx-ghost rounded-xl border border-cream/15 px-7 py-3.5 text-sm font-bold text-cream/85 transition-colors hover:border-cream/30 ${focusRing}`}
+                className={`fx-ghost rounded-xl border border-champagne/15 px-7 py-3.5 text-sm font-bold text-champagne/85 transition-colors hover:border-champagne/30 ${focusRing}`}
               >
                 voir les tarifs
               </Link>

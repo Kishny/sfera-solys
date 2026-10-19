@@ -104,7 +104,7 @@ const DUREES_SOURDINE = [
 ];
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 function formaterHeure(valeur: string): string {
   const date = new Date(valeur);
@@ -513,8 +513,8 @@ export default function PageConversation() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-abyss">
-        <Loader2 className="h-8 w-8 animate-spin text-orange" aria-hidden="true" />
+      <div className="flex min-h-screen items-center justify-center bg-nuit">
+        <Loader2 className="h-8 w-8 animate-spin text-cuivre" aria-hidden="true" />
         <span className="sr-only">Chargement</span>
       </div>
     );
@@ -522,17 +522,17 @@ export default function PageConversation() {
 
   return (
     <>
-      <div className="flex min-h-screen flex-col bg-abyss text-cream">
+      <div className="flex min-h-screen flex-col bg-nuit text-champagne">
         {/* ─────────────────────────────
             En-tête
         ───────────────────────────── */}
-        <header className="border-b border-cream/10 bg-[#123243] px-4 py-3 sm:px-6">
+        <header className="border-b border-champagne/10 bg-minuit px-4 py-3 sm:px-6">
           <div className="mx-auto flex max-w-3xl items-center gap-3">
             <button
               type="button"
               onClick={() => router.push("/matches")}
               aria-label="Revenir aux mises en relation"
-              className={`shrink-0 rounded-xl border border-cream/12 p-2 text-cream/75 transition-colors hover:border-cream/25 hover:text-cream ${focusRing}`}
+              className={`shrink-0 rounded-xl border border-champagne/12 p-2 text-champagne/75 transition-colors hover:border-champagne/25 hover:text-champagne ${focusRing}`}
             >
               <ArrowLeft size={16} aria-hidden="true" />
             </button>
@@ -541,7 +541,7 @@ export default function PageConversation() {
               <>
                 <Link
                   href={`/profil/${interlocuteur._id}?from=messages`}
-                  className={`h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-cream/12 bg-abyss ${focusRing}`}
+                  className={`h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-champagne/12 bg-nuit ${focusRing}`}
                 >
                   {interlocuteur.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -554,7 +554,7 @@ export default function PageConversation() {
                     <span className="flex h-full w-full items-center justify-center">
                       <UserRound
                         size={16}
-                        className="text-cream/55"
+                        className="text-champagne/55"
                         aria-hidden="true"
                       />
                     </span>
@@ -565,7 +565,7 @@ export default function PageConversation() {
                   <div className="flex items-center gap-1.5">
                     <Link
                       href={`/profil/${interlocuteur._id}?from=messages`}
-                      className={`font-display [font-stretch:125%] min-w-0 truncate text-[15px] font-bold text-cream hover:text-orange ${focusRing}`}
+                      className={`font-display min-w-0 truncate text-[15px] font-bold text-champagne hover:text-cuivre ${focusRing}`}
                     >
                       {nom}
                       {interlocuteur.age ? `, ${interlocuteur.age}` : ""}
@@ -574,14 +574,14 @@ export default function PageConversation() {
                     {interlocuteur.identityVerified && (
                       <ShieldCheck
                         size={13}
-                        className="shrink-0 text-lime"
+                        className="shrink-0 text-succes"
                         aria-label="Identité vérifiée"
                       />
                     )}
                   </div>
 
                   {interlocuteur.localisation && (
-                    <p className="mt-0.5 flex items-center gap-1 text-[11px] text-cream/55">
+                    <p className="mt-0.5 flex items-center gap-1 text-[11px] text-champagne/55">
                       <MapPin size={10} aria-hidden="true" />
                       <span className="truncate">
                         {interlocuteur.localisation}
@@ -592,7 +592,7 @@ export default function PageConversation() {
               </>
             ) : (
               <div className="min-w-0 flex-1">
-                <p className="text-[14px] font-semibold text-cream/70">
+                <p className="text-[14px] font-semibold text-champagne/70">
                   Conversation
                 </p>
               </div>
@@ -612,8 +612,8 @@ export default function PageConversation() {
                 }
                 className={`rounded-xl border p-2 transition-colors disabled:opacity-50 ${focusRing} ${
                   sourdineActive
-                    ? "border-orange/40 text-orange"
-                    : "border-cream/12 text-cream/60 hover:border-cream/25 hover:text-cream"
+                    ? "border-cuivre/40 text-cuivre"
+                    : "border-champagne/12 text-champagne/60 hover:border-champagne/25 hover:text-champagne"
                 }`}
               >
                 {sourdineActive ? (
@@ -631,8 +631,8 @@ export default function PageConversation() {
                 aria-label={rangee ? "Sortir du rangement" : "Ranger"}
                 className={`rounded-xl border p-2 transition-colors disabled:opacity-50 ${focusRing} ${
                   rangee
-                    ? "border-orange/40 text-orange"
-                    : "border-cream/12 text-cream/60 hover:border-cream/25 hover:text-cream"
+                    ? "border-cuivre/40 text-cuivre"
+                    : "border-champagne/12 text-champagne/60 hover:border-champagne/25 hover:text-champagne"
                 }`}
               >
                 <Archive size={15} aria-hidden="true" />
@@ -645,7 +645,7 @@ export default function PageConversation() {
                     setSignale({ id: interlocuteur._id, type: "user" })
                   }
                   aria-label={`Signaler ${nom}`}
-                  className={`rounded-xl border border-cream/12 p-2 text-cream/60 transition-colors hover:border-orange/40 hover:text-orange ${focusRing}`}
+                  className={`rounded-xl border border-champagne/12 p-2 text-champagne/60 transition-colors hover:border-cuivre/40 hover:text-cuivre ${focusRing}`}
                 >
                   <Flag size={15} aria-hidden="true" />
                 </button>
@@ -659,9 +659,9 @@ export default function PageConversation() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: reduireAnimations ? 0 : -6 }}
                     transition={{ duration: reduireAnimations ? 0 : 0.15 }}
-                    className="absolute right-0 top-full z-20 mt-2 w-52 overflow-hidden rounded-xl border border-cream/12 bg-[#123243] shadow-xl"
+                    className="absolute right-0 top-full z-20 mt-2 w-52 overflow-hidden rounded-xl border border-champagne/12 bg-minuit shadow-xl"
                   >
-                    <p className="border-b border-cream/10 px-3.5 py-2.5 text-[11px] font-bold uppercase tracking-wide text-cream/70">
+                    <p className="border-b border-champagne/10 px-3.5 py-2.5 text-[11px] font-bold uppercase tracking-wide text-champagne/70">
                       Couper les notifications
                     </p>
 
@@ -671,7 +671,7 @@ export default function PageConversation() {
                           <button
                             type="button"
                             onClick={() => reglerSourdine(duree.minutes)}
-                            className={`block w-full px-3.5 py-2.5 text-left text-[13px] text-cream/80 transition-colors hover:bg-cream/5 hover:text-cream ${focusRing}`}
+                            className={`block w-full px-3.5 py-2.5 text-left text-[13px] text-champagne/80 transition-colors hover:bg-champagne/5 hover:text-champagne ${focusRing}`}
                           >
                             {duree.label}
                           </button>
@@ -679,11 +679,11 @@ export default function PageConversation() {
                       ))}
 
                       {sourdineActive && (
-                        <li className="border-t border-cream/10">
+                        <li className="border-t border-champagne/10">
                           <button
                             type="button"
                             onClick={() => reglerSourdine(0)}
-                            className={`block w-full px-3.5 py-2.5 text-left text-[13px] font-semibold text-cream transition-colors hover:bg-cream/5 ${focusRing}`}
+                            className={`block w-full px-3.5 py-2.5 text-left text-[13px] font-semibold text-champagne transition-colors hover:bg-champagne/5 ${focusRing}`}
                           >
                             Réactiver les notifications
                           </button>
@@ -699,24 +699,24 @@ export default function PageConversation() {
 
         {/* Bandeaux d'état */}
         {(!tempsReel || sourdineActive || rangee) && (
-          <div className="border-b border-cream/10 bg-abyss px-4 py-2.5 sm:px-6">
+          <div className="border-b border-champagne/10 bg-nuit px-4 py-2.5 sm:px-6">
             <div className="mx-auto max-w-3xl space-y-1.5">
               {!tempsReel && (
-                <p className="text-[12px] leading-relaxed text-cream/60">
+                <p className="text-[12px] leading-relaxed text-champagne/60">
                   Mise à jour automatique indisponible : les nouveaux messages
                   apparaîtront au rechargement de la page.
                 </p>
               )}
 
               {sourdineActive && (
-                <p className="text-[12px] leading-relaxed text-cream/60">
+                <p className="text-[12px] leading-relaxed text-champagne/60">
                   Notifications coupées pour cette conversation. Les messages
                   arrivent toujours.
                 </p>
               )}
 
               {rangee && (
-                <p className="text-[12px] leading-relaxed text-cream/60">
+                <p className="text-[12px] leading-relaxed text-champagne/60">
                   Conversation rangée : elle est masquée dans tes relations, mais
                   occupe toujours une place.
                 </p>
@@ -736,32 +736,32 @@ export default function PageConversation() {
             {chargement ? (
               <div className="flex flex-col items-center gap-3 py-24">
                 <Loader2
-                  className="h-7 w-7 animate-spin text-orange"
+                  className="h-7 w-7 animate-spin text-cuivre"
                   aria-hidden="true"
                 />
-                <p className="text-[13px] text-cream/55">
+                <p className="text-[13px] text-champagne/55">
                   Chargement de la conversation…
                 </p>
               </div>
             ) : erreur && messages.length === 0 ? (
-              <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
+              <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
                 <AlertCircle
                   size={22}
-                  className="mx-auto mb-4 text-orange"
+                  className="mx-auto mb-4 text-cuivre"
                   aria-hidden="true"
                 />
 
-                <p className="font-display [font-stretch:125%] text-[17px] font-bold text-cream">
+                <p className="font-display text-[17px] font-bold text-champagne">
                   Conversation inaccessible
                 </p>
 
-                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/60">
+                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
                   {erreur}
                 </p>
 
                 <Link
                   href="/matches"
-                  className={`mt-6 inline-flex items-center gap-2 rounded-xl border border-cream/15 px-5 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+                  className={`mt-6 inline-flex items-center gap-2 rounded-xl border border-champagne/15 px-5 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
                 >
                   <ArrowLeft size={14} aria-hidden="true" />
                   Mes relations
@@ -775,7 +775,7 @@ export default function PageConversation() {
                       type="button"
                       onClick={chargerAnciens}
                       disabled={chargementAnciens}
-                      className={`inline-flex items-center gap-2 rounded-xl border border-cream/12 px-4 py-2 text-[12px] font-semibold text-cream/75 transition-colors hover:border-cream/25 hover:text-cream disabled:opacity-50 ${focusRing}`}
+                      className={`inline-flex items-center gap-2 rounded-xl border border-champagne/12 px-4 py-2 text-[12px] font-semibold text-champagne/75 transition-colors hover:border-champagne/25 hover:text-champagne disabled:opacity-50 ${focusRing}`}
                     >
                       {chargementAnciens ? (
                         <Loader2
@@ -793,11 +793,11 @@ export default function PageConversation() {
 
                 {messages.length === 0 ? (
                   <div className="py-20 text-center">
-                    <p className="font-display [font-stretch:125%] text-[17px] font-bold text-cream">
+                    <p className="font-display text-[17px] font-bold text-champagne">
                       Rien encore
                     </p>
 
-                    <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/60">
+                    <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
                       Vous êtes en relation, personne n’a écrit. Une question
                       précise marche mieux qu’un salut.
                     </p>
@@ -805,7 +805,7 @@ export default function PageConversation() {
                 ) : (
                   parJour.map((groupe) => (
                     <section key={groupe.jour} className="mb-5">
-                      <p className="mb-3 text-center text-[11px] font-bold uppercase tracking-wide text-cream/55">
+                      <p className="mb-3 text-center text-[11px] font-bold uppercase tracking-wide text-champagne/55">
                         {groupe.jour}
                       </p>
 
@@ -823,8 +823,8 @@ export default function PageConversation() {
                               <div
                                 className={`group max-w-[85%] rounded-2xl px-3.5 py-2.5 sm:max-w-[70%] ${
                                   deMoi
-                                    ? "bg-orange text-abyss"
-                                    : "border border-cream/10 bg-[#123243] text-cream"
+                                    ? "bg-cuivre text-nuit"
+                                    : "border border-champagne/10 bg-minuit text-champagne"
                                 } ${provisoire ? "opacity-60" : ""}`}
                               >
                                 <p className="whitespace-pre-wrap break-words text-[14px] leading-relaxed">
@@ -835,7 +835,7 @@ export default function PageConversation() {
                                   className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${
                                     // abyss/70 sur orange plein = 3,80:1.
                                     // abyss/90 = 4,93:1, au-dessus du seuil.
-                                    deMoi ? "text-abyss/90" : "text-cream/55"
+                                    deMoi ? "text-nuit/90" : "text-champagne/55"
                                   }`}
                                 >
                                   {formaterHeure(message.createdAt)}
@@ -861,7 +861,7 @@ export default function PageConversation() {
                                         })
                                       }
                                       aria-label="Signaler ce message"
-                                      className={`ml-1 text-cream/60 opacity-0 transition-opacity hover:text-orange focus-visible:opacity-100 group-hover:opacity-100 ${focusRing}`}
+                                      className={`ml-1 text-champagne/60 opacity-0 transition-opacity hover:text-cuivre focus-visible:opacity-100 group-hover:opacity-100 ${focusRing}`}
                                     >
                                       <Flag size={11} aria-hidden="true" />
                                     </button>
@@ -885,26 +885,26 @@ export default function PageConversation() {
         {/* ─────────────────────────────
             Saisie
         ───────────────────────────── */}
-        <div className="border-t border-cream/10 bg-[#123243] px-4 py-3 sm:px-6">
+        <div className="border-t border-champagne/10 bg-minuit px-4 py-3 sm:px-6">
           <div className="mx-auto max-w-3xl">
             {erreur && messages.length > 0 && (
               <div
                 role="alert"
-                className="mb-3 flex items-start gap-2.5 rounded-xl border border-orange/30 bg-orange/10 px-3.5 py-2.5"
+                className="mb-3 flex items-start gap-2.5 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5"
               >
                 <AlertCircle
                   size={14}
-                  className="mt-0.5 shrink-0 text-orange"
+                  className="mt-0.5 shrink-0 text-cuivre"
                   aria-hidden="true"
                 />
-                <p className="flex-1 text-[12px] leading-relaxed text-cream/85">
+                <p className="flex-1 text-[12px] leading-relaxed text-champagne/85">
                   {erreur}
                 </p>
                 <button
                   type="button"
                   onClick={() => setErreur("")}
                   aria-label="Fermer le message"
-                  className={`shrink-0 text-cream/55 hover:text-cream ${focusRing}`}
+                  className={`shrink-0 text-champagne/55 hover:text-champagne ${focusRing}`}
                 >
                   <X size={14} aria-hidden="true" />
                 </button>
@@ -912,13 +912,13 @@ export default function PageConversation() {
             )}
 
             {quotaAtteint ? (
-              <div className="rounded-xl border border-orange/30 bg-orange/10 px-4 py-3">
-                <p className="text-[13px] leading-relaxed text-cream/85">
+              <div className="rounded-xl border border-cuivre/30 bg-cuivre/10 px-4 py-3">
+                <p className="text-[13px] leading-relaxed text-champagne/85">
                   Tu as envoyé tous tes messages du jour. Le compteur repart à
                   minuit, ou{" "}
                   <Link
                     href="/tarifs"
-                    className={`font-semibold text-cream underline underline-offset-2 hover:text-orange ${focusRing}`}
+                    className={`font-semibold text-champagne underline underline-offset-2 hover:text-cuivre ${focusRing}`}
                   >
                     vois les offres sans limite
                   </Link>
@@ -952,10 +952,10 @@ export default function PageConversation() {
                     }}
                     rows={1}
                     placeholder="Écris ton message…"
-                    className={`max-h-32 w-full resize-y rounded-xl border border-cream/12 bg-abyss px-3.5 py-2.5 text-[14px] text-cream placeholder:text-cream/55 ${focusRing}`}
+                    className={`max-h-32 w-full resize-y rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[14px] text-champagne placeholder:text-champagne/55 ${focusRing}`}
                   />
 
-                  <p className="mt-1.5 flex flex-wrap items-center gap-x-3 text-[11px] text-cream/55">
+                  <p className="mt-1.5 flex flex-wrap items-center gap-x-3 text-[11px] text-champagne/55">
                     <span>Entrée pour envoyer, Maj+Entrée pour aller à la ligne.</span>
 
                     {messagesRestants !== null && (
@@ -977,7 +977,7 @@ export default function PageConversation() {
                   type="submit"
                   disabled={!saisie.trim() || envoi}
                   aria-label="Envoyer"
-                  className={`shrink-0 rounded-xl bg-orange p-3 text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+                  className={`shrink-0 rounded-xl bg-cuivre p-3 text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
                 >
                   {envoi ? (
                     <Loader2 size={16} className="animate-spin" aria-hidden="true" />

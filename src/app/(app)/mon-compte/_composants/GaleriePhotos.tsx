@@ -98,8 +98,8 @@ export default function GaleriePhotos({
   return (
     <div className="space-y-3">
       <div>
-        <p className="text-[12px] font-semibold text-cream/70">Mes photos</p>
-        <p className="mt-0.5 text-[11px] text-cream/55">
+        <p className="text-[12px] font-semibold text-champagne/70">Mes photos</p>
+        <p className="mt-0.5 text-[11px] text-champagne/55">
           Jusqu’à trois photos · JPG, PNG ou WebP · recadrées en 4:5 ·
           enregistrées tout de suite, sans passer par « Sauvegarder ».
         </p>
@@ -110,15 +110,15 @@ export default function GaleriePhotos({
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           role="alert"
-          className="flex items-center gap-2 overflow-hidden rounded-xl border border-orange/30 bg-orange/10 px-3.5 py-2.5 text-[12px] text-cream/85"
+          className="flex items-center gap-2 overflow-hidden rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5 text-[12px] text-champagne/85"
         >
-          <AlertCircle size={13} className="shrink-0 text-orange" aria-hidden="true" />
+          <AlertCircle size={13} className="shrink-0 text-cuivre" aria-hidden="true" />
           {erreur}
           <button
             type="button"
             onClick={() => setErreur(null)}
             aria-label="Fermer le message"
-            className={`ml-auto text-cream/55 hover:text-cream ${focusRing}`}
+            className={`ml-auto text-champagne/55 hover:text-champagne ${focusRing}`}
           >
             <X size={13} aria-hidden="true" />
           </button>
@@ -133,7 +133,7 @@ export default function GaleriePhotos({
           return (
             <div
               key={index}
-              className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-cream/10 bg-abyss"
+              className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-champagne/10 bg-nuit"
             >
               {url ? (
                 <>
@@ -145,10 +145,10 @@ export default function GaleriePhotos({
                   />
 
                   {enCours ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-abyss/70">
+                    <div className="absolute inset-0 flex items-center justify-center bg-nuit/70">
                       <Loader2
                         size={20}
-                        className="animate-spin text-orange"
+                        className="animate-spin text-cuivre"
                         aria-hidden="true"
                       />
                     </div>
@@ -157,7 +157,7 @@ export default function GaleriePhotos({
                       type="button"
                       onClick={() => supprimer(url, index)}
                       aria-label={`Retirer la photo ${index + 1}`}
-                      className={`absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-abyss/80 text-cream/75 backdrop-blur-sm transition-colors hover:text-orange ${focusRing}`}
+                      className={`absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-nuit/80 text-champagne/75 backdrop-blur-sm transition-colors hover:text-cuivre ${focusRing}`}
                     >
                       <X size={14} aria-hidden="true" />
                     </button>
@@ -169,13 +169,13 @@ export default function GaleriePhotos({
                   onClick={() => ajouter(index)}
                   disabled={enCours}
                   aria-label={`Ajouter une photo en position ${index + 1}`}
-                  className={`flex h-full w-full flex-col items-center justify-center gap-2 text-cream/60 transition-colors hover:bg-cream/5 hover:text-cream/70 disabled:opacity-40 ${focusRing}`}
+                  className={`flex h-full w-full flex-col items-center justify-center gap-2 text-champagne/60 transition-colors hover:bg-champagne/5 hover:text-champagne/70 disabled:opacity-40 ${focusRing}`}
                 >
                   {enCours ? (
                     <Loader2 size={22} className="animate-spin" aria-hidden="true" />
                   ) : (
                     <>
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full border border-cream/15">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full border border-champagne/15">
                         <ImagePlus size={15} aria-hidden="true" />
                       </span>
                       <span className="text-[11px]">Ajouter</span>

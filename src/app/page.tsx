@@ -135,7 +135,7 @@ const homeFaqs = [
 
 /** Anneau de focus clavier, identique partout dans la direction A. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 export default function Home() {
   const [siteStats, setSiteStats] = useState<SiteStats | null>(null);
@@ -191,18 +191,18 @@ export default function Home() {
           sur chaque page au fur et à mesure de leur migration. */}
       <GrainOverlay />
 
-      <main id="contenu" className="relative bg-abyss text-cream">
+      <main id="contenu" className="relative bg-nuit text-champagne">
         {/* Hero institutionnel */}
-        <section className="relative overflow-hidden border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="relative overflow-hidden border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           {/* Décor : éclipse de marque + halo, derrière le contenu */}
           <EclipseMark
             id="hero"
             withCorona
-            className="pointer-events-none absolute -right-16 -top-8 h-[240px] w-[240px] text-orange/[0.08] sm:-right-10 sm:h-[340px] sm:w-[340px] lg:right-[7%] lg:top-4 lg:h-[460px] lg:w-[460px]"
+            className="pointer-events-none absolute -right-16 -top-8 h-[240px] w-[240px] text-cuivre/[0.08] sm:-right-10 sm:h-[340px] sm:w-[340px] lg:right-[7%] lg:top-4 lg:h-[460px] lg:w-[460px]"
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-0 h-[340px] w-[680px] -translate-x-1/2 rounded-full bg-orange/[0.06] blur-[110px]"
+            className="pointer-events-none absolute left-1/2 top-0 h-[340px] w-[680px] -translate-x-1/2 rounded-full bg-cuivre/[0.06] blur-[110px]"
           />
 
           <div className="relative mx-auto flex max-w-7xl flex-col-reverse items-center gap-10 py-12 sm:gap-14 sm:py-16 lg:flex-row lg:gap-10 lg:py-20">
@@ -217,15 +217,15 @@ export default function Home() {
               {...fadeUp}
               className="flex w-full max-w-xl flex-1 flex-col items-center gap-5 text-center lg:items-start lg:text-left"
             >
-              <span className="w-fit rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
+              <span className="w-fit rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
                 Vérification immédiate · hommes 28+
               </span>
 
-              <h1 className="font-display [font-stretch:125%] text-[32px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px] lg:text-[46px]">
+              <h1 className="font-display text-[32px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px] lg:text-[46px]">
                 Un dossier vérifié avant chaque rencontre.
               </h1>
 
-              <p className="max-w-md text-[15px] leading-relaxed text-cream/60 sm:text-base">
+              <p className="max-w-md text-[15px] leading-relaxed text-champagne/60 sm:text-base">
                 Pièce d'identité et selfie en direct, vérifiés par Stripe
                 Identity avant le premier message. Pas de faux comptes, et
                 aucune attente : le résultat tombe dans la minute.
@@ -234,12 +234,12 @@ export default function Home() {
               <div className="mt-1 flex flex-col items-center gap-3 sm:flex-row">
                 <Link
                   href="/commencer"
-                  className="rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss"
+                  className="rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit"
                 >
                   Constituer mon dossier
                 </Link>
 
-                <span className="text-[13px] text-cream/55">
+                <span className="text-[13px] text-champagne/55">
                   {siteStats
                     ? `${formatStat(siteStats.membres)} profils vérifiés`
                     : 'des centaines de profils vérifiés'}
@@ -269,11 +269,11 @@ export default function Home() {
             >
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -inset-8 rounded-[3rem] bg-orange/[0.10] blur-[70px]"
+                className="pointer-events-none absolute -inset-8 rounded-[3rem] bg-cuivre/[0.10] blur-[70px]"
               />
 
               <figure className="relative w-full max-w-[340px] sm:max-w-[400px] lg:max-w-[510px]">
-                <div className="relative overflow-hidden rounded-[2rem] border border-cream/10 shadow-[0_45px_100px_-35px_rgba(0,0,0,0.95)]">
+                <div className="relative overflow-hidden rounded-[2rem] border border-champagne/10 shadow-[0_45px_100px_-35px_rgba(0,0,0,0.95)]">
                   <Image
                     src="/images/hero-img.png"
                     alt="Un homme en costume, accoudé au bar d'un établissement feutré, un verre à la main."
@@ -286,15 +286,15 @@ export default function Home() {
 
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-abyss via-abyss/25 to-transparent"
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-nuit via-nuit/25 to-transparent"
                   />
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-br from-orange/15 via-transparent to-transparent mix-blend-overlay"
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cuivre/15 via-transparent to-transparent mix-blend-overlay"
                   />
                 </div>
 
-                <div className="absolute -bottom-6 -left-4 flex h-[86px] w-[86px] items-center justify-center rounded-full border border-cream/10 bg-abyss shadow-[0_18px_40px_-12px_rgba(0,0,0,0.9)] sm:-left-6 sm:h-[104px] sm:w-[104px]">
+                <div className="absolute -bottom-6 -left-4 flex h-[86px] w-[86px] items-center justify-center rounded-full border border-champagne/10 bg-nuit shadow-[0_18px_40px_-12px_rgba(0,0,0,0.9)] sm:-left-6 sm:h-[104px] sm:w-[104px]">
                   <VerificationSeal className="h-[62px] w-[62px] sm:h-[76px] sm:w-[76px]" />
                 </div>
               </figure>
@@ -303,15 +303,15 @@ export default function Home() {
         </section>
 
         {/* Comment ça marche : le dossier se constitue */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Comment ça marche
             </h2>
 
-            <p className="mb-6 mt-2 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mb-6 mt-2 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
               Quatre étapes, et un dossier qui se remplit à mesure.{' '}
-              <span className="text-cream/75">Clique une étape</span> pour voir
+              <span className="text-champagne/75">Clique une étape</span> pour voir
               l&apos;état du dossier à ce moment-là.
             </p>
 
@@ -320,13 +320,13 @@ export default function Home() {
         </section>
 
         {/* Aperçu du produit */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Et une fois vérifié ?
             </h2>
 
-            <p className="mb-8 mt-2 max-w-xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mb-8 mt-2 max-w-xl text-[15px] leading-relaxed text-champagne/60">
               La vérification n&apos;est que la porte d&apos;entrée. Derrière,
               un produit pensé pour éviter le défilement sans fin.
             </p>
@@ -339,19 +339,19 @@ export default function Home() {
                   <Link
                     key={feature.title}
                     href={feature.href}
-                    className={`group flex flex-col rounded-2xl border border-cream/8 bg-[#123243] p-5 transition-colors hover:border-orange/30 ${focusRing}`}
+                    className={`group flex flex-col rounded-2xl border border-champagne/8 bg-minuit p-5 transition-colors hover:border-cuivre/30 ${focusRing}`}
                   >
-                    <Icon size={22} className="text-orange" />
+                    <Icon size={22} className="text-cuivre" />
 
-                    <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold text-cream">
+                    <h3 className="font-display mt-3 text-[17px] font-extrabold text-champagne">
                       {feature.title}
                     </h3>
 
-                    <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-cream/60">
+                    <p className="mt-1.5 flex-1 text-[13px] leading-relaxed text-champagne/60">
                       {feature.description}
                     </p>
 
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream">
+                    <span className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne">
                       en savoir plus
                       <ArrowRight size={13} />
                     </span>
@@ -362,7 +362,7 @@ export default function Home() {
 
             <Link
               href="/fonctionnalites"
- className={`mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
             >
               voir toutes les fonctionnalités
               <ArrowRight size={14} />
@@ -371,13 +371,13 @@ export default function Home() {
         </section>
 
         {/* À quoi ressemble l'espace membre */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               À quoi ça ressemble
             </h2>
 
-            <p className="mb-9 mt-2 max-w-xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mb-9 mt-2 max-w-xl text-[15px] leading-relaxed text-champagne/60">
               Deux façons de parcourir les profils, au choix : six propositions
               par semaine, ou l&apos;annuaire complet quand tu veux prendre le
               temps.
@@ -410,34 +410,34 @@ export default function Home() {
         </section>
 
         {/* Bandeau confiance */}
-        <section className="border-b border-cream/8 px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             {trustBadges.map(({ icon: Icon, label }) => (
               <div
                 key={label}
-                className="flex flex-col gap-2.5 rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-[18px]"
+                className="flex flex-col gap-2.5 rounded-2xl border border-champagne/8 bg-minuit p-4 sm:p-[18px]"
               >
-                <Icon size={18} className="text-orange" />
-                <span className="text-[13px] font-semibold text-cream">{label}</span>
+                <Icon size={18} className="text-cuivre" />
+                <span className="text-[13px] font-semibold text-champagne">{label}</span>
               </div>
             ))}
           </div>
         </section>
 
         {/* Pourquoi 28 ans et plus */}
-        <section className="relative overflow-hidden border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="relative overflow-hidden border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <EclipseMark
             id="age"
-            className="pointer-events-none absolute -left-32 bottom-[-18%] h-[380px] w-[380px] rotate-[200deg] text-lime/[0.05] lg:left-[-6%] lg:h-[460px] lg:w-[460px]"
+            className="pointer-events-none absolute -left-32 bottom-[-18%] h-[380px] w-[380px] rotate-[200deg] text-succes/[0.05] lg:left-[-6%] lg:h-[460px] lg:w-[460px]"
           />
 
           <div className="relative mx-auto grid max-w-5xl gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
             <div>
-              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
                 Pourquoi 28 ans et plus ?
               </h2>
 
-              <p className="mt-4 text-[15px] leading-relaxed text-cream/60 sm:text-base">
+              <p className="mt-4 text-[15px] leading-relaxed text-champagne/60 sm:text-base">
                 Parce qu&apos;une plateforme qui accepte tout le monde finit
                 par ne convenir à personne. À partir de 28 ans, on ne cherche
                 plus la même chose qu&apos;à 20 : on a un métier, un rythme,
@@ -445,7 +445,7 @@ export default function Home() {
                 peu de patience pour les profils qui ne mènent nulle part.
               </p>
 
-              <p className="mt-3 text-[15px] leading-relaxed text-cream/60 sm:text-base">
+              <p className="mt-3 text-[15px] leading-relaxed text-champagne/60 sm:text-base">
                 Ce critère d&apos;âge n&apos;est pas un filtre de prestige.
                 C&apos;est ce qui permet à tout le monde ici d&apos;arriver
                 avec les mêmes attentes.
@@ -469,16 +469,16 @@ export default function Home() {
               ].map((item) => (
                 <li
                   key={item.title}
-                  className="rounded-2xl border border-cream/8 bg-[#123243] p-4 sm:p-5"
+                  className="rounded-2xl border border-champagne/8 bg-minuit p-4 sm:p-5"
                 >
-                  <p className="flex items-start gap-2 text-sm font-semibold text-cream">
+                  <p className="flex items-start gap-2 text-sm font-semibold text-champagne">
                     <span
                       aria-hidden="true"
-                      className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-lime"
+                      className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-succes"
                     />
                     {item.title}
                   </p>
-                  <p className="mt-1.5 pl-[14px] text-[13px] leading-relaxed text-cream/60">
+                  <p className="mt-1.5 pl-[14px] text-[13px] leading-relaxed text-champagne/60">
                     {item.text}
                   </p>
                 </li>
@@ -488,32 +488,32 @@ export default function Home() {
         </section>
 
         {/* Témoignage éditorial unique */}
-        <section className="border-b border-cream/8 px-4 py-16 text-center sm:px-6 sm:py-20">
+        <section className="border-b border-champagne/8 px-4 py-16 text-center sm:px-6 sm:py-20">
           <div className="mx-auto flex max-w-2xl flex-col items-center gap-5">
-            <span className="h-[2px] w-10 bg-orange" />
+            <span className="h-[2px] w-10 bg-cuivre" />
 
             {testimonial ? (
               <>
-                <p className="font-accent text-[22px] italic leading-[1.5] text-cream sm:text-[26px]">
+                <p className="font-display italic text-[22px] italic leading-[1.5] text-champagne sm:text-[26px]">
                   « {testimonial.content} »
                 </p>
-                <span className="text-[13px] text-cream/55">
+                <span className="text-[13px] text-champagne/55">
                   — {testimonial.authorName}
                   {testimonial.age ? `, ${testimonial.age} ans` : ''}
                   {testimonial.city ? ` · ${testimonial.city}` : ''}
                 </span>
               </>
             ) : testimonialsLoaded ? (
-              <p className="text-sm text-cream/55">
+              <p className="text-sm text-champagne/55">
                 Les premiers témoignages arrivent bientôt.
               </p>
             ) : (
-              <p className="text-sm text-cream/55">Chargement…</p>
+              <p className="text-sm text-champagne/55">Chargement…</p>
             )}
 
             <Link
               href="/temoignages"
- className="mt-1 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss"
+ className="mt-1 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit"
             >
               voir tous les témoignages
               <ArrowRight size={14} />
@@ -522,9 +522,9 @@ export default function Home() {
         </section>
 
         {/* FAQ courte */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Les trois questions qu&apos;on nous pose
             </h2>
 
@@ -535,7 +535,7 @@ export default function Home() {
                 return (
                   <div
                     key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
+                    className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit"
                   >
                     <button
                       type="button"
@@ -545,12 +545,12 @@ export default function Home() {
                         )
                       }
                       aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-cream sm:px-5 ${focusRing}`}
+                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-champagne sm:px-5 ${focusRing}`}
                     >
                       {faq.question}
                       <ChevronDown
                         size={16}
-                        className={`shrink-0 text-cream/55 transition-transform ${
+                        className={`shrink-0 text-champagne/55 transition-transform ${
                           isOpen ? 'rotate-180' : ''
                         }`}
                       />
@@ -565,7 +565,7 @@ export default function Home() {
                           transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                           className="overflow-hidden"
                         >
-                          <p className="border-t border-cream/8 px-4 py-4 text-[13px] leading-relaxed text-cream/60 sm:px-5">
+                          <p className="border-t border-champagne/8 px-4 py-4 text-[13px] leading-relaxed text-champagne/60 sm:px-5">
                             {faq.answer}
                           </p>
                         </motion.div>
@@ -578,7 +578,7 @@ export default function Home() {
 
             <Link
               href="/faq"
- className={`mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`mt-6 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
             >
               voir la FAQ complète
               <ArrowRight size={14} />
@@ -590,27 +590,27 @@ export default function Home() {
         <section className="relative overflow-hidden px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute bottom-0 left-1/2 h-[280px] w-[620px] -translate-x-1/2 rounded-full bg-orange/[0.07] blur-[100px]"
+            className="pointer-events-none absolute bottom-0 left-1/2 h-[280px] w-[620px] -translate-x-1/2 rounded-full bg-cuivre/[0.07] blur-[100px]"
           />
 
-          <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 overflow-hidden rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 overflow-hidden rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <EclipseMark
               id="cta"
-              className="pointer-events-none absolute -right-10 -top-16 h-[240px] w-[240px] text-orange/[0.06]"
+              className="pointer-events-none absolute -right-10 -top-16 h-[240px] w-[240px] text-cuivre/[0.06]"
             />
 
             <div>
-              <h3 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
+              <h3 className="font-display mb-1.5 text-xl font-extrabold text-champagne sm:text-2xl">
                 Prêt à rencontrer sérieusement ?
               </h3>
-              <p className="text-sm text-cream/60">
+              <p className="text-sm text-champagne/60">
                 Constitution du dossier gratuite, sans engagement.
               </p>
             </div>
 
             <Link
               href="/commencer"
-              className="shrink-0 rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss"
+              className="shrink-0 rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit"
             >
               commencer
             </Link>

@@ -9,11 +9,18 @@ import type { AdminStats } from "./types";
 /**
  * Palette des séries, validée plutôt que choisie à l'œil.
  *
- * Contrôlée sur le fond des cartes (#123243) : bande de luminosité OKLCH
+ * Contrôlée sur le fond des cartes (#1D2835) : bande de luminosité OKLCH
  * [0,48 – 0,67], chroma ≥ 0,10, séparation daltonienne ΔE ≥ 8 entre séries
  * voisines (20,5 au pire ici, en protanopie), contraste ≥ 3:1 sur le fond.
  *
- * L'ordre compte : vert et orange se confondent en deutéranopie (ΔE 4,5).
+ * Repassée au contrôle après le changement de charte. Le cuivre de la
+ * marque ne peut pas servir de série : sa luminosité (0,692) sort de la
+ * bande et son chroma (0,080) passe sous le plancher — à côté de teintes
+ * saturées il se lit comme un gris chaud. Les couleurs de données ne sont
+ * pas les couleurs de marque, et le troisième ton est donc un ambre
+ * (#CF7A2B) voisin du cuivre mais assez saturé pour tenir son rôle.
+ *
+ * L'ordre compte : vert et ambre se confondent en deutéranopie.
  * Ils ne sont donc jamais voisins — le bleu les sépare, et les messages sont
  * tracés en ligne quand les deux autres séries sont en barres, ce qui ajoute
  * une distinction de forme à la distinction de couleur.
@@ -21,7 +28,7 @@ import type { AdminStats } from "./types";
 const SERIE = {
   inscriptions: "#6b9b00",
   matchs: "#218cb5",
-  messages: "#FF4103",
+  messages: "#CF7A2B",
 } as const;
 
 const LEGENDE = [
@@ -75,7 +82,7 @@ export default function GraphiqueActivite({
               className="h-2 w-2 rounded-full"
               style={{ backgroundColor: s.couleur }}
             />
-            <span className="text-[11px] text-cream/70">{s.libelle}</span>
+            <span className="text-[11px] text-champagne/70">{s.libelle}</span>
           </li>
         ))}
       </ul>
@@ -90,10 +97,10 @@ export default function GraphiqueActivite({
                 y1={y}
                 x2={W - pad.right}
                 y2={y}
-                stroke="rgba(255,235,209,0.08)"
+                stroke="rgba(234,217,189,0.08)"
                 strokeWidth="1"
               />
-              <text x={4} y={y + 3} fill="rgba(255,235,209,0.45)" fontSize="9">
+              <text x={4} y={y + 3} fill="rgba(234,217,189,0.45)" fontSize="9">
                 {Math.round(g)}
               </text>
             </g>
@@ -113,7 +120,7 @@ export default function GraphiqueActivite({
                   y={pad.top}
                   width={groupW}
                   height={iH}
-                  fill="rgba(255,235,209,0.05)"
+                  fill="rgba(234,217,189,0.05)"
                 />
               )}
 
@@ -138,7 +145,7 @@ export default function GraphiqueActivite({
                 x={centre}
                 y={H - 8}
                 textAnchor="middle"
-                fill="rgba(255,235,209,0.6)"
+                fill="rgba(234,217,189,0.6)"
                 fontSize="10"
               >
                 {d.label}
@@ -175,7 +182,7 @@ export default function GraphiqueActivite({
                 cy={pt.y}
                 r="4"
                 fill={SERIE.messages}
-                stroke="#123243"
+                stroke="#1D2835"
                 strokeWidth="2"
               />
             ))}
@@ -186,22 +193,22 @@ export default function GraphiqueActivite({
       {survol !== null && data[survol] && (
         <div
           role="status"
-          className="pointer-events-none absolute top-0 rounded-xl border border-cream/15 bg-abyss/95 px-3 py-2 text-[11px] shadow-lg"
+          className="pointer-events-none absolute top-0 rounded-xl border border-champagne/15 bg-nuit/95 px-3 py-2 text-[11px] shadow-lg"
           style={{
             left: `${((pad.left + groupW * survol + groupW / 2) / W) * 100}%`,
             transform: "translateX(-50%)",
           }}
         >
-          <p className="mb-1 font-semibold text-cream">{data[survol].label}</p>
+          <p className="mb-1 font-semibold text-champagne">{data[survol].label}</p>
           {LEGENDE.map((s) => (
-            <p key={s.cle} className="flex items-center gap-1.5 text-cream/70">
+            <p key={s.cle} className="flex items-center gap-1.5 text-champagne/70">
               <span
                 aria-hidden="true"
                 className="h-1.5 w-1.5 rounded-full"
                 style={{ backgroundColor: s.couleur }}
               />
               {s.libelle}
-              <span className="ml-2 font-semibold text-cream">
+              <span className="ml-2 font-semibold text-champagne">
                 {s.cle === "inscriptions"
                   ? data[survol].inscriptions
                   : s.cle === "matchs"

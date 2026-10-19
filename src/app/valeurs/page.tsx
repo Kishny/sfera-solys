@@ -43,7 +43,7 @@ import Footer from '@/components/Footer';
 
 /** Anneau de focus commun à toutes les pages migrées. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 type Valeur = {
   id: string;
@@ -139,24 +139,24 @@ export default function ValeursPage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <motion.div
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: 'easeOut' }}
             className="mx-auto max-w-3xl py-12 text-center sm:py-16"
           >
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-champagne">
               Nos valeurs
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
               Ce qui ne se négocie pas.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/70 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70 sm:text-base">
               Six principes, et pour chacun ce qui le rend vérifiable dans le
               produit. Une valeur qui ne se traduit par aucune fonctionnalité
               n&apos;est qu&apos;une phrase.
@@ -165,13 +165,13 @@ export default function ValeursPage() {
         </section>
 
         {/* Les six valeurs */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-6xl">
             <motion.div {...fadeUp}>
-              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
                 Les six principes
               </h2>
-              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
                 Sur petit écran, le détail est replié. Touche une carte pour
                 l&apos;ouvrir.
               </p>
@@ -191,24 +191,24 @@ export default function ValeursPage() {
                       delay: shouldReduceMotion ? 0 : index * 0.05,
                       ease: 'easeOut',
                     }}
-                    className="flex flex-col rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
+                    className="flex flex-col rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6"
                   >
                     <span
                       className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                        valeur.validation ? 'bg-lime/15' : 'bg-orange/15'
+                        valeur.validation ? 'bg-succes/15' : 'bg-cuivre/15'
                       }`}
                     >
                       <Icone
                         size={18}
-                        className={valeur.validation ? 'text-lime' : 'text-orange'}
+                        className={valeur.validation ? 'text-succes' : 'text-cuivre'}
                       />
                     </span>
 
-                    <h3 className="font-display [font-stretch:125%] mt-4 text-[17px] font-bold text-cream">
+                    <h3 className="font-display mt-4 text-[17px] font-bold text-champagne">
                       {valeur.titre}
                     </h3>
 
-                    <p className="mt-2 text-[14px] leading-relaxed text-cream/70">
+                    <p className="mt-2 text-[14px] leading-relaxed text-champagne/70">
                       {valeur.resume}
                     </p>
 
@@ -223,7 +223,7 @@ export default function ValeursPage() {
                       onClick={() => setOuverte(estOuverte ? null : valeur.id)}
                       aria-expanded={estOuverte}
                       aria-controls={`valeur-${valeur.id}`}
- className={`mt-3 flex items-center gap-1.5 self-start text-[12px] font-semibold text-cream transition-colors sm:hidden ${focusRing}`}
+ className={`mt-3 flex items-center gap-1.5 self-start text-[12px] font-semibold text-champagne transition-colors sm:hidden ${focusRing}`}
                     >
                       {estOuverte ? 'Replier' : 'En savoir plus'}
                       <ChevronDown
@@ -239,16 +239,16 @@ export default function ValeursPage() {
                         estOuverte ? 'mt-3 max-h-64 opacity-100' : 'max-h-0 opacity-0 sm:mt-3'
                       }`}
                     >
-                      <p className="text-[13px] leading-relaxed text-cream/60">
+                      <p className="text-[13px] leading-relaxed text-champagne/60">
                         {valeur.detail}
                       </p>
                     </div>
 
-                    <p className="mt-auto flex items-center gap-2 pt-4 text-[11px] font-semibold text-cream/55">
+                    <p className="mt-auto flex items-center gap-2 pt-4 text-[11px] font-semibold text-champagne/55">
                       <span
                         aria-hidden="true"
                         className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                          valeur.validation ? 'bg-lime' : 'bg-orange'
+                          valeur.validation ? 'bg-succes' : 'bg-cuivre'
                         }`}
                       />
                       {valeur.preuve}
@@ -261,20 +261,20 @@ export default function ValeursPage() {
         </section>
 
         {/* Les règles */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-14">
             <motion.div {...fadeUp}>
-              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
                 Nos engagements
               </h2>
 
-              <p className="mt-3 text-[15px] leading-relaxed text-cream/65">
+              <p className="mt-3 text-[15px] leading-relaxed text-champagne/65">
                 Ce sont des règles, pas des intentions : chacune est une chose
                 qu&apos;on s&apos;interdit ou qu&apos;on s&apos;oblige à faire,
                 et qui se constate depuis l&apos;extérieur.
               </p>
 
-              <p className="font-accent mt-5 text-[17px] italic leading-relaxed text-orange">
+              <p className="font-display italic mt-5 text-[17px] italic leading-relaxed text-cuivre">
                 Une promesse invérifiable n&apos;engage que celui qui
                 l&apos;écoute.
               </p>
@@ -284,13 +284,13 @@ export default function ValeursPage() {
               {regles.map((regle) => (
                 <li
                   key={regle}
-                  className="flex items-start gap-3 rounded-xl border border-cream/10 bg-[#123243] px-4 py-3.5"
+                  className="flex items-start gap-3 rounded-xl border border-champagne/10 bg-minuit px-4 py-3.5"
                 >
                   <span
                     aria-hidden="true"
-                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-orange"
+                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-cuivre"
                   />
-                  <span className="text-[14px] leading-relaxed text-cream/75">
+                  <span className="text-[14px] leading-relaxed text-champagne/75">
                     {regle}
                   </span>
                 </li>
@@ -300,16 +300,16 @@ export default function ValeursPage() {
         </section>
 
         {/* Renvoi vers les témoignages */}
-        <section className="border-b border-cream/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
           <motion.div
             {...fadeUp}
-            className="mx-auto flex max-w-4xl flex-col items-start justify-between gap-5 rounded-[1.5rem] border border-cream/10 bg-[#123243] p-6 sm:flex-row sm:items-center sm:p-8"
+            className="mx-auto flex max-w-4xl flex-col items-start justify-between gap-5 rounded-[1.5rem] border border-champagne/10 bg-minuit p-6 sm:flex-row sm:items-center sm:p-8"
           >
             <div>
-              <h2 className="font-display [font-stretch:125%] text-[19px] font-bold text-cream">
+              <h2 className="font-display text-[19px] font-bold text-champagne">
                 Et en pratique ?
               </h2>
-              <p className="mt-1.5 text-[14px] leading-relaxed text-cream/65">
+              <p className="mt-1.5 text-[14px] leading-relaxed text-champagne/65">
                 Les témoignages des membres vérifiés sont rassemblés sur leur
                 propre page, avec les vrais mots de ceux qui ont fait le
                 parcours.
@@ -318,7 +318,7 @@ export default function ValeursPage() {
 
             <Link
               href="/temoignages"
-              className={`fx-ghost inline-flex shrink-0 items-center gap-2 rounded-xl border border-cream/15 px-5 py-3 text-sm font-bold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+              className={`fx-ghost inline-flex shrink-0 items-center gap-2 rounded-xl border border-champagne/15 px-5 py-3 text-sm font-bold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
             >
               Lire les témoignages
               <ArrowRight size={15} aria-hidden="true" />
@@ -329,11 +329,11 @@ export default function ValeursPage() {
         {/* CTA */}
         <section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-16">
           <motion.div {...fadeUp} className="mx-auto max-w-2xl text-center">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[28px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[28px]">
               Rejoindre un endroit qui tient ses règles.
             </h2>
 
-            <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-cream/65">
+            <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-champagne/65">
               Le dossier prend dix minutes. La vérification, quelques
               instants. Ensuite, c&apos;est à toi de voir.
             </p>
@@ -341,7 +341,7 @@ export default function ValeursPage() {
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/inscription"
-                className={`fx-btn inline-flex items-center justify-center gap-2 rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn inline-flex items-center justify-center gap-2 rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 Constituer mon dossier
                 <ArrowRight size={16} aria-hidden="true" />
@@ -349,7 +349,7 @@ export default function ValeursPage() {
 
               <Link
                 href="/fonctionnalites"
-                className={`fx-ghost inline-flex items-center justify-center rounded-xl border border-cream/15 px-7 py-3.5 text-sm font-bold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+                className={`fx-ghost inline-flex items-center justify-center rounded-xl border border-champagne/15 px-7 py-3.5 text-sm font-bold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
               >
                 Voir les fonctionnalités
               </Link>

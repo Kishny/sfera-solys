@@ -195,24 +195,24 @@ export const planLabel: Record<string, string> = {
  * bordure et le fond qui portent le signal.
  */
 export const planBadgeColor: Record<string, string> = {
-  free: "border-cream/10 bg-cream/5 text-cream/70",
-  "essential-monthly": "border-orange/25 bg-orange/15 text-cream",
-  "premium-monthly": "border-orange/25 bg-orange/15 text-cream",
-  "elite-monthly": "border-orange/30 bg-orange/15 text-cream",
+  free: "border-champagne/10 bg-champagne/5 text-champagne/70",
+  "essential-monthly": "border-cuivre/25 bg-cuivre/15 text-champagne",
+  "premium-monthly": "border-cuivre/25 bg-cuivre/15 text-champagne",
+  "elite-monthly": "border-cuivre/30 bg-cuivre/15 text-champagne",
 };
 
 export const statusColor: Record<string, string> = {
-  active: "text-lime bg-lime/10 border-lime/20",
-  trialing: "text-cream bg-cream/10 border-cream/20",
-  inactive: "text-cream/60 bg-cream/5 border-cream/10",
-  past_due: "text-cream bg-orange/10 border-orange/20",
-  canceled: "text-cream bg-rust/10 border-rust/20",
+  active: "text-succes bg-succes/10 border-succes/20",
+  trialing: "text-champagne bg-champagne/10 border-champagne/20",
+  inactive: "text-champagne/60 bg-champagne/5 border-champagne/10",
+  past_due: "text-champagne bg-cuivre/10 border-cuivre/20",
+  canceled: "text-champagne bg-erreur/10 border-erreur/20",
 };
 
 export const memberStatusStyle: Record<string, string> = {
-  Actif: "text-lime bg-lime/12 border-lime/25",
-  Inactif: "text-cream bg-orange/12 border-orange/25",
-  Résilié: "text-cream bg-rust/15 border-rust/30",
+  Actif: "text-succes bg-succes/12 border-succes/25",
+  Inactif: "text-champagne bg-cuivre/12 border-cuivre/25",
+  Résilié: "text-champagne bg-erreur/15 border-erreur/30",
 };
 
 // ─────────────────────────────────────────────
@@ -255,7 +255,7 @@ export function effectivePlan(u: AdminUser): {
     return {
       key: "canceled",
       label: "Résilié",
-      style: "text-cream bg-rust/15 border-rust/30",
+      style: "text-champagne bg-erreur/15 border-erreur/30",
       isElite: false,
     };
   }

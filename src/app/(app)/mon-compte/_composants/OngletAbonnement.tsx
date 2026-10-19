@@ -112,7 +112,7 @@ function BoutonSynchroniser({ onSucces }: { onSucces: () => void }) {
         type="button"
         onClick={synchroniser}
         disabled={enCours}
-        className={`inline-flex items-center gap-2 rounded-xl border border-cream/15 px-4 py-2.5 text-[12px] font-semibold text-cream transition-colors hover:border-cream/30 disabled:opacity-50 ${focusRing}`}
+        className={`inline-flex items-center gap-2 rounded-xl border border-champagne/15 px-4 py-2.5 text-[12px] font-semibold text-champagne transition-colors hover:border-champagne/30 disabled:opacity-50 ${focusRing}`}
       >
         {enCours ? (
           <Loader2 size={13} className="animate-spin" aria-hidden="true" />
@@ -123,7 +123,7 @@ function BoutonSynchroniser({ onSucces }: { onSucces: () => void }) {
       </button>
 
       {resultat && (
-        <p className="mt-2 text-[12px] text-cream/70" role="status">
+        <p className="mt-2 text-[12px] text-champagne/70" role="status">
           {resultat}
         </p>
       )}
@@ -183,10 +183,10 @@ export default function OngletAbonnement({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="font-display [font-stretch:125%] text-[19px] font-bold text-cream">
+        <h2 className="font-display text-[19px] font-bold text-champagne">
           Mon abonnement
         </h2>
-        <p className="mt-1 text-[13px] text-cream/60">
+        <p className="mt-1 text-[13px] text-champagne/60">
           Ton offre, son état, et ce qu’elle comprend.
         </p>
       </div>
@@ -197,22 +197,22 @@ export default function OngletAbonnement({
           payante &&
           !user.subscriptionCancelAtPeriodEnd &&
           !user.subscriptionPaused
-            ? "border-lime/25 bg-lime/[0.06]"
-            : "border-cream/10 bg-[#123243]"
+            ? "border-succes/25 bg-succes/[0.06]"
+            : "border-champagne/10 bg-minuit"
         }`}
       >
         <div className="flex flex-wrap items-center gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="font-display [font-stretch:125%] text-[17px] font-bold text-cream">
+            <h3 className="font-display text-[17px] font-bold text-champagne">
               Offre {offre}
             </h3>
-            <p className="mt-0.5 text-[13px] text-cream/60">{etat}</p>
+            <p className="mt-0.5 text-[13px] text-champagne/60">{etat}</p>
           </div>
 
           {payante &&
             !user.subscriptionCancelAtPeriodEnd &&
             !user.subscriptionPaused && (
-              <span className="flex items-center gap-1 rounded-full bg-lime/15 px-2.5 py-1 text-[11px] font-bold text-lime">
+              <span className="flex items-center gap-1 rounded-full bg-succes/15 px-2.5 py-1 text-[11px] font-bold text-succes">
                 <Check size={12} aria-hidden="true" />
                 Actif
               </span>
@@ -221,9 +221,9 @@ export default function OngletAbonnement({
 
         {/* Alertes */}
         {user.subscriptionCancelAtPeriodEnd && user.premiumExpiresAt && (
-          <p className="mt-4 rounded-xl border border-orange/30 bg-orange/10 px-3.5 py-2.5 text-[13px] leading-relaxed text-cream/85">
+          <p className="mt-4 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5 text-[13px] leading-relaxed text-champagne/85">
             Ton abonnement se termine le{" "}
-            <strong className="text-cream">
+            <strong className="text-champagne">
               {formaterDate(user.premiumExpiresAt)}
             </strong>
             . Tu gardes l’accès jusqu’à cette date.
@@ -231,7 +231,7 @@ export default function OngletAbonnement({
         )}
 
         {user.subscriptionPaused && (
-          <p className="mt-4 rounded-xl border border-cream/12 px-3.5 py-2.5 text-[13px] leading-relaxed text-cream/80">
+          <p className="mt-4 rounded-xl border border-champagne/12 px-3.5 py-2.5 text-[13px] leading-relaxed text-champagne/80">
             Abonnement en pause — aucun prélèvement ce mois-ci. Tu peux
             réactiver à tout moment.
           </p>
@@ -240,7 +240,7 @@ export default function OngletAbonnement({
         {!payante &&
           offrePayanteChoisie &&
           !user.subscriptionCancelAtPeriodEnd && (
-            <p className="mt-4 rounded-xl border border-orange/30 bg-orange/10 px-3.5 py-2.5 text-[13px] leading-relaxed text-cream/85">
+            <p className="mt-4 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5 text-[13px] leading-relaxed text-champagne/85">
               Offre sélectionnée, accès non activé. C’est Stripe qui confirme le
               paiement, par webhook. Si tu as payé, utilise « Synchroniser »
               ci-dessous.
@@ -248,7 +248,7 @@ export default function OngletAbonnement({
           )}
 
         {/* Dates */}
-        <div className="mt-4 space-y-1 text-[13px] text-cream/70">
+        <div className="mt-4 space-y-1 text-[13px] text-champagne/70">
           {user.premiumStartedAt && (
             <p>Abonné depuis le {formaterDate(user.premiumStartedAt)}</p>
           )}
@@ -268,8 +268,8 @@ export default function OngletAbonnement({
           <p
             className={`mt-4 rounded-xl px-3.5 py-2.5 text-[13px] ${
               message.ok
-                ? "border border-lime/25 bg-lime/10 text-cream/85"
-                : "border border-orange/30 bg-orange/10 text-cream/85"
+                ? "border border-succes/25 bg-succes/10 text-champagne/85"
+                : "border border-cuivre/30 bg-cuivre/10 text-champagne/85"
             }`}
             role="status"
           >
@@ -283,7 +283,7 @@ export default function OngletAbonnement({
             <button
               type="button"
               onClick={() => router.push("/tarifs")}
-              className={`rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+              className={`rounded-xl bg-cuivre px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
             >
               Choisir une offre
             </button>
@@ -313,7 +313,7 @@ export default function OngletAbonnement({
                   type="button"
                   disabled={action === "pause"}
                   onClick={() => actionStripe("/api/stripe/pause", "pause")}
-                  className={`rounded-xl border border-cream/15 px-4 py-2.5 text-[12px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream disabled:opacity-50 ${focusRing}`}
+                  className={`rounded-xl border border-champagne/15 px-4 py-2.5 text-[12px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne disabled:opacity-50 ${focusRing}`}
                 >
                   {action === "pause" ? "Mise en pause…" : "Mettre en pause"}
                 </button>
@@ -322,7 +322,7 @@ export default function OngletAbonnement({
                   type="button"
                   disabled={action === "cancel"}
                   onClick={() => actionStripe("/api/stripe/cancel", "cancel")}
-                  className={`rounded-xl border border-orange/30 px-4 py-2.5 text-[12px] font-semibold text-cream transition-colors hover:bg-orange/10 disabled:opacity-50 ${focusRing}`}
+                  className={`rounded-xl border border-cuivre/30 px-4 py-2.5 text-[12px] font-semibold text-champagne transition-colors hover:bg-cuivre/10 disabled:opacity-50 ${focusRing}`}
                 >
                   {action === "cancel" ? "Annulation…" : "Annuler l’abonnement"}
                 </button>
@@ -336,7 +336,7 @@ export default function OngletAbonnement({
               onClick={() =>
                 actionStripe("/api/stripe/reactivate", "reactivate")
               }
-              className={`rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 disabled:opacity-50 ${focusRing}`}
+              className={`rounded-xl bg-cuivre px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:opacity-50 ${focusRing}`}
             >
               {action === "reactivate"
                 ? "Réactivation…"
@@ -354,7 +354,7 @@ export default function OngletAbonnement({
 
       {/* Contenu de l'offre */}
       <section className={`${carte} p-4 sm:p-5`}>
-        <p className="mb-3 text-[13px] font-semibold text-cream">
+        <p className="mb-3 text-[13px] font-semibold text-champagne">
           Ce que comprend ton offre
         </p>
 
@@ -362,11 +362,11 @@ export default function OngletAbonnement({
           {(contenuParOffre[user.plan] || contenuParOffre.free).map((ligne) => (
             <li
               key={ligne}
-              className="flex items-start gap-2 rounded-xl border border-cream/10 px-3.5 py-2.5 text-[13px] text-cream/80"
+              className="flex items-start gap-2 rounded-xl border border-champagne/10 px-3.5 py-2.5 text-[13px] text-champagne/80"
             >
               <Check
                 size={13}
-                className="mt-0.5 shrink-0 text-lime"
+                className="mt-0.5 shrink-0 text-succes"
                 aria-hidden="true"
               />
               {ligne}
@@ -377,8 +377,8 @@ export default function OngletAbonnement({
 
       {/* Paiement */}
       <section className={`${carte} p-4 sm:p-5`}>
-        <p className="text-[13px] font-semibold text-cream">Paiement</p>
-        <p className="mt-1.5 text-[12px] leading-relaxed text-cream/60">
+        <p className="text-[13px] font-semibold text-champagne">Paiement</p>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-champagne/60">
           Les paiements passent par Stripe. Les moyens disponibles sont ceux que
           la page de paiement propose — Sfera&apos;Solys ne stocke aucune donnée
           bancaire et n&apos;en voit jamais.

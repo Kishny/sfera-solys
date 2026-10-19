@@ -62,11 +62,11 @@ export default function TestimonialsExplorer({
     <div>
       {/* Barre de tri */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 sm:mb-7">
-        <p className="text-sm text-cream/55">
+        <p className="text-sm text-champagne/55">
           {sorted.length} témoignage{sorted.length > 1 ? "s" : ""}
         </p>
 
-        <div className="flex items-center gap-1.5 rounded-full border border-cream/10 bg-[#123243] p-1">
+        <div className="flex items-center gap-1.5 rounded-full border border-champagne/10 bg-minuit p-1">
           {SORTS.map((option) => {
             const isActive = sort === option.key;
 
@@ -79,10 +79,10 @@ export default function TestimonialsExplorer({
                   setSort(option.key);
                   setVisible(pageSize);
                 }}
-                className={`fx-btn rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 sm:text-sm ${
+                className={`fx-btn rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 sm:text-sm ${
                   isActive
-                    ? "bg-orange text-abyss"
-                    : "text-cream/60 hover:text-cream"
+                    ? "bg-cuivre text-nuit"
+                    : "text-champagne/60 hover:text-champagne"
                 }`}
               >
                 {option.label}
@@ -108,7 +108,7 @@ export default function TestimonialsExplorer({
           <button
             type="button"
             onClick={() => setVisible((v) => v + pageSize)}
-            className="inline-flex items-center gap-2 rounded-xl border border-cream/15 px-6 py-2.5 text-sm font-semibold text-cream/85 transition-colors hover:border-cream/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss"
+            className="inline-flex items-center gap-2 rounded-xl border border-champagne/15 px-6 py-2.5 text-sm font-semibold text-champagne/85 transition-colors hover:border-champagne/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit"
           >
             Charger plus
             <span className="text-xs text-current opacity-70">

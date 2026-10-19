@@ -80,14 +80,14 @@ function Trait({ className = '' }: { className?: string }) {
   return (
     <span
       aria-hidden="true"
-      className={`block rounded-full bg-cream/15 ${className}`}
+      className={`block rounded-full bg-champagne/15 ${className}`}
     />
   );
 }
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-cream/12 px-2.5 py-1 text-[11px] text-cream/60">
+    <span className="rounded-full border border-champagne/12 px-2.5 py-1 text-[11px] text-champagne/60">
       {children}
     </span>
   );
@@ -96,15 +96,15 @@ function Chip({ children }: { children: React.ReactNode }) {
 /** En-tête commun aux quatre panneaux. */
 function EnteteDossier({ etape }: { etape: Etape }) {
   return (
-    <div className="mb-5 flex items-center justify-between gap-3 border-b border-cream/8 pb-4">
-      <span className="font-display [font-stretch:125%] text-[13px] font-extrabold text-cream">
+    <div className="mb-5 flex items-center justify-between gap-3 border-b border-champagne/8 pb-4">
+      <span className="font-display text-[13px] font-extrabold text-champagne">
         dossier · étape {etape.numero} sur 4
       </span>
       <span
         className={
           etape.validation
-            ? 'rounded-full border border-lime/30 bg-lime/[0.08] px-2.5 py-0.5 text-[10px] font-bold text-lime'
-            : 'rounded-full border border-orange/30 bg-orange/[0.08] px-2.5 py-0.5 text-[10px] font-bold text-cream'
+            ? 'rounded-full border border-succes/30 bg-succes/[0.08] px-2.5 py-0.5 text-[10px] font-bold text-succes'
+            : 'rounded-full border border-cuivre/30 bg-cuivre/[0.08] px-2.5 py-0.5 text-[10px] font-bold text-champagne'
         }
       >
         {etape.duree}
@@ -125,15 +125,15 @@ function PanneauProfil() {
       <div className="flex items-center gap-4">
         <span
           aria-hidden="true"
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange/35 via-orange/10 to-lime/20"
+          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cuivre/35 via-cuivre/10 to-succes/20"
         >
-          <Camera size={18} className="text-cream/75" />
+          <Camera size={18} className="text-champagne/75" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-[13px] font-semibold text-cream/85">
+          <span className="block text-[13px] font-semibold text-champagne/85">
             Ton profil
           </span>
-          <span className="mt-0.5 block text-[11px] leading-relaxed text-cream/60">
+          <span className="mt-0.5 block text-[11px] leading-relaxed text-champagne/60">
             Photos, prénom, âge et ville
           </span>
         </span>
@@ -147,12 +147,12 @@ function PanneauProfil() {
       </div>
 
       <div className="mt-6">
-        <div className="mb-2 flex items-center justify-between text-[11px] text-cream/55">
+        <div className="mb-2 flex items-center justify-between text-[11px] text-champagne/55">
           <span>Profil complété</span>
-          <span className="font-bold text-orange">60 %</span>
+          <span className="font-bold text-cuivre">60 %</span>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-cream/10">
-          <div className="h-full w-[60%] rounded-full bg-orange" />
+        <div className="h-1.5 overflow-hidden rounded-full bg-champagne/10">
+          <div className="h-full w-[60%] rounded-full bg-cuivre" />
         </div>
       </div>
     </>
@@ -169,27 +169,27 @@ function PanneauVerification() {
         ].map(({ icon: Icon, label }) => (
           <div
             key={label}
-            className="rounded-xl border border-cream/10 bg-abyss/50 p-3"
+            className="rounded-xl border border-champagne/10 bg-nuit/50 p-3"
           >
-            <Icon size={16} className="text-cream/55" />
+            <Icon size={16} className="text-champagne/55" />
             <Trait className="mt-3 h-1.5 w-full" />
-            <Trait className="mt-1.5 h-1.5 w-2/3 bg-cream/10" />
-            <span className="mt-3 block text-[11px] text-cream/55">{label}</span>
+            <Trait className="mt-1.5 h-1.5 w-2/3 bg-champagne/10" />
+            <span className="mt-3 block text-[11px] text-champagne/55">{label}</span>
           </div>
         ))}
       </div>
 
-      <p className="mt-5 flex items-center gap-2 text-[12px] text-cream/60">
+      <p className="mt-5 flex items-center gap-2 text-[12px] text-champagne/60">
         <span
           aria-hidden="true"
-          className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-orange"
+          className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-cuivre"
         />
         document officiel et selfie comparés par Stripe Identity
       </p>
 
-      <div className="mt-4 flex items-center gap-2 rounded-xl border border-lime/25 bg-lime/[0.06] px-3 py-2.5">
-        <Check size={15} strokeWidth={3} className="shrink-0 text-lime" />
-        <span className="text-[12px] font-semibold text-lime">
+      <div className="mt-4 flex items-center gap-2 rounded-xl border border-succes/25 bg-succes/[0.06] px-3 py-2.5">
+        <Check size={15} strokeWidth={3} className="shrink-0 text-succes" />
+        <span className="text-[12px] font-semibold text-succes">
           Profil activé, et gratuit quelle que soit ton offre
         </span>
       </div>
@@ -210,15 +210,15 @@ function PanneauAffinite() {
         {criteres.map((critere) => (
           <div key={critere.label}>
             <div className="mb-1.5 flex items-center justify-between text-[12px]">
-              <span className="text-cream/70">{critere.label}</span>
-              <span className="font-bold text-cream">{critere.valeur} %</span>
+              <span className="text-champagne/70">{critere.label}</span>
+              <span className="font-bold text-champagne">{critere.valeur} %</span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-cream/10">
+            <div className="h-1.5 overflow-hidden rounded-full bg-champagne/10">
               <div
                 className={
                   critere.valeur >= 90
-                    ? 'h-full rounded-full bg-lime'
-                    : 'h-full rounded-full bg-orange'
+                    ? 'h-full rounded-full bg-succes'
+                    : 'h-full rounded-full bg-cuivre'
                 }
                 style={{ width: `${critere.valeur}%` }}
               />
@@ -227,8 +227,8 @@ function PanneauAffinite() {
         ))}
       </div>
 
-      <p className="mt-5 flex items-start gap-2 text-[12px] leading-relaxed text-cream/60">
-        <Sparkles size={14} className="mt-0.5 shrink-0 text-orange" />
+      <p className="mt-5 flex items-start gap-2 text-[12px] leading-relaxed text-champagne/60">
+        <Sparkles size={14} className="mt-0.5 shrink-0 text-cuivre" />
         Six profils par semaine, choisis sur ces critères — pas un défilement
         sans fin.
       </p>
@@ -240,24 +240,24 @@ function PanneauRelation() {
   return (
     <>
       <div className="flex flex-col gap-3">
-        <div className="max-w-[80%] rounded-2xl rounded-tl-md border border-cream/10 bg-abyss/60 px-4 py-3">
-          <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-wide text-cream">
+        <div className="max-w-[80%] rounded-2xl rounded-tl-md border border-champagne/10 bg-nuit/60 px-4 py-3">
+          <span className="mb-1.5 block text-[10px] font-bold uppercase tracking-wide text-champagne">
             Suggestion d&apos;ouverture
           </span>
-          <span className="block text-[12px] leading-relaxed text-cream/75">
+          <span className="block text-[12px] leading-relaxed text-champagne/75">
             Vous avez tous les deux coché « randonnée ». Quel a été ton plus
             beau sentier cette année ?
           </span>
         </div>
 
-        <div className="ml-auto max-w-[70%] rounded-2xl rounded-tr-md bg-orange/[0.12] px-4 py-3">
+        <div className="ml-auto max-w-[70%] rounded-2xl rounded-tr-md bg-cuivre/[0.12] px-4 py-3">
           <Trait className="h-1.5 w-32" />
-          <Trait className="mt-2 h-1.5 w-20 bg-cream/10" />
+          <Trait className="mt-2 h-1.5 w-20 bg-champagne/10" />
         </div>
       </div>
 
-      <p className="mt-5 flex items-start gap-2 text-[12px] leading-relaxed text-cream/60">
-        <MessageCircle size={14} className="mt-0.5 shrink-0 text-orange" />
+      <p className="mt-5 flex items-start gap-2 text-[12px] leading-relaxed text-champagne/60">
+        <MessageCircle size={14} className="mt-0.5 shrink-0 text-cuivre" />
         Une amorce proposée à partir de ce que vous avez en commun. Libre à toi
         de l&apos;utiliser ou non.
       </p>
@@ -375,10 +375,10 @@ export default function DossierParcours() {
                   index === 0 ? 'top-1/2' : 'top-0'
                 } ${index === etapes.length - 1 ? 'bottom-1/2' : 'bottom-0'} ${
                   index < actif
-                    ? 'bg-orange/45'
+                    ? 'bg-cuivre/45'
                     : index === actif
-                      ? 'bg-gradient-to-b from-orange/45 to-cream/10'
-                      : 'bg-cream/10'
+                      ? 'bg-gradient-to-b from-cuivre/45 to-champagne/10'
+                      : 'bg-champagne/10'
                 }`}
               />
 
@@ -395,10 +395,10 @@ export default function DossierParcours() {
               tabIndex={estActif ? 0 : -1}
               onClick={() => choisir(index)}
               onKeyDown={(event) => auClavier(event, index)}
-              className={`group relative z-10 flex w-full items-center gap-4 rounded-2xl border p-4 pl-5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss ${
+              className={`group relative z-10 flex w-full items-center gap-4 rounded-2xl border p-4 pl-5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit ${
                 estActif
-                  ? 'border-cream/10 bg-[#123243]'
-                  : 'border-transparent hover:border-cream/12 hover:bg-cream/[0.06]'
+                  ? 'border-champagne/10 bg-minuit'
+                  : 'border-transparent hover:border-champagne/12 hover:bg-champagne/[0.06]'
               }`}
             >
               {/*
@@ -412,9 +412,9 @@ export default function DossierParcours() {
                 className={`absolute left-0 top-1/2 w-[3px] -translate-y-1/2 rounded-full transition-all duration-200 ${
                   estActif
                     ? item.validation
-                      ? 'h-[60%] bg-lime'
-                      : 'h-[60%] bg-orange'
-                    : 'h-0 bg-cream/40 group-hover:h-[35%]'
+                      ? 'h-[60%] bg-succes'
+                      : 'h-[60%] bg-cuivre'
+                    : 'h-0 bg-champagne/40 group-hover:h-[35%]'
                 }`}
               />
 
@@ -422,11 +422,11 @@ export default function DossierParcours() {
                 className={`font-display flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-extrabold transition-colors ${
                   item.validation
                     ? estActif
-                      ? 'bg-lime text-abyss'
-                      : 'bg-lime/20 text-lime group-hover:bg-lime/30'
+                      ? 'bg-succes text-nuit'
+                      : 'bg-succes/20 text-succes group-hover:bg-succes/30'
                     : estActif
-                      ? 'bg-orange text-abyss'
-                      : 'bg-orange/20 text-cream group-hover:bg-orange/30'
+                      ? 'bg-cuivre text-nuit'
+                      : 'bg-cuivre/20 text-champagne group-hover:bg-cuivre/30'
                 }`}
               >
                 {item.numero}
@@ -434,14 +434,14 @@ export default function DossierParcours() {
 
               <span className="min-w-0 flex-1">
                 <span
-                  className={`font-display [font-stretch:125%] block text-[16px] font-bold transition-colors ${
-                    estActif ? 'text-cream' : 'text-cream/70 group-hover:text-cream'
+                  className={`font-display block text-[16px] font-bold transition-colors ${
+                    estActif ? 'text-champagne' : 'text-champagne/70 group-hover:text-champagne'
                   }`}
                 >
                   {item.titre}
                 </span>
 
-                <span className="mt-0.5 block text-[13px] leading-snug text-cream/60">
+                <span className="mt-0.5 block text-[13px] leading-snug text-champagne/60">
                   {item.description}
                 </span>
               </span>
@@ -457,8 +457,8 @@ export default function DossierParcours() {
                 size={17}
                 className={`shrink-0 transition-all duration-200 ${
                   estActif
-                    ? 'translate-x-0.5 text-orange'
-                    : 'text-cream/60 group-hover:translate-x-0.5 group-hover:text-cream'
+                    ? 'translate-x-0.5 text-cuivre'
+                    : 'text-champagne/60 group-hover:translate-x-0.5 group-hover:text-champagne'
                 }`}
               />
             </button>
@@ -492,11 +492,11 @@ export default function DossierParcours() {
         role="tabpanel"
         aria-labelledby={`etape-onglet-${etape.numero}`}
         tabIndex={0}
-        className="relative flex w-full flex-col justify-center self-start rounded-[1.75rem] lg:min-h-[300px] lg:self-center border border-cream/10 bg-[#123243] p-5 shadow-[0_35px_80px_-40px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss sm:p-7"
+        className="relative flex w-full flex-col justify-center self-start rounded-[1.75rem] lg:min-h-[300px] lg:self-center border border-champagne/10 bg-minuit p-5 shadow-[0_35px_80px_-40px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit sm:p-7"
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -inset-6 -z-10 rounded-[2.5rem] bg-orange/[0.07] blur-[60px]"
+          className="pointer-events-none absolute -inset-6 -z-10 rounded-[2.5rem] bg-cuivre/[0.07] blur-[60px]"
         />
 
         <EnteteDossier etape={etape} />

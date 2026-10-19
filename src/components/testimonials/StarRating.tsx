@@ -9,7 +9,7 @@ import { Star } from "lucide-react";
  * - Mode lecture (readOnly) : affiche simplement la note.
  * - Mode édition : étoiles cliquables avec survol, pour le formulaire.
  *
- * Les étoiles vides sont en crème : un `text-abyss` sur un fond sombre
+ * Les étoiles vides sont en crème : un `text-nuit` sur un fond sombre
  * serait purement invisible.
  */
 export default function StarRating({
@@ -44,7 +44,7 @@ export default function StarRating({
             <Star
               key={star}
               size={size}
-              className={filled ? "text-orange" : "text-cream/55"}
+              className={filled ? "text-cuivre" : "text-champagne/55"}
               fill={filled ? "currentColor" : "none"}
             />
           );
@@ -62,7 +62,7 @@ export default function StarRating({
           >
             <Star
               size={size}
-              className={filled ? "text-orange" : "text-cream/55"}
+              className={filled ? "text-cuivre" : "text-champagne/55"}
               fill={filled ? "currentColor" : "none"}
             />
           </button>

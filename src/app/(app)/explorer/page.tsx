@@ -156,10 +156,10 @@ const RECHERCHE_VIDE: Recherche = {
 };
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 const champ =
-  "w-full rounded-xl border border-cream/12 bg-abyss/60 px-3 py-2.5 text-[13px] text-cream placeholder:text-cream/55 " +
+  "w-full rounded-xl border border-champagne/12 bg-nuit/60 px-3 py-2.5 text-[13px] text-champagne placeholder:text-champagne/55 " +
   focusRing;
 
 /** Libellé d'une intention, ou la valeur brute si elle est inconnue. */
@@ -404,8 +404,8 @@ export default function AnnuairePage() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-abyss">
-        <Loader2 className="h-8 w-8 animate-spin text-orange" aria-hidden="true" />
+      <div className="flex min-h-screen items-center justify-center bg-nuit">
+        <Loader2 className="h-8 w-8 animate-spin text-cuivre" aria-hidden="true" />
         <span className="sr-only">Chargement</span>
       </div>
     );
@@ -413,19 +413,19 @@ export default function AnnuairePage() {
 
   return (
     <>
-      <div className="min-h-screen bg-abyss px-4 py-6 text-cream sm:px-6 sm:py-8 lg:px-10">
+      <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-6xl">
           {/* ─────────────────────────────
               En-tête
           ───────────────────────────── */}
           <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div className="min-w-0">
-              <h1 className="font-display [font-stretch:125%] text-[26px] font-extrabold leading-tight tracking-tight text-cream sm:text-[32px]">
+              <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
                 Annuaire
               </h1>
 
               <p
-                className="mt-1.5 text-[13px] leading-relaxed text-cream/60 sm:text-sm"
+                className="mt-1.5 text-[13px] leading-relaxed text-champagne/60 sm:text-sm"
                 aria-live="polite"
               >
                 {chargement && profils.length === 0
@@ -438,7 +438,7 @@ export default function AnnuairePage() {
 
             <div className="flex shrink-0 items-center gap-2">
               {likesRestants !== null && (
-                <p className="hidden rounded-xl border border-cream/12 px-3 py-2 text-[12px] text-cream/60 sm:block">
+                <p className="hidden rounded-xl border border-champagne/12 px-3 py-2 text-[12px] text-champagne/60 sm:block">
                   {likesRestants > 0
                     ? `${likesRestants} like${likesRestants > 1 ? "s" : ""} aujourd’hui`
                     : "Plus de like aujourd’hui"}
@@ -450,12 +450,12 @@ export default function AnnuairePage() {
                 onClick={() => setFiltresOuverts((ouvert) => !ouvert)}
                 aria-expanded={filtresOuverts}
                 aria-controls="panneau-filtres"
-                className={`inline-flex items-center gap-2 rounded-xl border border-cream/12 px-3.5 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/25 lg:hidden ${focusRing}`}
+                className={`inline-flex items-center gap-2 rounded-xl border border-champagne/12 px-3.5 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/25 lg:hidden ${focusRing}`}
               >
                 <Filter size={15} aria-hidden="true" />
                 Filtres
                 {filtresActifs > 0 && (
-                  <span className="rounded-full bg-orange px-1.5 text-[11px] font-bold text-abyss">
+                  <span className="rounded-full bg-cuivre px-1.5 text-[11px] font-bold text-nuit">
                     {filtresActifs}
                   </span>
                 )}
@@ -474,7 +474,7 @@ export default function AnnuairePage() {
           ───────────────────────────── */}
           <section
             id="panneau-filtres"
-            className={`mb-5 rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:p-5 ${
+            className={`mb-5 rounded-2xl border border-champagne/10 bg-minuit p-4 sm:p-5 ${
               filtresOuverts ? "block" : "hidden lg:block"
             }`}
           >
@@ -488,7 +488,7 @@ export default function AnnuairePage() {
                 <div>
                   <label
                     htmlFor="ville"
-                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                    className="mb-1.5 block text-[12px] font-semibold text-champagne/70"
                   >
                     Ville
                   </label>
@@ -510,7 +510,7 @@ export default function AnnuairePage() {
                 <div>
                   <label
                     htmlFor="departement"
-                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                    className="mb-1.5 block text-[12px] font-semibold text-champagne/70"
                   >
                     Département
                   </label>
@@ -549,7 +549,7 @@ export default function AnnuairePage() {
                 <div>
                   <label
                     htmlFor="age-min"
-                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                    className="mb-1.5 block text-[12px] font-semibold text-champagne/70"
                   >
                     Âge minimum
                   </label>
@@ -568,7 +568,7 @@ export default function AnnuairePage() {
                     }
                     className={champ}
                   />
-                  <p className="mt-1 text-[11px] text-cream/55">
+                  <p className="mt-1 text-[11px] text-champagne/55">
                     Sfera&apos;Solys est réservé aux {AGE_MINIMUM} ans et plus.
                   </p>
                 </div>
@@ -576,7 +576,7 @@ export default function AnnuairePage() {
                 <div>
                   <label
                     htmlFor="age-max"
-                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                    className="mb-1.5 block text-[12px] font-semibold text-champagne/70"
                   >
                     Âge maximum
                   </label>
@@ -600,7 +600,7 @@ export default function AnnuairePage() {
 
               {/* Intentions */}
               <fieldset className="mt-4">
-                <legend className="mb-2 text-[12px] font-semibold text-cream/70">
+                <legend className="mb-2 text-[12px] font-semibold text-champagne/70">
                   Intentions
                 </legend>
 
@@ -618,8 +618,8 @@ export default function AnnuairePage() {
                         aria-pressed={choisie}
                         className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
                           choisie
-                            ? "border-orange bg-orange text-abyss"
-                            : "border-cream/12 text-cream/60 hover:border-cream/25"
+                            ? "border-cuivre bg-cuivre text-nuit"
+                            : "border-champagne/12 text-champagne/60 hover:border-champagne/25"
                         }`}
                       >
                         {intention.label}
@@ -630,12 +630,12 @@ export default function AnnuairePage() {
               </fieldset>
 
               {/* Filtres payants */}
-              <div className="mt-4 rounded-xl border border-cream/10 p-4">
-                <p className="mb-3 flex items-center gap-2 text-[12px] font-semibold text-cream/70">
+              <div className="mt-4 rounded-xl border border-champagne/10 p-4">
+                <p className="mb-3 flex items-center gap-2 text-[12px] font-semibold text-champagne/70">
                   {filtresAvances ? (
-                    <Sparkles size={14} className="text-orange" aria-hidden="true" />
+                    <Sparkles size={14} className="text-cuivre" aria-hidden="true" />
                   ) : (
-                    <Lock size={14} className="text-cream/55" aria-hidden="true" />
+                    <Lock size={14} className="text-champagne/55" aria-hidden="true" />
                   )}
                   Filtres avancés
                 </p>
@@ -645,7 +645,7 @@ export default function AnnuairePage() {
                     <div>
                       <label
                         htmlFor="orientation"
-                        className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                        className="mb-1.5 block text-[12px] font-semibold text-champagne/70"
                       >
                         Orientation
                       </label>
@@ -669,7 +669,7 @@ export default function AnnuairePage() {
                       </select>
                     </div>
 
-                    <label className="flex cursor-pointer items-center gap-3 self-end rounded-xl border border-cream/12 px-3 py-2.5">
+                    <label className="flex cursor-pointer items-center gap-3 self-end rounded-xl border border-champagne/12 px-3 py-2.5">
                       <input
                         type="checkbox"
                         checked={brouillon.actifRecemment}
@@ -679,15 +679,15 @@ export default function AnnuairePage() {
                             actifRecemment: evenement.target.checked,
                           }))
                         }
-                        className={`h-4 w-4 shrink-0 accent-orange ${focusRing}`}
+                        className={`h-4 w-4 shrink-0 accent-cuivre ${focusRing}`}
                       />
-                      <span className="text-[13px] text-cream/80">
+                      <span className="text-[13px] text-champagne/80">
                         Actif dans les 7 derniers jours
                       </span>
                     </label>
                   </div>
                 ) : (
-                  <p className="text-[12px] leading-relaxed text-cream/55">
+                  <p className="text-[12px] leading-relaxed text-champagne/55">
                     L&apos;orientation et l&apos;activité récente s&apos;ouvrent à
                     partir de l&apos;offre Premium. Le reste de l&apos;annuaire, la
                     vérification d&apos;identité et la recherche sont accessibles
@@ -699,7 +699,7 @@ export default function AnnuairePage() {
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <button
                   type="submit"
-                  className={`inline-flex items-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                  className={`inline-flex items-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
                 >
                   <Search size={15} aria-hidden="true" />
                   Chercher
@@ -708,7 +708,7 @@ export default function AnnuairePage() {
                 <button
                   type="button"
                   onClick={reinitialiser}
-                  className={`inline-flex items-center gap-2 rounded-xl border border-cream/12 px-4 py-2.5 text-[13px] font-semibold text-cream/70 transition-colors hover:border-cream/25 hover:text-cream ${focusRing}`}
+                  className={`inline-flex items-center gap-2 rounded-xl border border-champagne/12 px-4 py-2.5 text-[13px] font-semibold text-champagne/70 transition-colors hover:border-champagne/25 hover:text-champagne ${focusRing}`}
                 >
                   <RotateCcw size={14} aria-hidden="true" />
                   Réinitialiser
@@ -721,21 +721,21 @@ export default function AnnuairePage() {
           {erreur && (
             <div
               role="alert"
-              className="mb-5 flex items-start gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-4 py-3"
+              className="mb-5 flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-4 py-3"
             >
               <AlertCircle
                 size={16}
-                className="mt-0.5 shrink-0 text-orange"
+                className="mt-0.5 shrink-0 text-cuivre"
                 aria-hidden="true"
               />
-              <p className="flex-1 text-[13px] leading-relaxed text-cream/85">
+              <p className="flex-1 text-[13px] leading-relaxed text-champagne/85">
                 {erreur}
               </p>
               <button
                 type="button"
                 onClick={() => setErreur("")}
                 aria-label="Fermer le message"
-                className={`shrink-0 rounded-lg p-1 text-cream/60 hover:text-cream ${focusRing}`}
+                className={`shrink-0 rounded-lg p-1 text-champagne/60 hover:text-champagne ${focusRing}`}
               >
                 <X size={15} aria-hidden="true" />
               </button>
@@ -748,24 +748,24 @@ export default function AnnuairePage() {
           {chargement ? (
             <div className="flex flex-col items-center gap-3 py-24">
               <Loader2
-                className="h-7 w-7 animate-spin text-orange"
+                className="h-7 w-7 animate-spin text-cuivre"
                 aria-hidden="true"
               />
-              <p className="text-[13px] text-cream/55">Recherche en cours…</p>
+              <p className="text-[13px] text-champagne/55">Recherche en cours…</p>
             </div>
           ) : profils.length === 0 ? (
-            <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
+            <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
               <UserRound
                 size={28}
-                className="mx-auto mb-4 text-cream/55"
+                className="mx-auto mb-4 text-champagne/55"
                 aria-hidden="true"
               />
 
-              <h2 className="font-display [font-stretch:125%] text-[18px] font-bold text-cream">
+              <h2 className="font-display text-[18px] font-bold text-champagne">
                 Rien à cette adresse
               </h2>
 
-              <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/60">
+              <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
                 Aucun profil ne correspond à ces critères. Élargis le
                 département ou la tranche d&apos;âge, ou retire une intention.
               </p>
@@ -773,7 +773,7 @@ export default function AnnuairePage() {
               <button
                 type="button"
                 onClick={reinitialiser}
-                className={`mt-6 inline-flex items-center gap-2 rounded-xl border border-cream/15 px-5 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+                className={`mt-6 inline-flex items-center gap-2 rounded-xl border border-champagne/15 px-5 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
               >
                 <RotateCcw size={14} aria-hidden="true" />
                 Réinitialiser la recherche
@@ -808,14 +808,14 @@ export default function AnnuairePage() {
                   type="button"
                   onClick={() => allerPage(page - 1)}
                   disabled={page <= 1}
-                  className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-4 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border border-champagne/12 px-4 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
                 >
                   <ChevronLeft size={15} aria-hidden="true" />
                   Précédent
                 </button>
 
-                <p className="min-w-[7.5rem] text-center text-[13px] text-cream/60">
-                  Page <span className="font-bold text-cream">{page}</span> sur{" "}
+                <p className="min-w-[7.5rem] text-center text-[13px] text-champagne/60">
+                  Page <span className="font-bold text-champagne">{page}</span> sur{" "}
                   {nombreDePages}
                 </p>
 
@@ -823,7 +823,7 @@ export default function AnnuairePage() {
                   type="button"
                   onClick={() => allerPage(page + 1)}
                   disabled={page >= nombreDePages}
-                  className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-4 py-2.5 text-[13px] font-semibold text-cream transition-colors hover:border-cream/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border border-champagne/12 px-4 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/25 disabled:cursor-not-allowed disabled:opacity-35 ${focusRing}`}
                 >
                   Suivant
                   <ChevronRight size={15} aria-hidden="true" />
@@ -853,7 +853,7 @@ export default function AnnuairePage() {
               type="button"
               onClick={() => setMatch(null)}
               aria-label="Fermer"
-              className="absolute inset-0 cursor-default bg-abyss/80 backdrop-blur-sm"
+              className="absolute inset-0 cursor-default bg-nuit/80 backdrop-blur-sm"
             />
 
             <motion.div
@@ -865,28 +865,28 @@ export default function AnnuairePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: reduireAnimations ? 1 : 0.96 }}
               transition={{ duration: reduireAnimations ? 0 : 0.25 }}
-              className="relative z-10 w-full max-w-sm rounded-[1.75rem] border border-lime/25 bg-[#123243] p-6 text-center sm:p-8"
+              className="relative z-10 w-full max-w-sm rounded-[1.75rem] border border-succes/25 bg-minuit p-6 text-center sm:p-8"
             >
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-lime/15">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-succes/15">
                 <Heart
                   size={22}
-                  className="fill-lime text-lime"
+                  className="fill-succes text-succes"
                   aria-hidden="true"
                 />
               </span>
 
-              <p className="mt-4 text-[11px] font-bold uppercase tracking-wide text-lime">
+              <p className="mt-4 text-[11px] font-bold uppercase tracking-wide text-succes">
                 Réciproque
               </p>
 
               <h2
                 id="titre-match"
-                className="font-display [font-stretch:125%] mt-2 text-[22px] font-extrabold leading-tight text-cream"
+                className="font-display mt-2 text-[22px] font-extrabold leading-tight text-champagne"
               >
                 {match.profil.pseudonyme || "Ce membre"} t&apos;a aussi aimé.
               </h2>
 
-              <p className="mx-auto mt-3 max-w-xs text-[13px] leading-relaxed text-cream/65">
+              <p className="mx-auto mt-3 max-w-xs text-[13px] leading-relaxed text-champagne/65">
                 La conversation est ouverte. À toi de commencer, ou pas — un
                 match n&apos;oblige à rien.
               </p>
@@ -895,7 +895,7 @@ export default function AnnuairePage() {
                 <button
                   type="button"
                   onClick={() => router.push(`/messages/${match.matchId}`)}
-                  className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange px-5 py-3 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                  className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cuivre px-5 py-3 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
                 >
                   <MessageCircle size={15} aria-hidden="true" />
                   Écrire maintenant
@@ -904,7 +904,7 @@ export default function AnnuairePage() {
                 <button
                   type="button"
                   onClick={() => setMatch(null)}
-                  className={`inline-flex w-full items-center justify-center rounded-xl border border-cream/15 px-5 py-3 text-[13px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream ${focusRing}`}
+                  className={`inline-flex w-full items-center justify-center rounded-xl border border-champagne/15 px-5 py-3 text-[13px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne ${focusRing}`}
                 >
                   Continuer à chercher
                 </button>
@@ -955,9 +955,9 @@ function CarteProfil({
   const nom = profil.pseudonyme || "Membre";
 
   return (
-    <li className="flex flex-col overflow-hidden rounded-2xl border border-cream/10 bg-[#123243]">
+    <li className="flex flex-col overflow-hidden rounded-2xl border border-champagne/10 bg-minuit">
       {/* Photo */}
-      <div className="relative aspect-[4/5] bg-abyss">
+      <div className="relative aspect-[4/5] bg-nuit">
         {profil.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -969,7 +969,7 @@ function CarteProfil({
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <span
-              className="font-display [font-stretch:125%] flex h-20 w-20 items-center justify-center rounded-full border border-cream/10 text-[28px] font-extrabold text-cream/60"
+              className="font-display flex h-20 w-20 items-center justify-center rounded-full border border-champagne/10 text-[28px] font-extrabold text-champagne/60"
               aria-hidden="true"
             >
               {nom.charAt(0).toUpperCase()}
@@ -981,7 +981,7 @@ function CarteProfil({
           type="button"
           onClick={onSignaler}
           aria-label={`Signaler ${nom}`}
-          className={`absolute right-2.5 top-2.5 rounded-lg bg-abyss/70 p-2 text-cream/60 backdrop-blur-sm transition-colors hover:text-orange ${focusRing}`}
+          className={`absolute right-2.5 top-2.5 rounded-lg bg-nuit/70 p-2 text-champagne/60 backdrop-blur-sm transition-colors hover:text-cuivre ${focusRing}`}
         >
           <Flag size={14} aria-hidden="true" />
         </button>
@@ -989,7 +989,7 @@ function CarteProfil({
         {/* Un profil remonté par un boost le dit, il ne se déguise pas en
             résultat naturel du classement. */}
         {profil.miseEnAvant && (
-          <span className="absolute left-2.5 top-2.5 rounded-full bg-orange px-2.5 py-1 text-[11px] font-bold text-abyss">
+          <span className="absolute left-2.5 top-2.5 rounded-full bg-cuivre px-2.5 py-1 text-[11px] font-bold text-nuit">
             Mis en avant
           </span>
         )}
@@ -998,14 +998,14 @@ function CarteProfil({
       {/* Informations */}
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-display [font-stretch:125%] min-w-0 truncate text-[16px] font-bold text-cream">
+          <h3 className="font-display min-w-0 truncate text-[16px] font-bold text-champagne">
             {nom}
             {profil.age ? `, ${profil.age}` : ""}
           </h3>
 
           {profil.identityVerified && (
             <span
-              className="flex shrink-0 items-center gap-1 rounded-full bg-lime/15 px-2 py-0.5 text-[11px] font-bold text-lime"
+              className="flex shrink-0 items-center gap-1 rounded-full bg-succes/15 px-2 py-0.5 text-[11px] font-bold text-succes"
               title="Identité vérifiée"
             >
               <ShieldCheck size={12} aria-hidden="true" />
@@ -1015,7 +1015,7 @@ function CarteProfil({
         </div>
 
         {lieu && (
-          <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-cream/55">
+          <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-champagne/55">
             <MapPin size={12} className="shrink-0" aria-hidden="true" />
             <span className="truncate">{lieu}</span>
           </p>
@@ -1026,7 +1026,7 @@ function CarteProfil({
             {intentions.map((intention) => (
               <li
                 key={intention}
-                className="rounded-full border border-cream/12 px-2.5 py-0.5 text-[11px] text-cream/60"
+                className="rounded-full border border-champagne/12 px-2.5 py-0.5 text-[11px] text-champagne/60"
               >
                 {libelleIntention(intention)}
               </li>
@@ -1038,7 +1038,7 @@ function CarteProfil({
           <button
             type="button"
             onClick={onOuvrir}
-            className={`flex-1 rounded-xl border border-cream/15 px-3 py-2.5 text-[12px] font-bold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+            className={`flex-1 rounded-xl border border-champagne/15 px-3 py-2.5 text-[12px] font-bold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
           >
             Voir le profil
           </button>
@@ -1055,8 +1055,8 @@ function CarteProfil({
             }
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors disabled:cursor-not-allowed ${focusRing} ${
               aime
-                ? "bg-lime/15 text-lime"
-                : "bg-orange text-abyss hover:bg-orange/90 disabled:opacity-40"
+                ? "bg-succes/15 text-succes"
+                : "bg-cuivre text-nuit hover:bg-cuivre/90 disabled:opacity-40"
             }`}
           >
             {likeEnCours ? (
@@ -1064,7 +1064,7 @@ function CarteProfil({
             ) : (
               <Heart
                 size={16}
-                className={aime ? "fill-lime" : ""}
+                className={aime ? "fill-succes" : ""}
                 aria-hidden="true"
               />
             )}

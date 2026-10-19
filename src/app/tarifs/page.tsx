@@ -266,7 +266,7 @@ const faqs = [
 
 /** Anneau de focus clavier, identique partout dans la direction A. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 /**
  * Rend une valeur du tableau comparatif : « oui »/« non » deviennent des
@@ -274,16 +274,16 @@ const focusRing =
  */
 function ComparisonValue({ value }: { value: string }) {
   if (value === 'oui') {
-    return <Check size={16} className="mx-auto text-lime" aria-label="Inclus" />;
+    return <Check size={16} className="mx-auto text-succes" aria-label="Inclus" />;
   }
 
   if (value === 'non') {
     return (
-      <Minus size={16} className="mx-auto text-cream/55" aria-label="Non inclus" />
+      <Minus size={16} className="mx-auto text-champagne/55" aria-label="Non inclus" />
     );
   }
 
-  return <span className="text-cream/70">{value}</span>;
+  return <span className="text-champagne/70">{value}</span>;
 }
 
 export default function TarifsPage() {
@@ -366,19 +366,19 @@ export default function TarifsPage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <div className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
               Sans engagement · résiliable en un clic
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
               Des tarifs clairs, rien de caché.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/60 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
               La vérification d&apos;identité est incluse dans toutes les
               offres, gratuite comprise. Ce que tu paies ensuite, c&apos;est le
               confort d&apos;usage — jamais le droit d&apos;être vérifié.
@@ -387,13 +387,13 @@ export default function TarifsPage() {
         </section>
 
         {/* Offres */}
-        <section className="border-b border-cream/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
           {erreur && (
             <div
               role="alert"
-              className="mx-auto mb-6 flex max-w-2xl items-start gap-3 rounded-2xl border border-rust/50 bg-rust/20 px-4 py-3.5 text-[13px] leading-relaxed text-cream"
+              className="mx-auto mb-6 flex max-w-2xl items-start gap-3 rounded-2xl border border-erreur/50 bg-erreur/20 px-4 py-3.5 text-[13px] leading-relaxed text-champagne"
             >
-              <AlertCircle size={16} className="mt-0.5 shrink-0 text-cream" />
+              <AlertCircle size={16} className="mt-0.5 shrink-0 text-champagne" />
               <p>{erreur}</p>
             </div>
           )}
@@ -407,8 +407,8 @@ export default function TarifsPage() {
 
               const classesCta = `fx-btn mt-5 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-center text-[13px] font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${focusRing} ${
                 offre.populaire
-                  ? 'bg-orange text-abyss hover:bg-orange/90'
-                  : 'border border-cream/15 text-cream/85 hover:border-cream/30'
+                  ? 'bg-cuivre text-nuit hover:bg-cuivre/90'
+                  : 'border border-champagne/15 text-champagne/85 hover:border-champagne/30'
               }`;
 
               return (
@@ -416,37 +416,37 @@ export default function TarifsPage() {
                   key={offre.id}
                   className={`relative flex flex-col rounded-2xl border p-5 sm:p-6 ${
                     offre.populaire
-                      ? 'border-orange/40 bg-[#123243] ring-1 ring-orange/20'
-                      : 'border-cream/8 bg-[#123243]'
+                      ? 'border-cuivre/40 bg-minuit ring-1 ring-cuivre/20'
+                      : 'border-champagne/8 bg-minuit'
                   }`}
                 >
                   {offre.populaire && (
-                    <span className="absolute -top-2.5 left-5 rounded-full bg-lime px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-abyss">
+                    <span className="absolute -top-2.5 left-5 rounded-full bg-succes px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-nuit">
                       Recommandé
                     </span>
                   )}
 
                   <Icon
                     size={22}
-                    className={offre.populaire ? 'text-orange' : 'text-cream/55'}
+                    className={offre.populaire ? 'text-cuivre' : 'text-champagne/55'}
                   />
 
-                  <h2 className="font-display [font-stretch:125%] mt-3 text-lg font-extrabold text-cream">
+                  <h2 className="font-display mt-3 text-lg font-extrabold text-champagne">
                     {offre.nom}
                   </h2>
 
-                  <p className="mt-1 text-[13px] leading-relaxed text-cream/55">
+                  <p className="mt-1 text-[13px] leading-relaxed text-champagne/55">
                     {offre.accroche}
                   </p>
 
                   <div className="mt-4 flex items-baseline gap-1.5">
-                    <span className="font-display text-[32px] font-extrabold leading-none text-cream">
+                    <span className="font-display text-[32px] font-extrabold leading-none text-champagne">
                       {estGratuit
                         ? 'gratuit'
                         : offre.prix.toFixed(2).replace('.', ',')}
                     </span>
                     {!estGratuit && (
-                      <span className="text-[13px] text-cream/55">€ / mois</span>
+                      <span className="text-[13px] text-champagne/55">€ / mois</span>
                     )}
                   </div>
 
@@ -459,7 +459,7 @@ export default function TarifsPage() {
                       )
                     }
                     aria-expanded={isOpen}
-                    className={`mt-4 flex items-center justify-between border-t border-cream/8 pt-3 text-[13px] font-semibold text-cream/70 sm:hidden ${focusRing}`}
+                    className={`mt-4 flex items-center justify-between border-t border-champagne/8 pt-3 text-[13px] font-semibold text-champagne/70 sm:hidden ${focusRing}`}
                   >
                     {isOpen ? 'masquer le détail' : 'voir le détail'}
                     <ChevronDown
@@ -469,7 +469,7 @@ export default function TarifsPage() {
                   </button>
 
                   <ul
-                    className={`mt-4 flex-1 space-y-2 border-cream/8 sm:mt-4 sm:block sm:border-t sm:pt-4 ${
+                    className={`mt-4 flex-1 space-y-2 border-champagne/8 sm:mt-4 sm:block sm:border-t sm:pt-4 ${
                       isOpen ? 'block' : 'hidden'
                     }`}
                   >
@@ -478,10 +478,10 @@ export default function TarifsPage() {
                         <Check
                           size={14}
                           className={`mt-[3px] shrink-0 ${
-                            offre.populaire ? 'text-orange' : 'text-lime'
+                            offre.populaire ? 'text-cuivre' : 'text-succes'
                           }`}
                         />
-                        <span className="text-[13px] leading-relaxed text-cream/70">
+                        <span className="text-[13px] leading-relaxed text-champagne/70">
                           {ligne}
                         </span>
                       </li>
@@ -514,7 +514,7 @@ export default function TarifsPage() {
             })}
           </div>
 
-          <p className="mx-auto mt-6 max-w-7xl text-center text-[13px] leading-relaxed text-cream/55">
+          <p className="mx-auto mt-6 max-w-7xl text-center text-[13px] leading-relaxed text-champagne/55">
             Paiement géré par Stripe, sans mauvaise surprise. Résiliation depuis
             Mon Compte, à tout moment.
             <br />
@@ -523,25 +523,25 @@ export default function TarifsPage() {
         </section>
 
         {/* Comparatif */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Comparer les offres
             </h2>
 
             {/* Desktop : tableau */}
-            <div className="hidden overflow-hidden rounded-2xl border border-cream/8 lg:block">
+            <div className="hidden overflow-hidden rounded-2xl border border-champagne/8 lg:block">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="bg-[#123243]">
-                    <th className="px-5 py-3.5 text-left text-[13px] font-semibold text-cream/55">
+                  <tr className="bg-minuit">
+                    <th className="px-5 py-3.5 text-left text-[13px] font-semibold text-champagne/55">
                       Fonctionnalité
                     </th>
                     {offres.map((offre) => (
                       <th
                         key={offre.id}
                         className={`px-5 py-3.5 text-center text-[13px] font-bold ${
-                          offre.populaire ? 'text-orange' : 'text-cream/85'
+                          offre.populaire ? 'text-cuivre' : 'text-champagne/85'
                         }`}
                       >
                         {offre.nom}
@@ -551,8 +551,8 @@ export default function TarifsPage() {
                 </thead>
                 <tbody>
                   {comparatif.map((row) => (
-                    <tr key={row.feature} className="border-t border-cream/8">
-                      <td className="px-5 py-3.5 text-[13px] text-cream/70">
+                    <tr key={row.feature} className="border-t border-champagne/8">
+                      <td className="px-5 py-3.5 text-[13px] text-champagne/70">
                         {row.feature}
                       </td>
                       {row.values.map((value, i) => (
@@ -577,7 +577,7 @@ export default function TarifsPage() {
                 return (
                   <div
                     key={row.feature}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
+                    className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit"
                   >
                     <button
                       type="button"
@@ -587,7 +587,7 @@ export default function TarifsPage() {
                         )
                       }
                       aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between px-4 py-3.5 text-left text-[13px] font-semibold text-cream/85 ${focusRing}`}
+                      className={`flex w-full items-center justify-between px-4 py-3.5 text-left text-[13px] font-semibold text-champagne/85 ${focusRing}`}
                     >
                       {row.feature}
                       <ChevronDown
@@ -605,15 +605,15 @@ export default function TarifsPage() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <dl className="grid grid-cols-2 gap-px border-t border-cream/8 bg-cream/[0.04]">
+                          <dl className="grid grid-cols-2 gap-px border-t border-champagne/8 bg-champagne/[0.04]">
                             {offres.map((offre, i) => (
                               <div
                                 key={offre.id}
-                                className="flex items-center justify-between gap-2 bg-[#123243] px-4 py-2.5"
+                                className="flex items-center justify-between gap-2 bg-minuit px-4 py-2.5"
                               >
                                 <dt
                                   className={`text-[12px] font-semibold ${
-                                    offre.populaire ? 'text-orange' : 'text-cream/55'
+                                    offre.populaire ? 'text-cuivre' : 'text-champagne/55'
                                   }`}
                                 >
                                   {offre.nom}
@@ -635,9 +635,9 @@ export default function TarifsPage() {
         </section>
 
         {/* FAQ */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Questions fréquentes
             </h2>
 
@@ -648,7 +648,7 @@ export default function TarifsPage() {
                 return (
                   <div
                     key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
+                    className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit"
                   >
                     <button
                       type="button"
@@ -656,12 +656,12 @@ export default function TarifsPage() {
                         setOpenFaqIndex((current) => (current === index ? null : index))
                       }
                       aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-cream sm:px-5 ${focusRing}`}
+                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-champagne sm:px-5 ${focusRing}`}
                     >
                       {faq.question}
                       <ChevronDown
                         size={16}
-                        className={`shrink-0 text-cream/55 transition-transform ${
+                        className={`shrink-0 text-champagne/55 transition-transform ${
                           isOpen ? 'rotate-180' : ''
                         }`}
                       />
@@ -676,7 +676,7 @@ export default function TarifsPage() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <p className="border-t border-cream/8 px-4 py-4 text-[13px] leading-relaxed text-cream/60 sm:px-5">
+                          <p className="border-t border-champagne/8 px-4 py-4 text-[13px] leading-relaxed text-champagne/60 sm:px-5">
                             {faq.answer}
                           </p>
                         </motion.div>
@@ -687,11 +687,11 @@ export default function TarifsPage() {
               })}
             </div>
 
-            <p className="mt-6 text-center text-[13px] text-cream/55">
+            <p className="mt-6 text-center text-[13px] text-champagne/55">
               Une autre question ?{' '}
               <Link
                 href="/faq"
-                className={`fx-link font-semibold text-orange hover:text-orange/80 ${focusRing}`}
+                className={`fx-link font-semibold text-cuivre hover:text-cuivre/80 ${focusRing}`}
               >
                 voir la FAQ complète
               </Link>
@@ -701,12 +701,12 @@ export default function TarifsPage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
-              <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
+              <h2 className="font-display mb-1.5 text-xl font-extrabold text-champagne sm:text-2xl">
                 Commence par le dossier, pas par la carte bancaire.
               </h2>
-              <p className="text-sm text-cream/60">
+              <p className="text-sm text-champagne/60">
                 La constitution du dossier et la vérification sont gratuites.
                 Tu choisiras une offre après, si tu en as envie.
               </p>
@@ -715,14 +715,14 @@ export default function TarifsPage() {
             <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
               <Link
                 href="/auth?mode=register"
-                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 constituer mon dossier
               </Link>
 
               <Link
                 href="/guide"
-                className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+                className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
               >
                 lire le guide
                 <ArrowRight size={14} />

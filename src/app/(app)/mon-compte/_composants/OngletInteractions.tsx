@@ -119,10 +119,10 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="font-display [font-stretch:125%] text-[19px] font-bold text-cream">
+          <h2 className="font-display text-[19px] font-bold text-champagne">
             Interactions
           </h2>
-          <p className="mt-1 text-[13px] text-cream/60">
+          <p className="mt-1 text-[13px] text-champagne/60">
             Tes mises en relation et, avec Premium, qui est passé sur ton
             profil.
           </p>
@@ -130,7 +130,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
 
         <Link
           href="/explorer"
-          className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-cream/15 px-3.5 py-2 text-[12px] font-semibold text-cream transition-colors hover:border-orange/50 ${focusRing}`}
+          className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-champagne/15 px-3.5 py-2 text-[12px] font-semibold text-champagne transition-colors hover:border-cuivre/50 ${focusRing}`}
         >
           Voir l’annuaire
           <ChevronRight size={13} aria-hidden="true" />
@@ -146,12 +146,12 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="flex flex-col gap-3 rounded-2xl border border-orange/25 bg-orange/[0.06] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-2xl border border-cuivre/25 bg-cuivre/[0.06] p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-[14px] font-semibold text-cream">
+                <p className="text-[14px] font-semibold text-champagne">
                   Ton expérience peut en rassurer d’autres
                 </p>
-                <p className="mt-0.5 text-[12px] leading-relaxed text-cream/65">
+                <p className="mt-0.5 text-[12px] leading-relaxed text-champagne/65">
                   Quelques lignes suffisent. Ton témoignage est relu avant
                   d’être publié.
                 </p>
@@ -160,7 +160,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
               <button
                 type="button"
                 onClick={() => setModaleTemoignage(true)}
-                className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-cuivre px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 <Star size={13} aria-hidden="true" />
                 Témoigner
@@ -177,7 +177,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-abyss/85 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-nuit/85 p-4 backdrop-blur-sm"
             onClick={() => setModaleTemoignage(false)}
             role="presentation"
           >
@@ -191,7 +191,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
               <button
                 type="button"
                 onClick={() => setModaleTemoignage(false)}
-                className={`absolute right-3 top-3 z-10 rounded-full border border-cream/15 bg-abyss p-2 text-cream transition-colors hover:border-cream/35 ${focusRing}`}
+                className={`absolute right-3 top-3 z-10 rounded-full border border-champagne/15 bg-nuit p-2 text-champagne transition-colors hover:border-champagne/35 ${focusRing}`}
                 aria-label="Fermer"
               >
                 <X size={14} aria-hidden="true" />
@@ -218,19 +218,19 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
           aria-pressed={section === "relations"}
           className={`rounded-2xl border p-4 text-left transition-colors ${focusRing} ${
             section === "relations"
-              ? "border-orange/40 bg-orange/[0.08]"
-              : "border-cream/10 bg-[#123243] hover:border-cream/25"
+              ? "border-cuivre/40 bg-cuivre/[0.08]"
+              : "border-champagne/10 bg-minuit hover:border-champagne/25"
           }`}
         >
           <span className="mb-1 flex items-center gap-2">
             <Heart
               size={14}
               className={
-                section === "relations" ? "text-orange" : "text-cream/60"
+                section === "relations" ? "text-cuivre" : "text-champagne/60"
               }
               aria-hidden="true"
             />
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-cream/55">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-champagne/55">
               Mises en relation
             </span>
           </span>
@@ -238,11 +238,11 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
           {chargeRelations ? (
             <Loader2
               size={19}
-              className="animate-spin text-cream/60"
+              className="animate-spin text-champagne/60"
               aria-hidden="true"
             />
           ) : (
-            <span className="font-display [font-stretch:125%] text-[26px] font-bold leading-none text-cream">
+            <span className="font-display text-[26px] font-bold leading-none text-champagne">
               {relations.length}
             </span>
           )}
@@ -254,26 +254,26 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
           aria-pressed={section === "visiteurs"}
           className={`rounded-2xl border p-4 text-left transition-colors ${focusRing} ${
             section === "visiteurs"
-              ? "border-orange/40 bg-orange/[0.08]"
-              : "border-cream/10 bg-[#123243] hover:border-cream/25"
+              ? "border-cuivre/40 bg-cuivre/[0.08]"
+              : "border-champagne/10 bg-minuit hover:border-champagne/25"
           }`}
         >
           <span className="mb-1 flex items-center gap-2">
             <Eye
               size={14}
               className={
-                section === "visiteurs" ? "text-orange" : "text-cream/60"
+                section === "visiteurs" ? "text-cuivre" : "text-champagne/60"
               }
               aria-hidden="true"
             />
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-cream/55">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-champagne/55">
               Visiteurs
             </span>
 
             {!payante && (
               <Lock
                 size={12}
-                className="ml-auto text-cream/55"
+                className="ml-auto text-champagne/55"
                 aria-hidden="true"
               />
             )}
@@ -282,13 +282,13 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
           {chargeVisiteurs ? (
             <Loader2
               size={19}
-              className="animate-spin text-cream/60"
+              className="animate-spin text-champagne/60"
               aria-hidden="true"
             />
           ) : (
             <span
-              className={`font-display [font-stretch:125%] text-[26px] font-bold leading-none ${
-                payante ? "text-cream" : "text-cream/55"
+              className={`font-display text-[26px] font-bold leading-none ${
+                payante ? "text-champagne" : "text-champagne/55"
               }`}
             >
               {payante ? visiteurs.length : "—"}
@@ -311,19 +311,19 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
               <div className="flex justify-center py-10">
                 <Loader2
                   size={26}
-                  className="animate-spin text-cream/60"
+                  className="animate-spin text-champagne/60"
                   aria-hidden="true"
                 />
               </div>
             ) : relations.length === 0 ? (
               <div className={`${carte} px-5 py-10 text-center`}>
-                <p className="text-[14px] text-cream/70">
+                <p className="text-[14px] text-champagne/70">
                   Aucune mise en relation pour l’instant.
                 </p>
 
                 <Link
                   href="/explorer"
-                  className={`mt-4 inline-flex items-center gap-2 rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                  className={`mt-4 inline-flex items-center gap-2 rounded-xl bg-cuivre px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
                 >
                   Parcourir l’annuaire
                 </Link>
@@ -360,14 +360,14 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                         versProfil();
                       }
                     }}
-                    className={`flex cursor-pointer flex-col gap-3 rounded-2xl border bg-[#123243] p-4 transition-colors sm:flex-row sm:items-center sm:gap-4 ${focusRing} ${
+                    className={`flex cursor-pointer flex-col gap-3 rounded-2xl border bg-minuit p-4 transition-colors sm:flex-row sm:items-center sm:gap-4 ${focusRing} ${
                       nonLu
-                        ? "border-orange/40"
-                        : "border-cream/10 hover:border-cream/25"
+                        ? "border-cuivre/40"
+                        : "border-champagne/10 hover:border-champagne/25"
                     }`}
                   >
                     <div className="flex min-w-0 items-center gap-3 sm:flex-1">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-cream/12 bg-abyss font-display [font-stretch:125%] text-[17px] font-bold text-cream/70">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-champagne/12 bg-nuit font-display text-[17px] font-bold text-champagne/70">
                         {membre.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -381,29 +381,29 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[14px] font-semibold text-cream">
+                        <p className="truncate text-[14px] font-semibold text-champagne">
                           {membre.pseudonyme}
                           {membre.age ? (
-                            <span className="text-cream/55">
+                            <span className="text-champagne/55">
                               , {membre.age} ans
                             </span>
                           ) : null}
                         </p>
 
                         {lieu && (
-                          <p className="mt-0.5 flex items-center gap-1 text-[12px] text-cream/60">
+                          <p className="mt-0.5 flex items-center gap-1 text-[12px] text-champagne/60">
                             <MapPin size={11} aria-hidden="true" />
                             {lieu}
                           </p>
                         )}
 
                         {nonLu ? (
-                          <p className="mt-0.5 text-[12px] font-semibold text-cream">
+                          <p className="mt-0.5 text-[12px] font-semibold text-champagne">
                             Nouveau message
                           </p>
                         ) : (
                           relation.lastMessageAt && (
-                            <p className="mt-0.5 text-[12px] text-cream/60">
+                            <p className="mt-0.5 text-[12px] text-champagne/60">
                               Dernier message {tempsRelatif(relation.lastMessageAt)}
                             </p>
                           )
@@ -412,7 +412,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                     </div>
 
                     <div className="flex flex-wrap items-center justify-between gap-2 sm:flex-col sm:items-end">
-                      <p className="text-[12px] text-cream/60">
+                      <p className="text-[12px] text-champagne/60">
                         En relation {tempsRelatif(relation.createdAt)}
                       </p>
 
@@ -422,14 +422,14 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                           onClick={(evenement) => evenement.stopPropagation()}
                           className={`relative inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[12px] font-bold transition-colors ${focusRing} ${
                             nonLu
-                              ? "bg-orange text-abyss hover:bg-orange/90"
-                              : "border border-cream/15 text-cream hover:border-cream/35"
+                              ? "bg-cuivre text-nuit hover:bg-cuivre/90"
+                              : "border border-champagne/15 text-champagne hover:border-champagne/35"
                           }`}
                         >
                           <MessageCircle size={13} aria-hidden="true" />
                           Message
                           {nonLu && (relation.unreadCount ?? 0) > 0 && (
-                            <span className="ml-0.5 rounded-full bg-abyss px-1.5 text-[10px] font-bold text-cream">
+                            <span className="ml-0.5 rounded-full bg-nuit px-1.5 text-[10px] font-bold text-champagne">
                               {(relation.unreadCount ?? 0) > 9
                                 ? "9+"
                                 : relation.unreadCount}
@@ -443,7 +443,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                             evenement.stopPropagation();
                             setSignalement(membre._id);
                           }}
-                          className={`rounded-xl border border-cream/15 p-2 text-cream/60 transition-colors hover:border-cream/35 hover:text-cream ${focusRing}`}
+                          className={`rounded-xl border border-champagne/15 p-2 text-champagne/60 transition-colors hover:border-champagne/35 hover:text-champagne ${focusRing}`}
                           title="Signaler ce profil"
                           aria-label="Signaler ce profil"
                         >
@@ -468,19 +468,19 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
             className="space-y-2.5"
           >
             {!payante ? (
-              <div className="rounded-2xl border border-orange/25 bg-orange/[0.06] p-6 text-center sm:p-8">
-                <h3 className="font-display [font-stretch:125%] text-[17px] font-bold text-cream">
+              <div className="rounded-2xl border border-cuivre/25 bg-cuivre/[0.06] p-6 text-center sm:p-8">
+                <h3 className="font-display text-[17px] font-bold text-champagne">
                   Réservé à Premium et Elite
                 </h3>
 
-                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/70">
+                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/70">
                   Savoir qui est passé sur ton profil fait partie des offres
                   Premium et Elite.
                 </p>
 
                 <Link
                   href="/tarifs"
-                  className={`mt-5 inline-flex items-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                  className={`mt-5 inline-flex items-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
                 >
                   Voir les offres
                   <ChevronRight size={14} aria-hidden="true" />
@@ -490,16 +490,16 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
               <div className="flex justify-center py-10">
                 <Loader2
                   size={26}
-                  className="animate-spin text-cream/60"
+                  className="animate-spin text-champagne/60"
                   aria-hidden="true"
                 />
               </div>
             ) : visiteurs.length === 0 ? (
               <div className={`${carte} px-5 py-10 text-center`}>
-                <p className="text-[14px] text-cream/70">
+                <p className="text-[14px] text-champagne/70">
                   Personne n’est encore passé sur ton profil.
                 </p>
-                <p className="mt-2 text-[12px] text-cream/60">
+                <p className="mt-2 text-[12px] text-champagne/60">
                   Un profil complet est un profil plus visible.
                 </p>
               </div>
@@ -533,9 +533,9 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                         versProfil();
                       }
                     }}
-                    className={`flex cursor-pointer items-center gap-4 rounded-2xl border border-cream/10 bg-[#123243] p-4 transition-colors hover:border-cream/25 ${focusRing}`}
+                    className={`flex cursor-pointer items-center gap-4 rounded-2xl border border-champagne/10 bg-minuit p-4 transition-colors hover:border-champagne/25 ${focusRing}`}
                   >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-cream/12 bg-abyss font-display [font-stretch:125%] text-[17px] font-bold text-cream/70">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-champagne/12 bg-nuit font-display text-[17px] font-bold text-champagne/70">
                       {visiteur.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -549,17 +549,17 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-semibold text-cream">
+                      <p className="truncate text-[14px] font-semibold text-champagne">
                         {visiteur.pseudonyme}
                         {visiteur.age ? (
-                          <span className="text-cream/55">
+                          <span className="text-champagne/55">
                             , {visiteur.age} ans
                           </span>
                         ) : null}
                       </p>
 
                       {lieu && (
-                        <p className="mt-0.5 flex items-center gap-1 text-[12px] text-cream/60">
+                        <p className="mt-0.5 flex items-center gap-1 text-[12px] text-champagne/60">
                           <MapPin size={11} aria-hidden="true" />
                           {lieu}
                         </p>
@@ -567,12 +567,12 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                     </div>
 
                     <div className="shrink-0 text-right">
-                      <p className="text-[12px] text-cream/60">
+                      <p className="text-[12px] text-champagne/60">
                         {tempsRelatif(lastVisit)}
                       </p>
 
                       {visitCount > 1 && (
-                        <p className="mt-0.5 text-[12px] text-cream/65">
+                        <p className="mt-0.5 text-[12px] text-champagne/65">
                           {visitCount} visites
                         </p>
                       )}
@@ -580,7 +580,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
 
                     <ChevronRight
                       size={15}
-                      className="shrink-0 text-cream/55"
+                      className="shrink-0 text-champagne/55"
                       aria-hidden="true"
                     />
                   </motion.div>

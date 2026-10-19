@@ -307,7 +307,7 @@ export default function Header() {
     Boolean(link.subItems?.some((sub) => pathname === sub.href));
 
   const focusRing =
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
   const mobilePanelVariants = {
     closed: {
@@ -343,14 +343,14 @@ export default function Header() {
       <a
         href="#contenu"
         onClick={handleSkipToContent}
-        className="fx-btn fixed left-3 top-3 z-[70] -translate-y-20 rounded-xl bg-orange px-4 py-2.5 text-sm font-bold text-abyss transition-transform focus:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream"
+        className="fx-btn fixed left-3 top-3 z-[70] -translate-y-20 rounded-xl bg-cuivre px-4 py-2.5 text-sm font-bold text-nuit transition-transform focus:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne"
       >
         Aller au contenu
       </a>
 
       <header
         onMouseLeave={() => setOpenDesktopGroup(null)}
-        className={`fixed left-0 right-0 top-0 z-50 border-b border-cream/8 bg-abyss/97 backdrop-blur-xl transition-shadow duration-300 ${
+        className={`fixed left-0 right-0 top-0 z-50 border-b border-champagne/8 bg-nuit/97 backdrop-blur-xl transition-shadow duration-300 ${
           scrolled ? 'shadow-[0_12px_34px_-18px_rgba(0,0,0,0.65)]' : ''
         }`}
       >
@@ -376,14 +376,14 @@ export default function Header() {
                   aria-hidden="true"
                   className="h-7 w-7 shrink-0 sm:h-8 sm:w-8"
                 />
-                <span className="font-display text-base font-extrabold tracking-tight text-cream sm:text-lg">
+                <span className="font-display text-base font-extrabold tracking-tight text-champagne sm:text-lg">
                   Sfera'Solys
                 </span>
               </Link>
 
-              <div className="ml-4 hidden items-center gap-1.5 rounded-full border border-orange/25 bg-orange/[0.08] px-3 py-1 2xl:flex">
-                <ShieldCheck size={12} className="text-orange" />
-                <span className="whitespace-nowrap text-[11px] font-medium tracking-wide text-cream/75">
+              <div className="ml-4 hidden items-center gap-1.5 rounded-full border border-cuivre/25 bg-cuivre/[0.08] px-3 py-1 2xl:flex">
+                <ShieldCheck size={12} className="text-cuivre" />
+                <span className="whitespace-nowrap text-[11px] font-medium tracking-wide text-champagne/75">
                   Hommes vérifiés 28+
                 </span>
               </div>
@@ -425,8 +425,8 @@ export default function Header() {
                         }
                         className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-medium transition-colors duration-200 ${focusRing} ${
                           active || isGroupOpen
-                            ? 'text-orange'
-                            : 'text-cream/75 hover:text-cream'
+                            ? 'text-cuivre'
+                            : 'text-champagne/75 hover:text-champagne'
                         }`}
                       >
                         {link.label}
@@ -441,7 +441,7 @@ export default function Header() {
                       {active && (
                         <span
                           aria-hidden="true"
-                          className="absolute inset-x-3 -bottom-0.5 h-[2px] rounded-full bg-orange"
+                          className="absolute inset-x-3 -bottom-0.5 h-[2px] rounded-full bg-cuivre"
                         />
                       )}
                     </div>
@@ -455,7 +455,7 @@ export default function Header() {
                       aria-current={active ? 'page' : undefined}
                       onMouseEnter={() => setOpenDesktopGroup(null)}
                       className={`block shrink-0 rounded-full px-3 py-2 text-[13px] font-medium transition-colors duration-200 ${focusRing} ${
-                        active ? 'text-orange' : 'text-cream/75 hover:text-cream'
+                        active ? 'text-cuivre' : 'text-champagne/75 hover:text-champagne'
                       }`}
                     >
                       {link.label}
@@ -464,7 +464,7 @@ export default function Header() {
                     {active && (
                       <span
                         aria-hidden="true"
-                        className="absolute inset-x-3 -bottom-0.5 h-[2px] rounded-full bg-orange"
+                        className="absolute inset-x-3 -bottom-0.5 h-[2px] rounded-full bg-cuivre"
                       />
                     )}
                   </div>
@@ -478,9 +478,9 @@ export default function Header() {
                 <>
                   <Link
                     href="/explorer"
-                    className={`flex items-center gap-1.5 text-[13px] font-medium text-cream/75 transition-colors hover:text-cream ${focusRing}`}
+                    className={`flex items-center gap-1.5 text-[13px] font-medium text-champagne/75 transition-colors hover:text-champagne ${focusRing}`}
                   >
-                    <Compass size={15} className="text-orange" />
+                    <Compass size={15} className="text-cuivre" />
                     mon espace
                   </Link>
 
@@ -492,7 +492,7 @@ export default function Header() {
                         setNotifCount(0);
                       }}
                       aria-expanded={showUserDropdown}
-                      className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-cream/15 text-cream/80 transition-colors hover:border-orange/40 hover:text-cream ${focusRing}`}
+                      className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-champagne/15 text-champagne/80 transition-colors hover:border-cuivre/40 hover:text-champagne ${focusRing}`}
                       aria-label="Mon compte"
                     >
                       {session?.user?.image ? (
@@ -507,7 +507,7 @@ export default function Header() {
                       )}
 
                       {notifCount > 0 && (
-                        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-lime px-1 text-[10px] font-extrabold leading-none text-abyss">
+                        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-succes px-1 text-[10px] font-extrabold leading-none text-nuit">
                           {notifCount > 9 ? '9+' : notifCount}
                         </span>
                       )}
@@ -520,10 +520,10 @@ export default function Header() {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -6 }}
                           transition={{ duration: shouldReduceMotion ? 0 : 0.16 }}
-                          className="absolute right-0 top-full z-50 mt-2 min-w-[210px] rounded-2xl border border-cream/10 bg-[#123243] p-2 shadow-[0_18px_44px_-14px_rgba(0,0,0,0.55)]"
+                          className="absolute right-0 top-full z-50 mt-2 min-w-[210px] rounded-2xl border border-champagne/10 bg-minuit p-2 shadow-[0_18px_44px_-14px_rgba(0,0,0,0.55)]"
                         >
-                          <div className="mb-1 border-b border-cream/10 px-3 py-2">
-                            <p className="truncate text-xs font-semibold text-cream/60">
+                          <div className="mb-1 border-b border-champagne/10 px-3 py-2">
+                            <p className="truncate text-xs font-semibold text-champagne/60">
                               {session?.user?.email}
                             </p>
                           </div>
@@ -531,7 +531,7 @@ export default function Header() {
                           <Link
                             href="/mon-compte"
                             onClick={() => setShowUserDropdown(false)}
-                            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-cream/75 transition-colors hover:bg-cream/5 hover:text-cream ${focusRing}`}
+                            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-champagne/75 transition-colors hover:bg-champagne/5 hover:text-champagne ${focusRing}`}
                           >
                             <User size={15} />
                             mon dossier
@@ -540,18 +540,18 @@ export default function Header() {
                           <Link
                             href="/mon-compte?tab=premium"
                             onClick={() => setShowUserDropdown(false)}
-                            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-cream/75 transition-colors hover:bg-cream/5 hover:text-cream ${focusRing}`}
+                            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-champagne/75 transition-colors hover:bg-champagne/5 hover:text-champagne ${focusRing}`}
                           >
                             <Crown size={15} />
                             premium
                           </Link>
 
-                          <div className="my-1 h-px bg-cream/10" />
+                          <div className="my-1 h-px bg-champagne/10" />
 
                           <button
                             type="button"
                             onClick={handleLogout}
-                            className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-cream/55 transition-colors hover:bg-red-500/10 hover:text-red-400 ${focusRing}`}
+                            className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-champagne/55 transition-colors hover:bg-red-500/10 hover:text-red-400 ${focusRing}`}
                           >
                             <LogOut size={15} />
                             déconnexion
@@ -565,14 +565,14 @@ export default function Header() {
                 <>
                   <Link
                     href="/auth?mode=login"
-                    className={`text-[13px] font-medium text-cream/65 transition-colors hover:text-cream ${focusRing}`}
+                    className={`text-[13px] font-medium text-champagne/65 transition-colors hover:text-champagne ${focusRing}`}
                   >
                     se connecter
                   </Link>
 
                   <Link
                     href="/auth?mode=register"
- className={`fx-link flex items-center gap-1.5 rounded-lg text-[13px] font-bold text-cream transition-colors ${focusRing}`}
+ className={`fx-link flex items-center gap-1.5 rounded-lg text-[13px] font-bold text-champagne transition-colors ${focusRing}`}
                   >
                     rejoindre
                     <ArrowRight size={14} />
@@ -588,7 +588,7 @@ export default function Header() {
                 onClick={() =>
                   router.push(isLoggedIn ? '/mon-compte' : '/auth?mode=login')
                 }
-                className={`relative flex h-10 w-10 items-center justify-center rounded-full border border-cream/15 text-cream/80 transition-colors hover:border-orange/40 ${focusRing}`}
+                className={`relative flex h-10 w-10 items-center justify-center rounded-full border border-champagne/15 text-champagne/80 transition-colors hover:border-cuivre/40 ${focusRing}`}
                 aria-label={isLoggedIn ? 'Mon compte' : 'Connexion'}
               >
                 {isLoggedIn && session?.user?.image ? (
@@ -603,7 +603,7 @@ export default function Header() {
                 )}
 
                 {isLoggedIn && notifCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-lime px-1 text-[9px] font-extrabold text-abyss">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-succes px-1 text-[9px] font-extrabold text-nuit">
                     {notifCount > 9 ? '9+' : notifCount}
                   </span>
                 )}
@@ -614,8 +614,8 @@ export default function Header() {
                 onClick={() => setOpen((current) => !current)}
                 className={`relative z-[60] flex h-10 w-10 items-center justify-center rounded-full border transition-colors ${focusRing} ${
                   open
-                    ? 'border-orange/40 bg-orange/10 text-orange'
-                    : 'border-cream/15 text-cream/80'
+                    ? 'border-cuivre/40 bg-cuivre/10 text-cuivre'
+                    : 'border-champagne/15 text-champagne/80'
                 }`}
                 aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
               >
@@ -660,7 +660,7 @@ export default function Header() {
               exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -8 }}
               transition={{ duration: shouldReduceMotion ? 0 : 0.18, ease: 'easeOut' }}
               aria-labelledby={menuTriggerId(activeMegaMenu.label)}
-              className="absolute inset-x-0 top-full hidden border-b border-cream/10 bg-[#123243] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] xl:block"
+              className="absolute inset-x-0 top-full hidden border-b border-champagne/10 bg-minuit shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] xl:block"
             >
               <div className="mx-auto max-w-7xl px-8 py-7">
                 <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -676,8 +676,8 @@ export default function Header() {
                             onClick={() => setOpenDesktopGroup(null)}
                             className={`block rounded-xl px-3 py-2.5 transition-colors ${focusRing} ${
                               subActive
-                                ? 'bg-orange/[0.08] text-orange'
-                                : 'text-cream hover:bg-cream/5'
+                                ? 'bg-cuivre/[0.08] text-cuivre'
+                                : 'text-champagne hover:bg-champagne/5'
                             }`}
                           >
                             <span className="block text-sm font-semibold">
@@ -686,8 +686,8 @@ export default function Header() {
                             <span
                               className={
                                 subActive
-                                  ? 'mt-0.5 block text-[12px] leading-snug text-orange/70'
-                                  : 'mt-0.5 block text-[12px] leading-snug text-cream/55'
+                                  ? 'mt-0.5 block text-[12px] leading-snug text-cuivre/70'
+                                  : 'mt-0.5 block text-[12px] leading-snug text-champagne/55'
                               }
                             >
                               {sub.description}
@@ -699,13 +699,13 @@ export default function Header() {
                   </ul>
 
                   {activeMegaMenu.panelTitle && (
-                    <div className="lg:border-l lg:border-cream/8 lg:pl-7">
-                      <p className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-lime">
+                    <div className="lg:border-l lg:border-champagne/8 lg:pl-7">
+                      <p className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-succes">
                         <ShieldCheck size={12} />
                         {activeMegaMenu.panelTitle}
                       </p>
 
-                      <p className="mt-2 text-[13px] leading-relaxed text-cream/60">
+                      <p className="mt-2 text-[13px] leading-relaxed text-champagne/60">
                         {activeMegaMenu.panelText}
                       </p>
 
@@ -713,7 +713,7 @@ export default function Header() {
                         <Link
                           href={activeMegaMenu.panelCta.href}
                           onClick={() => setOpenDesktopGroup(null)}
- className={`fx-link mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`fx-link mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
                         >
                           {activeMegaMenu.panelCta.label}
                           <ArrowRight size={14} />
@@ -738,7 +738,7 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setOpen(false)}
-              className="fixed inset-0 z-40 bg-abyss/70 backdrop-blur-sm xl:hidden"
+              className="fixed inset-0 z-40 bg-nuit/70 backdrop-blur-sm xl:hidden"
               aria-label="Fermer le menu"
             />
 
@@ -747,16 +747,16 @@ export default function Header() {
               initial="closed"
               animate="open"
               exit="closed"
-              className="fixed left-3 right-3 top-[4.15rem] z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-[1.75rem] border border-cream/10 bg-[#123243] shadow-[0_24px_80px_rgba(0,0,0,0.5)] xl:hidden"
+              className="fixed left-3 right-3 top-[4.15rem] z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-[1.75rem] border border-champagne/10 bg-minuit shadow-[0_24px_80px_rgba(0,0,0,0.5)] xl:hidden"
             >
               <div className="max-h-[calc(100dvh-5rem)] overflow-y-auto p-3">
                 {/* Carte identité */}
                 <motion.div
                   variants={mobileItemVariants}
-                  className="mb-3 rounded-[1.25rem] border border-cream/10 bg-abyss/60 p-3"
+                  className="mb-3 rounded-[1.25rem] border border-champagne/10 bg-nuit/60 p-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange text-abyss">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-cuivre text-nuit">
                       {isLoggedIn && session?.user?.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -770,12 +770,12 @@ export default function Header() {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-cream">
+                      <p className="truncate text-sm font-bold text-champagne">
                         {isLoggedIn
                           ? session?.user?.name || 'mon espace'
                           : "bienvenue sur Sfera'Solys"}
                       </p>
-                      <p className="truncate text-xs text-cream/55">
+                      <p className="truncate text-xs text-champagne/55">
                         {isLoggedIn
                           ? session?.user?.email
                           : 'une communauté vérifiée, dossier par dossier'}
@@ -783,7 +783,7 @@ export default function Header() {
                     </div>
 
                     {isLoggedIn && notifCount > 0 && (
-                      <div className="flex items-center gap-1 rounded-full bg-lime px-2 py-1 text-[10px] font-bold text-abyss">
+                      <div className="flex items-center gap-1 rounded-full bg-succes px-2 py-1 text-[10px] font-bold text-nuit">
                         <Bell size={11} />
                         {notifCount > 9 ? '9+' : notifCount}
                       </div>
@@ -809,7 +809,7 @@ export default function Header() {
                       key={item.label}
                       href={item.href}
                       onClick={() => setOpen(false)}
-                      className={`fx-ghost flex flex-col items-center justify-center gap-1 rounded-2xl border border-cream/10 bg-abyss/40 px-2 py-2.5 text-cream/80 transition hover:border-orange/30 ${focusRing}`}
+                      className={`fx-ghost flex flex-col items-center justify-center gap-1 rounded-2xl border border-champagne/10 bg-nuit/40 px-2 py-2.5 text-champagne/80 transition hover:border-cuivre/30 ${focusRing}`}
                     >
                       {item.icon}
                       <span className="text-[10px] font-semibold">{item.label}</span>
@@ -830,7 +830,7 @@ export default function Header() {
                           key={key}
                           variants={mobileItemVariants}
                           className={`overflow-hidden rounded-2xl border ${
-                            active ? 'border-orange/25 bg-orange/[0.06]' : 'border-cream/8 bg-abyss/30'
+                            active ? 'border-cuivre/25 bg-cuivre/[0.06]' : 'border-champagne/8 bg-nuit/30'
                           }`}
                         >
                           <button
@@ -838,7 +838,7 @@ export default function Header() {
                             onClick={() => toggleMobileGroup(key)}
                             aria-expanded={isOpen}
                             className={`fx-link flex w-full items-center justify-between px-3.5 py-3 text-left text-sm font-semibold ${focusRing} ${
-                              active ? 'text-orange' : 'text-cream/85'
+                              active ? 'text-cuivre' : 'text-champagne/85'
                             }`}
                           >
                             {link.label}
@@ -857,15 +857,15 @@ export default function Header() {
                                 transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                                 className="overflow-hidden"
                               >
-                                <div className="space-y-0.5 border-t border-cream/8 px-3 pb-3 pt-2">
+                                <div className="space-y-0.5 border-t border-champagne/8 px-3 pb-3 pt-2">
                                   {link.subItems.map((sub) => (
                                     <Link
                                       key={sub.href}
                                       href={sub.href}
                                       onClick={() => setOpen(false)}
-                                      className={`flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] text-cream/60 transition hover:bg-cream/5 hover:text-cream ${focusRing}`}
+                                      className={`flex items-center gap-2 rounded-xl px-3 py-2 text-[13px] text-champagne/60 transition hover:bg-champagne/5 hover:text-champagne ${focusRing}`}
                                     >
-                                      <span className="h-1.5 w-1.5 rounded-full bg-orange" />
+                                      <span className="h-1.5 w-1.5 rounded-full bg-cuivre" />
                                       {sub.label}
                                     </Link>
                                   ))}
@@ -884,8 +884,8 @@ export default function Header() {
                           onClick={() => setOpen(false)}
                           className={`flex items-center rounded-2xl border px-3.5 py-3 text-sm font-semibold transition ${focusRing} ${
                             active
-                              ? 'border-orange/25 bg-orange/[0.06] text-orange'
-                              : 'border-cream/8 bg-abyss/30 text-cream/85 hover:border-cream/20'
+                              ? 'border-cuivre/25 bg-cuivre/[0.06] text-cuivre'
+                              : 'border-champagne/8 bg-nuit/30 text-champagne/85 hover:border-champagne/20'
                           }`}
                         >
                           {link.label}
@@ -898,7 +898,7 @@ export default function Header() {
                 {/* Actions */}
                 <motion.div
                   variants={mobileItemVariants}
-                  className="mt-3 border-t border-cream/8 pt-3"
+                  className="mt-3 border-t border-champagne/8 pt-3"
                 >
                   {isLoggedIn ? (
                     <div className="grid grid-cols-2 gap-2">
@@ -908,7 +908,7 @@ export default function Header() {
                           router.push('/mon-compte');
                           setOpen(false);
                         }}
-                        className={`fx-btn flex items-center justify-center gap-2 rounded-2xl bg-orange px-4 py-3 text-sm font-bold text-abyss ${focusRing}`}
+                        className={`fx-btn flex items-center justify-center gap-2 rounded-2xl bg-cuivre px-4 py-3 text-sm font-bold text-nuit ${focusRing}`}
                       >
                         <User size={16} />
                         mon compte
@@ -928,7 +928,7 @@ export default function Header() {
                       <Link
                         href="/auth?mode=login"
                         onClick={() => setOpen(false)}
-                        className={`fx-ghost flex items-center justify-center gap-2 rounded-2xl border border-cream/15 px-4 py-3 text-sm font-bold text-cream/85 ${focusRing}`}
+                        className={`fx-ghost flex items-center justify-center gap-2 rounded-2xl border border-champagne/15 px-4 py-3 text-sm font-bold text-champagne/85 ${focusRing}`}
                       >
                         se connecter
                       </Link>
@@ -936,7 +936,7 @@ export default function Header() {
                       <Link
                         href="/auth?mode=register"
                         onClick={() => setOpen(false)}
-                        className={`fx-btn flex items-center justify-center gap-2 rounded-2xl bg-orange px-4 py-3 text-sm font-bold text-abyss ${focusRing}`}
+                        className={`fx-btn flex items-center justify-center gap-2 rounded-2xl bg-cuivre px-4 py-3 text-sm font-bold text-nuit ${focusRing}`}
                       >
                         rejoindre <ArrowRight size={15} />
                       </Link>
@@ -946,7 +946,7 @@ export default function Header() {
 
                 <motion.p
                   variants={mobileItemVariants}
-                  className="mt-3 text-center text-[10px] text-cream/55"
+                  className="mt-3 text-center text-[10px] text-champagne/55"
                 >
                   Sfera'Solys · vérification immédiate · hommes 28+
                 </motion.p>
@@ -965,7 +965,7 @@ export default function Header() {
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className={`flex h-11 w-11 items-center justify-center rounded-full bg-orange text-abyss shadow-lg ${focusRing}`}
+          className={`flex h-11 w-11 items-center justify-center rounded-full bg-cuivre text-nuit shadow-lg ${focusRing}`}
           aria-label="Remonter en haut"
         >
           <ChevronDown size={20} className="rotate-180" />

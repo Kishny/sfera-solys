@@ -40,21 +40,21 @@ export default function HexagonSix({ size = 32, className = "" }: HexagonSixProp
       {/* Dégradé hexagone */}
       <defs>
         <linearGradient id="hex-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FF4103" stopOpacity="0.18" />
-          <stop offset="100%" stopColor="#6B1B02" stopOpacity="0.18" />
+          <stop offset="0%" stopColor="#BD9365" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#CB7871" stopOpacity="0.18" />
         </linearGradient>
         <linearGradient id="hex-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FF4103" />
-          <stop offset="100%" stopColor="#6B1B02" />
+          <stop offset="0%" stopColor="#BD9365" />
+          <stop offset="100%" stopColor="#CB7871" />
         </linearGradient>
         <linearGradient id="dot-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FF4103" />
-          <stop offset="100%" stopColor="#FF4103" />
+          <stop offset="0%" stopColor="#BD9365" />
+          <stop offset="100%" stopColor="#BD9365" />
         </linearGradient>
         {/* Lignes de connexion dégradé */}
         <linearGradient id="line-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FFEBD1" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#FFEBD1" stopOpacity="0.35" />
+          <stop offset="0%" stopColor="#EAD9BD" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#EAD9BD" stopOpacity="0.35" />
         </linearGradient>
       </defs>
 

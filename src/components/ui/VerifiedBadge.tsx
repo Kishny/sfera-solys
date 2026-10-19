@@ -48,13 +48,13 @@ export function VerifiedBadge({
         role="img"
         aria-label="Profil vérifié"
         className={cn(
-          "inline-flex items-center justify-center rounded-full bg-cream shadow-sm ring-2 ring-abyss/30",
+          "inline-flex items-center justify-center rounded-full bg-champagne shadow-sm ring-2 ring-nuit/30",
           iconWrapperSize[size],
           className
         )}
       >
         <BadgeCheck
-          className={cn("text-orange", iconGlyphSize[size])}
+          className={cn("text-cuivre", iconGlyphSize[size])}
           aria-hidden="true"
           strokeWidth={2.25}
         />
@@ -65,7 +65,7 @@ export function VerifiedBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full bg-orange font-sans font-semibold text-abyss",
+        "inline-flex items-center rounded-full bg-cuivre font-sans font-semibold text-nuit",
         labelSize[size],
         className
       )}

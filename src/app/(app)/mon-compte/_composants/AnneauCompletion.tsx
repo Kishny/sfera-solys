@@ -40,7 +40,7 @@ export default function AnneauCompletion({
           cy={centre}
           r={rayon}
           fill="none"
-          stroke="rgba(255,235,209,0.10)"
+          stroke="rgba(234,217,189,0.10)"
           strokeWidth={epaisseur}
         />
 
@@ -49,7 +49,7 @@ export default function AnneauCompletion({
           cy={centre}
           r={rayon}
           fill="none"
-          stroke={complet ? "#B6FF00" : "#FF4103"}
+          stroke={complet ? "#83B28C" : "#BD9365"}
           strokeWidth={epaisseur}
           strokeDasharray={circonference}
           strokeDashoffset={decalage}

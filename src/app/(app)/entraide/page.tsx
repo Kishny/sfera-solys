@@ -123,7 +123,7 @@ const QUESTION_MAX = 500;
 const REPONSE_MAX = 1000;
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 function categorie(valeur: Categorie) {
   return CATEGORIES.find((item) => item.valeur === valeur) ?? CATEGORIES[5];
@@ -351,8 +351,8 @@ export default function PageEntraide() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-abyss">
-        <Loader2 className="h-8 w-8 animate-spin text-orange" aria-hidden="true" />
+      <div className="flex min-h-screen items-center justify-center bg-nuit">
+        <Loader2 className="h-8 w-8 animate-spin text-cuivre" aria-hidden="true" />
         <span className="sr-only">Chargement</span>
       </div>
     );
@@ -360,21 +360,21 @@ export default function PageEntraide() {
 
   return (
     <>
-      <div className="min-h-screen bg-abyss px-4 py-6 text-cream sm:px-6 sm:py-8 lg:px-10">
+      <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-3xl">
           {/* En-tête */}
           <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div className="min-w-0">
-              <h1 className="font-display [font-stretch:125%] flex items-center gap-2.5 text-[26px] font-extrabold leading-tight tracking-tight text-cream sm:text-[32px]">
+              <h1 className="font-display flex items-center gap-2.5 text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
                 <HeartHandshake
                   size={24}
-                  className="shrink-0 text-orange"
+                  className="shrink-0 text-cuivre"
                   aria-hidden="true"
                 />
                 Entraide
               </h1>
 
-              <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-cream/60 sm:text-sm">
+              <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm">
                 Poser une question à ceux qui y sont déjà passés. Ce sont des
                 membres qui répondent, pas des professionnels — et c’est ouvert
                 dès l’offre gratuite.
@@ -384,7 +384,7 @@ export default function PageEntraide() {
             <button
               type="button"
               onClick={() => setFormulaire(true)}
-              className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-orange px-4 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+              className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-cuivre px-4 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
             >
               <Plus size={15} aria-hidden="true" />
               Poser une question
@@ -402,8 +402,8 @@ export default function PageEntraide() {
               aria-pressed={filtre === "all"}
               className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
                 filtre === "all"
-                  ? "border-orange bg-orange text-abyss"
-                  : "border-cream/15 text-cream/70 hover:border-cream/30"
+                  ? "border-cuivre bg-cuivre text-nuit"
+                  : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
               }`}
             >
               Tout
@@ -424,8 +424,8 @@ export default function PageEntraide() {
                   aria-pressed={actif}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
                     actif
-                      ? "border-orange bg-orange text-abyss"
-                      : "border-cream/15 text-cream/70 hover:border-cream/30"
+                      ? "border-cuivre bg-cuivre text-nuit"
+                      : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
                   }`}
                 >
                   <Icone size={13} aria-hidden="true" />
@@ -439,21 +439,21 @@ export default function PageEntraide() {
           {erreur && (
             <div
               role="alert"
-              className="mb-5 flex items-start gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-4 py-3"
+              className="mb-5 flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-4 py-3"
             >
               <AlertCircle
                 size={16}
-                className="mt-0.5 shrink-0 text-orange"
+                className="mt-0.5 shrink-0 text-cuivre"
                 aria-hidden="true"
               />
-              <p className="flex-1 text-[13px] leading-relaxed text-cream/85">
+              <p className="flex-1 text-[13px] leading-relaxed text-champagne/85">
                 {erreur}
               </p>
               <button
                 type="button"
                 onClick={() => setErreur("")}
                 aria-label="Fermer le message"
-                className={`shrink-0 rounded-lg p-1 text-cream/55 hover:text-cream ${focusRing}`}
+                className={`shrink-0 rounded-lg p-1 text-champagne/55 hover:text-champagne ${focusRing}`}
               >
                 <X size={15} aria-hidden="true" />
               </button>
@@ -464,28 +464,28 @@ export default function PageEntraide() {
           {chargement ? (
             <div className="flex flex-col items-center gap-3 py-24">
               <Loader2
-                className="h-7 w-7 animate-spin text-orange"
+                className="h-7 w-7 animate-spin text-cuivre"
                 aria-hidden="true"
               />
-              <p className="text-[13px] text-cream/55">
+              <p className="text-[13px] text-champagne/55">
                 Chargement des questions…
               </p>
             </div>
           ) : questions.length === 0 ? (
-            <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
+            <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
               <HeartHandshake
                 size={26}
-                className="mx-auto mb-4 text-cream/60"
+                className="mx-auto mb-4 text-champagne/60"
                 aria-hidden="true"
               />
 
-              <h2 className="font-display [font-stretch:125%] text-[18px] font-bold text-cream">
+              <h2 className="font-display text-[18px] font-bold text-champagne">
                 {filtre === "all"
                   ? "Aucune question pour l’instant"
                   : "Rien dans cette catégorie"}
               </h2>
 
-              <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/60">
+              <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
                 {filtre === "all"
                   ? "La première question est la plus difficile à poser, et celle qui sert le plus aux suivants."
                   : "Essaie une autre catégorie, ou ouvre le sujet toi-même."}
@@ -494,7 +494,7 @@ export default function PageEntraide() {
               <button
                 type="button"
                 onClick={() => setFormulaire(true)}
-                className={`mt-6 inline-flex items-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`mt-6 inline-flex items-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 <Plus size={15} aria-hidden="true" />
                 Poser une question
@@ -503,7 +503,7 @@ export default function PageEntraide() {
           ) : (
             <>
               {resolues > 0 && (
-                <p className="mb-3 text-[12px] text-cream/55">
+                <p className="mb-3 text-[12px] text-champagne/55">
                   {resolues} question{resolues > 1 ? "s" : ""} sur{" "}
                   {questions.length} {resolues > 1 ? "ont" : "a"} trouvé une
                   réponse retenue.
@@ -540,7 +540,7 @@ export default function PageEntraide() {
               </ul>
 
               {resteDesQuestions && (
-                <p className="mt-6 text-center text-[12px] text-cream/55">
+                <p className="mt-6 text-center text-[12px] text-champagne/55">
                   Seules les 20 questions les plus récentes de cette catégorie
                   sont affichées.
                 </p>
@@ -567,7 +567,7 @@ export default function PageEntraide() {
               type="button"
               onClick={() => setFormulaire(false)}
               aria-label="Fermer"
-              className="absolute inset-0 cursor-default bg-abyss/80 backdrop-blur-sm"
+              className="absolute inset-0 cursor-default bg-nuit/80 backdrop-blur-sm"
             />
 
             <motion.div
@@ -575,12 +575,12 @@ export default function PageEntraide() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: reduireAnimations ? 0 : 24 }}
               transition={{ duration: reduireAnimations ? 0 : 0.25 }}
-              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] border border-cream/10 bg-[#123243] p-5 sm:rounded-[1.75rem] sm:p-6"
+              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[1.75rem] border border-champagne/10 bg-minuit p-5 sm:rounded-[1.75rem] sm:p-6"
             >
               <div className="mb-5 flex items-start justify-between gap-4">
                 <h2
                   id="titre-question"
-                  className="font-display [font-stretch:125%] text-[19px] font-bold text-cream"
+                  className="font-display text-[19px] font-bold text-champagne"
                 >
                   Poser une question
                 </h2>
@@ -589,7 +589,7 @@ export default function PageEntraide() {
                   type="button"
                   onClick={() => setFormulaire(false)}
                   aria-label="Fermer"
-                  className={`shrink-0 rounded-lg p-1.5 text-cream/55 hover:text-cream ${focusRing}`}
+                  className={`shrink-0 rounded-lg p-1.5 text-champagne/55 hover:text-champagne ${focusRing}`}
                 >
                   <X size={16} aria-hidden="true" />
                 </button>
@@ -603,7 +603,7 @@ export default function PageEntraide() {
                 className="space-y-4"
               >
                 <fieldset>
-                  <legend className="mb-2 text-[12px] font-semibold text-cream/70">
+                  <legend className="mb-2 text-[12px] font-semibold text-champagne/70">
                     Sur quoi porte ta question ?
                   </legend>
 
@@ -620,8 +620,8 @@ export default function PageEntraide() {
                           aria-pressed={actif}
                           className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
                             actif
-                              ? "border-orange bg-orange text-abyss"
-                              : "border-cream/15 text-cream/70 hover:border-cream/30"
+                              ? "border-cuivre bg-cuivre text-nuit"
+                              : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
                           }`}
                         >
                           <Icone size={13} aria-hidden="true" />
@@ -635,7 +635,7 @@ export default function PageEntraide() {
                 <div>
                   <label
                     htmlFor="texte-question"
-                    className="mb-1.5 block text-[12px] font-semibold text-cream/70"
+                    className="mb-1.5 block text-[12px] font-semibold text-champagne/70"
                   >
                     Ta question
                   </label>
@@ -650,10 +650,10 @@ export default function PageEntraide() {
                       )
                     }
                     placeholder="Une question précise obtient de meilleures réponses qu’une question large."
-                    className={`w-full resize-y rounded-xl border border-cream/12 bg-abyss px-3.5 py-2.5 text-[14px] leading-relaxed text-cream placeholder:text-cream/55 ${focusRing}`}
+                    className={`w-full resize-y rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[14px] leading-relaxed text-champagne placeholder:text-champagne/55 ${focusRing}`}
                   />
 
-                  <p className="mt-1.5 text-[11px] text-cream/55">
+                  <p className="mt-1.5 text-[11px] text-champagne/55">
                     {texteQuestion.length} / {QUESTION_MAX} caractères. Les
                     questions passent par le même filtre que la messagerie.
                   </p>
@@ -662,11 +662,11 @@ export default function PageEntraide() {
                 {erreurFormulaire && (
                   <p
                     role="alert"
-                    className="flex items-start gap-2 rounded-xl border border-orange/30 bg-orange/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-cream/85"
+                    className="flex items-start gap-2 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-champagne/85"
                   >
                     <AlertCircle
                       size={14}
-                      className="mt-0.5 shrink-0 text-orange"
+                      className="mt-0.5 shrink-0 text-cuivre"
                       aria-hidden="true"
                     />
                     {erreurFormulaire}
@@ -677,7 +677,7 @@ export default function PageEntraide() {
                   <button
                     type="submit"
                     disabled={envoi || !texteQuestion.trim()}
-                    className={`inline-flex items-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+                    className={`inline-flex items-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
                   >
                     {envoi ? (
                       <Loader2 size={14} className="animate-spin" aria-hidden="true" />
@@ -690,7 +690,7 @@ export default function PageEntraide() {
                   <button
                     type="button"
                     onClick={() => setFormulaire(false)}
-                    className={`inline-flex items-center rounded-xl border border-cream/15 px-4 py-2.5 text-[13px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream ${focusRing}`}
+                    className={`inline-flex items-center rounded-xl border border-champagne/15 px-4 py-2.5 text-[13px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne ${focusRing}`}
                   >
                     Annuler
                   </button>
@@ -753,36 +753,36 @@ function CarteQuestion({
   const retenue = reponses.find((reponse) => reponse.isAccepted);
 
   return (
-    <li className="rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:p-5">
+    <li className="rounded-2xl border border-champagne/10 bg-minuit p-4 sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1 rounded-full border border-cream/12 px-2.5 py-0.5 text-[11px] text-cream/70">
+        <span className="inline-flex items-center gap-1 rounded-full border border-champagne/12 px-2.5 py-0.5 text-[11px] text-champagne/70">
           <IconeCategorie size={11} aria-hidden="true" />
           {cat.label}
         </span>
 
         {question.isSolved && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-lime/15 px-2.5 py-0.5 text-[11px] font-bold text-lime">
+          <span className="inline-flex items-center gap-1 rounded-full bg-succes/15 px-2.5 py-0.5 text-[11px] font-bold text-succes">
             <BadgeCheck size={11} aria-hidden="true" />
             Réponse retenue
           </span>
         )}
 
-        <span className="text-[11px] text-cream/55">
+        <span className="text-[11px] text-champagne/55">
           {auteur} · {formaterDate(question.createdAt)}
         </span>
       </div>
 
-      <h2 className="font-display [font-stretch:125%] mt-3 text-[16px] font-bold leading-snug text-cream">
+      <h2 className="font-display mt-3 text-[16px] font-bold leading-snug text-champagne">
         {question.question}
       </h2>
 
       {/* Aperçu de la réponse retenue, sans déplier */}
       {retenue && !deplie && (
-        <div className="mt-3 rounded-xl border border-lime/20 bg-lime/[0.06] p-3.5">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-lime">
+        <div className="mt-3 rounded-xl border border-succes/20 bg-succes/[0.06] p-3.5">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-succes">
             Réponse retenue
           </p>
-          <p className="mt-1.5 line-clamp-3 text-[13px] leading-relaxed text-cream/80">
+          <p className="mt-1.5 line-clamp-3 text-[13px] leading-relaxed text-champagne/80">
             {retenue.content}
           </p>
         </div>
@@ -797,13 +797,13 @@ function CarteQuestion({
           aria-pressed={question.likedByMe}
           className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[12px] font-semibold transition-colors disabled:opacity-60 ${focusRing} ${
             question.likedByMe
-              ? "border-lime/30 bg-lime/15 text-lime"
-              : "border-cream/12 text-cream/70 hover:border-cream/25 hover:text-cream"
+              ? "border-succes/30 bg-succes/15 text-succes"
+              : "border-champagne/12 text-champagne/70 hover:border-champagne/25 hover:text-champagne"
           }`}
         >
           <Heart
             size={13}
-            className={question.likedByMe ? "fill-lime" : ""}
+            className={question.likedByMe ? "fill-succes" : ""}
             aria-hidden="true"
           />
           {question.likesCount}
@@ -816,7 +816,7 @@ function CarteQuestion({
           type="button"
           onClick={onDeplier}
           aria-expanded={deplie}
-          className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/12 px-3.5 py-2 text-[12px] font-semibold text-cream/70 transition-colors hover:border-cream/25 hover:text-cream ${focusRing}`}
+          className={`inline-flex items-center gap-1.5 rounded-xl border border-champagne/12 px-3.5 py-2 text-[12px] font-semibold text-champagne/70 transition-colors hover:border-champagne/25 hover:text-champagne ${focusRing}`}
         >
           <MessageCircle size={13} aria-hidden="true" />
           {question.answersCount} réponse{question.answersCount > 1 ? "s" : ""}
@@ -828,7 +828,7 @@ function CarteQuestion({
           type="button"
           onClick={onSignaler}
           aria-label="Signaler cette question"
-          className={`rounded-xl border border-cream/12 p-2 text-cream/55 transition-colors hover:border-orange/40 hover:text-orange ${focusRing}`}
+          className={`rounded-xl border border-champagne/12 p-2 text-champagne/55 transition-colors hover:border-cuivre/40 hover:text-cuivre ${focusRing}`}
         >
           <Flag size={13} aria-hidden="true" />
         </button>
@@ -836,7 +836,7 @@ function CarteQuestion({
 
       {/* Réponses */}
       {deplie && (
-        <div className="mt-4 border-t border-cream/10 pt-4">
+        <div className="mt-4 border-t border-champagne/10 pt-4">
           {reponses.length > 0 ? (
             <ul className="space-y-3">
               {reponses.map((reponse) => (
@@ -844,28 +844,28 @@ function CarteQuestion({
                   key={reponse._id}
                   className={`rounded-xl border p-3.5 ${
                     reponse.isAccepted
-                      ? "border-lime/25 bg-lime/[0.06]"
-                      : "border-cream/10"
+                      ? "border-succes/25 bg-succes/[0.06]"
+                      : "border-champagne/10"
                   }`}
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[12px] font-bold text-cream">
+                    <span className="text-[12px] font-bold text-champagne">
                       {reponse.userId?.pseudonyme ?? "Membre retiré"}
                     </span>
 
-                    <span className="text-[11px] text-cream/55">
+                    <span className="text-[11px] text-champagne/55">
                       {formaterDate(reponse.createdAt)}
                     </span>
 
                     {reponse.isAccepted && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-lime/15 px-2 py-0.5 text-[11px] font-bold text-lime">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-succes/15 px-2 py-0.5 text-[11px] font-bold text-succes">
                         <Check size={10} aria-hidden="true" />
                         Retenue
                       </span>
                     )}
                   </div>
 
-                  <p className="mt-1.5 whitespace-pre-line text-[13px] leading-relaxed text-cream/80">
+                  <p className="mt-1.5 whitespace-pre-line text-[13px] leading-relaxed text-champagne/80">
                     {reponse.content}
                   </p>
 
@@ -876,8 +876,8 @@ function CarteQuestion({
                       disabled={actionEnCours}
                       className={`mt-3 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-semibold transition-colors disabled:opacity-60 ${focusRing} ${
                         reponse.isAccepted
-                          ? "border-cream/15 text-cream/70 hover:border-cream/30 hover:text-cream"
-                          : "border-lime/30 text-lime hover:bg-lime/10"
+                          ? "border-champagne/15 text-champagne/70 hover:border-champagne/30 hover:text-champagne"
+                          : "border-succes/30 text-succes hover:bg-succes/10"
                       }`}
                     >
                       <Check size={11} aria-hidden="true" />
@@ -890,7 +890,7 @@ function CarteQuestion({
               ))}
             </ul>
           ) : (
-            <p className="text-[12px] text-cream/55">
+            <p className="text-[12px] text-champagne/55">
               Personne n’a encore répondu. Une réponse, même courte, vaut mieux
               que le silence.
             </p>
@@ -916,14 +916,14 @@ function CarteQuestion({
                   onBrouillon(evenement.target.value.slice(0, REPONSE_MAX))
                 }
                 placeholder="Répondre à partir de ton expérience…"
-                className={`min-w-0 flex-1 resize-y rounded-xl border border-cream/12 bg-abyss px-3.5 py-2.5 text-[13px] leading-relaxed text-cream placeholder:text-cream/55 ${focusRing}`}
+                className={`min-w-0 flex-1 resize-y rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[13px] leading-relaxed text-champagne placeholder:text-champagne/55 ${focusRing}`}
               />
 
               <button
                 type="submit"
                 disabled={!brouillon.trim() || actionEnCours}
                 aria-label="Envoyer la réponse"
-                className={`shrink-0 rounded-xl bg-orange p-2.5 text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+                className={`shrink-0 rounded-xl bg-cuivre p-2.5 text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
               >
                 {actionEnCours ? (
                   <Loader2 size={15} className="animate-spin" aria-hidden="true" />

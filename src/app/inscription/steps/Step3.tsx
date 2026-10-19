@@ -56,11 +56,11 @@ export default function Step3() {
     <div className="space-y-6 sm:space-y-8">
       {/* Titre de l'étape */}
       <div>
-        <h2 className="text-xl font-bold text-cream sm:text-2xl">
+        <h2 className="text-xl font-bold text-champagne sm:text-2xl">
           Localisation
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-cream/70">
+        <p className="mt-2 text-sm leading-relaxed text-champagne/70">
           Indique ton département et ta ville pour recevoir des
           suggestions cohérentes — métropole comme outre-mer.
         </p>
@@ -68,36 +68,36 @@ export default function Step3() {
 
       {/* Département */}
       <section className="space-y-4">
-        <label className="block text-sm font-semibold text-cream/90">
-          Ton département <span className="text-orange">*</span>
+        <label className="block text-sm font-semibold text-champagne/90">
+          Ton département <span className="text-cuivre">*</span>
         </label>
 
         <select
           {...register("departement")}
-          className="w-full rounded-xl border border-cream/15 bg-cream/10 px-4 py-3 text-cream outline-none transition-all focus:border-orange focus:ring-2 focus:ring-orange/25"
+          className="w-full rounded-xl border border-champagne/15 bg-champagne/10 px-4 py-3 text-champagne outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
         >
-          <option value="" className="bg-[#04202E] text-cream/70">
+          <option value="" className="bg-[#0A0D12] text-champagne/70">
             Sélectionne ton département…
           </option>
 
-          <optgroup label="France métropolitaine" className="bg-[#04202E]">
+          <optgroup label="France métropolitaine" className="bg-[#0A0D12]">
             {DEPARTEMENTS.filter((d) => !d.outreMer).map((d) => (
               <option
                 key={d.code}
                 value={d.code}
-                className="bg-[#04202E] text-cream"
+                className="bg-[#0A0D12] text-champagne"
               >
                 {d.code} — {d.nom}
               </option>
             ))}
           </optgroup>
 
-          <optgroup label="Outre-mer" className="bg-[#04202E]">
+          <optgroup label="Outre-mer" className="bg-[#0A0D12]">
             {DEPARTEMENTS.filter((d) => d.outreMer).map((d) => (
               <option
                 key={d.code}
                 value={d.code}
-                className="bg-[#04202E] text-cream"
+                className="bg-[#0A0D12] text-champagne"
               >
                 {d.code} — {d.nom}
               </option>
@@ -106,7 +106,7 @@ export default function Step3() {
         </select>
 
         {selectedDepartement && isOutreMer(selectedDepartement) && (
-          <p className="text-xs text-cream/90">
+          <p className="text-xs text-champagne/90">
             🌴 Territoire d&apos;outre-mer — tes suggestions resteront dans ton
             bassin local.
           </p>
@@ -115,19 +115,19 @@ export default function Step3() {
 
       {/* Ville */}
       <section className="space-y-4">
-        <label className="block text-sm font-semibold text-cream/90">
-          Ta ville <span className="text-orange">*</span>
+        <label className="block text-sm font-semibold text-champagne/90">
+          Ta ville <span className="text-cuivre">*</span>
         </label>
 
         <input
           {...register("localisation")}
           type="text"
           placeholder="Saisis ta ville"
-          className="w-full rounded-xl border border-cream/15 bg-cream/10 px-4 py-3 text-cream placeholder:text-cream/55 outline-none transition-all focus:border-orange focus:ring-2 focus:ring-orange/25"
+          className="w-full rounded-xl border border-champagne/15 bg-champagne/10 px-4 py-3 text-champagne placeholder:text-champagne/55 outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
         />
 
         <div>
-          <p className="mb-3 text-sm text-cream/70">Villes principales :</p>
+          <p className="mb-3 text-sm text-champagne/70">Villes principales :</p>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             {villesSuggerees.map((ville) => {
@@ -140,8 +140,8 @@ export default function Step3() {
                   onClick={() => handleLocalisationClick(ville)}
                   className={`rounded-xl border px-3 py-3 text-sm font-medium transition-all ${
                     isSelected
-                      ? "border-orange bg-orange/15 text-cream shadow-lg shadow-orange/10"
-                      : "border-cream/15 bg-cream/5 text-cream/90 hover:border-orange/50 hover:bg-cream/10"
+                      ? "border-cuivre bg-cuivre/15 text-champagne shadow-lg shadow-cuivre/10"
+                      : "border-champagne/15 bg-champagne/5 text-champagne/90 hover:border-cuivre/50 hover:bg-champagne/10"
                   }`}
                 >
                   {ville}
@@ -160,8 +160,8 @@ export default function Step3() {
 
       {/* Portée de recherche */}
       <section className="space-y-4">
-        <label className="block text-sm font-semibold text-cream/90">
-          Portée de recherche <span className="text-orange">*</span>
+        <label className="block text-sm font-semibold text-champagne/90">
+          Portée de recherche <span className="text-cuivre">*</span>
         </label>
 
         <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-3">
@@ -173,20 +173,20 @@ export default function Step3() {
                 key={portee.value}
                 className={`flex cursor-pointer items-center rounded-xl border p-3 transition-all sm:p-4 ${
                   isSelected
-                    ? "border-orange bg-orange/15 shadow-lg shadow-orange/10"
-                    : "border-cream/15 bg-cream/5 hover:border-orange/50 hover:bg-cream/10"
+                    ? "border-cuivre bg-cuivre/15 shadow-lg shadow-cuivre/10"
+                    : "border-champagne/15 bg-champagne/5 hover:border-cuivre/50 hover:bg-champagne/10"
                 }`}
               >
                 <input
                   type="radio"
                   {...register("rayon")}
                   value={portee.value}
-                  className="h-4 w-4 accent-orange"
+                  className="h-4 w-4 accent-cuivre"
                 />
 
                 <span
                   className={`ml-3 text-sm font-medium ${
-                    isSelected ? "text-cream" : "text-cream/90"
+                    isSelected ? "text-champagne" : "text-champagne/90"
                   }`}
                 >
                   {portee.label}
@@ -196,7 +196,7 @@ export default function Step3() {
           })}
         </div>
 
-        <p className="text-sm text-cream/70">
+        <p className="text-sm text-champagne/70">
           Cette portée définit l&apos;étendue de tes suggestions de profils.
         </p>
 

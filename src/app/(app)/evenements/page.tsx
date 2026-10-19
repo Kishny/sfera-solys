@@ -71,7 +71,7 @@ interface Evenement {
 type Filtre = "all" | "online" | "presentiel";
 
 const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 const FILTRES: Array<{ valeur: Filtre; label: string }> = [
   { valeur: "all", label: "Tous" },
@@ -215,24 +215,24 @@ export default function PageEvenements() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-abyss">
-        <Loader2 className="h-8 w-8 animate-spin text-orange" aria-hidden="true" />
+      <div className="flex min-h-screen items-center justify-center bg-nuit">
+        <Loader2 className="h-8 w-8 animate-spin text-cuivre" aria-hidden="true" />
         <span className="sr-only">Chargement</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-abyss px-4 py-6 text-cream sm:px-6 sm:py-8 lg:px-10">
+    <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
       <div className="mx-auto max-w-4xl">
         {/* En-tête */}
         <header className="mb-5">
-          <h1 className="font-display [font-stretch:125%] text-[26px] font-extrabold leading-tight tracking-tight text-cream sm:text-[32px]">
+          <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
             Événements Solys
           </h1>
 
           <p
-            className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-cream/60 sm:text-sm"
+            className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm"
             aria-live="polite"
           >
             {chargement
@@ -249,11 +249,11 @@ export default function PageEvenements() {
 
         {/* Accès */}
         {!chargement && !peutSinscrire && (
-          <section className="mb-5 rounded-2xl border border-orange/30 bg-orange/10 px-4 py-3.5 sm:px-5">
-            <p className="flex items-start gap-2.5 text-[13px] leading-relaxed text-cream/85">
+          <section className="mb-5 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-4 py-3.5 sm:px-5">
+            <p className="flex items-start gap-2.5 text-[13px] leading-relaxed text-champagne/85">
               <Lock
                 size={15}
-                className="mt-0.5 shrink-0 text-orange"
+                className="mt-0.5 shrink-0 text-cuivre"
                 aria-hidden="true"
               />
               <span>
@@ -261,7 +261,7 @@ export default function PageEvenements() {
                 partir de l’offre Essentiel.{" "}
                 <Link
                   href="/tarifs"
-                  className={`font-semibold text-cream underline underline-offset-2 hover:text-orange ${focusRing}`}
+                  className={`font-semibold text-champagne underline underline-offset-2 hover:text-cuivre ${focusRing}`}
                 >
                   Voir les offres
                 </Link>
@@ -285,8 +285,8 @@ export default function PageEvenements() {
                   aria-pressed={actif}
                   className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
                     actif
-                      ? "border-orange bg-orange text-abyss"
-                      : "border-cream/15 text-cream/70 hover:border-cream/30"
+                      ? "border-cuivre bg-cuivre text-nuit"
+                      : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
                   }`}
                 >
                   {item.label}
@@ -300,21 +300,21 @@ export default function PageEvenements() {
         {erreur && (
           <div
             role="alert"
-            className="mb-5 flex items-start gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-4 py-3"
+            className="mb-5 flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-4 py-3"
           >
             <AlertCircle
               size={16}
-              className="mt-0.5 shrink-0 text-orange"
+              className="mt-0.5 shrink-0 text-cuivre"
               aria-hidden="true"
             />
-            <p className="flex-1 text-[13px] leading-relaxed text-cream/85">
+            <p className="flex-1 text-[13px] leading-relaxed text-champagne/85">
               {erreur}
             </p>
             <button
               type="button"
               onClick={() => setErreur("")}
               aria-label="Fermer le message"
-              className={`shrink-0 rounded-lg p-1 text-cream/55 hover:text-cream ${focusRing}`}
+              className={`shrink-0 rounded-lg p-1 text-champagne/55 hover:text-champagne ${focusRing}`}
             >
               <X size={15} aria-hidden="true" />
             </button>
@@ -325,28 +325,28 @@ export default function PageEvenements() {
         {chargement ? (
           <div className="flex flex-col items-center gap-3 py-24">
             <Loader2
-              className="h-7 w-7 animate-spin text-orange"
+              className="h-7 w-7 animate-spin text-cuivre"
               aria-hidden="true"
             />
-            <p className="text-[13px] text-cream/55">
+            <p className="text-[13px] text-champagne/55">
               Chargement des événements…
             </p>
           </div>
         ) : aVenir.length === 0 ? (
-          <div className="rounded-2xl border border-cream/10 bg-[#123243] px-6 py-16 text-center">
+          <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
             <CalendarDays
               size={26}
-              className="mx-auto mb-4 text-cream/60"
+              className="mx-auto mb-4 text-champagne/60"
               aria-hidden="true"
             />
 
-            <h2 className="font-display [font-stretch:125%] text-[18px] font-bold text-cream">
+            <h2 className="font-display text-[18px] font-bold text-champagne">
               {filtre === "all"
                 ? "Rien de prévu pour l’instant"
                 : "Rien dans ce format"}
             </h2>
 
-            <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/60">
+            <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
               {filtre === "all"
                 ? "Les événements sont annoncés ici dès qu’une date est fixée. Rien n’est inventé pour remplir la page."
                 : "Essaie l’autre format, ou reviens quand une date sera fixée."}
@@ -373,7 +373,7 @@ export default function PageEvenements() {
               type="button"
               onClick={() => setVoirPasses((ouvert) => !ouvert)}
               aria-expanded={voirPasses}
-              className={`inline-flex items-center gap-2 rounded-xl border border-cream/12 px-4 py-2.5 text-[13px] font-semibold text-cream/75 transition-colors hover:border-cream/25 hover:text-cream ${focusRing}`}
+              className={`inline-flex items-center gap-2 rounded-xl border border-champagne/12 px-4 py-2.5 text-[13px] font-semibold text-champagne/75 transition-colors hover:border-champagne/25 hover:text-champagne ${focusRing}`}
             >
               <Clock size={14} aria-hidden="true" />
               Événements passés ({passes.length})
@@ -438,7 +438,7 @@ function CarteEvenement({
 
   return (
     <li
-      className={`rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:p-5 ${
+      className={`rounded-2xl border border-champagne/10 bg-minuit p-4 sm:p-5 ${
         evenement.isPast ? "opacity-70" : ""
       }`}
     >
@@ -448,8 +448,8 @@ function CarteEvenement({
             <span
               className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
                 evenement.isOnline
-                  ? "border-cream/15 text-cream/70"
-                  : "border-cream/15 text-cream/70"
+                  ? "border-champagne/15 text-champagne/70"
+                  : "border-champagne/15 text-champagne/70"
               }`}
             >
               {evenement.isOnline ? (
@@ -461,30 +461,30 @@ function CarteEvenement({
             </span>
 
             {evenement.category && (
-              <span className="rounded-full border border-cream/12 px-2.5 py-0.5 text-[11px] text-cream/70">
+              <span className="rounded-full border border-champagne/12 px-2.5 py-0.5 text-[11px] text-champagne/70">
                 {evenement.category}
               </span>
             )}
 
             {evenement.isRegistered && !evenement.isPast && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-lime/15 px-2.5 py-0.5 text-[11px] font-bold text-lime">
+              <span className="inline-flex items-center gap-1 rounded-full bg-succes/15 px-2.5 py-0.5 text-[11px] font-bold text-succes">
                 <Check size={11} aria-hidden="true" />
                 Inscrit
               </span>
             )}
 
             {evenement.isPast && (
-              <span className="rounded-full border border-cream/15 px-2.5 py-0.5 text-[11px] font-semibold text-cream/70">
+              <span className="rounded-full border border-champagne/15 px-2.5 py-0.5 text-[11px] font-semibold text-champagne/70">
                 Passé
               </span>
             )}
           </div>
 
-          <h2 className="font-display [font-stretch:125%] mt-3 text-[17px] font-bold leading-snug text-cream">
+          <h2 className="font-display mt-3 text-[17px] font-bold leading-snug text-champagne">
             {evenement.title}
           </h2>
 
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-cream/60">
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-champagne/60">
             <span className="flex items-center gap-1.5">
               <CalendarDays size={12} aria-hidden="true" />
               {formaterDate(evenement.date)} à {formaterHeure(evenement.date)}
@@ -499,14 +499,14 @@ function CarteEvenement({
               <Users size={12} aria-hidden="true" />
               {evenement.attendeeCount} / {evenement.maxAttendees}
               {!evenement.isPast && places > 0 && places <= 5 && (
-                <span className="text-orange">
+                <span className="text-cuivre">
                   · {places} place{places > 1 ? "s" : ""}
                 </span>
               )}
             </span>
           </p>
 
-          <p className="mt-3 whitespace-pre-line text-[13px] leading-relaxed text-cream/75">
+          <p className="mt-3 whitespace-pre-line text-[13px] leading-relaxed text-champagne/75">
             {evenement.description}
           </p>
         </div>
@@ -518,7 +518,7 @@ function CarteEvenement({
               type="button"
               onClick={onBasculer}
               disabled={enCours}
-              className={`inline-flex w-full items-center justify-center gap-2 rounded-xl border border-cream/15 px-4 py-2.5 text-[12px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream disabled:opacity-50 sm:w-auto ${focusRing}`}
+              className={`inline-flex w-full items-center justify-center gap-2 rounded-xl border border-champagne/15 px-4 py-2.5 text-[12px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne disabled:opacity-50 sm:w-auto ${focusRing}`}
             >
               {enCours && (
                 <Loader2 size={13} className="animate-spin" aria-hidden="true" />
@@ -537,7 +537,7 @@ function CarteEvenement({
                     ? "Cet événement est complet."
                     : undefined
               }
-              className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange px-4 py-2.5 text-[12px] font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto ${focusRing}`}
+              className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cuivre px-4 py-2.5 text-[12px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto ${focusRing}`}
             >
               {enCours && (
                 <Loader2 size={13} className="animate-spin" aria-hidden="true" />

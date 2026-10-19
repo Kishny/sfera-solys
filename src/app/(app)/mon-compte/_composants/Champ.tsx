@@ -15,7 +15,7 @@ export function Champ({
 }) {
   return (
     <label className={`block ${className}`}>
-      <span className="mb-1.5 block text-[12px] font-semibold text-cream/70">
+      <span className="mb-1.5 block text-[12px] font-semibold text-champagne/70">
         {label}
       </span>
       {children}
@@ -44,8 +44,8 @@ export function DelaiAnnuel({ changeLe }: { changeLe?: string | null }) {
   });
 
   return (
-    <p className="mt-1.5 flex items-start gap-1.5 text-[11px] leading-relaxed text-cream/60">
-      <Info size={12} className="mt-0.5 shrink-0 text-orange" aria-hidden="true" />
+    <p className="mt-1.5 flex items-start gap-1.5 text-[11px] leading-relaxed text-champagne/60">
+      <Info size={12} className="mt-0.5 shrink-0 text-cuivre" aria-hidden="true" />
       Modifiable une fois par an — prochain changement possible le {prochain}.
     </p>
   );

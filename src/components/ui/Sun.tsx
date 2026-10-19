@@ -45,7 +45,7 @@ export function Sun({
       )}
     >
       {withRays && (
-        <g className="stroke-orange/40" strokeWidth={2} strokeLinecap="round">
+        <g className="stroke-cuivre/40" strokeWidth={2} strokeLinecap="round">
           {Array.from({ length: 12 }).map((_, i) => {
             const angle = (i * Math.PI) / 6;
             const x1 = 50 + Math.cos(angle) * 42;
@@ -57,9 +57,9 @@ export function Sun({
         </g>
       )}
       {/* Disque solaire */}
-      <circle cx="45" cy="50" r="32" className="fill-orange" />
+      <circle cx="45" cy="50" r="32" className="fill-cuivre" />
       {/* Disque teal qui « mord » le disque orange */}
-      <circle cx="66" cy="42" r="27" className="fill-teal" />
+      <circle cx="66" cy="42" r="27" className="fill-minuit" />
     </svg>
   );
 }

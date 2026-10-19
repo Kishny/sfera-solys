@@ -25,7 +25,7 @@ import Footer from '@/components/Footer';
  */
 
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 export type SectionLegale = {
   id: string;
@@ -60,24 +60,24 @@ export default function PageLegale({
     <>
       <Header />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* En-tête */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <div className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-champagne">
               {badge}
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[28px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[38px]">
+            <h1 className="font-display mt-5 text-[28px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[38px]">
               {titre}
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/70">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70">
               {chapeau}
             </p>
 
             {miseAJour && (
-              <p className="mt-4 text-[12px] text-cream/55">
+              <p className="mt-4 text-[12px] text-champagne/55">
                 Dernière mise à jour : {miseAJour}
               </p>
             )}
@@ -85,7 +85,7 @@ export default function PageLegale({
         </section>
 
         {/* Sections */}
-        <section className="border-b border-cream/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
           <div className="mx-auto max-w-3xl">
             {avertissement}
 
@@ -96,7 +96,7 @@ export default function PageLegale({
                 return (
                   <article
                     key={section.id}
-                    className="overflow-hidden rounded-2xl border border-cream/10 bg-[#123243]"
+                    className="overflow-hidden rounded-2xl border border-champagne/10 bg-minuit"
                   >
                     <h2>
                       <button
@@ -104,14 +104,14 @@ export default function PageLegale({
                         onClick={() => setOuverte(estOuverte ? null : section.id)}
                         aria-expanded={estOuverte}
                         aria-controls={`section-${section.id}`}
-                        className={`flex w-full items-start justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-cream/[0.03] sm:px-6 sm:py-5 ${focusRing}`}
+                        className={`flex w-full items-start justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-champagne/[0.03] sm:px-6 sm:py-5 ${focusRing}`}
                       >
                         <span className="min-w-0">
-                          <span className="font-display [font-stretch:125%] block text-[16px] font-bold text-cream sm:text-[17px]">
+                          <span className="font-display block text-[16px] font-bold text-champagne sm:text-[17px]">
                             {section.titre}
                           </span>
                           {section.resume && (
-                            <span className="mt-1 block text-[13px] leading-relaxed text-cream/55">
+                            <span className="mt-1 block text-[13px] leading-relaxed text-champagne/55">
                               {section.resume}
                             </span>
                           )}
@@ -120,7 +120,7 @@ export default function PageLegale({
                         <ChevronDown
                           size={17}
                           aria-hidden="true"
-                          className={`mt-0.5 shrink-0 text-cream/60 transition-transform sm:hidden ${
+                          className={`mt-0.5 shrink-0 text-champagne/60 transition-transform sm:hidden ${
                             estOuverte ? 'rotate-180' : ''
                           }`}
                         />
@@ -134,7 +134,7 @@ export default function PageLegale({
                       }`}
                     >
                       <div className="overflow-hidden">
-                        <div className="space-y-3 px-5 pb-5 text-[14px] leading-relaxed text-cream/70 sm:px-6 sm:pb-6 [&_a]:text-orange [&_a]:underline [&_a]:underline-offset-2 [&_li]:ml-4 [&_li]:list-disc [&_strong]:text-cream">
+                        <div className="space-y-3 px-5 pb-5 text-[14px] leading-relaxed text-champagne/70 sm:px-6 sm:pb-6 [&_a]:text-cuivre [&_a]:underline [&_a]:underline-offset-2 [&_li]:ml-4 [&_li]:list-disc [&_strong]:text-champagne">
                           {section.contenu}
                         </div>
                       </div>
@@ -161,7 +161,7 @@ export default function PageLegale({
               <Link
                 key={lien.href}
                 href={lien.href}
-                className={`fx-link font-semibold text-cream/60 transition-colors hover:text-orange ${focusRing}`}
+                className={`fx-link font-semibold text-champagne/60 transition-colors hover:text-cuivre ${focusRing}`}
               >
                 {lien.label}
               </Link>

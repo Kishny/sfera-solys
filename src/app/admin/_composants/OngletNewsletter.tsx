@@ -35,11 +35,11 @@ export default function OngletNewsletter({
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="flex items-center gap-2 text-sm font-semibold text-cream">
-            <Mail className="h-4 w-4 text-orange" aria-hidden="true" />
+          <p className="flex items-center gap-2 text-sm font-semibold text-champagne">
+            <Mail className="h-4 w-4 text-cuivre" aria-hidden="true" />
             Newsletter &amp; actualités
           </p>
-          <p className="text-xs text-cream/60">
+          <p className="text-xs text-champagne/60">
             {stats
               ? `${stats.subscriberCount} abonné${
                   stats.subscriberCount !== 1 ? "s" : ""
@@ -50,7 +50,7 @@ export default function OngletNewsletter({
 
         <button
           onClick={onRefresh}
-          className="flex items-center gap-1 text-xs text-cream/60 transition hover:text-cream"
+          className="flex items-center gap-1 text-xs text-champagne/60 transition hover:text-champagne"
         >
           <RefreshCw className="h-3 w-3" />
           Actualiser
@@ -58,22 +58,22 @@ export default function OngletNewsletter({
       </div>
 
       {stats && !stats.audienceConfigured && (
-        <div className="flex gap-3 rounded-2xl border border-orange/20 bg-orange/10 p-4 text-xs text-cream">
+        <div className="flex gap-3 rounded-2xl border border-cuivre/20 bg-cuivre/10 p-4 text-xs text-champagne">
           <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
           <p>
             Audience Resend non configurée. Crée une Audience dans le tableau de
             bord Resend, puis renseigne{" "}
-            <code className="rounded bg-abyss/40 px-1">RESEND_AUDIENCE_ID</code>{" "}
+            <code className="rounded bg-nuit/40 px-1">RESEND_AUDIENCE_ID</code>{" "}
             dans les variables d&apos;environnement Vercel pour activer l&apos;envoi.
           </p>
         </div>
       )}
 
-      <div className="space-y-3 rounded-2xl border border-cream/10 bg-cream/5 p-4 sm:p-5">
+      <div className="space-y-3 rounded-2xl border border-champagne/10 bg-champagne/5 p-4 sm:p-5">
         <div>
           <label
             htmlFor="newsletter-objet"
-            className="mb-1 block text-xs font-medium text-cream/70"
+            className="mb-1 block text-xs font-medium text-champagne/70"
           >
             Objet
           </label>
@@ -84,14 +84,14 @@ export default function OngletNewsletter({
             onChange={(e) => onSubject(e.target.value)}
             placeholder="Les nouveautés du mois sur Sfera'Solys"
             maxLength={120}
-            className="w-full rounded-xl border border-cream/15 bg-cream/5 px-3 py-2.5 text-sm text-cream placeholder-cream/55 outline-none focus:border-orange/50"
+            className="w-full rounded-xl border border-champagne/15 bg-champagne/5 px-3 py-2.5 text-sm text-champagne placeholder-champagne/55 outline-none focus:border-cuivre/50"
           />
         </div>
 
         <div>
           <label
             htmlFor="newsletter-message"
-            className="mb-1 block text-xs font-medium text-cream/70"
+            className="mb-1 block text-xs font-medium text-champagne/70"
           >
             Message
           </label>
@@ -103,27 +103,27 @@ export default function OngletNewsletter({
             placeholder={
               "Écris ton actualité ici…\n\nSaute une ligne pour séparer les paragraphes. Un lien de désabonnement est ajouté automatiquement."
             }
-            className="w-full resize-y rounded-xl border border-cream/15 bg-cream/5 px-3 py-2.5 text-sm text-cream placeholder-cream/55 outline-none focus:border-orange/50"
+            className="w-full resize-y rounded-xl border border-champagne/15 bg-champagne/5 px-3 py-2.5 text-sm text-champagne placeholder-champagne/55 outline-none focus:border-cuivre/50"
           />
         </div>
 
         {message && (
           <p
             role="status"
-            className={`text-xs ${status === "success" ? "text-lime" : "text-cream"}`}
+            className={`text-xs ${status === "success" ? "text-succes" : "text-champagne"}`}
           >
             {message}
           </p>
         )}
 
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[11px] text-cream/60">
+          <p className="text-[11px] text-champagne/60">
             L&apos;envoi part vers toute l&apos;audience Resend.
           </p>
           <button
             onClick={onSend}
             disabled={status === "sending"}
-            className="rounded-xl bg-orange px-5 py-2.5 text-sm font-bold text-abyss transition hover:bg-orange/90 disabled:opacity-50"
+            className="rounded-xl bg-cuivre px-5 py-2.5 text-sm font-bold text-nuit transition hover:bg-cuivre/90 disabled:opacity-50"
           >
             {status === "sending" ? "Envoi…" : "Envoyer la newsletter"}
           </button>

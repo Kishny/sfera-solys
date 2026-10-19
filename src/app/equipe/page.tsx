@@ -29,7 +29,7 @@ import Footer from '@/components/Footer';
 
 /** Anneau de focus commun à toutes les pages migrées. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 type Pole = {
   icon: React.ComponentType<{ size?: number | string; className?: string }>;
@@ -86,24 +86,24 @@ export default function EquipePage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <motion.div
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: 'easeOut' }}
             className="mx-auto max-w-3xl py-12 text-center sm:py-16"
           >
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-champagne">
               L&apos;équipe
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
               Qui regarde ton dossier.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/70 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70 sm:text-base">
               La vérification d&apos;identité est automatisée, mais tout le
               reste suppose quelqu&apos;un au bout. Voici comment le travail est
               réparti — et ce qu&apos;on ne peut pas encore te montrer.
@@ -112,13 +112,13 @@ export default function EquipePage() {
         </section>
 
         {/* Les pôles */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-6xl">
             <motion.div {...fadeUp}>
-              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
                 Quatre pôles
               </h2>
-              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+              <p className="mb-10 mt-2 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
                 Une petite structure, où chacun porte plusieurs de ces
                 casquettes.
               </p>
@@ -137,31 +137,31 @@ export default function EquipePage() {
                       delay: shouldReduceMotion ? 0 : index * 0.06,
                       ease: 'easeOut',
                     }}
-                    className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-6"
+                    className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6"
                   >
                     <div className="flex items-start gap-4">
                       <span
                         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                          pole.validation ? 'bg-lime/15' : 'bg-orange/15'
+                          pole.validation ? 'bg-succes/15' : 'bg-cuivre/15'
                         }`}
                       >
                         <Icone
                           size={18}
-                          className={pole.validation ? 'text-lime' : 'text-orange'}
+                          className={pole.validation ? 'text-succes' : 'text-cuivre'}
                           aria-hidden="true"
                         />
                       </span>
 
                       <div className="min-w-0">
-                        <h3 className="font-display [font-stretch:125%] text-[17px] font-bold text-cream">
+                        <h3 className="font-display text-[17px] font-bold text-champagne">
                           {pole.titre}
                         </h3>
 
-                        <p className="mt-1 text-[14px] font-semibold text-cream/80">
+                        <p className="mt-1 text-[14px] font-semibold text-champagne/80">
                           {pole.mission}
                         </p>
 
-                        <p className="mt-2.5 text-[13px] leading-relaxed text-cream/60">
+                        <p className="mt-2.5 text-[13px] leading-relaxed text-champagne/60">
                           {pole.detail}
                         </p>
                       </div>
@@ -174,25 +174,25 @@ export default function EquipePage() {
         </section>
 
         {/* Pourquoi pas de visages */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <motion.div {...fadeUp} className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Pourquoi aucun visage sur cette page
             </h2>
 
-            <p className="mt-4 text-[15px] leading-relaxed text-cream/70">
+            <p className="mt-4 text-[15px] leading-relaxed text-champagne/70">
               Parce qu&apos;il n&apos;y a rien de vrai à montrer pour
               l&apos;instant. Mettre des portraits achetés et des prénoms
               inventés sur la page d&apos;une plateforme qui exige de chaque
               membre une pièce d&apos;identité serait difficile à défendre.
             </p>
 
-            <p className="mt-4 text-[15px] leading-relaxed text-cream/70">
+            <p className="mt-4 text-[15px] leading-relaxed text-champagne/70">
               Cette page se remplira de visages quand il y aura des visages —
               pas avant.
             </p>
 
-            <p className="font-accent mt-5 text-[17px] italic leading-relaxed text-orange">
+            <p className="font-display italic mt-5 text-[17px] italic leading-relaxed text-cuivre">
               On demande aux membres de prouver qui ils sont. Le minimum est de
               ne pas mentir sur qui nous sommes.
             </p>
@@ -202,11 +202,11 @@ export default function EquipePage() {
         {/* CTA */}
         <section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-16">
           <motion.div {...fadeUp} className="mx-auto max-w-2xl text-center">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[28px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[28px]">
               Une question pour l&apos;équipe ?
             </h2>
 
-            <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-cream/65">
+            <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-champagne/65">
               Les messages arrivent au pôle relation membres, et repartent sous
               24 à 48 heures.
             </p>
@@ -214,7 +214,7 @@ export default function EquipePage() {
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/contact"
-                className={`fx-btn inline-flex items-center justify-center gap-2 rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn inline-flex items-center justify-center gap-2 rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 Nous écrire
                 <ArrowRight size={16} aria-hidden="true" />
@@ -222,7 +222,7 @@ export default function EquipePage() {
 
               <Link
                 href="/histoire"
-                className={`fx-ghost inline-flex items-center justify-center rounded-xl border border-cream/15 px-7 py-3.5 text-sm font-bold text-cream transition-colors hover:border-cream/30 ${focusRing}`}
+                className={`fx-ghost inline-flex items-center justify-center rounded-xl border border-champagne/15 px-7 py-3.5 text-sm font-bold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
               >
                 Notre histoire
               </Link>

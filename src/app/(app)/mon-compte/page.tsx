@@ -358,13 +358,13 @@ function ContenuMonCompte() {
 
   if (status === "loading" || chargement) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-abyss">
+      <div className="flex min-h-screen items-center justify-center bg-nuit">
         <div className="text-center">
           <Loader2
-            className="mx-auto h-8 w-8 animate-spin text-orange"
+            className="mx-auto h-8 w-8 animate-spin text-cuivre"
             aria-hidden="true"
           />
-          <p className="mt-3 text-[13px] text-cream/55">
+          <p className="mt-3 text-[13px] text-champagne/55">
             Chargement de ton espace…
           </p>
         </div>
@@ -375,7 +375,7 @@ function ContenuMonCompte() {
   if (status === "unauthenticated") return null;
 
   return (
-    <div className="min-h-screen bg-abyss px-4 py-6 text-cream sm:px-6 sm:py-8 lg:px-10">
+    <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
       <div className="mx-auto max-w-3xl">
         {/* Paiement reçu */}
         <AnimatePresence>
@@ -384,12 +384,12 @@ function ContenuMonCompte() {
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="mb-5 rounded-2xl border border-lime/25 bg-lime/10 px-4 py-3.5"
+              className="mb-5 rounded-2xl border border-succes/25 bg-succes/10 px-4 py-3.5"
             >
-              <p className="text-[13px] font-bold text-cream">
+              <p className="text-[13px] font-bold text-champagne">
                 Paiement reçu. L’activation est en cours de confirmation.
               </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-cream/70">
+              <p className="mt-1 text-[12px] leading-relaxed text-champagne/70">
                 Le retour de la page de paiement ne prouve pas à lui seul que
                 l’abonnement est actif : c’est Stripe qui confirme, par webhook.
                 Si rien ne bouge d’ici quelques minutes, utilise
@@ -410,21 +410,21 @@ function ContenuMonCompte() {
             >
               <div
                 role="alert"
-                className="flex items-start gap-3 rounded-2xl border border-orange/30 bg-orange/10 px-4 py-3"
+                className="flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-4 py-3"
               >
                 <AlertCircle
                   size={16}
-                  className="mt-0.5 shrink-0 text-orange"
+                  className="mt-0.5 shrink-0 text-cuivre"
                   aria-hidden="true"
                 />
-                <p className="flex-1 text-[13px] leading-relaxed text-cream/85">
+                <p className="flex-1 text-[13px] leading-relaxed text-champagne/85">
                   {erreur}
                 </p>
                 <button
                   type="button"
                   onClick={() => setErreur("")}
                   aria-label="Fermer le message"
-                  className={`shrink-0 rounded-lg p-1 text-cream/55 hover:text-cream ${focusRing}`}
+                  className={`shrink-0 rounded-lg p-1 text-champagne/55 hover:text-champagne ${focusRing}`}
                 >
                   <X size={15} aria-hidden="true" />
                 </button>
@@ -438,7 +438,7 @@ function ContenuMonCompte() {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
             <div className="mx-auto shrink-0 sm:mx-0">
               <AnneauCompletion completion={completion} taille={88}>
-                <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-cream/12 bg-abyss">
+                <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-champagne/12 bg-nuit">
                   {user.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -447,7 +447,7 @@ function ContenuMonCompte() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="font-display [font-stretch:125%] text-[26px] font-extrabold text-cream/60">
+                    <span className="font-display text-[26px] font-extrabold text-champagne/60">
                       {user.pseudonyme.charAt(0).toUpperCase()}
                     </span>
                   )}
@@ -457,40 +457,40 @@ function ContenuMonCompte() {
 
             <div className="min-w-0 flex-1 text-center sm:text-left">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                <h1 className="font-display [font-stretch:125%] min-w-0 max-w-full truncate text-[22px] font-extrabold tracking-tight text-cream">
+                <h1 className="font-display min-w-0 max-w-full truncate text-[22px] font-extrabold tracking-tight text-champagne">
                   {user.pseudonyme}
                 </h1>
 
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
                     payante
-                      ? "bg-orange text-abyss"
-                      : "border border-cream/15 text-cream/70"
+                      ? "bg-cuivre text-nuit"
+                      : "border border-champagne/15 text-champagne/70"
                   }`}
                 >
                   {payante ? offre : "Offre gratuite"}
                 </span>
 
                 {user.identityVerified && (
-                  <span className="flex items-center gap-1 rounded-full bg-lime/15 px-2.5 py-0.5 text-[11px] font-bold text-lime">
+                  <span className="flex items-center gap-1 rounded-full bg-succes/15 px-2.5 py-0.5 text-[11px] font-bold text-succes">
                     <Shield size={11} aria-hidden="true" />
                     Vérifié
                   </span>
                 )}
               </div>
 
-              <p className="mt-1 truncate text-[13px] text-cream/60">
+              <p className="mt-1 truncate text-[13px] text-champagne/60">
                 {user.email}
               </p>
 
               {user.localisation && (
-                <p className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-cream/55 sm:justify-start">
+                <p className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-champagne/55 sm:justify-start">
                   <MapPin size={12} aria-hidden="true" />
                   {user.localisation}
                 </p>
               )}
 
-              <p className="mt-2 text-[11px] text-cream/55">
+              <p className="mt-2 text-[11px] text-champagne/55">
                 Membre depuis {formaterDate(user.createdAt)} · profil complété à{" "}
                 {completion} %
               </p>
@@ -501,7 +501,7 @@ function ContenuMonCompte() {
                 <Link
                   href={`/profil/${user._id}?preview=1`}
                   target="_blank"
-                  className={`inline-flex items-center gap-1.5 rounded-xl border border-cream/15 px-3.5 py-2 text-[12px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream ${focusRing}`}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border border-champagne/15 px-3.5 py-2 text-[12px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne ${focusRing}`}
                 >
                   <Eye size={13} aria-hidden="true" />
                   Voir mon profil public
@@ -511,7 +511,7 @@ function ContenuMonCompte() {
               {user.role === "admin" && (
                 <Link
                   href="/admin"
-                  className={`inline-flex items-center gap-1.5 rounded-xl border border-orange/40 px-3.5 py-2 text-[12px] font-semibold text-cream transition-colors hover:bg-orange/10 ${focusRing}`}
+                  className={`inline-flex items-center gap-1.5 rounded-xl border border-cuivre/40 px-3.5 py-2 text-[12px] font-semibold text-champagne transition-colors hover:bg-cuivre/10 ${focusRing}`}
                 >
                   Administration
                 </Link>
@@ -541,8 +541,8 @@ function ContenuMonCompte() {
                 }}
                 className={`relative flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[12px] font-semibold transition-colors ${focusRing} ${
                   actif
-                    ? "border-orange bg-orange text-abyss"
-                    : "border-cream/12 text-cream/70 hover:border-cream/25 hover:text-cream"
+                    ? "border-cuivre bg-cuivre text-nuit"
+                    : "border-champagne/12 text-champagne/70 hover:border-champagne/25 hover:text-champagne"
                 }`}
               >
                 <Icone size={13} aria-hidden="true" />
@@ -551,7 +551,7 @@ function ContenuMonCompte() {
                 {pastille && (
                   <span
                     className={`ml-0.5 rounded-full px-1.5 text-[10px] font-bold ${
-                      actif ? "bg-abyss text-orange" : "bg-orange text-abyss"
+                      actif ? "bg-nuit text-cuivre" : "bg-cuivre text-nuit"
                     }`}
                   >
                     {notifications > 99 ? "99+" : notifications}
@@ -617,7 +617,7 @@ function ContenuMonCompte() {
                   <button
                     type="button"
                     onClick={() => setEdition(true)}
-                    className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 sm:w-auto ${focusRing}`}
+                    className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 sm:w-auto ${focusRing}`}
                   >
                     <Pencil size={14} aria-hidden="true" />
                     Modifier
@@ -628,7 +628,7 @@ function ContenuMonCompte() {
                       type="button"
                       onClick={annuler}
                       disabled={enregistrement}
-                      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl border border-cream/15 px-4 py-2.5 text-[13px] font-semibold text-cream/80 transition-colors hover:border-cream/30 hover:text-cream disabled:opacity-50 sm:w-auto ${focusRing}`}
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl border border-champagne/15 px-4 py-2.5 text-[13px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne disabled:opacity-50 sm:w-auto ${focusRing}`}
                     >
                       <X size={14} aria-hidden="true" />
                       Annuler
@@ -638,7 +638,7 @@ function ContenuMonCompte() {
                       type="button"
                       onClick={enregistrer}
                       disabled={enregistrement}
-                      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-orange px-5 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 disabled:opacity-50 sm:w-auto ${focusRing}`}
+                      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:opacity-50 sm:w-auto ${focusRing}`}
                     >
                       {enregistrement ? (
                         <Loader2
@@ -666,9 +666,9 @@ export default function PageMonCompte() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-abyss">
+        <div className="flex min-h-screen items-center justify-center bg-nuit">
           <Loader2
-            className="h-8 w-8 animate-spin text-orange"
+            className="h-8 w-8 animate-spin text-cuivre"
             aria-hidden="true"
           />
           <span className="sr-only">Chargement</span>

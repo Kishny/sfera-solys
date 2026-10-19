@@ -3,84 +3,93 @@ module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}", // ← au cas où tu as encore un dossier `pages`
-    "./src/**/*.{js,ts,jsx,tsx}", // ← au cas où tu as déplacé des fichiers dans `src`
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        primary: "#8E7AB5",
-        secondary: "#F5F3F7",
-        dark: "#1C1C1C",
-        muted: "#5E5E5E",
-
-        // Éclipse solaire — tokens Sfera'Solys (concept 5 : lime & vulcanico)
+        // ───────────────────────────────────────────────────────────────
+        // Direction « nuit cuivrée » — Sfera'Solys
         //
-        // On garde les MÊMES clés qu'avant (abyss/teal/cream/orange/rust) pour que
-        // les classes déjà utilisées dans tout le code (bg-orange, text-rust, etc.)
-        // continuent de fonctionner sans rien renommer. Seules les valeurs hex
-        // changent :
-        //   - orange / accent      → vulcanico (#FF4103), remplace l'ancien orange
-        //   - rust / accent-deep   → ember (#6B1B02), déclinaison sombre du
-        //                            vulcanico pour les hovers/états pressés
-        //                            (remplace le rôle que jouait rust)
-        //   - teal / surface       → neutre proche de l'abyss (#0C222D), pour
-        //                            retirer la teinte teal tout en gardant la
-        //                            même utilité de "surface" un peu plus claire
-        //                            que le fond (cartes, dégradés, séparations)
-        //   - lime / accent-electric → nouveau, accent électrique secondaire
-        //                              réservé aux petites touches à fort impact
-        //                              (badges, points de statut, glows) — jamais
-        //                              en grande surface ni en texte courant
+        // Elle remplace l'éclipse solaire (abyss/teal/cream/orange/rust/
+        // lime). Les anciens noms ont été retirés du code plutôt que
+        // réaffectés : la charte précédente avait gardé les clés de
+        // SferaLuna en changeant leurs valeurs, et `orange` a fini par
+        // désigner un vulcanico. On ne refait pas deux fois la même erreur.
         //
-        // TODO rebranding (phase 2, optionnelle) : une fois toutes les pages
-        // repassées en revue, on pourra renommer teal→(nouveau nom neutre) et
-        // rust→ember dans le code pour que les noms de classes redeviennent
-        // fidèles aux couleurs qu'ils décrivent.
-        // Palier de luminosité (29/09/2026) : le fond est passé de #001724 à
-        // #04202E et la surface de #0C222D à #123243. Le site était lu comme
-        // trop sombre. C'est le seul cran où tout reste conforme AA, y compris
-        // l'orange sur le fond (4,80:1, contre 5,23:1 avant). Le crème tient
-        // 14,4:1 sur le fond et 11,6:1 sur la surface ; `text-abyss` sur un
-        // bouton orange reste à 4,80:1.
-        abyss: "#04202E",
-        teal: "#123243",
-        cream: "#FFEBD1",
-        orange: "#FF4103",
-        rust: "#6B1B02",
-        lime: "#B6FF00",
+        // Contrastes mesurés (WCAG, sur les deux fonds) :
+        //
+        //                  nuit     minuit
+        //   cuivre         6,97:1   5,35:1   ← accent lisible même en petit
+        //   champagne     14,05:1  10,77:1   ← texte courant
+        //   ivoire        17,60:1  13,50:1   ← titres, texte fort
+        //   succes         8,07:1   6,19:1
+        //   erreur         5,99:1   4,59:1
+        //   cuivre-sombre  3,50:1   2,69:1   ← surface et survol, jamais du texte
+        //
+        // Le gain sur l'ancienne charte : l'orange plafonnait à 3,84:1 sur
+        // la surface et devait être réservé aux icônes et aux grands
+        // chiffres. Le cuivre passe partout.
+        //
+        // Piège connu : `minuit` sur `nuit` ne donne que 1,30:1. Une carte
+        // ne se détache pas de son fond par son remplissage — il lui faut
+        // un filet cuivré, une ombre ou le grain.
+        // ───────────────────────────────────────────────────────────────
 
-        // Alias sémantiques (mêmes valeurs que les tokens ci-dessus)
-        background: "#04202E", // abyss
-        surface: "#123243", // teal → surface, un cran au-dessus du fond
-        text: "#FFEBD1", // cream
-        accent: "#FF4103", // orange → vulcanico
-        "accent-deep": "#6B1B02", // rust → ember
-        "accent-electric": "#B6FF00", // lime
+        nuit: "#0A0D12",
+        minuit: "#1D2835",
+        cuivre: {
+          DEFAULT: "#BD9365",
+          sombre: "#866137",
+        },
+        champagne: "#EAD9BD",
+        ivoire: "#F7F3ED",
+
+        // Teintes de service. Volontairement sourdes : on ne les remarque
+        // pas tant que rien ne va mal, mais « c'est fait » et « ça a raté »
+        // se distinguent d'un coup d'œil, ce que l'icône seule ne fait pas.
+        succes: "#83B28C",
+        erreur: "#CB7871",
+
+        // Alias sémantiques
+        background: "#0A0D12",
+        surface: "#1D2835",
+        text: "#EAD9BD",
+        "text-fort": "#F7F3ED",
+        accent: "#BD9365",
+        "accent-deep": "#866137",
       },
       fontFamily: {
-        // Corps : Instrument Sans — texte courant, UI
+        // Corps : Instrument Sans — texte courant, UI, boutons.
         sans: [
           "var(--font-instrument-sans)",
           "ui-sans-serif",
           "system-ui",
           "sans-serif",
         ],
-        // Display : Archivo — titres, boutons, wordmark (bas-de-casse, largeur expanded)
-        display: [
-          "var(--font-archivo)",
-          "ui-sans-serif",
-          "system-ui",
-          "sans-serif",
-        ],
-        // Accent : Fraunces italique — touches éditoriales / chaleureuses
-        accent: ["var(--font-fraunces)", "ui-serif", "Georgia", "serif"],
+        // Display : Playfair Display — titres. C'est lui qui porte la
+        // direction, bien plus que la palette : l'ancienne charte titrait
+        // en sans-serif étendu, celle-ci titre en serif à fort contraste.
+        display: ["var(--font-playfair)", "ui-serif", "Georgia", "serif"],
+      },
+      letterSpacing: {
+        // Les intertitres en petites capitales de la maquette
+        // (« PLATEFORME DE RENCONTRES PREMIUM », « CRÉER UN COMPTE »).
+        surtitre: "0.18em",
+      },
+      backgroundImage: {
+        // Le cuivre des boutons n'est pas un aplat dans la maquette : il va
+        // du champagne au cuivre. Le texte dessus reste `nuit` (6,97:1 au
+        // point le plus sombre du dégradé).
+        "degrade-cuivre":
+          "linear-gradient(135deg, #EAD9BD 0%, #BD9365 100%)",
       },
     },
   },
   plugins: [
-    require("@tailwindcss/forms"), // ← Optionnel mais recommandé
-    require("@tailwindcss/typography"), // ← Pour le style des textes/actualités/blog
-    require("@tailwindcss/aspect-ratio"), // ← Pour gérer les images/vidéos responsive
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/typography"),
+    require("@tailwindcss/aspect-ratio"),
   ],
 };

@@ -48,7 +48,7 @@ type BoostActif = {
 };
 
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 /** `mm:ss` à partir d'un nombre de secondes. */
 function formaterDuree(secondes: number): string {
@@ -179,23 +179,23 @@ export default function PanneauBoost({
   return (
     <section
       aria-labelledby="titre-boost"
-      className="mb-3 rounded-2xl border border-cream/10 bg-[#123243] p-4 sm:mb-5 sm:p-5"
+      className="mb-3 rounded-2xl border border-champagne/10 bg-minuit p-4 sm:mb-5 sm:p-5"
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h2
             id="titre-boost"
-            className="font-display [font-stretch:125%] flex items-center gap-2 text-[15px] font-bold text-cream"
+            className="font-display flex items-center gap-2 text-[15px] font-bold text-champagne"
           >
             <Rocket
               size={16}
-              className={actif ? 'text-lime' : 'text-orange'}
+              className={actif ? 'text-succes' : 'text-cuivre'}
               aria-hidden="true"
             />
             Boost de visibilité
           </h2>
 
-          <p className="mt-1 max-w-md text-[13px] leading-relaxed text-cream/60">
+          <p className="mt-1 max-w-md text-[13px] leading-relaxed text-champagne/60">
             {actif
               ? 'Ton profil passe devant les autres dans Explorer pendant toute la durée du boost.'
               : `Pendant ${dureeMinutes} minutes, ton profil remonte en tête d’Explorer pour les membres qui peuvent te voir.`}
@@ -205,7 +205,7 @@ export default function PanneauBoost({
         <div className="shrink-0">
           {actif ? (
             <p
-              className="flex items-center gap-2 rounded-xl bg-lime/15 px-3.5 py-2.5 text-[13px] font-bold text-lime"
+              className="flex items-center gap-2 rounded-xl bg-succes/15 px-3.5 py-2.5 text-[13px] font-bold text-succes"
               role="timer"
               aria-live="off"
             >
@@ -216,7 +216,7 @@ export default function PanneauBoost({
           ) : quota.limite <= 0 ? (
             <Link
               href="/tarifs"
-              className={`inline-flex items-center justify-center rounded-xl border border-orange/40 px-4 py-2.5 text-[13px] font-bold text-cream transition-colors hover:bg-orange/10 ${focusRing}`}
+              className={`inline-flex items-center justify-center rounded-xl border border-cuivre/40 px-4 py-2.5 text-[13px] font-bold text-champagne transition-colors hover:bg-cuivre/10 ${focusRing}`}
             >
               Voir les offres
             </Link>
@@ -225,7 +225,7 @@ export default function PanneauBoost({
               type="button"
               onClick={lancer}
               disabled={envoi || quota.restants <= 0}
-              className={`inline-flex items-center justify-center rounded-xl bg-orange px-4 py-2.5 text-[13px] font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+              className={`inline-flex items-center justify-center rounded-xl bg-cuivre px-4 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
             >
               {envoi ? 'Lancement…' : 'Lancer un boost'}
             </button>
@@ -235,17 +235,17 @@ export default function PanneauBoost({
 
       {actif && (
         <div
-          className="mt-4 h-1 overflow-hidden rounded-full bg-cream/10"
+          className="mt-4 h-1 overflow-hidden rounded-full bg-champagne/10"
           role="presentation"
         >
           <div
-            className="h-full rounded-full bg-lime transition-[width] duration-1000 ease-linear"
+            className="h-full rounded-full bg-succes transition-[width] duration-1000 ease-linear"
             style={{ width: `${progression}%` }}
           />
         </div>
       )}
 
-      <p className="mt-3 text-[12px] text-cream/60" aria-live="polite">
+      <p className="mt-3 text-[12px] text-champagne/60" aria-live="polite">
         {quota.limite <= 0
           ? 'Ton offre actuelle ne comprend pas de boost. Les offres payantes en incluent 1, 3 ou 10 par mois.'
           : quota.restants > 0
@@ -254,10 +254,10 @@ export default function PanneauBoost({
       </p>
 
       {erreur && (
-        <p className="mt-3 flex items-start gap-2 rounded-xl border border-orange/30 bg-orange/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-cream/80">
+        <p className="mt-3 flex items-start gap-2 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-champagne/80">
           <TriangleAlert
             size={14}
-            className="mt-0.5 shrink-0 text-orange"
+            className="mt-0.5 shrink-0 text-cuivre"
             aria-hidden="true"
           />
           {erreur}

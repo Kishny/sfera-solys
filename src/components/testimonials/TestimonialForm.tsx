@@ -42,7 +42,7 @@ export default function TestimonialForm({
 }) {
   /** Classe commune aux champs de saisie. */
   const fieldClass =
-    "rounded-xl border border-cream/15 bg-abyss/60 text-cream placeholder-cream/55 outline-none transition focus:border-orange focus:ring-2 focus:ring-orange/25";
+    "rounded-xl border border-champagne/15 bg-nuit/60 text-champagne placeholder-champagne/55 outline-none transition focus:border-cuivre focus:ring-2 focus:ring-cuivre/25";
 
   const [content, setContent] = useState(initial?.content ?? "");
   const [rating, setRating] = useState(initial?.rating ?? 5);
@@ -94,7 +94,7 @@ export default function TestimonialForm({
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex items-center justify-center gap-2 rounded-2xl border border-lime/30 bg-lime/[0.08] p-4 text-sm font-medium text-lime"
+        className="flex items-center justify-center gap-2 rounded-2xl border border-succes/30 bg-succes/[0.08] p-4 text-sm font-medium text-succes"
       >
         <CheckCircle size={18} />
         Merci ! Ton témoignage sera visible après validation.
@@ -105,16 +105,16 @@ export default function TestimonialForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-3xl border border-cream/10 bg-[#123243] p-4 sm:p-6"
+      className="rounded-3xl border border-champagne/10 bg-minuit p-4 sm:p-6"
     >
-      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-cream sm:mb-4 sm:text-base">
+      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-champagne sm:mb-4 sm:text-base">
         <MessageSquarePlus size={18} />
         Partage ton expérience
       </h3>
 
       {/* Note en étoiles */}
       <div className="mb-3 flex items-center gap-3">
-        <span className="text-xs font-medium text-cream/60">Ta note</span>
+        <span className="text-xs font-medium text-champagne/60">Ta note</span>
         <StarRating value={rating} onChange={setRating} size={24} />
       </div>
 
@@ -127,7 +127,7 @@ export default function TestimonialForm({
         className={`mb-1 w-full resize-none px-3 py-2.5 text-sm sm:px-4 sm:py-3 ${fieldClass}`}
       />
 
-      <p className="mb-3 text-right text-xs text-cream/55 sm:mb-4">
+      <p className="mb-3 text-right text-xs text-champagne/55 sm:mb-4">
         {content.length}/500
       </p>
 
@@ -153,12 +153,12 @@ export default function TestimonialForm({
       </div>
 
       {/* Consentement photo */}
-      <label className="mb-4 flex cursor-pointer items-center gap-3 rounded-xl border border-cream/10 bg-abyss/40 px-3 py-2.5">
+      <label className="mb-4 flex cursor-pointer items-center gap-3 rounded-xl border border-champagne/10 bg-nuit/40 px-3 py-2.5">
         <input
           type="checkbox"
           checked={showAvatar}
           onChange={(event) => setShowAvatar(event.target.checked)}
-          className="h-4 w-4 shrink-0 accent-orange"
+          className="h-4 w-4 shrink-0 accent-cuivre"
         />
 
         {showAvatar && profileImage ? (
@@ -170,10 +170,10 @@ export default function TestimonialForm({
           />
         ) : null}
 
-        <span className="text-xs leading-snug text-cream/70">
+        <span className="text-xs leading-snug text-champagne/70">
           Afficher ma photo de profil avec mon témoignage
           {!profileImage && (
-            <span className="block text-cream/55">
+            <span className="block text-champagne/55">
               (ajoute d&apos;abord une photo de profil pour l&apos;activer)
             </span>
           )}
@@ -183,7 +183,7 @@ export default function TestimonialForm({
       {status === "error" && (
         <p
           role="alert"
-          className="mb-3 rounded-xl border border-rust/50 bg-rust/20 px-3 py-2 text-sm text-cream"
+          className="mb-3 rounded-xl border border-erreur/50 bg-erreur/20 px-3 py-2 text-sm text-champagne"
         >
           {error}
         </p>
@@ -193,7 +193,7 @@ export default function TestimonialForm({
         <button
           type="submit"
           disabled={status === "loading" || content.trim().length < 20}
-          className="rounded-xl bg-orange px-5 py-2.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 disabled:opacity-50 sm:px-6"
+          className="rounded-xl bg-cuivre px-5 py-2.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:opacity-50 sm:px-6"
         >
           {status === "loading" ? "Envoi…" : "Envoyer"}
         </button>
@@ -202,7 +202,7 @@ export default function TestimonialForm({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-cream/15 px-5 py-2.5 text-sm text-cream/70 transition-colors hover:border-cream/30 sm:px-6"
+            className="rounded-xl border border-champagne/15 px-5 py-2.5 text-sm text-champagne/70 transition-colors hover:border-champagne/30 sm:px-6"
           >
             Annuler
           </button>

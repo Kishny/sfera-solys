@@ -42,14 +42,14 @@ export function Logo({ href = "/", size = "md", className }: LogoProps) {
     <span
       aria-hidden="true"
       className={cn(
-        "inline-flex items-baseline font-display [font-stretch:125%] tracking-tight text-cream",
+        "inline-flex items-baseline font-display tracking-tight text-champagne",
         sizeStyles[size]
       )}
     >
       <span>Sfera</span>
       <span
         className={cn(
-          "inline-block shrink-0 rounded-full bg-orange",
+          "inline-block shrink-0 rounded-full bg-cuivre",
           dotStyles[size]
         )}
       />

@@ -26,19 +26,19 @@ export default function VerificationSeal({
       role="img"
       aria-label="Sceau de vérification Sfera'Solys"
     >
-      <circle cx="110" cy="110" r="96" stroke="rgba(255,235,209,0.15)" strokeWidth="1.5" />
-      <circle cx="110" cy="110" r="76" stroke="#FF4103" strokeWidth="2" />
+      <circle cx="110" cy="110" r="96" stroke="rgba(234,217,189,0.15)" strokeWidth="1.5" />
+      <circle cx="110" cy="110" r="76" stroke="#BD9365" strokeWidth="2" />
       <circle
         cx="110"
         cy="110"
         r="76"
-        stroke="#B6FF00"
+        stroke="#83B28C"
         strokeWidth="2"
         strokeDasharray="4 10"
       />
       <path
         d="M72 114 L98 140 L150 82"
-        stroke="#FFEBD1"
+        stroke="#EAD9BD"
         strokeWidth="6"
         strokeLinecap="round"
         strokeLinejoin="round"

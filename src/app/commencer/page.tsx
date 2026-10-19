@@ -206,7 +206,7 @@ const faqs = [
 
 /** Anneau de focus clavier, identique partout dans la direction A. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 export default function CommencerPage() {
   /**
@@ -261,19 +261,19 @@ export default function CommencerPage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <div className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
+            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
               Inscription gratuite · vérification immédiate
             </span>
 
-            <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
               Quatre étapes, un dossier vérifié.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/60 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
               Tu constitues ton dossier, Stripe Identity vérifie ton identité
               dans la foulée, et ton profil s&apos;active. Aucun paiement demandé
               pour être vérifié — l&apos;inscription est ouverte aux hommes de
@@ -283,20 +283,20 @@ export default function CommencerPage() {
             <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/auth?mode=register"
-                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 constituer mon dossier
               </Link>
 
               <Link
                 href="/guide"
-                className={`fx-ghost rounded-xl border border-cream/15 px-7 py-3.5 text-sm font-bold text-cream/85 transition-colors hover:border-cream/30 ${focusRing}`}
+                className={`fx-ghost rounded-xl border border-champagne/15 px-7 py-3.5 text-sm font-bold text-champagne/85 transition-colors hover:border-champagne/30 ${focusRing}`}
               >
                 lire le guide
               </Link>
             </div>
 
-            <p className="mt-5 text-[13px] text-cream/55">
+            <p className="mt-5 text-[13px] text-champagne/55">
               {siteStats
                 ? `${formatStat(siteStats.membres)} profils vérifiés à ce jour`
                 : 'des centaines de profils vérifiés à ce jour'}
@@ -305,13 +305,13 @@ export default function CommencerPage() {
         </section>
 
         {/* Le parcours, étape par étape */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Le parcours en détail
             </h2>
 
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
               Choisis une étape pour voir exactement ce qu&apos;on te demande,
               ce qu&apos;on en fait, et combien de temps ça prend.
             </p>
@@ -340,13 +340,13 @@ export default function CommencerPage() {
                     onKeyDown={(event) => handleTabKeyDown(event, index)}
                     className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-colors ${focusRing} ${
                       isActive
-                        ? 'border-orange/40 bg-[#123243] ring-1 ring-orange/20'
-                        : 'border-cream/8 bg-[#123243] hover:border-cream/20'
+                        ? 'border-cuivre/40 bg-minuit ring-1 ring-cuivre/20'
+                        : 'border-champagne/8 bg-minuit hover:border-champagne/20'
                     }`}
                   >
                     <span
                       className={`font-display flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[14px] font-extrabold ${
-                        isActive ? 'bg-orange text-abyss' : 'bg-cream/8 text-cream/55'
+                        isActive ? 'bg-cuivre text-nuit' : 'bg-champagne/8 text-champagne/55'
                       }`}
                     >
                       {item.number}
@@ -354,13 +354,13 @@ export default function CommencerPage() {
 
                     <span className="min-w-0">
                       <span
-                        className={`font-display [font-stretch:125%] block text-[15px] font-bold ${
-                          isActive ? 'text-cream' : 'text-cream/70'
+                        className={`font-display block text-[15px] font-bold ${
+                          isActive ? 'text-champagne' : 'text-champagne/70'
                         }`}
                       >
                         {item.title}
                       </span>
-                      <span className="mt-0.5 block text-[12px] text-cream/55">
+                      <span className="mt-0.5 block text-[12px] text-champagne/55">
                         {item.duration}
                       </span>
                     </span>
@@ -374,7 +374,7 @@ export default function CommencerPage() {
               id={`etape-panneau-${activeStep.number}`}
               aria-labelledby={`etape-onglet-${activeStep.number}`}
               tabIndex={0}
-              className={`mt-3 rounded-2xl border border-cream/8 bg-[#123243] p-6 sm:p-8 ${focusRing}`}
+              className={`mt-3 rounded-2xl border border-champagne/8 bg-minuit p-6 sm:p-8 ${focusRing}`}
             >
               <motion.div
                 key={activeStep.number}
@@ -384,31 +384,31 @@ export default function CommencerPage() {
                 className="grid gap-7 lg:grid-cols-2 lg:gap-12"
               >
                 <div>
-                  <ActiveStepIcon size={20} className="text-orange" />
+                  <ActiveStepIcon size={20} className="text-cuivre" />
 
-                  <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold tracking-tight text-cream">
+                  <h3 className="font-display mt-3 text-[17px] font-extrabold tracking-tight text-champagne">
                     Étape {activeStep.number} — {activeStep.title}
                   </h3>
 
-                  <p className="mt-1.5 text-sm font-semibold text-cream/85">
+                  <p className="mt-1.5 text-sm font-semibold text-champagne/85">
                     {activeStep.summary}
                   </p>
 
-                  <p className="mt-3 text-[13px] leading-relaxed text-cream/70">
+                  <p className="mt-3 text-[13px] leading-relaxed text-champagne/70">
                     {activeStep.details}
                   </p>
                 </div>
 
-                <div className="border-t border-cream/8 pt-6 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-cream/55">
+                <div className="border-t border-champagne/8 pt-6 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-champagne/55">
                     Concrètement
                   </p>
 
                   <ul className="mt-4 space-y-2.5">
                     {activeStep.checklist.map((entry) => (
                       <li key={entry} className="flex items-start gap-2.5">
-                        <Check size={14} className="mt-[3px] shrink-0 text-lime" />
-                        <span className="text-[13px] leading-relaxed text-cream/70">
+                        <Check size={14} className="mt-[3px] shrink-0 text-succes" />
+                        <span className="text-[13px] leading-relaxed text-champagne/70">
                           {entry}
                         </span>
                       </li>
@@ -421,13 +421,13 @@ export default function CommencerPage() {
         </section>
 
         {/* La vérification, en clair */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               La vérification, en clair
             </h2>
 
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
               C&apos;est l&apos;étape qui prend le plus de temps, et c&apos;est
               volontaire : chaque dossier est ouvert et relu par une personne
               avant l&apos;activation du profil.
@@ -437,22 +437,22 @@ export default function CommencerPage() {
               {verificationFacts.map(({ icon: Icon, title, description }) => (
                 <div
                   key={title}
-                  className="rounded-2xl border border-cream/8 bg-[#123243] p-5 sm:p-6"
+                  className="rounded-2xl border border-champagne/8 bg-minuit p-5 sm:p-6"
                 >
-                  <Icon size={20} className="text-orange" />
+                  <Icon size={20} className="text-cuivre" />
 
-                  <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold tracking-tight text-cream">
+                  <h3 className="font-display mt-3 text-[17px] font-extrabold tracking-tight text-champagne">
                     {title}
                   </h3>
 
-                  <p className="mt-2 text-[13px] leading-relaxed text-cream/70">
+                  <p className="mt-2 text-[13px] leading-relaxed text-champagne/70">
                     {description}
                   </p>
                 </div>
               ))}
             </div>
 
-            <p className="mt-6 text-[13px] text-cream/55">
+            <p className="mt-6 text-[13px] text-champagne/55">
               {siteStats
                 ? `${formatStat(siteStats.matchs)} mises en relation depuis l'ouverture de la plateforme.`
                 : 'Des mises en relation chaque semaine, entre profils vérifiés uniquement.'}
@@ -461,13 +461,13 @@ export default function CommencerPage() {
         </section>
 
         {/* Bénéfices */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Ce que tu y gagnes
             </h2>
 
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-cream/60">
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
               Une plateforme de rencontres pensée pour les hommes de 28 ans et
               plus, où chaque profil en face de toi a passé le même contrôle que
               le tien.
@@ -477,26 +477,26 @@ export default function CommencerPage() {
               {benefits.map(({ icon: Icon, title, description }) => (
                 <div
                   key={title}
-                  className="rounded-2xl border border-cream/8 bg-[#123243] p-5 sm:p-6"
+                  className="rounded-2xl border border-champagne/8 bg-minuit p-5 sm:p-6"
                 >
-                  <Icon size={18} className="text-orange" />
+                  <Icon size={18} className="text-cuivre" />
 
-                  <h3 className="font-display [font-stretch:125%] mt-3 text-[17px] font-extrabold tracking-tight text-cream">
+                  <h3 className="font-display mt-3 text-[17px] font-extrabold tracking-tight text-champagne">
                     {title}
                   </h3>
 
-                  <p className="mt-2 text-[13px] leading-relaxed text-cream/70">
+                  <p className="mt-2 text-[13px] leading-relaxed text-champagne/70">
                     {description}
                   </p>
                 </div>
               ))}
             </div>
 
-            <p className="mt-6 text-[13px] text-cream/55">
+            <p className="mt-6 text-[13px] text-champagne/55">
               Besoin du détail fonctionnalité par fonctionnalité ?{' '}
               <Link
                 href="/fonctionnalites"
-                className={`fx-link font-semibold text-orange transition-colors hover:text-orange/80 ${focusRing}`}
+                className={`fx-link font-semibold text-cuivre transition-colors hover:text-cuivre/80 ${focusRing}`}
               >
                 Voir toutes les fonctionnalités
               </Link>
@@ -505,9 +505,9 @@ export default function CommencerPage() {
         </section>
 
         {/* FAQ */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] mb-8 text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Avant de commencer
             </h2>
 
@@ -518,7 +518,7 @@ export default function CommencerPage() {
                 return (
                   <div
                     key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]"
+                    className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit"
                   >
                     <button
                       type="button"
@@ -526,12 +526,12 @@ export default function CommencerPage() {
                         setOpenFaqIndex((current) => (current === index ? null : index))
                       }
                       aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-cream sm:px-5 ${focusRing}`}
+                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-champagne sm:px-5 ${focusRing}`}
                     >
                       {faq.question}
                       <ChevronDown
                         size={16}
-                        className={`shrink-0 text-cream/55 transition-transform ${
+                        className={`shrink-0 text-champagne/55 transition-transform ${
                           isOpen ? 'rotate-180' : ''
                         }`}
                       />
@@ -546,7 +546,7 @@ export default function CommencerPage() {
                           transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                           className="overflow-hidden"
                         >
-                          <p className="border-t border-cream/8 px-4 py-4 text-[13px] leading-relaxed text-cream/60 sm:px-5">
+                          <p className="border-t border-champagne/8 px-4 py-4 text-[13px] leading-relaxed text-champagne/60 sm:px-5">
                             {faq.answer}
                           </p>
                         </motion.div>
@@ -557,11 +557,11 @@ export default function CommencerPage() {
               })}
             </div>
 
-            <p className="mt-6 text-center text-[13px] text-cream/55">
+            <p className="mt-6 text-center text-[13px] text-champagne/55">
               Une autre question ?{' '}
               <Link
                 href="/faq"
-                className={`fx-link font-semibold text-orange hover:text-orange/80 ${focusRing}`}
+                className={`fx-link font-semibold text-cuivre hover:text-cuivre/80 ${focusRing}`}
               >
                 voir la FAQ complète
               </Link>
@@ -571,12 +571,12 @@ export default function CommencerPage() {
 
         {/* CTA final */}
         <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:p-11 lg:flex-row lg:text-left">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:p-11 lg:flex-row lg:text-left">
             <div>
-              <h2 className="font-display [font-stretch:125%] mb-1.5 text-xl font-extrabold text-cream sm:text-2xl">
+              <h2 className="font-display mb-1.5 text-xl font-extrabold text-champagne sm:text-2xl">
                 Ton dossier commence maintenant.
               </h2>
-              <p className="text-sm text-cream/60">
+              <p className="text-sm text-champagne/60">
                 Dix minutes pour le constituer, quelques instants pour la
                 vérification. Gratuit, sans engagement, sans carte bancaire.
               </p>
@@ -585,14 +585,14 @@ export default function CommencerPage() {
             <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
               <Link
                 href="/auth?mode=register"
-                className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
               >
                 constituer mon dossier
               </Link>
 
               <Link
                 href="/tarifs"
- className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
               >
                 voir les offres
                 <ArrowRight size={14} />

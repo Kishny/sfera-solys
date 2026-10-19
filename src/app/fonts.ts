@@ -1,31 +1,30 @@
 // src/app/fonts.ts
 //
-// Typographie « éclipse solaire » — Sfera'Solys.
-// Chargée via next/font/google, exposée en variables CSS et câblée
-// dans src/app/layout.tsx (RootLayout).
+// Typographie « nuit cuivrée » — Sfera'Solys.
+// Chargée via next/font/google, exposée en variables CSS et câblée dans
+// src/app/layout.tsx (RootLayout).
 //
-// - Archivo         → display (titres, boutons, wordmark),
-//                      largeur expanded (~125) via l'axe variable `wdth`.
-// - Fraunces        → accent italique (touches éditoriales / chaleureuses).
-// - Instrument Sans → corps (texte courant, UI), poids 400/500/600.
+// - Playfair Display → titres. Serif à fort contraste, c'est lui qui porte
+//                      la direction artistique.
+// - Instrument Sans  → corps, interface, boutons.
+//
+// Ce qui a disparu, et pourquoi : Archivo servait de display dans la charte
+// « éclipse solaire », toujours accompagné de `` pour
+// exploiter son axe de largeur variable. Playfair n'a pas cet axe, et la
+// maquette ne demande pas d'élargissement — les 149 occurrences de cette
+// classe ont été retirées avec lui. Fraunces italique servait d'accent
+// éditorial ; le serif étant devenu la voix principale, un second serif
+// n'apportait plus de contraste.
 
-import { Archivo, Fraunces, Instrument_Sans } from "next/font/google";
+import { Instrument_Sans, Playfair_Display } from "next/font/google";
 
-export const archivo = Archivo({
+export const playfair = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-archivo",
-  // Inclut l'axe de largeur variable pour pouvoir aller jusqu'à ~125
-  // (expanded) via `[font-stretch:125%]` dans les composants.
-  axes: ["wdth"],
-  display: "swap",
-});
-
-export const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  style: ["italic"],
-  // Axe optical size pour un rendu plus fin aux grandes tailles éditoriales.
-  axes: ["opsz"],
+  variable: "--font-playfair",
+  // L'axe optique n'existe pas sur Playfair ; on prend les graisses utiles
+  // aux titres et au mot-symbole.
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 

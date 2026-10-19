@@ -31,7 +31,7 @@ import Footer from '@/components/Footer';
  * question.
  *
  * Ce qui change : fond sombre `abyss`, un seul accent (vulcanico), cartes
- * `#123243`, accordéons reprenant exactement le pattern de `/tarifs`
+ * `#1D2835`, accordéons reprenant exactement le pattern de `/tarifs`
  * (AnimatePresence + `aria-expanded` + chevron pivotant), plancher de
  * contraste `cream/55` respecté partout, `id="contenu"` sur le `<main>`.
  *
@@ -57,7 +57,7 @@ type Faq = {
 
 /** Anneau de focus clavier, identique partout dans la direction A. */
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 const categories: {
   id: CategoryId;
@@ -234,21 +234,21 @@ export default function FAQPage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-abyss text-cream">
+      <main id="contenu" className="bg-nuit text-champagne">
         {/* Hero + recherche + filtres */}
-        <section className="border-b border-cream/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
+        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
           <div className="mx-auto max-w-3xl py-12 sm:py-16">
             <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-orange/35 bg-orange/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-cream">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
                 <HelpCircle size={13} />
                 centre d&apos;aide
               </span>
 
-              <h1 className="font-display [font-stretch:125%] mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-cream sm:text-[40px]">
+              <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
                 La FAQ de Sfera&apos;Solys.
               </h1>
 
-              <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-cream/60 sm:text-base">
+              <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
                 Trouve rapidement les réponses à tes questions : vérification,
                 compte, rencontres, offres payantes. Si la tienne n&apos;y est
                 pas, notre support répond directement.
@@ -264,7 +264,7 @@ export default function FAQPage() {
               <div className="relative">
                 <Search
                   size={16}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-cream/55"
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-champagne/55"
                   aria-hidden="true"
                 />
 
@@ -274,7 +274,7 @@ export default function FAQPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Rechercher une question…"
-                  className={`w-full rounded-xl border border-cream/15 bg-[#123243] py-3 pl-10 pr-11 text-sm text-cream outline-none transition-colors placeholder:text-cream/55 hover:border-cream/30 focus:border-orange/50 ${focusRing}`}
+                  className={`w-full rounded-xl border border-champagne/15 bg-minuit py-3 pl-10 pr-11 text-sm text-champagne outline-none transition-colors placeholder:text-champagne/55 hover:border-champagne/30 focus:border-cuivre/50 ${focusRing}`}
                 />
 
                 {searchTerm && (
@@ -282,7 +282,7 @@ export default function FAQPage() {
                     type="button"
                     onClick={() => setSearchTerm('')}
                     aria-label="Effacer la recherche"
-                    className={`absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-cream/55 transition-colors hover:text-cream ${focusRing}`}
+                    className={`absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-champagne/55 transition-colors hover:text-champagne ${focusRing}`}
                   >
                     <X size={15} />
                   </button>
@@ -303,8 +303,8 @@ export default function FAQPage() {
                       aria-pressed={isActive}
                       className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12px] font-semibold transition-colors ${focusRing} ${
                         isActive
-                          ? 'border-orange/40 bg-orange/[0.12] text-cream'
-                          : 'border-cream/15 text-cream/70 hover:border-cream/30 hover:text-cream'
+                          ? 'border-cuivre/40 bg-cuivre/[0.12] text-champagne'
+                          : 'border-champagne/15 text-champagne/70 hover:border-champagne/30 hover:text-champagne'
                       }`}
                     >
                       <Icon size={14} />
@@ -318,7 +318,7 @@ export default function FAQPage() {
               <p
                 role="status"
                 aria-live="polite"
-                className="mt-3 text-center text-[13px] text-cream/55"
+                className="mt-3 text-center text-[13px] text-champagne/55"
               >
                 {resultLabel}
               </p>
@@ -328,13 +328,13 @@ export default function FAQPage() {
 
         {/* Questions populaires — seulement sans filtre actif */}
         {!isFiltering && (
-          <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+          <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
             <div className="mx-auto max-w-3xl">
-              <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
                 Questions populaires
               </h2>
 
-              <p className="mb-8 mt-2 text-[13px] text-cream/60">
+              <p className="mb-8 mt-2 text-[13px] text-champagne/60">
                 Les réponses les plus consultées.
               </p>
 
@@ -360,13 +360,13 @@ export default function FAQPage() {
         )}
 
         {/* Toutes les questions */}
-        <section className="border-b border-cream/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Toutes les questions
             </h2>
 
-            <p className="mb-8 mt-2 text-[13px] text-cream/60">
+            <p className="mb-8 mt-2 text-[13px] text-champagne/60">
               Filtre par catégorie ou utilise la recherche.
             </p>
 
@@ -388,18 +388,18 @@ export default function FAQPage() {
                 })}
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-cream/15 bg-[#123243] p-8 text-center sm:p-10">
+              <div className="rounded-2xl border border-dashed border-champagne/15 bg-minuit p-8 text-center sm:p-10">
                 <HelpCircle
                   size={28}
-                  className="mx-auto text-cream/55"
+                  className="mx-auto text-champagne/55"
                   aria-hidden="true"
                 />
 
-                <h3 className="font-display [font-stretch:125%] mt-4 text-lg font-extrabold text-cream">
+                <h3 className="font-display mt-4 text-lg font-extrabold text-champagne">
                   Aucun résultat
                 </h3>
 
-                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-cream/60">
+                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
                   Essaie d&apos;autres mots-clés ou change de catégorie.
                 </p>
 
@@ -409,7 +409,7 @@ export default function FAQPage() {
                     setSearchTerm('');
                     setActiveCategory('all');
                   }}
- className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
                 >
                   réinitialiser les filtres
                   <ArrowRight size={14} />
@@ -422,11 +422,11 @@ export default function FAQPage() {
         {/* Aide directe */}
         <section className="px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display [font-stretch:125%] text-2xl font-extrabold tracking-tight text-cream sm:text-[26px]">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
               Tu n&apos;as pas trouvé ta réponse ?
             </h2>
 
-            <p className="mb-8 mt-2 text-[13px] leading-relaxed text-cream/60">
+            <p className="mb-8 mt-2 text-[13px] leading-relaxed text-champagne/60">
               Notre support peut t&apos;aider rapidement. Trois façons de nous
               joindre, au choix.
             </p>
@@ -437,20 +437,20 @@ export default function FAQPage() {
 
                 const content = (
                   <>
-                    <Icon size={18} className="shrink-0 text-orange" aria-hidden="true" />
+                    <Icon size={18} className="shrink-0 text-cuivre" aria-hidden="true" />
 
                     <span className="block">
-                      <span className="block text-sm font-semibold text-cream">
+                      <span className="block text-sm font-semibold text-champagne">
                         {link.title}
                       </span>
-                      <span className="block text-[12px] text-cream/60">
+                      <span className="block text-[12px] text-champagne/60">
                         {link.description}
                       </span>
                     </span>
                   </>
                 );
 
-                const className = `flex items-center gap-3 rounded-2xl border border-cream/8 bg-[#123243] px-4 py-4 transition-colors hover:border-cream/25 sm:flex-col sm:items-start ${focusRing}`;
+                const className = `flex items-center gap-3 rounded-2xl border border-champagne/8 bg-minuit px-4 py-4 transition-colors hover:border-champagne/25 sm:flex-col sm:items-start ${focusRing}`;
 
                 return link.external ? (
                   <a key={link.href} href={link.href} className={className}>
@@ -464,12 +464,12 @@ export default function FAQPage() {
               })}
             </div>
 
-            <div className="mt-8 flex flex-col items-center gap-3 rounded-3xl border border-orange/25 bg-[#123243] p-7 text-center sm:flex-row sm:justify-between sm:p-9 sm:text-left">
+            <div className="mt-8 flex flex-col items-center gap-3 rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:flex-row sm:justify-between sm:p-9 sm:text-left">
               <div>
-                <h3 className="font-display [font-stretch:125%] text-xl font-extrabold text-cream">
+                <h3 className="font-display text-xl font-extrabold text-champagne">
                   Prêt à constituer ton dossier ?
                 </h3>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-cream/60">
+                <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/60">
                   L&apos;inscription et la vérification d&apos;identité sont
                   gratuites, quelle que soit l&apos;offre choisie ensuite.
                 </p>
@@ -478,14 +478,14 @@ export default function FAQPage() {
               <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
                 <Link
                   href="/auth?mode=register"
-                  className={`fx-btn rounded-xl bg-orange px-7 py-3.5 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 ${focusRing}`}
+                  className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
                 >
                   constituer mon dossier
                 </Link>
 
                 <Link
                   href="/tarifs"
- className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-cream transition-colors ${focusRing}`}
+ className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
                 >
                   voir les tarifs
                   <ArrowRight size={14} />
@@ -525,7 +525,7 @@ function FaqItem({
   const Icon = meta.icon;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-cream/8 bg-[#123243]">
+    <div className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit">
       <button
         type="button"
         onClick={() => onToggle(id)}
@@ -533,18 +533,18 @@ function FaqItem({
         className={`flex w-full items-start justify-between gap-4 px-4 py-4 text-left sm:px-5 ${focusRing}`}
       >
         <span className="min-w-0">
-          <span className="block text-sm font-semibold text-cream">
+          <span className="block text-sm font-semibold text-champagne">
             {faq.question}
           </span>
 
           <span className="mt-1.5 flex flex-wrap items-center gap-2">
             {isPopular && (
-              <span className="rounded-full bg-lime px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-abyss">
+              <span className="rounded-full bg-succes px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-nuit">
                 Populaire
               </span>
             )}
 
-            <span className="inline-flex items-center gap-1 text-[11px] text-cream/55">
+            <span className="inline-flex items-center gap-1 text-[11px] text-champagne/55">
               <Icon size={12} aria-hidden="true" />
               {meta.label}
             </span>
@@ -553,7 +553,7 @@ function FaqItem({
 
         <ChevronDown
           size={16}
-          className={`mt-0.5 shrink-0 text-cream/55 transition-transform ${
+          className={`mt-0.5 shrink-0 text-champagne/55 transition-transform ${
             isOpen ? 'rotate-180' : ''
           }`}
           aria-hidden="true"
@@ -569,7 +569,7 @@ function FaqItem({
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
             className="overflow-hidden"
           >
-            <p className="border-t border-cream/8 px-4 py-4 text-[13px] leading-relaxed text-cream/70 sm:px-5">
+            <p className="border-t border-champagne/8 px-4 py-4 text-[13px] leading-relaxed text-champagne/70 sm:px-5">
               {faq.answer}
             </p>
           </motion.div>

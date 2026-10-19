@@ -105,9 +105,9 @@ function Eclipse() {
       <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full">
         <defs>
           <radialGradient id="solys-soleil" cx="36%" cy="32%">
-            <stop offset="0%" stopColor="#FFD9BE" />
-            <stop offset="42%" stopColor="#FF4103" />
-            <stop offset="100%" stopColor="#B82802" />
+            <stop offset="0%" stopColor="#F7F3ED" />
+            <stop offset="42%" stopColor="#BD9365" />
+            <stop offset="100%" stopColor="#3A2A18" />
           </radialGradient>
 
           <mask id="solys-morsure">
@@ -133,7 +133,7 @@ function Eclipse() {
           cy="100"
           r="78"
           fill="none"
-          stroke="#FFEBD1"
+          stroke="#EAD9BD"
           strokeOpacity="0.16"
           strokeWidth="1"
         />
@@ -143,7 +143,7 @@ function Eclipse() {
             cy="100"
             r="94"
             fill="none"
-            stroke="#FFEBD1"
+            stroke="#EAD9BD"
             strokeOpacity="0.1"
             strokeWidth="1"
             strokeDasharray="3 9"
@@ -173,7 +173,7 @@ function Champ({
       </div>
 
       {erreur && (
-        <p className="mt-1.5 text-[12px] text-cream/85" role="alert">
+        <p className="mt-1.5 text-[12px] text-champagne/85" role="alert">
           {erreur}
         </p>
       )}
@@ -221,7 +221,7 @@ function ChampSecret({
       </div>
 
       {erreur && (
-        <p className="mt-1.5 text-[12px] text-cream/85" role="alert">
+        <p className="mt-1.5 text-[12px] text-champagne/85" role="alert">
           {erreur}
         </p>
       )}
@@ -244,7 +244,7 @@ function BoutonEnvoi({
       <button
         type="submit"
         disabled={enCours}
-        className="fx-btn relative mt-1 w-full overflow-hidden rounded-full bg-orange px-6 py-3.5 font-display text-[13px] font-bold uppercase tracking-[0.12em] text-abyss [font-stretch:125%] disabled:cursor-not-allowed disabled:opacity-60"
+        className="fx-btn relative mt-1 w-full overflow-hidden rounded-full bg-cuivre px-6 py-3.5 font-display text-[13px] font-bold uppercase tracking-[0.12em] text-nuit disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span className="flex items-center justify-center gap-2">
           {enCours && (
@@ -584,24 +584,24 @@ function Contenu() {
 
   const message = succes ? (
     <p
-      className="flex items-start gap-2 rounded-xl border border-lime/25 bg-lime/[0.07] px-3.5 py-2.5 text-[12px] leading-relaxed text-cream/85"
+      className="flex items-start gap-2 rounded-xl border border-succes/25 bg-succes/[0.07] px-3.5 py-2.5 text-[12px] leading-relaxed text-champagne/85"
       role="status"
     >
       <CheckCircle2
         size={14}
-        className="mt-0.5 shrink-0 text-lime"
+        className="mt-0.5 shrink-0 text-succes"
         aria-hidden="true"
       />
       {succes}
     </p>
   ) : erreurs.form ? (
     <p
-      className="flex items-start gap-2 rounded-xl border border-orange/35 bg-orange/[0.08] px-3.5 py-2.5 text-[12px] leading-relaxed text-cream/85"
+      className="flex items-start gap-2 rounded-xl border border-cuivre/35 bg-cuivre/[0.08] px-3.5 py-2.5 text-[12px] leading-relaxed text-champagne/85"
       role="alert"
     >
       <AlertCircle
         size={14}
-        className="mt-0.5 shrink-0 text-orange"
+        className="mt-0.5 shrink-0 text-cuivre"
         aria-hidden="true"
       />
       {erreurs.form}
@@ -625,14 +625,14 @@ function Contenu() {
               type="button"
               onClick={() => viaFournisseur(fournisseur.id)}
               disabled={enCours}
-              className="fx-ghost flex flex-1 items-center justify-center gap-2 rounded-xl border border-cream/12 px-3 py-2.5 text-[12px] font-semibold text-cream disabled:opacity-50"
+              className="fx-ghost flex flex-1 items-center justify-center gap-2 rounded-xl border border-champagne/12 px-3 py-2.5 text-[12px] font-semibold text-champagne disabled:opacity-50"
             >
               {fournisseur.nom}
             </button>
           ))}
         </div>
 
-        <p className="mt-3 text-center text-[11px] uppercase tracking-[0.14em] text-cream/55">
+        <p className="mt-3 text-center text-[11px] uppercase tracking-[0.14em] text-champagne/55">
           ou avec ton email
         </p>
       </div>
@@ -656,18 +656,18 @@ function Contenu() {
             inscription ? styles.panActif : styles.panRepos
           }`}
         >
-          <h2 className="font-display text-[30px] font-bold leading-tight [font-stretch:125%]">
+          <h2 className="font-display text-[30px] font-bold leading-tight">
             Déjà des nôtres&nbsp;?
           </h2>
 
-          <p className="max-w-[16rem] text-[14px] leading-relaxed text-cream/80">
+          <p className="max-w-[16rem] text-[14px] leading-relaxed text-champagne/80">
             Retrouve ton cercle, tes conversations et là où tu en étais.
           </p>
 
           <button
             type="button"
             onClick={() => basculer(true)}
-            className="fx-ghost mt-2 rounded-full border border-cream/45 px-7 py-2.5 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-cream [font-stretch:125%]"
+            className="fx-ghost mt-2 rounded-full border border-champagne/45 px-7 py-2.5 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-champagne"
           >
             Se connecter
           </button>
@@ -684,10 +684,10 @@ function Contenu() {
             className={styles.monte}
             style={{ "--rang": 0 } as React.CSSProperties}
           >
-            <h1 className="font-display text-[24px] font-bold leading-tight text-cream [font-stretch:125%]">
+            <h1 className="font-display text-[24px] font-bold leading-tight text-champagne">
               Créer un compte
             </h1>
-            <p className="mt-1 text-[13px] text-cream/60">
+            <p className="mt-1 text-[13px] text-champagne/60">
               Quelques secondes, puis on fait connaissance.
             </p>
           </div>
@@ -738,11 +738,11 @@ function Contenu() {
 
             {force > 0 && (
               <div
-                className="h-1 overflow-hidden rounded-full bg-cream/10"
+                className="h-1 overflow-hidden rounded-full bg-champagne/10"
                 role="presentation"
               >
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-orange to-lime transition-[width] duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-cuivre to-succes transition-[width] duration-500"
                   style={{ width: `${force}%` }}
                 />
               </div>
@@ -762,7 +762,7 @@ function Contenu() {
           </form>
 
           <p
-            className={`${styles.monte} flex items-center justify-center gap-1.5 text-center text-[11px] leading-relaxed text-cream/60`}
+            className={`${styles.monte} flex items-center justify-center gap-1.5 text-center text-[11px] leading-relaxed text-champagne/60`}
             style={{ "--rang": 8 } as React.CSSProperties}
           >
             <BadgeCheck size={12} className="shrink-0" aria-hidden="true" />
@@ -777,11 +777,11 @@ function Contenu() {
             connexion ? styles.panActif : styles.panRepos
           }`}
         >
-          <h2 className="font-display text-[30px] font-bold leading-tight [font-stretch:125%]">
+          <h2 className="font-display text-[30px] font-bold leading-tight">
             Première fois ici&nbsp;?
           </h2>
 
-          <p className="max-w-[16rem] text-[14px] leading-relaxed text-cream/80">
+          <p className="max-w-[16rem] text-[14px] leading-relaxed text-champagne/80">
             Un compte, une pièce d’identité vérifiée, et des profils qui
             existent vraiment.
           </p>
@@ -789,7 +789,7 @@ function Contenu() {
           <button
             type="button"
             onClick={() => basculer(false)}
-            className="fx-ghost mt-2 rounded-full border border-cream/45 px-7 py-2.5 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-cream [font-stretch:125%]"
+            className="fx-ghost mt-2 rounded-full border border-champagne/45 px-7 py-2.5 font-display text-[12px] font-bold uppercase tracking-[0.14em] text-champagne"
           >
             Créer un compte
           </button>
@@ -806,10 +806,10 @@ function Contenu() {
             className={styles.monte}
             style={{ "--rang": 0 } as React.CSSProperties}
           >
-            <h1 className="font-display text-[24px] font-bold leading-tight text-cream [font-stretch:125%]">
+            <h1 className="font-display text-[24px] font-bold leading-tight text-champagne">
               Se connecter
             </h1>
-            <p className="mt-1 text-[13px] text-cream/60">
+            <p className="mt-1 text-[13px] text-champagne/60">
               Content de te revoir.
             </p>
           </div>
@@ -843,7 +843,7 @@ function Contenu() {
             >
               <Link
                 href="/auth/reset-password"
-                className="fx-link text-[12px] text-cream/60 hover:text-cream"
+                className="fx-link text-[12px] text-champagne/60 hover:text-champagne"
               >
                 Mot de passe oublié&nbsp;?
               </Link>
@@ -861,12 +861,12 @@ function Contenu() {
 
 export default function PageAuth() {
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-abyss font-sans text-cream">
+    <main className="relative min-h-screen overflow-x-hidden bg-nuit font-sans text-champagne">
       {/* Halos solaires, très lents */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 left-1/4 h-[30rem] w-[30rem] rounded-full bg-orange/[0.09] blur-[120px]" />
-        <div className="absolute bottom-[-10rem] right-1/5 h-[26rem] w-[26rem] rounded-full bg-rust/25 blur-[120px]" />
-        <div className="absolute left-[-6rem] top-1/2 h-[18rem] w-[18rem] rounded-full bg-lime/[0.05] blur-[100px]" />
+        <div className="absolute -top-32 left-1/4 h-[30rem] w-[30rem] rounded-full bg-cuivre/[0.09] blur-[120px]" />
+        <div className="absolute bottom-[-10rem] right-1/5 h-[26rem] w-[26rem] rounded-full bg-erreur/25 blur-[120px]" />
+        <div className="absolute left-[-6rem] top-1/2 h-[18rem] w-[18rem] rounded-full bg-succes/[0.05] blur-[100px]" />
       </div>
 
       <div className="stars" />
@@ -874,7 +874,7 @@ export default function PageAuth() {
       <Link
         href="/"
         aria-label="Retour à l’accueil"
-        className="fx-ghost fixed left-4 top-4 z-40 flex items-center gap-2 rounded-full border border-cream/12 bg-abyss/70 px-3 py-2 text-[12px] font-semibold text-cream/80 backdrop-blur-xl sm:left-6 sm:top-6"
+        className="fx-ghost fixed left-4 top-4 z-40 flex items-center gap-2 rounded-full border border-champagne/12 bg-nuit/70 px-3 py-2 text-[12px] font-semibold text-champagne/80 backdrop-blur-xl sm:left-6 sm:top-6"
       >
         <ArrowLeft size={15} aria-hidden="true" />
         <span className="hidden sm:inline">Retour</span>
@@ -885,7 +885,7 @@ export default function PageAuth() {
           <div className="flex min-h-screen items-center justify-center">
             <Loader2
               size={26}
-              className="animate-spin text-orange"
+              className="animate-spin text-cuivre"
               aria-hidden="true"
             />
           </div>

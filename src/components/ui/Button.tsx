@@ -38,13 +38,13 @@ const variantStyles: Record<ButtonVariant, string> = {
   // CTA principal — accent solaire. Réservé aux gros éléments (jamais de
   // petit texte orange sur teal ailleurs dans le site).
   primary:
-    "bg-orange text-abyss hover:bg-rust hover:text-cream focus-visible:ring-orange",
+    "bg-cuivre text-nuit hover:bg-cuivre-sombre hover:text-ivoire focus-visible:ring-cuivre",
   // Bouton secondaire — surface teal.
   secondary:
-    "bg-teal text-cream border border-cream/15 hover:bg-teal/80 hover:border-orange/50 focus-visible:ring-cream",
+    "bg-minuit text-champagne border border-champagne/15 hover:bg-minuit/80 hover:border-cuivre/50 focus-visible:ring-champagne",
   // Bouton fantôme — contour seul, pour actions tertiaires.
   ghost:
-    "bg-transparent text-cream border border-cream/25 hover:border-orange hover:bg-cream/5 focus-visible:ring-orange",
+    "bg-transparent text-champagne border border-champagne/25 hover:border-cuivre hover:bg-champagne/5 focus-visible:ring-cuivre",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -54,7 +54,7 @@ const sizeStyles: Record<ButtonSize, string> = {
 };
 
 const baseStyles =
-  "inline-flex items-center justify-center rounded-full font-display [font-stretch:125%] tracking-wide transition-colors duration-200 motion-reduce:transition-none disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "inline-flex items-center justify-center rounded-full font-display tracking-wide transition-colors duration-200 motion-reduce:transition-none disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 function isLinkProps(
   rest: Record<string, unknown>

@@ -194,11 +194,11 @@ function ResetPasswordContent() {
   };
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-x-hidden bg-abyss px-3 pb-8 pt-8 sm:px-4 sm:pt-16">
+    <main className="relative flex min-h-screen items-center justify-center overflow-x-hidden bg-nuit px-3 pb-8 pt-8 sm:px-4 sm:pt-16">
       {/* Décor doux */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 left-1/3 h-64 w-64 rounded-full bg-orange/[0.07] blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 h-72 w-72 rounded-full bg-lime/[0.05] blur-3xl" />
+        <div className="absolute -top-24 left-1/3 h-64 w-64 rounded-full bg-cuivre/[0.07] blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 h-72 w-72 rounded-full bg-succes/[0.05] blur-3xl" />
       </div>
 
       <motion.div
@@ -210,7 +210,7 @@ function ResetPasswordContent() {
         {/* Retour */}
         <Link
           href="/auth?mode=login"
-          className="fx-ghost mb-5 inline-flex items-center gap-2 rounded-full border border-cream/15 px-3 py-2 text-sm font-medium text-cream/70 transition hover:border-cream/30 hover:text-cream"
+          className="fx-ghost mb-5 inline-flex items-center gap-2 rounded-full border border-champagne/15 px-3 py-2 text-sm font-medium text-champagne/70 transition hover:border-champagne/30 hover:text-champagne"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour à la connexion
@@ -219,25 +219,25 @@ function ResetPasswordContent() {
         {/* Header */}
         <div className="mb-7 text-center sm:mb-8">
           <div className="mb-5 inline-flex items-center gap-2 sm:mb-6">
-            <Sun className="h-7 w-7 text-orange" />
+            <Sun className="h-7 w-7 text-cuivre" />
 
-            <span className="bg-gradient-to-r from-cream to-orange bg-clip-text text-2xl font-bold text-transparent">
+            <span className="bg-gradient-to-r from-champagne to-cuivre bg-clip-text text-2xl font-bold text-transparent">
               Sfera'Solys
             </span>
           </div>
 
-          <h1 className="mb-2 text-2xl font-bold text-cream">
+          <h1 className="mb-2 text-2xl font-bold text-champagne">
             {hasToken ? "Nouveau mot de passe" : "Mot de passe oublié"}
           </h1>
 
-          <p className="mx-auto max-w-sm text-sm leading-relaxed text-cream/60">
+          <p className="mx-auto max-w-sm text-sm leading-relaxed text-champagne/60">
             {hasToken
               ? "Choisis un nouveau mot de passe sécurisé pour ton compte."
               : "Saisis ton email pour recevoir un lien de réinitialisation."}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-cream/10 bg-[#123243] p-5 sm:p-8">
+        <div className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-8">
           {/* Email envoyé */}
           <AnimatePresence mode="wait">
             {sent && (
@@ -248,20 +248,20 @@ function ResetPasswordContent() {
                 exit={{ opacity: 0, y: -12 }}
                 className="py-4 text-center"
               >
-                <CheckCircle className="mx-auto mb-4 h-12 w-12 text-lime" />
+                <CheckCircle className="mx-auto mb-4 h-12 w-12 text-succes" />
 
-                <p className="mb-2 font-semibold text-cream">
+                <p className="mb-2 font-semibold text-champagne">
                   Email envoyé !
                 </p>
 
-                <p className="text-sm leading-relaxed text-cream/60">
+                <p className="text-sm leading-relaxed text-champagne/60">
                   Si un compte existe pour{" "}
-                  <strong className="text-cream">{email}</strong>, tu recevras un lien sous peu. Vérifie aussi tes spams.
+                  <strong className="text-champagne">{email}</strong>, tu recevras un lien sous peu. Vérifie aussi tes spams.
                 </p>
 
                 <Link
                   href="/auth?mode=login"
-                  className="mt-6 inline-block text-sm font-medium text-cream hover:underline"
+                  className="mt-6 inline-block text-sm font-medium text-champagne hover:underline"
                 >
                   ← Retour à la connexion
                 </Link>
@@ -277,13 +277,13 @@ function ResetPasswordContent() {
                 exit={{ opacity: 0, y: -12 }}
                 className="py-4 text-center"
               >
-                <CheckCircle className="mx-auto mb-4 h-12 w-12 text-lime" />
+                <CheckCircle className="mx-auto mb-4 h-12 w-12 text-succes" />
 
-                <p className="mb-2 font-semibold text-cream">
+                <p className="mb-2 font-semibold text-champagne">
                   Mot de passe mis à jour !
                 </p>
 
-                <p className="text-sm text-cream/60">
+                <p className="text-sm text-champagne/60">
                   Redirection vers la connexion…
                 </p>
               </motion.div>
@@ -296,12 +296,12 @@ function ResetPasswordContent() {
               {error && <ErrorBox message={error} />}
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-cream/60">
+                <label className="mb-1.5 block text-sm font-medium text-champagne/60">
                   Adresse email
                 </label>
 
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cream/55" />
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-champagne/55" />
 
                   <input
                     type="email"
@@ -310,7 +310,7 @@ function ResetPasswordContent() {
                     required
                     autoComplete="email"
                     placeholder="prenom@email.com"
-                    className="w-full rounded-xl border border-cream/15 bg-abyss/60 px-4 py-3 pl-10 text-sm text-cream placeholder-cream/55 transition focus:border-orange focus:outline-none focus:ring-2 focus:ring-orange/25"
+                    className="w-full rounded-xl border border-champagne/15 bg-nuit/60 px-4 py-3 pl-10 text-sm text-champagne placeholder-champagne/55 transition focus:border-cuivre focus:outline-none focus:ring-2 focus:ring-cuivre/25"
                   />
                 </div>
               </div>
@@ -318,16 +318,16 @@ function ResetPasswordContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-orange py-3 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-cuivre py-3 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {loading ? "Envoi en cours…" : "Envoyer le lien"}
               </button>
 
-              <p className="text-center text-sm text-cream/60">
+              <p className="text-center text-sm text-champagne/60">
                 <Link
                   href="/auth?mode=login"
-                  className="font-medium text-orange hover:underline"
+                  className="font-medium text-cuivre hover:underline"
                 >
                   ← Retour à la connexion
                 </Link>
@@ -341,12 +341,12 @@ function ResetPasswordContent() {
               {error && <ErrorBox message={error} />}
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-cream/60">
+                <label className="mb-1.5 block text-sm font-medium text-champagne/60">
                   Nouveau mot de passe
                 </label>
 
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cream/55" />
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-champagne/55" />
 
                   <input
                     type={showPassword ? "text" : "password"}
@@ -355,13 +355,13 @@ function ResetPasswordContent() {
                     required
                     autoComplete="new-password"
                     placeholder="Au moins 8 caractères"
-                    className="w-full rounded-xl border border-cream/15 bg-abyss/60 px-4 py-3 pl-10 pr-12 text-sm text-cream placeholder-cream/55 transition focus:border-orange focus:outline-none focus:ring-2 focus:ring-orange/25"
+                    className="w-full rounded-xl border border-champagne/15 bg-nuit/60 px-4 py-3 pl-10 pr-12 text-sm text-champagne placeholder-champagne/55 transition focus:border-cuivre focus:outline-none focus:ring-2 focus:ring-cuivre/25"
                   />
 
                   <button
                     type="button"
                     onClick={() => setShowPassword((value) => !value)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-cream/55 transition hover:bg-[#f4efff] hover:text-cream"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-champagne/55 transition hover:bg-champagne/10 hover:text-champagne"
                     aria-label={
                       showPassword
                         ? "Masquer le mot de passe"
@@ -378,12 +378,12 @@ function ResetPasswordContent() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-cream/60">
+                <label className="mb-1.5 block text-sm font-medium text-champagne/60">
                   Confirmer le mot de passe
                 </label>
 
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cream/55" />
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-champagne/55" />
 
                   <input
                     type={showPassword ? "text" : "password"}
@@ -392,13 +392,13 @@ function ResetPasswordContent() {
                     required
                     autoComplete="new-password"
                     placeholder="Répète ton mot de passe"
-                    className="w-full rounded-xl border border-cream/15 bg-abyss/60 px-4 py-3 pl-10 text-sm text-cream placeholder-cream/55 transition focus:border-orange focus:outline-none focus:ring-2 focus:ring-orange/25"
+                    className="w-full rounded-xl border border-champagne/15 bg-nuit/60 px-4 py-3 pl-10 text-sm text-champagne placeholder-champagne/55 transition focus:border-cuivre focus:outline-none focus:ring-2 focus:ring-cuivre/25"
                   />
                 </div>
               </div>
 
               {/* Indicateurs simples */}
-              <div className="space-y-1 rounded-xl border border-cream/10 bg-abyss/50 p-3 text-xs text-cream/60">
+              <div className="space-y-1 rounded-xl border border-champagne/10 bg-nuit/50 p-3 text-xs text-champagne/60">
                 <PasswordCheck
                   ok={passwordChecks.minLength}
                   label="Au moins 8 caractères"
@@ -420,7 +420,7 @@ function ResetPasswordContent() {
               <button
                 type="submit"
                 disabled={!canSubmitNewPassword}
-                className="fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-orange py-3 text-sm font-bold text-abyss transition-colors hover:bg-orange/90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-cuivre py-3 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {loading ? "Mise à jour…" : "Changer mon mot de passe"}
@@ -444,7 +444,7 @@ function ErrorBox({ message }: { message: string }) {
 
 function PasswordCheck({ ok, label }: { ok: boolean; label: string }) {
   return (
-    <div className={ok ? "text-lime" : "text-cream/55"}>
+    <div className={ok ? "text-succes" : "text-champagne/55"}>
       {ok ? "✓" : "•"} {label}
     </div>
   );
@@ -454,8 +454,8 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <main className="flex min-h-screen items-center justify-center bg-abyss">
-          <Loader2 className="h-8 w-8 animate-spin text-orange" />
+        <main className="flex min-h-screen items-center justify-center bg-nuit">
+          <Loader2 className="h-8 w-8 animate-spin text-cuivre" />
         </main>
       }
     >

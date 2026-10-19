@@ -107,11 +107,11 @@ export default function Step4() {
     <div className="space-y-8 sm:space-y-10">
       {/* Titre de l'étape */}
       <div>
-        <h2 className="text-xl font-bold text-cream sm:text-2xl">
+        <h2 className="text-xl font-bold text-champagne sm:text-2xl">
           Sécurité et centres d’intérêt
         </h2>
 
-        <p className="mt-2 text-sm leading-relaxed text-cream/70">
+        <p className="mt-2 text-sm leading-relaxed text-champagne/70">
           Ajoute une question de sécurité et choisis quelques centres
           d’intérêt pour améliorer tes suggestions Sfera'Solys.
         </p>
@@ -120,11 +120,11 @@ export default function Step4() {
       {/* Bloc question de sécurité */}
       <section className="space-y-5">
         <div>
-          <h3 className="text-lg font-semibold text-cream">
+          <h3 className="text-lg font-semibold text-champagne">
             Question de sécurité
           </h3>
 
-          <p className="mt-2 text-sm text-cream/70">
+          <p className="mt-2 text-sm text-champagne/70">
             Cette question pourra être utilisée si tu oublies ton mot de
             passe.
           </p>
@@ -132,16 +132,16 @@ export default function Step4() {
 
         {/* Question */}
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-cream/90">
+          <label className="block text-sm font-semibold text-champagne/90">
             Sélectionne une question{" "}
-            <span className="text-orange">*</span>
+            <span className="text-cuivre">*</span>
           </label>
 
           <select
             {...register("question")}
-            className="w-full rounded-xl border border-cream/15 bg-cream/10 px-4 py-3 text-cream outline-none transition-all focus:border-orange focus:ring-2 focus:ring-orange/25"
+            className="w-full rounded-xl border border-champagne/15 bg-champagne/10 px-4 py-3 text-champagne outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
           >
-            <option value="" className="bg-abyss text-cream">
+            <option value="" className="bg-nuit text-champagne">
               Choisis une question
             </option>
 
@@ -149,7 +149,7 @@ export default function Step4() {
               <option
                 key={question.value}
                 value={question.value}
-                className="bg-abyss text-cream"
+                className="bg-nuit text-champagne"
               >
                 {question.label}
               </option>
@@ -165,8 +165,8 @@ export default function Step4() {
 
         {/* Réponse */}
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-cream/90">
-            Ta réponse <span className="text-orange">*</span>
+          <label className="block text-sm font-semibold text-champagne/90">
+            Ta réponse <span className="text-cuivre">*</span>
           </label>
 
           <input
@@ -174,17 +174,17 @@ export default function Step4() {
             type="text"
             placeholder="Ta réponse, maximum 200 caractères"
             maxLength={200}
-            className="w-full rounded-xl border border-cream/15 bg-cream/10 px-4 py-3 text-cream placeholder:text-cream/55 outline-none transition-all focus:border-orange focus:ring-2 focus:ring-orange/25"
+            className="w-full rounded-xl border border-champagne/15 bg-champagne/10 px-4 py-3 text-champagne placeholder:text-champagne/55 outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
           />
 
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-cream/55">
+            <p className="text-xs text-champagne/55">
               Cette réponse doit rester personnelle et facile à retenir.
             </p>
 
             <p
               className={`text-xs ${
-                reponse.length > 180 ? "text-orange" : "text-cream/55"
+                reponse.length > 180 ? "text-cuivre" : "text-champagne/55"
               }`}
             >
               {reponse.length}/200
@@ -200,13 +200,13 @@ export default function Step4() {
       </section>
 
       {/* Bloc centres d'intérêt */}
-      <section className="space-y-5 border-t border-cream/10 pt-6">
+      <section className="space-y-5 border-t border-champagne/10 pt-6">
         <div>
-          <h3 className="text-lg font-semibold text-cream">
-            Centres d’intérêt <span className="text-orange">*</span>
+          <h3 className="text-lg font-semibold text-champagne">
+            Centres d’intérêt <span className="text-cuivre">*</span>
           </h3>
 
-          <p className="mt-2 text-sm text-cream/70">
+          <p className="mt-2 text-sm text-champagne/70">
             Sélectionne entre 3 et 5 centres d’intérêt pour personnaliser ton expérience.
           </p>
         </div>
@@ -224,21 +224,21 @@ export default function Step4() {
                 disabled={isDisabled}
                 className={`rounded-xl border p-3 text-left transition-all ${
                   isSelected
-                    ? "border-orange bg-orange/15 text-cream"
+                    ? "border-cuivre bg-cuivre/15 text-champagne"
                     : isDisabled
-                      ? "cursor-not-allowed border-cream/10 bg-cream/5 text-cream/55"
-                      : "border-cream/12 bg-cream/10 text-cream/80 hover:border-orange/50 hover:bg-cream/15"
+                      ? "cursor-not-allowed border-champagne/10 bg-champagne/5 text-champagne/55"
+                      : "border-champagne/12 bg-champagne/10 text-champagne/80 hover:border-cuivre/50 hover:bg-champagne/15"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
                       isSelected
-                        ? "border-orange bg-orange"
-                        : "border-cream/20"
+                        ? "border-cuivre bg-cuivre"
+                        : "border-champagne/20"
                     }`}
                   >
-                    {isSelected && <Check className="h-3 w-3 text-abyss" />}
+                    {isSelected && <Check className="h-3 w-3 text-nuit" />}
                   </div>
 
                   <span className="text-sm font-medium">{interet.label}</span>
@@ -251,14 +251,14 @@ export default function Step4() {
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <p
             className={`text-sm ${
-              selectedInterets.length < 3 ? "text-orange" : "text-cream/70"
+              selectedInterets.length < 3 ? "text-cuivre" : "text-champagne/70"
             }`}
           >
             {selectedInterets.length}/5 sélectionnés — minimum 3
           </p>
 
           {selectedInterets.length >= 5 && (
-            <p className="text-sm text-cream">Maximum atteint</p>
+            <p className="text-sm text-champagne">Maximum atteint</p>
           )}
         </div>
 

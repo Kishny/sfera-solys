@@ -61,9 +61,9 @@ export function newsletterWrapper(title: string, bodyHtml: string): string {
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
         <tr>
-          <td style="background:linear-gradient(135deg,#04202E,#123243);padding:32px 40px;text-align:center;">
+          <td style="background:linear-gradient(135deg,#0A0D12,#1D2835);padding:32px 40px;text-align:center;">
             <span style="font-size:28px;">☀️</span>
-            <h1 style="color:#FFEBD1;margin:8px 0 0;font-size:24px;font-weight:700;">Sfera'Solys</h1>
+            <h1 style="color:#EAD9BD;margin:8px 0 0;font-size:24px;font-weight:700;">Sfera'Solys</h1>
           </td>
         </tr>
         <tr><td style="padding:40px;color:#444;line-height:1.7;font-size:15px;">${bodyHtml}</td></tr>
@@ -71,7 +71,7 @@ export function newsletterWrapper(title: string, bodyHtml: string): string {
           <td style="background:#f7f5f2;padding:24px 40px;text-align:center;border-top:1px solid #ebe8e3;">
             <p style="color:#999;font-size:12px;margin:0 0 8px;">© ${new Date().getFullYear()} Sfera'Solys · Chaque rencontre commence par un dossier vérifié.</p>
             <p style="color:#bbb;font-size:11px;margin:0;">
-              <a href="${APP_URL}" style="color:#6B1B02;text-decoration:none;">sferasolys.com</a> ·
+              <a href="${APP_URL}" style="color:#CB7871;text-decoration:none;">sferasolys.com</a> ·
               <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#bbb;text-decoration:underline;">Se désabonner</a>
             </p>
           </td>

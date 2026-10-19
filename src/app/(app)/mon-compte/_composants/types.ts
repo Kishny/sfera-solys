@@ -161,14 +161,14 @@ export interface RelationItem {
 // ─────────────────────────────────────────────
 
 export const focusRing =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss";
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
 /** Surface des cartes, alignée sur le reste de l'espace connecté. */
-export const carte = "rounded-2xl border border-cream/10 bg-[#123243]";
+export const carte = "rounded-2xl border border-champagne/10 bg-minuit";
 
 /** Champ de formulaire. */
 export const champ =
-  "w-full rounded-xl border border-cream/12 bg-abyss px-3.5 py-2.5 text-[14px] text-cream placeholder:text-cream/55 disabled:opacity-60 " +
+  "w-full rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[14px] text-champagne placeholder:text-champagne/55 disabled:opacity-60 " +
   focusRing;
 
 // ─────────────────────────────────────────────
