@@ -12,10 +12,8 @@ import {
   ArrowRight,
   ChevronDown,
   Ghost,
-  Compass,
   CalendarDays,
   Users,
-  Play,
 } from 'lucide-react';
 
 import Header from '@/components/Header';
@@ -68,19 +66,6 @@ import type { PublicTestimonial } from '@/components/testimonials/TestimonialCar
  * aussi pour l'illustration.
  */
 
-interface SiteStats {
-  membres: number;
-  matchs: number;
-  messages: number;
-  evenements: number;
-}
-
-function formatStat(n: number): string {
-  if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'K+';
-  if (n === 0) return '—';
-  return n.toString();
-}
-
 /** Les trois garanties du héros, reprises de la maquette. */
 const garanties = [
   {
@@ -131,15 +116,6 @@ const featureTeasers = [
     alt: "Silhouette d'un homme de dos devant une baie vitrée, à la nuit tombée.",
   },
   {
-    icon: Compass,
-    title: 'Annuaire',
-    description:
-      'Un espace personnel pour dire qui tu es sans avoir à te vendre.',
-    href: '/fonctionnalites',
-    image: '/visuels/solys-03.webp',
-    alt: 'Un homme seul sur une terrasse, face aux lumières de la ville.',
-  },
-  {
     icon: CalendarDays,
     title: 'Événements Solys',
     description: 'Des rencontres encadrées, en ligne et en présentiel.',
@@ -182,20 +158,17 @@ function Surtitre({ children }: { children: React.ReactNode }) {
 }
 
 export default function Home() {
-  const [siteStats, setSiteStats] = useState<SiteStats | null>(null);
   const [testimonial, setTestimonial] = useState<PublicTestimonial | null>(null);
   const [testimonialsLoaded, setTestimonialsLoaded] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const shouldReduceMotion = useReducedMotion();
 
-  useEffect(() => {
-    fetch('/api/stats')
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) setSiteStats(d.stats);
-      })
-      .catch(() => {});
-  }, []);
+  /*
+    Le compteur « N profils vérifiés » est retiré du héros : la maquette ne
+    le porte pas, et il affichait « 2 profils vérifiés » en production. Un
+    chiffre honnête peut desservir — mieux vaut ne rien annoncer que
+    d'annoncer deux. L'appel à /api/stats part avec lui.
+  */
 
   useEffect(() => {
     fetch('/api/testimonials')
@@ -231,34 +204,45 @@ export default function Home() {
             Dans les deux cas, ce sont les voiles qui rendent le texte
             lisible, pas un recadrage.
           */}
-          <div className="absolute inset-0 -z-10 lg:left-[42%]">
+          <div className="absolute inset-0 -z-20 lg:left-[46%]">
             <Image
               src="/visuels/solys-01.webp"
               alt="Deux hommes en costume sur un rooftop, au crépuscule, la ville en contrebas."
               fill
               priority
-              sizes="(max-width: 1024px) 100vw, 58vw"
+              sizes="(max-width: 1024px) 100vw, 56vw"
               className="object-cover object-center"
             />
 
-            {/* Fondu vers le fond, pour que la photo n'ait pas de bord net. */}
+            {/*
+              Le voile n'a qu'un travail : rendre le texte lisible là où il
+              passe. Plus sombre que nécessaire, il éteint la photo — et la
+              photo est ce qui porte la page.
+            */}
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-t from-nuit via-nuit/70 to-nuit/30 lg:bg-gradient-to-r lg:from-nuit lg:via-nuit/55 lg:to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-nuit via-nuit/75 to-nuit/35 lg:bg-gradient-to-r lg:from-nuit lg:via-nuit/25 lg:to-transparent"
             />
             <div
               aria-hidden="true"
-              className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-nuit to-transparent"
+              className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-nuit to-transparent"
             />
           </div>
 
+          {/*
+            L'éclipse est un croissant qui passe DERRIÈRE le titre, à la
+            jonction du texte et de la photo. Première tentative : un anneau
+            de 480 px posé au milieu de l'image, qui se lisait comme un rond
+            décoratif flottant. La maquette le veut plus petit, plus à
+            gauche, et largement recouvert par le titre.
+          */}
           <EclipseMark
             id="hero"
-            withCorona
-            className="pointer-events-none absolute -right-20 top-4 -z-10 h-[260px] w-[260px] opacity-70 sm:h-[360px] sm:w-[360px] lg:right-[12%] lg:h-[480px] lg:w-[480px]"
+            strokeWidth={5}
+            className="pointer-events-none absolute -right-24 top-16 -z-10 h-[300px] w-[300px] opacity-60 sm:h-[360px] sm:w-[360px] lg:right-auto lg:left-[34%] lg:top-[4%] lg:h-[400px] lg:w-[400px] lg:opacity-90"
           />
 
-          <div className="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-16 lg:pb-28 lg:pt-40">
+          <div className="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-16 lg:pb-24 lg:pt-32">
             <motion.div {...fadeUp} className="max-w-xl">
               <Surtitre>Plateforme de rencontres vérifiées</Surtitre>
 
@@ -282,8 +266,14 @@ export default function Home() {
                   <ArrowRight size={16} />
                 </Link>
 
+                {/*
+                  La maquette met ici un bouton rond à triangle, qui annonce
+                  une vidéo. Il n'y en a pas, et le lien mène au guide : le
+                  triangle est remplacé par une flèche. Un pictogramme de
+                  lecture est une promesse, pas une décoration.
+                */}
                 <Link
-                  href="/concept"
+                  href="/guide"
                   className={`inline-flex items-center justify-center gap-2.5 rounded-xl border border-champagne/20 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-cuivre/50 ${focusRing}`}
                 >
                   Découvrir le concept
@@ -291,17 +281,17 @@ export default function Home() {
                     aria-hidden="true"
                     className="flex h-6 w-6 items-center justify-center rounded-full border border-champagne/25"
                   >
-                    <Play size={10} className="ml-[1px] fill-current" />
+                    <ArrowRight size={11} />
                   </span>
                 </Link>
               </div>
 
               {/* Les trois garanties */}
-              <ul className="mt-12 grid gap-6 sm:grid-cols-3 sm:gap-5">
+              <ul className="mt-10 grid gap-5 sm:grid-cols-3 sm:gap-4">
                 {garanties.map(({ icon: Icon, titre, texte }) => (
-                  <li key={titre} className="flex gap-3">
+                  <li key={titre} className="flex gap-2.5">
                     <Icon
-                      size={20}
+                      size={18}
                       className="mt-0.5 shrink-0 text-cuivre"
                       aria-hidden="true"
                     />
@@ -309,19 +299,13 @@ export default function Home() {
                       <p className="text-[13px] font-semibold text-champagne">
                         {titre}
                       </p>
-                      <p className="mt-0.5 text-[12px] leading-relaxed text-champagne/55">
+                      <p className="mt-0.5 text-[12px] leading-snug text-champagne/55">
                         {texte}
                       </p>
                     </div>
                   </li>
                 ))}
               </ul>
-
-              <p className="mt-8 text-[13px] text-champagne/50">
-                {siteStats
-                  ? `${formatStat(siteStats.membres)} profils vérifiés`
-                  : 'des centaines de profils vérifiés'}
-              </p>
             </motion.div>
           </div>
         </section>
@@ -339,7 +323,13 @@ export default function Home() {
               Derrière, un produit pensé pour éviter le défilement sans fin.
             </p>
 
-            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {/*
+              La photo occupe la moitié droite de la carte et s'éteint vers
+              la gauche, où vit le texte. Première tentative : une vignette
+              en bandeau au-dessus du texte, qui donnait quatre cartes
+              étroites et un empilement d'images sans rapport entre elles.
+            */}
+            <div className="mt-10 grid gap-5 lg:grid-cols-3">
               {featureTeasers.map((feature) => {
                 const Icon = feature.icon;
 
@@ -347,45 +337,42 @@ export default function Home() {
                   <Link
                     key={feature.title}
                     href={feature.href}
-                    className={`group relative flex flex-col overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit transition-colors hover:border-cuivre/45 ${focusRing}`}
+                    className={`group relative flex min-h-[220px] flex-col justify-between overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit p-6 transition-colors hover:border-cuivre/45 ${focusRing}`}
                   >
-                    <div className="relative h-36 overflow-hidden">
+                    <div aria-hidden="true" className="absolute inset-0">
                       <Image
                         src={feature.image}
-                        alt={feature.alt}
+                        alt=""
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                        sizes="(max-width: 1024px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                       />
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-0 bg-gradient-to-t from-minuit via-minuit/55 to-transparent"
-                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-minuit via-minuit/85 to-minuit/20" />
                     </div>
 
-                    <div className="flex flex-1 flex-col p-5">
+                    <div className="relative">
                       <span
                         aria-hidden="true"
-                        className="-mt-11 mb-4 flex h-10 w-10 items-center justify-center rounded-full border border-cuivre/40 bg-nuit/85 text-cuivre backdrop-blur-sm"
+                        className="flex h-11 w-11 items-center justify-center rounded-full border border-cuivre/40 text-cuivre"
                       >
-                        <Icon size={18} />
+                        <Icon size={20} />
                       </span>
 
-                      <h3 className="font-display text-[19px] font-normal text-ivoire">
+                      <h3 className="font-display mt-5 text-[21px] font-normal text-ivoire">
                         {feature.title}
                       </h3>
 
-                      <p className="mt-2 flex-1 text-[13px] leading-relaxed text-champagne/60">
+                      <p className="mt-2 max-w-[17rem] text-[13px] leading-relaxed text-champagne/65">
                         {feature.description}
                       </p>
-
-                      <span
-                        aria-hidden="true"
-                        className="mt-5 flex h-8 w-8 items-center justify-center self-end rounded-full border border-cuivre/35 text-cuivre transition-colors group-hover:border-cuivre group-hover:bg-cuivre group-hover:text-nuit"
-                      >
-                        <ArrowRight size={14} />
-                      </span>
                     </div>
+
+                    <span
+                      aria-hidden="true"
+                      className="relative mt-6 flex h-9 w-9 items-center justify-center self-end rounded-full border border-cuivre/35 text-cuivre transition-colors group-hover:border-cuivre group-hover:bg-cuivre group-hover:text-nuit"
+                    >
+                      <ArrowRight size={15} />
+                    </span>
                   </Link>
                 );
               })}

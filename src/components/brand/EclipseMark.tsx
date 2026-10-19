@@ -34,10 +34,20 @@ export default function EclipseMark({
   className = "",
   /** Halo diffus autour de l'anneau, pour les grands formats. */
   withCorona = false,
+  /**
+   * Épaisseur du trait, dans le repère du viewBox (200 × 200).
+   *
+   * Elle compte plus qu'il n'y paraît. À 6, l'anneau rendu dans l'en-tête
+   * à 36 px donnait un trait d'un pixel : le dégradé disparaissait et le
+   * motif se lisait comme un cercle gris. Plus le logo est petit, plus le
+   * trait doit être épais en proportion.
+   */
+  strokeWidth = 11,
 }: {
   id: string;
   className?: string;
   withCorona?: boolean;
+  strokeWidth?: number;
 }) {
   const gradId = `eclipse-grad-${id}`;
   const glowId = `eclipse-glow-${id}`;
@@ -56,10 +66,11 @@ export default function EclipseMark({
           bas-gauche s'éteint. C'est ce déséquilibre qui fait lire une
           éclipse plutôt qu'un cercle.
         */}
-        <linearGradient id={gradId} x1="15%" y1="90%" x2="85%" y2="10%">
-          <stop offset="0%" stopColor="#866137" stopOpacity="0.35" />
-          <stop offset="45%" stopColor="#BD9365" />
-          <stop offset="80%" stopColor="#EAD9BD" />
+        <linearGradient id={gradId} x1="85%" y1="15%" x2="10%" y2="95%">
+          <stop offset="0%" stopColor="#866137" stopOpacity="0.12" />
+          <stop offset="30%" stopColor="#866137" stopOpacity="0.5" />
+          <stop offset="62%" stopColor="#BD9365" />
+          <stop offset="85%" stopColor="#EAD9BD" />
           <stop offset="100%" stopColor="#F7F3ED" />
         </linearGradient>
 
@@ -77,7 +88,7 @@ export default function EclipseMark({
         cy="100"
         r="68"
         stroke={`url(#${gradId})`}
-        strokeWidth="6"
+        strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
     </svg>

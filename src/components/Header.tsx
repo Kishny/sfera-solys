@@ -61,66 +61,23 @@ type HeaderLink = {
   panelCta?: { label: string; href: string };
 };
 
+/**
+ * Navigation de premier niveau.
+ *
+ * La maquette montre quatre entrées sans sous-menu, là où le header
+ * portait deux mega-menus de quatre liens chacun. Le gain est réel — plus
+ * de panneau à ouvrir, plus de piège clavier — mais il a un coût qu'il
+ * faut assumer : /valeurs, /equipe, /faq et /commencer ne sont plus dans
+ * la nav principale. Ils restent atteignables depuis le pied de page et
+ * depuis les liens en fin de section.
+ *
+ * Le type HeaderLink garde `subItems` : le rendu sait encore dérouler un
+ * mega-menu, et le remettre ne demanderait qu'une entrée de ce tableau.
+ */
 const links: HeaderLink[] = [
-  {
-    label: 'Découvrir',
-    subItems: [
-      {
-        label: 'Accueil',
-        href: '/',
-        description: 'La promesse, en une page',
-      },
-      {
-        label: 'Notre histoire',
-        href: '/histoire',
-        description: "Pourquoi Sfera'Solys existe",
-      },
-      {
-        label: 'Nos valeurs',
-        href: '/valeurs',
-        description: 'Ce qu’on défend, ce qu’on refuse',
-      },
-      {
-        label: 'Équipe',
-        href: '/equipe',
-        description: 'Qui vérifie les dossiers',
-      },
-    ],
-    panelTitle: 'vérification immédiate',
-    panelText:
-      'Pièce d’identité et selfie en direct, vérifiés par Stripe Identity. Le résultat tombe dans la minute.',
-    panelCta: { label: 'Constituer mon dossier', href: '/commencer' },
-  },
-  {
-    label: 'Comment ça marche',
-    subItems: [
-      {
-        label: 'Fonctionnalités',
-        href: '/fonctionnalites',
-        description: 'Circle of Six, annuaire, Mode Fantôme…',
-      },
-      {
-        label: 'Guide débutant',
-        href: '/guide',
-        description: 'Réussir son profil et son premier message',
-      },
-      {
-        label: 'Foire aux questions',
-        href: '/faq',
-        description: 'Vérification, confidentialité, résiliation',
-      },
-      {
-        label: 'Commencer',
-        href: '/commencer',
-        description: 'Le parcours d’inscription en détail',
-      },
-    ],
-    panelTitle: 'le parcours en 4 étapes',
-    panelText:
-      'Profil, vérification, affinités, première mise en relation encadrée.',
-    panelCta: { label: 'Voir le parcours', href: '/commencer' },
-  },
-  { label: 'Communauté', href: '/temoignages' },
+  { label: 'Concept', href: '/histoire' },
+  { label: 'Découvrir', href: '/guide' },
+  { label: 'Fonctionnalités', href: '/fonctionnalites' },
   { label: 'Tarifs', href: '/tarifs' },
 ];
 
@@ -373,14 +330,19 @@ export default function Header() {
                 définitions de la marque dans le même projet, dont une qui
                 n'avait pas suivi les changements de charte.
               */}
-              <Logo size="sm" withMark markId="entete" className={focusRing} />
+              <Logo
+                size="md"
+                withMark
+                markId="entete"
+                tagline="Plus que des rencontres, des horizons partagés."
+                className={focusRing}
+              />
 
-              <div className="ml-4 hidden items-center gap-1.5 rounded-full border border-cuivre/25 bg-cuivre/[0.08] px-3 py-1 2xl:flex">
-                <ShieldCheck size={12} className="text-cuivre" />
-                <span className="whitespace-nowrap text-[11px] font-medium tracking-wide text-champagne/75">
-                  Hommes vérifiés 28+
-                </span>
-              </div>
+              {/*
+                La pastille « Hommes vérifiés 28+ » vivait ici. L'accroche
+                sous le mot-symbole dit la même chose, mieux placée — deux
+                promesses côte à côte dans l'en-tête se disputaient l'œil.
+              */}
             </div>
 
             {/*
@@ -557,19 +519,24 @@ export default function Header() {
                 </>
               ) : (
                 <>
+                  <span
+                    aria-hidden="true"
+                    className="mr-1 h-6 w-px bg-champagne/15"
+                  />
+
                   <Link
                     href="/auth?mode=login"
-                    className={`text-[13px] font-medium text-champagne/65 transition-colors hover:text-champagne ${focusRing}`}
+                    className={`text-[13px] font-medium text-champagne/70 transition-colors hover:text-champagne ${focusRing}`}
                   >
-                    se connecter
+                    Connexion
                   </Link>
 
                   <Link
                     href="/auth?mode=register"
- className={`fx-link flex items-center gap-1.5 rounded-lg text-[13px] font-bold text-champagne transition-colors ${focusRing}`}
+                    className={`flex items-center gap-2 rounded-xl bg-degrade-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
                   >
-                    rejoindre
-                    <ArrowRight size={14} />
+                    Rejoindre Solys
+                    <ArrowRight size={15} />
                   </Link>
                 </>
               )}
