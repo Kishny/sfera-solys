@@ -19,19 +19,19 @@ const SORTS: { key: SortKey; label: string }[] = [
  *
  * Reçoit la liste complète (rendue côté serveur pour le SEO) et gère
  * l'affichage côté client.
+ *
+ * La prop `variant` et sa déclinaison claire ont été retirées : /temoignages
+ * est le seul appelant et passait "dark".
  */
 export default function TestimonialsExplorer({
   testimonials,
   pageSize = 12,
-  variant = "light",
 }: {
   testimonials: PublicTestimonial[];
   pageSize?: number;
-  variant?: "light" | "dark";
 }) {
   const [sort, setSort] = useState<SortKey>("recent");
   const [visible, setVisible] = useState(pageSize);
-  const isDark = variant === "dark";
 
   const sorted = useMemo(() => {
     const byRecent = (a: PublicTestimonial, b: PublicTestimonial) =>
@@ -62,17 +62,11 @@ export default function TestimonialsExplorer({
     <div>
       {/* Barre de tri */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 sm:mb-7">
-        <p className={isDark ? "text-sm text-cream/55" : "text-sm text-[#666]"}>
+        <p className="text-sm text-cream/55">
           {sorted.length} témoignage{sorted.length > 1 ? "s" : ""}
         </p>
 
-        <div
-          className={
-            isDark
-              ? "flex items-center gap-1.5 rounded-full border border-cream/10 bg-[#123243] p-1"
-              : "flex items-center gap-1.5 rounded-full border border-[#E8E0FF] bg-white p-1"
-          }
-        >
+        <div className="flex items-center gap-1.5 rounded-full border border-cream/10 bg-[#123243] p-1">
           {SORTS.map((option) => {
             const isActive = sort === option.key;
 
@@ -86,13 +80,9 @@ export default function TestimonialsExplorer({
                   setVisible(pageSize);
                 }}
                 className={`fx-btn rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 sm:text-sm ${
-                  isDark
-                    ? isActive
-                      ? "bg-orange text-abyss"
-                      : "text-cream/60 hover:text-cream"
-                    : isActive
-                      ? "bg-gradient-to-r from-[#8E7AB5] to-[#A68BC9] text-white"
-                      : "text-[#5B4B8A] hover:bg-[#F0ECFA]"
+                  isActive
+                    ? "bg-orange text-abyss"
+                    : "text-cream/60 hover:text-cream"
                 }`}
               >
                 {option.label}
@@ -108,11 +98,7 @@ export default function TestimonialsExplorer({
         className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
       >
         {shown.map((testimonial) => (
-          <TestimonialCard
-            key={testimonial._id}
-            testimonial={testimonial}
-            variant={variant}
-          />
+          <TestimonialCard key={testimonial._id} testimonial={testimonial} />
         ))}
       </motion.div>
 
@@ -122,11 +108,7 @@ export default function TestimonialsExplorer({
           <button
             type="button"
             onClick={() => setVisible((v) => v + pageSize)}
-            className={
-              isDark
-                ? "inline-flex items-center gap-2 rounded-xl border border-cream/15 px-6 py-2.5 text-sm font-semibold text-cream/85 transition-colors hover:border-cream/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss"
-                : "inline-flex items-center gap-2 rounded-full border border-[#8E7AB5] px-6 py-2.5 text-sm font-semibold text-[#8E7AB5] transition-all hover:bg-[#8E7AB5] hover:text-white"
-            }
+            className="inline-flex items-center gap-2 rounded-xl border border-cream/15 px-6 py-2.5 text-sm font-semibold text-cream/85 transition-colors hover:border-cream/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss"
           >
             Charger plus
             <span className="text-xs text-current opacity-70">

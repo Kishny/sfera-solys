@@ -172,7 +172,6 @@ export default async function TemoignagesPage() {
               <TestimonialsExplorer
                 testimonials={testimonials}
                 pageSize={12}
-                variant="dark"
               />
             ) : (
               <div className="mx-auto max-w-xl rounded-3xl border border-dashed border-cream/15 bg-[#123243] px-4 py-10 text-center">
@@ -199,7 +198,7 @@ export default async function TemoignagesPage() {
               </p>
             </div>
 
-            <TestimonialSubmitSection variant="dark" />
+            <TestimonialSubmitSection />
           </div>
         </section>
 

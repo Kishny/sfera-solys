@@ -8,23 +8,18 @@ import { MessageSquarePlus } from "lucide-react";
 import TestimonialForm, { TestimonialFormInitial } from "./TestimonialForm";
 
 /**
- * Section "Partager mon expérience" (session-aware).
+ * Section « Partager mon expérience » (session-aware).
  *
  * - Visiteur non connecté : invitation à se connecter.
  * - Membre connecté : bouton qui révèle le formulaire partagé, pré-rempli
  *   s'il a déjà témoigné (modification).
  *
- * Réutilisée sur /valeurs (variante claire) et /temoignages (variante
- * sombre). `variant` vaut "light" par défaut pour ne rien casser sur les
- * pages pas encore migrées vers l'identité sombre.
+ * Sa documentation annonçait un second usage sur /valeurs en variante
+ * claire. /valeurs ne l'importe pas : /temoignages est le seul appelant, et
+ * il passait "dark". La variante claire a été retirée.
  */
-export default function TestimonialSubmitSection({
-  variant = "light",
-}: {
-  variant?: "light" | "dark";
-}) {
+export default function TestimonialSubmitSection() {
   const { data: session, status } = useSession();
-  const isDark = variant === "dark";
   const sessionUser = session?.user as { id?: string } | undefined;
 
   const [open, setOpen] = useState(false);
@@ -63,20 +58,10 @@ export default function TestimonialSubmitSection({
 
   if (!sessionUser?.id) {
     return (
-      <p
-        className={
-          isDark
-            ? "mt-4 text-center text-xs text-cream/55 sm:mt-6 sm:text-sm"
-            : "mt-4 text-center text-xs text-[#999] sm:mt-6 sm:text-sm"
-        }
-      >
+      <p className="mt-4 text-center text-xs text-cream/55 sm:mt-6 sm:text-sm">
         <Link
           href="/auth?mode=login"
-          className={
-            isDark
-              ? "font-semibold text-orange underline underline-offset-2 hover:text-orange/80"
-              : "text-[#8E7AB5] underline underline-offset-2 hover:text-[#5B4B8A]"
-          }
+          className="font-semibold text-orange underline underline-offset-2 hover:text-orange/80"
         >
           Connecte-toi
         </Link>{" "}
@@ -92,25 +77,19 @@ export default function TestimonialSubmitSection({
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className={
-              isDark
-                ? "inline-flex items-center gap-2 rounded-xl border border-cream/15 px-5 py-2.5 text-sm font-semibold text-cream/85 transition-colors hover:border-orange/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss sm:px-6 sm:py-3"
-                : "inline-flex items-center gap-2 rounded-full border border-[#E8E0FF] bg-white px-5 py-2.5 text-sm font-medium text-[#5B4B8A] transition-all hover:border-[#8E7AB5] hover:shadow-md sm:px-6 sm:py-3"
-            }
+            className="inline-flex items-center gap-2 rounded-xl border border-cream/15 px-5 py-2.5 text-sm font-semibold text-cream/85 transition-colors hover:border-orange/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/70 focus-visible:ring-offset-2 focus-visible:ring-offset-abyss sm:px-6 sm:py-3"
           >
             <MessageSquarePlus size={16} />
-            {alreadySubmitted ? "Modifier mon témoignage" : "Partager mon expérience"}
+            {alreadySubmitted
+              ? "Modifier mon témoignage"
+              : "Partager mon expérience"}
           </button>
         </div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <TestimonialForm
             profileImage={profileImage}
             initial={initial}
-            variant={variant}
             onCancel={() => setOpen(false)}
           />
         </motion.div>
