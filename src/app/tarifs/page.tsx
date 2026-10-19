@@ -56,7 +56,14 @@ import { SUBSCRIPTION_PLANS, PLAN_ORDER, type PlanId } from '@/lib/subscription/
  * n'est pas un quota mensuel mais un plafond à vie (20 profils en gratuit,
  * 100 en Essentiel). C'est vraisemblablement involontaire. Plutôt que
  * d'annoncer un chiffre faux ou un chiffre absurde, la page n'en parle pas.
- * À trancher séparément.
+ *
+ * `limits.superLikesPerDay` non plus : la configuration prévoit 3, 10 puis un
+ * nombre illimité de super-likes, mais aucun moyen d'en envoyer un n'existe.
+ * `subscription-check.ts` le dit lui-même — « pas de `SuperLike.ts`, et
+ * `Like.ts` ne distingue pas les deux ». Tant que l'action n'est pas écrite,
+ * c'est une ligne de configuration, pas une fonctionnalité.
+ *
+ * Ces deux points sont à trancher séparément.
  */
 
 // ─────────────────────────────────────────────
@@ -132,14 +139,6 @@ function lignesOffre(id: PlanId): string[] {
     lignes.push('Likes, messages et matchs illimités');
   }
 
-  if (limits.superLikesPerDay !== precedente.limits.superLikesPerDay) {
-    lignes.push(
-      Number.isFinite(limits.superLikesPerDay)
-        ? `${limits.superLikesPerDay} super-likes par jour`
-        : 'Super-likes illimités'
-    );
-  }
-
   if (limits.boostsPerMonth !== precedente.limits.boostsPerMonth) {
     const n = limits.boostsPerMonth;
     lignes.push(
@@ -190,14 +189,6 @@ function lignesComparatif() {
     {
       feature: 'Messages par jour',
       values: valeur((p) => nombreOuIllimite(limite(p).dailyMessages)),
-    },
-    {
-      feature: 'Super-likes par jour',
-      values: valeur((p) =>
-        limite(p).superLikesPerDay === 0
-          ? 'non'
-          : nombreOuIllimite(limite(p).superLikesPerDay)
-      ),
     },
     {
       feature: 'Boosts par mois',
