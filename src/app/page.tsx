@@ -211,7 +211,14 @@ export default function Home() {
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 56vw"
-              className="object-cover object-center"
+              /*
+                `object-center` coupait le second homme : sur cette photo
+                les deux sujets occupent le tiers droit, et le conteneur est
+                plus étroit que l'image. 85 % les cadre tous les deux en
+                gardant l'éclipse du ciel — vérifié en simulant le recadrage
+                sur l'image réelle, pas calculé de tête.
+              */
+              className="object-cover object-[85%_50%]"
             />
 
             {/*
@@ -230,18 +237,12 @@ export default function Home() {
           </div>
 
           {/*
-            L'éclipse est un croissant qui passe DERRIÈRE le titre, à la
-            jonction du texte et de la photo. Première tentative : un anneau
-            de 480 px posé au milieu de l'image, qui se lisait comme un rond
-            décoratif flottant. La maquette le veut plus petit, plus à
-            gauche, et largement recouvert par le titre.
+            Pas d'éclipse dessinée ici : la photographie en porte déjà une
+            dans le ciel. Deux éclipses dans le même écran, c'est une de
+            trop — et la version SVG débordait sous l'en-tête, où elle se
+            lisait comme un défaut d'affichage plutôt que comme un motif.
+            Elle reste sur les sections sans photo.
           */}
-          <EclipseMark
-            id="hero"
-            strokeWidth={5}
-            attenuation={0}
-            className="pointer-events-none absolute -right-24 top-10 -z-10 h-[260px] w-[260px] opacity-50 sm:h-[320px] sm:w-[320px] lg:right-auto lg:left-[30%] lg:top-[-10%] lg:h-[360px] lg:w-[360px] lg:opacity-80"
-          />
 
           <div className="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-16 lg:pb-24 lg:pt-32">
             <motion.div {...fadeUp} className="max-w-xl">
