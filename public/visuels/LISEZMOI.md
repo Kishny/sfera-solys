@@ -37,3 +37,26 @@ simple, mais un recadrage serré comme `solys-01-hero.webp` (1170 px) sera
 légèrement doux sur un écran à forte densité. Si de nouveaux visuels sont
 générés, demander des exports plus larges — 2560 px laisserait de la marge
 pour recadrer sans perte visible.
+
+## Portraits d'aperçu — `profils/`
+
+`profil-01.webp` à `profil-06.webp`, 512 × 512, recadrés depuis six sources
+de `public/new-visuel/` datées du 20 octobre. Quatre venaient de portraits
+seuls ; `profil-05` et `profil-06` sont des visages découpés dans deux
+scènes de groupe, le cadrage ayant été calé sur une détection de visage
+plutôt qu'à l'œil.
+
+Ils servent **uniquement** aux avatars des aperçus d'interface
+(`InterfacePreviews.tsx`). Ce sont des photographies générées, pas des
+membres : la légende sous chaque aperçu le dit, et c'est elle qui rend
+l'illustration honnête. Voir l'en-tête de `InterfacePreviews.tsx`, qui
+documente la levée de la règle « aucun visage » et les deux garde-fous
+conservés.
+
+Limite connue : les six sources partagent la même terrasse, le même
+crépuscule et la même chemise noire, et se répartissent en deux
+physionomies proches. Les trois visages les plus distincts occupent la
+rangée du haut du Circle ; les plus ressemblants sont renvoyés aux
+vignettes de 36 px de l'annuaire. Si de nouveaux portraits sont générés,
+demander des décors, des tenues et des âges apparents franchement
+différents.

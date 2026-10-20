@@ -1,109 +1,149 @@
 // src/components/brand/InterfacePreviews.tsx
 
+import Image from 'next/image';
 import { ArrowRight, Check, MapPin, SlidersHorizontal } from 'lucide-react';
 import HexagonSix from '@/components/icons/HexagonSix';
 
 /**
  * Aperçus d'interface pour les pages publiques.
  *
- * Pourquoi des illustrations et pas des captures d'écran : les pages réelles
- * de l'espace membre sont encore au violet SferaLuna, une capture montrerait
- * donc l'ancien produit. Ces aperçus montrent la structure exacte de
- * l'interface, dans la bonne palette.
+ * ## La règle « aucun visage » a été levée — ce qu'il faut savoir
  *
- * Règle appliquée ici, et à conserver : **aucun visage, aucune identité**.
- * Les avatars sont le motif d'éclipse de la marque décliné en plusieurs
- * phases — une illustration, que personne ne peut prendre pour la photo d'un
- * membre. Les seules données affichées sont des attributs que le produit
- * stocke réellement (`age`, `localisation`, `interets`, `identityVerified`
- * dans `models/User.ts`), avec des valeurs d'exemple, et la légende de chaque
- * aperçu le dit explicitement.
+ * Ce fichier portait une règle : les avatars étaient le motif d'éclipse de
+ * la marque, et l'argument écrit ici était qu'un site dont la promesse
+ * unique est « chaque membre est vérifié » ne peut pas illustrer cette
+ * promesse avec des visages de personnes qui n'en sont pas.
  *
- * Ce que ça exclut, et pourquoi : pas de portrait de banque d'images, pas de
- * prénom. Un site dont l'argument unique est « chaque membre est vérifié »
- * ne peut pas illustrer cette promesse avec des visages de personnes qui n'en
- * sont pas. La mention « données d'exemple » est ce qui rend le reste
- * honnête — si elle saute, la règle saute avec elle.
+ * La maquette montre des portraits, et c'est la décision retenue après
+ * avoir posé le choix explicitement. Les avatars sont donc six
+ * photographies générées, rangées dans `public/visuels/profils/`.
+ *
+ * Deux garde-fous subsistent, et ils ne sont pas décoratifs :
+ *
+ * 1. **La légende de chaque aperçu reste.** « Aperçu de l'interface —
+ *    données d'exemple, aucun profil réel. » C'est la seule chose qui
+ *    sépare une illustration d'un faux témoignage. Elle est petite, elle
+ *    ne gêne rien, et elle n'a pas à sauter pour gagner douze pixels.
+ * 2. **Toujours aucun prénom.** Un âge et une ville restent des attributs
+ *    génériques ; un prénom accolé à un visage fabrique une personne.
+ *
+ * Les données affichées restent des attributs que le produit stocke
+ * réellement (`age`, `localisation`, `interets`, `identityVerified` dans
+ * `models/User.ts`), avec des valeurs d'exemple.
+ *
+ * ## Pourquoi des illustrations et pas des captures d'écran
+ *
+ * Les pages réelles de l'espace membre sont encore au violet SferaLuna :
+ * une capture montrerait l'ancien produit. Ces aperçus montrent la
+ * structure exacte de l'interface, dans la bonne palette.
  *
  * Les deux composants sont purement présentationnels (aucun hook), donc
  * utilisables aussi bien côté serveur que client.
  */
 
-/** Dégradés de fond des avatars, alternés pour que six vignettes ne soient pas six fois la même. */
-const TEINTES = [
-  'from-cuivre/30 via-cuivre-sombre/30 to-nuit',
-  'from-cuivre-sombre/40 via-nuit to-nuit',
-  'from-cuivre/20 via-nuit to-cuivre-sombre/25',
-  'from-cuivre-sombre/25 via-cuivre/15 to-nuit',
+/**
+ * Les six profils d'exemple, photo comprise.
+ *
+ * Une seule liste pour les deux aperçus, là où il y en avait deux. Elles
+ * décrivaient les mêmes villes avec des âges différents — Caluire à 41 ans
+ * d'un côté, 42 de l'autre. Tant que les avatars étaient abstraits, ça ne
+ * se voyait pas. Avec des visages, le même homme apparaissait dans les
+ * deux cartes, côte à côte, avec un an d'écart.
+ *
+ * Qu'on retrouve les mêmes personnes dans le Circle et dans l'annuaire est
+ * au contraire cohérent : le Circle est une sélection de l'annuaire.
+ *
+ * L'ordre n'est pas indifférent. Les trois premiers occupent la rangée du
+ * haut du Circle, la plus grande et la plus regardée : ce sont les trois
+ * visages les plus distincts du lot. Les sources se ressemblent beaucoup —
+ * même terrasse, même crépuscule, même chemise noire, et deux familles de
+ * physionomies — donc les plus proches sont renvoyés aux vignettes de 36 px
+ * de l'annuaire, où la ressemblance ne se lit plus.
+ */
+const PROFILS = [
+  {
+    photo: '/visuels/profils/profil-02.webp',
+    age: 34,
+    ville: 'Lyon',
+    communs: 3,
+    km: 3,
+    tags: ['Sport', 'Voyage'],
+  },
+  {
+    photo: '/visuels/profils/profil-03.webp',
+    age: 31,
+    ville: 'Villeurbanne',
+    communs: 5,
+    km: 6,
+    tags: ['Musique', 'Lecture'],
+  },
+  {
+    photo: '/visuels/profils/profil-04.webp',
+    age: 38,
+    ville: 'Écully',
+    communs: 2,
+    km: 8,
+    tags: ['Randonnée', 'Photo'],
+  },
+  {
+    photo: '/visuels/profils/profil-01.webp',
+    age: 29,
+    ville: 'Bron',
+    communs: 4,
+    km: 11,
+    tags: ['Cuisine', 'Cinéma'],
+  },
+  {
+    photo: '/visuels/profils/profil-05.webp',
+    age: 41,
+    ville: 'Caluire',
+    communs: 3,
+    km: 14,
+    tags: ['Course', 'Design'],
+  },
+  {
+    photo: '/visuels/profils/profil-06.webp',
+    age: 33,
+    ville: 'Vénissieux',
+    communs: 6,
+    km: 17,
+    tags: ['Cinéma', 'Sport'],
+  },
 ];
 
 /**
- * Avatar illustré : l'éclipse de la marque, déclinée en plusieurs phases.
+ * Avatar : une des six photographies d'exemple.
  *
- * **Géométrie : un occulteur plus petit que le disque, et à peine décalé.**
- * C'est la même contrainte que sur `EclipseMark`, et elle n'est pas
- * cosmétique. Deux disques de même rayon légèrement décalés produisent un
- * croissant — c'est-à-dire le symbole de SferaLuna, la marque féminine dont
- * ce projet est le pendant. Un occulteur plus petit laisse au contraire un
- * anneau complet : une éclipse annulaire, qui ne peut se lire que comme un
- * soleil. Le décalage varie d'une vignette à l'autre pour épaissir l'anneau
- * d'un côté, jamais assez pour le rompre. Ne pas augmenter `phases`
- * au-delà de ~0,3 sans regarder le rendu.
+ * `alt=""` volontairement : la vignette est décorative, l'âge et la ville
+ * juste à côté portent toute l'information. Un texte alternatif décrivant
+ * un visage n'ajouterait rien et inventerait une personne à l'oreille de
+ * qui ne voit pas l'image.
+ *
+ * `sizes` reste petit : la plus grande de ces vignettes fait environ
+ * 110 px de large dans le Circle, 36 px dans l'annuaire. Sans cette borne,
+ * Next servirait des variantes bien plus lourdes que nécessaire.
  */
-function AvatarEclipse({
-  index,
+function AvatarProfil({
+  src,
   className = '',
 }: {
-  index: number;
+  src: string;
   className?: string;
 }) {
-  const phases = [0.3, -0.18, 0.12, -0.28, 0.22, -0.08];
-  const d = phases[index % phases.length];
-
   return (
     <span
-      aria-hidden="true"
-      className={`relative block shrink-0 overflow-hidden rounded-lg bg-gradient-to-br ${
-        TEINTES[index % TEINTES.length]
-      } ${className}`}
+      className={`relative block shrink-0 overflow-hidden rounded-lg bg-nuit ${className}`}
     >
-      <svg
-        viewBox="0 0 40 40"
-        className="absolute inset-0 h-full w-full"
-        role="presentation"
-      >
-        {/* Couronne : ce qui achève de dire « soleil » plutôt que « disque ». */}
-        <circle
-          cx="20"
-          cy="20"
-          r="12.5"
-          fill="none"
-          stroke="#BD9365"
-          strokeOpacity="0.22"
-          strokeWidth="1"
-        />
-        <circle cx="20" cy="20" r="9.5" fill="#BD9365" fillOpacity="0.92" />
-        <circle
-          cx={20 + d * 6}
-          cy={20 - d * 3}
-          r="6.6"
-          fill="#1D2835"
-          fillOpacity="0.96"
-        />
-      </svg>
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes="(max-width: 640px) 120px, 160px"
+        className="object-cover"
+      />
     </span>
   );
 }
-
-/** Données d'exemple — voir la note en tête de fichier. Âges cohérents avec le critère 28+. */
-const PROFILS_CIRCLE = [
-  { age: 34, ville: 'Lyon', communs: 3 },
-  { age: 31, ville: 'Villeurbanne', communs: 5 },
-  { age: 38, ville: 'Écully', communs: 2 },
-  { age: 29, ville: 'Bron', communs: 4 },
-  { age: 41, ville: 'Caluire', communs: 3 },
-  { age: 33, ville: 'Vénissieux', communs: 6 },
-];
 
 /**
  * Aperçu du Circle of Six : les 6 profils proposés dans la semaine.
@@ -133,7 +173,7 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
 
         {/* Les 6 propositions */}
         <div className="grid grid-cols-3 gap-2">
-          {PROFILS_CIRCLE.map((profil, slot) => (
+          {PROFILS.map((profil, slot) => (
             <div
               key={profil.ville}
               className={`rounded-xl border p-2 ${
@@ -142,7 +182,7 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
                   : 'border-champagne/8 bg-nuit/50'
               }`}
             >
-              <AvatarEclipse index={slot} className="h-12 w-full sm:h-14" />
+              <AvatarProfil src={profil.photo} className="h-12 w-full sm:h-14" />
 
               <span className="mt-2 block truncate text-[10px] font-semibold text-champagne/80">
                 {profil.age} ans · {profil.ville}
@@ -177,15 +217,6 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
  * Aperçu de la vue annuaire : l'alternative posée au swipe.
  */
 export function AnnuairePreview({ className = '' }: { className?: string }) {
-  /** Données d'exemple — voir la note en tête de fichier. */
-  const rows = [
-    { age: 34, ville: 'Lyon', km: 3, tags: ['Sport', 'Voyage'], highlight: false },
-    { age: 30, ville: 'Villeurbanne', km: 6, tags: ['Musique', 'Lecture'], highlight: true },
-    { age: 37, ville: 'Écully', km: 8, tags: ['Randonnée', 'Photo'], highlight: false },
-    { age: 29, ville: 'Bron', km: 11, tags: ['Cuisine', 'Cinéma'], highlight: false },
-    { age: 42, ville: 'Caluire', km: 14, tags: ['Course', 'Design'], highlight: false },
-  ];
-
   return (
     <figure className={`flex flex-col ${className}`}>
       <div className="flex-1 rounded-2xl border border-champagne/10 bg-minuit p-4 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.8)] sm:p-5">
@@ -224,14 +255,14 @@ export function AnnuairePreview({ className = '' }: { className?: string }) {
 
         {/* Lignes */}
         <div className="divide-y divide-champagne/8 border-t border-champagne/8">
-          {rows.map((row, index) => (
+          {PROFILS.slice(0, 5).map((row, index) => (
             <div
               key={row.ville}
               className={`flex items-center gap-3 py-2.5 ${
-                row.highlight ? 'bg-cuivre/[0.04]' : ''
+                index === 1 ? 'bg-cuivre/[0.04]' : ''
               }`}
             >
-              <AvatarEclipse index={index} className="h-9 w-9" />
+              <AvatarProfil src={row.photo} className="h-9 w-9" />
 
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[11px] font-semibold text-champagne/80">
