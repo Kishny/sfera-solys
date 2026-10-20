@@ -63,3 +63,21 @@ rangée du haut du Circle ; les plus ressemblants sont renvoyés aux
 vignettes de 36 px de l'annuaire. Si de nouveaux portraits sont générés,
 demander des décors, des tenues et des âges apparents franchement
 différents.
+
+## Visuels du pied de page
+
+| Fichier         | Sujet                                                     |
+|-----------------|-----------------------------------------------------------|
+| `solys-09.webp` | Terrasse et piscine à débordement, ville au loin — fond du pied de page |
+| `solys-10.webp` | Terrasse sombre, bougies, baie vitrée                      |
+| `solys-11.webp` | Panorama très large, lumières de la ville                  |
+| `solys-12.webp` | Dégradé sombre presque uni, utilisable comme fond neutre   |
+
+Convertis depuis quatre PNG du 20 octobre, bornés à 2048 px de large :
+168 Ko au total contre 6,4 Mo en source.
+
+Seul `solys-09` est servi aujourd'hui, sous un voile `nuit/88`. Cette
+valeur n'est pas choisie à l'œil : le pied de page porte plus de petit
+texte que n'importe quelle autre partie du site, et à 88 % le champagne à
+55 % y tient 4,66:1 sur les lumières de la ville, juste au-dessus du seuil.
+Un voile plus clair fait passer la barre basse sous la limite.

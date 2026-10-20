@@ -1,31 +1,69 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
+import Image from 'next/image';
 import {
-  ChevronDown,
-  Heart,
-  Shield,
-  Sparkles,
   Mail,
   Instagram,
   Twitter,
   Facebook,
-  MessageCircle,
+  Youtube,
+  ShieldCheck,
+  Users,
+  Gem,
+  Lock,
+  Globe,
+  ChevronDown,
+  Smartphone,
 } from 'lucide-react';
+
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { Logo } from '@/components/ui/Logo';
 
 /**
- * Icône TikTok (non incluse dans lucide-react).
+ * Pied de page Sfera'Solys, d'après la maquette « nuit cuivrée ».
+ *
+ * ## Ce qui remplace quoi
+ *
+ * L'ancien pied de page datait de SferaLuna : pictogrammes emoji en tête de
+ * colonne, accordéon sur mobile, et un encart d'appel dont le bouton était
+ * `bg-champagne text-erreur` — un reste de la charte précédente, où ce rouge
+ * était la couleur de marque et non celle des erreurs.
+ *
+ * Il est remplacé par la structure de la maquette : fond photographique,
+ * mot-symbole et accroche à gauche, quatre colonnes à filet cuivré, trois
+ * garanties en bandeau, barre basse.
+ *
+ * ## Ce qui n'existe pas encore, et comment c'est traité
+ *
+ * La maquette montre des éléments que le produit n'a pas. Ils sont rendus,
+ * à la demande, mais sans prétendre fonctionner :
+ *
+ * - **Badges de magasins d'applications.** Il n'y a pas d'application
+ *   mobile. Ce sont des `span`, pas des liens, portant la mention
+ *   « Bientôt ». Les logos d'Apple et de Google ne sont pas reproduits : les
+ *   nommer est licite, dessiner une approximation de leurs marques pour une
+ *   application qui n'existe pas ne l'est pas, et une approximation mal
+ *   faite se voit.
+ * - **Sélecteur de langue.** Le projet n'a aucune internationalisation. Le
+ *   bouton est `disabled` : visible comme dans la maquette, mais il ne
+ *   promet pas un menu qui ne s'ouvrirait pas.
+ * - **Réseaux sociaux.** Les cinq comptes pointent encore sur `#`, hérité
+ *   de l'ancien pied de page. Les vraies adresses sont à mettre dans
+ *   `RESEAUX` ci-dessous, en une fois.
+ *
+ * Les pages de `COLONNES` existent toutes : voir `src/app`. Toute entrée
+ * ajoutée ici doit avoir sa route, sinon le pied de page envoie en 404 —
+ * c'était le cas de « Centre d'aide » et « Mentions légales » avant.
  */
-function TikTokIcon() {
+
+/** Icône TikTok — absente de lucide-react. */
+function TikTokIcon({ size = 16 }: { size?: number }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      width={16}
-      height={16}
+      width={size}
+      height={size}
       fill="currentColor"
       aria-hidden="true"
     >
@@ -34,312 +72,293 @@ function TikTokIcon() {
   );
 }
 
-/**
- * Type pour les groupes de liens du footer.
- */
-type FooterGroup = {
-  title: string;
-  icon: string;
-  links: {
-    label: string;
-    href: string;
-  }[];
-};
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 /**
- * Footer Sfera'Solys.
+ * Les comptes sociaux.
  *
- * Objectifs :
- * - footer desktop élégant et complet ;
- * - footer mobile compact ;
- * - sections en accordéon mobile ;
- * - informations principales visibles sans prendre trop de place ;
- * - CTA discret vers inscription / contact.
+ * `href: '#'` signifie « compte pas encore ouvert ». Un `#` garde le
+ * visiteur sur la page, ce qui vaut mieux qu'une 404, mais ça reste un lien
+ * qui ne mène nulle part : à remplacer dès que les comptes existent.
  */
-export default function Footer() {
-  /**
-   * Accordéon mobile.
-   */
-  const [openGroup, setOpenGroup] = useState<string | null>("Sfera'Solys");
+const RESEAUX = [
+  { label: 'Instagram', href: '#', icone: <Instagram size={16} /> },
+  { label: 'TikTok', href: '#', icone: <TikTokIcon /> },
+  { label: 'X (Twitter)', href: '#', icone: <Twitter size={16} /> },
+  { label: 'Facebook', href: '#', icone: <Facebook size={16} /> },
+  { label: 'YouTube', href: '#', icone: <Youtube size={16} /> },
+  { label: 'Nous écrire', href: '/contact', icone: <Mail size={16} /> },
+];
 
-  const footerGroups: FooterGroup[] = [
-    {
-      title: "Sfera'Solys",
-      icon: '☀️',
-      links: [
-        { label: 'Accueil', href: '/' },
-        { label: 'Notre histoire', href: '/histoire' },
-        { label: 'Valeurs', href: '/valeurs' },
-        { label: 'Témoignages', href: '/temoignages' },
-        { label: 'Équipe', href: '/equipe' },
-      ],
-    },
-    {
-      title: 'Explorer',
-      icon: '✨',
-      links: [
-        { label: 'Explorer des profils', href: '/explorer' },
-        { label: 'Circle of Six', href: '/circle' },
-      ],
-    },
-    {
-      title: 'Communauté',
-      icon: '🧡',
-      links: [
-        { label: 'Événements', href: '/evenements' },
-        { label: 'Entraide', href: '/entraide' },
-        { label: 'FAQ', href: '/faq' },
-        { label: 'Centre d’aide', href: '/aide' },
-      ],
-    },
-    {
-      title: 'Légal',
-      icon: '🔒',
-      links: [
-        { label: 'Mentions légales', href: '/mentions-legales' },
-        { label: 'Confidentialité', href: '/confidentialite' },
-        { label: 'Conditions', href: '/conditions' },
-        { label: 'Cookies', href: '/cookies' },
-      ],
-    },
-  ];
+const COLONNES: { titre: string; liens: { label: string; href: string }[] }[] = [
+  {
+    titre: "Sfera'Solys",
+    liens: [
+      { label: 'Accueil', href: '/' },
+      { label: 'Notre histoire', href: '/histoire' },
+      { label: 'Nos valeurs', href: '/valeurs' },
+      { label: 'Témoignages', href: '/temoignages' },
+      { label: 'Équipe', href: '/equipe' },
+      { label: 'Blog', href: '/blog' },
+    ],
+  },
+  {
+    titre: 'Explorer',
+    liens: [
+      { label: 'Explorer des profils', href: '/explorer' },
+      { label: 'Circle of Six', href: '/circle' },
+      { label: 'Événements', href: '/evenements' },
+      { label: 'Entraide', href: '/entraide' },
+      { label: "Centre d'aide", href: '/aide' },
+      { label: 'FAQ', href: '/faq' },
+    ],
+  },
+  {
+    titre: 'Légal',
+    liens: [
+      { label: 'Mentions légales', href: '/mentions-legales' },
+      { label: 'Confidentialité', href: '/confidentialite' },
+      { label: "Conditions d'utilisation", href: '/conditions' },
+      { label: 'Cookies', href: '/cookies' },
+      { label: 'Gestion des données', href: '/gestion-donnees' },
+      { label: 'Accessibilité', href: '/accessibilite' },
+    ],
+  },
+];
 
-  const toggleGroup = (title: string) => {
-    setOpenGroup((current) => (current === title ? null : title));
-  };
+/** Les trois garanties du bandeau bas. */
+const GARANTIES = [
+  {
+    icone: ShieldCheck,
+    titre: 'Sécurité & confidentialité',
+    texte: 'Vos données sont protégées',
+  },
+  {
+    icone: Users,
+    titre: 'Communauté bienveillante',
+    texte: 'Des rencontres respectueuses',
+  },
+  {
+    icone: Gem,
+    titre: 'Une expérience premium',
+    texte: 'Qualité plutôt que quantité',
+  },
+];
 
+/** Titre de colonne : petites capitales, filet cuivré dessous. */
+function TitreColonne({ children }: { children: React.ReactNode }) {
   return (
-    <footer className="relative overflow-hidden border-t border-champagne/10 bg-nuit text-champagne">
-      {/* Décor léger */}
-      <div className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-cuivre/15 blur-3xl" />
-      <div className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-erreur/15 blur-3xl" />
+    <>
+      <h3 className="text-[11px] font-semibold uppercase tracking-surtitre text-champagne/70">
+        {children}
+      </h3>
+      <span
+        aria-hidden="true"
+        className="mt-2.5 block h-px w-8 bg-cuivre"
+      />
+    </>
+  );
+}
 
-      <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
-        {/* Haut du footer */}
-        <div className="grid gap-5 lg:grid-cols-[1.2fr_2fr] lg:gap-10">
-          {/* Branding compact */}
-          <div className="rounded-[1.75rem] border border-champagne/10 bg-champagne/[0.04] p-4 backdrop-blur-sm sm:p-5">
-            <Link href="/" className="flex flex-col items-start gap-1">
-              <Logo href={null} size="md" withMark markId="pied" />
-              <p className="mt-1 text-xs text-champagne/55">
-                Rencontrer au masculin, librement.
+/**
+ * Badge de magasin d'applications.
+ *
+ * Un `span`, pas un lien : il n'y a pas d'application à télécharger. La
+ * mention « Bientôt » remplace la ligne « Télécharger sur » de la maquette,
+ * et l'icône est générique plutôt qu'une imitation du logo du magasin.
+ */
+function BadgeMagasin({ magasin }: { magasin: string }) {
+  return (
+    <span className="flex items-center gap-3 rounded-xl border border-champagne/15 bg-nuit/50 px-4 py-2.5 backdrop-blur-sm">
+      <Smartphone size={20} className="shrink-0 text-champagne/60" />
+      <span className="flex flex-col leading-tight">
+        <span className="text-[10px] uppercase tracking-surtitre text-cuivre">
+          Bientôt
+        </span>
+        <span className="text-[13px] font-semibold text-champagne/80">
+          {magasin}
+        </span>
+      </span>
+    </span>
+  );
+}
+
+export default function Footer() {
+  return (
+    <footer className="relative isolate overflow-hidden bg-nuit text-champagne">
+      {/*
+        Fond photographique. Le voile est à 88 % : le pied de page est
+        l'endroit de la page qui porte le plus de petit texte, et sous un
+        voile plus clair le champagne atténué descend sous le seuil de
+        lisibilité sur les zones éclairées de la terrasse.
+      */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10">
+        <Image
+          src="/visuels/solys-09.webp"
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-nuit/88" />
+        <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit" />
+      </div>
+
+      <div className="px-4 sm:px-6 lg:px-16">
+        <div className="mx-auto max-w-7xl py-14 sm:py-16 lg:py-20">
+          {/* ───────── Haut : marque + colonnes ───────── */}
+          <div className="grid gap-12 lg:grid-cols-[1.8fr_0.9fr_1fr_1fr_2fr] lg:gap-10">
+            {/* La marque */}
+            <div>
+              <Logo
+                href="/"
+                size="lg"
+                markSize="xl"
+                withMark
+                markId="pied"
+                tagline="Plus que des rencontres, des horizons partagés."
+              />
+
+              <p className="mt-6 max-w-xs text-[14px] leading-relaxed text-champagne/65">
+                Une plateforme pensée pour les hommes qui veulent des
+                rencontres sincères, sûres et alignées avec leur vibe.
               </p>
-            </Link>
 
-            <p className="mt-4 text-sm leading-relaxed text-champagne/60">
-              Une plateforme pensée pour les hommes qui veulent des rencontres
-              sincères, sûres et alignées avec leur vibe.
-            </p>
+              <ul className="mt-6 flex flex-wrap items-center gap-2">
+                {RESEAUX.map((reseau) => (
+                  <li key={reseau.label}>
+                    <Link
+                      href={reseau.href}
+                      aria-label={reseau.label}
+                      className={`flex h-10 w-10 items-center justify-center rounded-full border border-champagne/15 bg-nuit/40 text-champagne/65 backdrop-blur-sm transition-colors hover:border-cuivre/50 hover:text-champagne ${focusRing}`}
+                    >
+                      {reseau.icone}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
 
-            {/* Badges rassurance */}
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <div className="flex items-center gap-2 rounded-2xl border border-champagne/10 bg-champagne/[0.04] px-3 py-2 text-xs text-champagne/70">
-                <Shield size={14} className="text-cuivre" />
-                Sécurité
-              </div>
-
-              <div className="flex items-center gap-2 rounded-2xl border border-champagne/10 bg-champagne/[0.04] px-3 py-2 text-xs text-champagne/70">
-                <Heart size={14} className="text-cuivre" />
-                Bienveillance
+              <div className="mt-6 flex flex-wrap gap-3">
+                <BadgeMagasin magasin="App Store" />
+                <BadgeMagasin magasin="Google Play" />
               </div>
             </div>
 
-            {/* Réseaux sociaux */}
-            {/* TODO rebranding : remplacer par les vrais comptes sociaux
-                Sfera'Solys une fois créés (les URLs ci-dessous sont encore
-                celles de Sfera'Solys — pointées vers '#' en attendant). */}
-            <div className="mt-4 flex items-center gap-2">
-              {[
-                {
-                  label: 'Instagram',
-                  href: '#',
-                  external: false,
-                  icon: <Instagram size={16} />,
-                },
-                {
-                  label: 'TikTok',
-                  href: '#',
-                  external: false,
-                  icon: <TikTokIcon />,
-                },
-                {
-                  label: 'X (Twitter)',
-                  href: '#',
-                  external: false,
-                  icon: <Twitter size={16} />,
-                },
-                {
-                  label: 'Facebook',
-                  href: '#',
-                  external: false,
-                  icon: <Facebook size={16} />,
-                },
-                {
-                  label: 'Contact',
-                  href: '/contact',
-                  external: false,
-                  icon: <Mail size={16} />,
-                },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  aria-label={item.label}
-                  {...(item.external
-                    ? { target: '_blank', rel: 'noopener noreferrer' }
-                    : {})}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-champagne/10 bg-champagne/[0.04] text-champagne/65 transition hover:border-cuivre/40 hover:bg-cuivre/15 hover:text-champagne"
-                >
-                  {item.icon}
-                </Link>
-              ))}
-            </div>
-          </div>
+            {/* Les colonnes de liens */}
+            {COLONNES.map((colonne) => (
+              <nav key={colonne.titre} aria-label={colonne.titre}>
+                <TitreColonne>{colonne.titre}</TitreColonne>
 
-          {/* Mobile : accordéons */}
-          <div className="space-y-2 lg:hidden">
-            {footerGroups.map((group) => {
-              const isOpen = openGroup === group.title;
-
-              return (
-                <div
-                  key={group.title}
-                  className="overflow-hidden rounded-2xl border border-champagne/10 bg-champagne/[0.04]"
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleGroup(group.title)}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left"
-                  >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-champagne/10 text-lg">
-                      {group.icon}
-                    </span>
-
-                    <span className="flex-1 text-sm font-bold text-champagne">
-                      {group.title}
-                    </span>
-
-                    <ChevronDown
-                      size={17}
-                      className={`text-cuivre transition-transform ${
-                        isOpen ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
-
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.22, ease: 'easeOut' }}
-                        className="overflow-hidden"
-                      >
-                        <div className="space-y-1 border-t border-champagne/10 px-4 pb-3 pt-2">
-                          {group.links.map((link) => (
-                            <Link
-                              key={link.href}
-                              href={link.href}
-                              className="flex items-center gap-2 rounded-xl px-2 py-2 text-xs font-medium text-champagne/60 transition hover:bg-champagne/5 hover:text-champagne"
-                            >
-                              <span className="h-1.5 w-1.5 rounded-full bg-cuivre" />
-                              {link.label}
-                            </Link>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Desktop : colonnes classiques */}
-          <div className="hidden grid-cols-4 gap-6 lg:grid">
-            {footerGroups.map((group) => (
-              <div key={group.title}>
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="text-lg">{group.icon}</span>
-                  <h3 className="text-sm font-bold text-champagne">
-                    {group.title}
-                  </h3>
-                </div>
-
-                <ul className="space-y-2">
-                  {group.links.map((link) => (
-                    <li key={link.href}>
+                <ul className="mt-5 space-y-3">
+                  {colonne.liens.map((lien) => (
+                    <li key={lien.href}>
                       <Link
-                        href={link.href}
-                        className="text-sm text-champagne/55 transition hover:text-champagne"
+                        href={lien.href}
+                        className={`text-[14px] text-champagne/65 transition-colors hover:text-ivoire ${focusRing}`}
                       >
-                        {link.label}
+                        {lien.label}
                       </Link>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </nav>
             ))}
-          </div>
-        </div>
 
-        {/* CTA compact */}
-        <div className="mt-5 rounded-[1.5rem] border border-cuivre/20 bg-gradient-to-r from-cuivre/20 to-cuivre-sombre/15 p-4 sm:mt-8 sm:flex sm:items-center sm:justify-between sm:gap-4">
-          <div>
-            <p className="flex items-center gap-2 text-sm font-bold text-champagne">
-              <Sparkles size={15} className="text-cuivre" />
-              Prêt à rejoindre la vibe ?
-            </p>
+            {/* La newsletter */}
+            <div>
+              <TitreColonne>Rester informé</TitreColonne>
 
-            <p className="mt-1 text-xs text-champagne/60">
-              Crée ton profil et découvre une nouvelle façon de rencontrer.
-            </p>
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-0 sm:flex">
-            <Link
-              href="/auth?mode=register"
-              className="flex items-center justify-center rounded-full bg-champagne px-4 py-2.5 text-xs font-bold text-erreur transition hover:scale-[1.02]"
-            >
-              S’inscrire
-            </Link>
-
-            <Link
-              href="/contact"
-              className="flex items-center justify-center gap-1.5 rounded-full border border-champagne/20 px-4 py-2.5 text-xs font-bold text-champagne transition hover:bg-champagne/10"
-            >
-              <MessageCircle size={14} />
-              Contact
-            </Link>
-          </div>
-        </div>
-
-        {/* Newsletter */}
-        <div className="mt-4 rounded-[1.5rem] border border-champagne/10 bg-champagne/[0.04] p-4 sm:mt-6 sm:p-5">
-          <div className="sm:flex sm:items-center sm:justify-between sm:gap-6">
-            <div className="mb-3 sm:mb-0">
-              <p className="flex items-center gap-2 text-sm font-bold text-champagne">
-                <Mail size={15} className="text-cuivre" />
-                La newsletter Sfera'Solys
-              </p>
-              <p className="mt-1 text-xs text-champagne/60">
+              <p className="mt-5 max-w-[16rem] text-[14px] leading-relaxed text-champagne/65">
                 Conseils, événements et nouveautés en avant-première.
               </p>
+
+              <NewsletterSignup variant="dark" className="mt-4" />
+
+              <p className="mt-3 flex items-center gap-1.5 text-[11px] text-champagne/55">
+                <Lock size={11} aria-hidden="true" className="shrink-0" />
+                Pas de spam. Désabonnement en un clic.
+              </p>
             </div>
-
-            <NewsletterSignup variant="dark" className="sm:w-[22rem]" />
           </div>
-        </div>
 
-        {/* Bas du footer */}
-        <div className="mt-5 flex flex-col gap-2 border-t border-champagne/10 pt-4 text-center text-[11px] text-champagne/60 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:text-left">
-          <p>© {new Date().getFullYear()} Sfera'Solys. Tous droits réservés.</p>
+          {/* ───────── Les trois garanties ───────── */}
+          {/*
+            Séparées par des filets verticaux sur grand écran, comme dans la
+            maquette. Le filet est posé par `divide-x` sur une rangée en
+            `flex`, où l'ordre du DOM et l'ordre visuel coïncident — ce qui
+            n'aurait pas été vrai sur une grille repassant en colonnes.
+          */}
+          <ul className="mt-14 flex flex-col gap-6 border-t border-champagne/10 pt-10 sm:flex-row sm:gap-0 sm:divide-x sm:divide-champagne/10">
+            {GARANTIES.map(({ icone: Icone, titre, texte }) => (
+              <li
+                key={titre}
+                className="flex flex-1 items-center gap-4 sm:px-6 sm:first:pl-0 sm:last:pr-0"
+              >
+                <span
+                  aria-hidden="true"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-cuivre/30 bg-nuit/50 text-cuivre"
+                >
+                  <Icone size={20} />
+                </span>
 
-          <p>
-            Fait avec <span className="text-cuivre">♥</span> pour des
-            connexions plus vraies.
-          </p>
+                <span>
+                  <span className="block text-[14px] font-semibold text-champagne">
+                    {titre}
+                  </span>
+                  <span className="mt-0.5 block text-[12px] text-champagne/60">
+                    {texte}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          {/* ───────── Barre basse ───────── */}
+          <div className="mt-10 flex flex-col gap-5 border-t border-champagne/10 pt-7 lg:flex-row lg:items-center lg:justify-between">
+            <p className="text-[12px] text-champagne/55">
+              © {new Date().getFullYear()} Sfera&rsquo;Solys. Tous droits
+              réservés.
+            </p>
+
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7">
+              <nav aria-label="Liens de bas de page">
+                <ul className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px]">
+                  {[
+                    { label: 'Plan du site', href: '/plan-du-site' },
+                    { label: 'Accessibilité', href: '/accessibilite' },
+                    { label: 'Paramètres cookies', href: '/cookies' },
+                  ].map((lien) => (
+                    <li key={lien.href}>
+                      <Link
+                        href={lien.href}
+                        className={`text-champagne/55 transition-colors hover:text-champagne ${focusRing}`}
+                      >
+                        {lien.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              {/*
+                Sélecteur de langue `disabled`. La maquette le montre, le
+                produit n'a qu'une langue et aucune route localisée. Désactivé
+                plutôt que muet : un bouton qui a l'air cliquable et n'ouvre
+                rien est pire qu'un bouton qui dit qu'il n'est pas prêt.
+              */}
+              <button
+                type="button"
+                disabled
+                title="Sfera'Solys n'est disponible qu'en français pour l'instant."
+                className="flex cursor-not-allowed items-center gap-2 rounded-xl border border-champagne/15 bg-nuit/40 px-4 py-2 text-[12px] text-champagne/55 backdrop-blur-sm"
+              >
+                <Globe size={13} aria-hidden="true" />
+                Français
+                <ChevronDown size={13} aria-hidden="true" className="opacity-40" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

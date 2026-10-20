@@ -13,6 +13,16 @@ interface LogoProps {
   size?: LogoSize;
   /** Anneau d'éclipse à gauche du mot-symbole. */
   withMark?: boolean;
+  /**
+   * Taille de l'anneau, quand elle doit s'écarter de celle du mot.
+   *
+   * Par défaut l'anneau suit `size`, ce qui convient partout où le logo est
+   * une signature discrète. Le pied de page en fait au contraire son point
+   * d'entrée visuel : la maquette y pose un anneau nettement plus grand que
+   * le mot. Sans cette prop, il aurait fallu soit grossir le mot avec lui,
+   * soit dessiner une seconde fois le verrou à la main à côté du composant.
+   */
+  markSize?: LogoSize;
   /** Accroche en petites capitales sous le mot-symbole. */
   tagline?: string;
   className?: string;
@@ -71,6 +81,7 @@ const taglineStyles: Record<LogoSize, string> = {
 export function Logo({
   href = "/",
   size = "md",
+  markSize,
   withMark = false,
   tagline,
   className,
@@ -81,7 +92,7 @@ export function Logo({
       {withMark && (
         <EclipseMark
           id={markId}
-          className={cn("shrink-0", markStyles[size])}
+          className={cn("shrink-0", markStyles[markSize ?? size])}
         />
       )}
 
