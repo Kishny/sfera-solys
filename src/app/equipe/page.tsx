@@ -64,9 +64,13 @@ import {
  * ## Le délai de réponse
  *
  * La maquette écrit « dans les meilleurs délais », et c'est ce qui est
- * repris. À noter pour plus tard : /contact annonce « sous 24 à 48 h »
- * et /faq « réponse sous 24 h ». Les deux ne peuvent pas être vrais, et
- * aucun des deux n'est mesuré par quoi que ce soit dans le code.
+ * repris ici.
+ *
+ * /contact et /faq annonçaient deux délais différents — « sous 24 à 48 h »
+ * d'un côté, « réponse sous 24 h » de l'autre. Les deux ne pouvaient pas
+ * être vrais ; /faq s'aligne désormais sur 24 à 48 h, la valeur que porte
+ * la page Contact et sa maquette. Reste que rien, dans le code, ne mesure
+ * ce délai : c'est un engagement commercial, pas une garantie technique.
  */
 
 type Pole = {

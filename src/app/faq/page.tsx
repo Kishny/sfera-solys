@@ -207,7 +207,7 @@ const helpLinks = [
     external: true,
     icon: Mail,
     title: 'Nous écrire',
-    description: 'Une question précise ? Un e-mail direct, réponse sous 24 h.',
+    description: 'Une question précise ? Un e-mail direct, réponse sous 24 à 48 h.',
   },
   {
     href: '/guide',
