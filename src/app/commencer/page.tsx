@@ -1,552 +1,582 @@
 'use client';
 
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowRight,
-  Check,
+  Camera,
   ChevronDown,
   Clock,
   CreditCard,
+  Eye,
+  Heart,
   IdCard,
   Lock,
   MessageCircle,
-  Shield,
   ShieldCheck,
   Sparkles,
   Star,
+  UserPlus,
   Users,
-  Zap,
 } from 'lucide-react';
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import {
+  EnteteSection,
+  Surtitre,
+  focusRing,
+  premierBloc,
+  sectionY,
+  type IconeMarque,
+} from '@/components/brand/mise-en-page';
 
 /**
- * Page /commencer Sfera'Solys — direction A (« dossier de vérification »).
+ * Page /commencer — direction « nuit cuivrée », d'après la maquette.
  *
- * Restructuration + rebranding (voir CLAUDE.md § Restructuration) :
- * cette page n'avait jamais été rebrandée — dégradé violet plein écran,
- * orbes animées (`OrbitGlow`), parallax sur le hero, emojis décoratifs,
- * quatre dégradés différents par bloc, ancien nom de marque partout, et
- * une copy au féminin qui présumait en plus l'orientation du lecteur.
+ * ## Trois blocs de l'ancienne page disparaissent, et c'est voulu
  *
- * Ce qui change ici : fond abyss, un seul accent (vulcanico), lime réservé
- * aux puces de validation, hiérarchie institutionnelle. Le survol en
- * 4 étapes reste sur la home ; ici on donne le détail concret de chaque
- * étape (onglets pilotables au clavier) et on met la vérification
- * obligatoire — Stripe Identity, immédiate, gratuite — au centre de la page.
+ * 1. **Le panneau à onglets.** Le parcours était un `tablist` pilotable au
+ *    clavier, avec pour chaque étape un détail et une liste de contrôle.
+ *    La maquette le remplace par quatre cartes plates. Les listes ne sont
+ *    pas perdues : `/guide` porte le même parcours en détail, et le héros
+ *    y renvoie par son second bouton. Deux endroits racontaient la même
+ *    chose ; il en reste un, et c'est celui qui est fait pour ça.
  *
- * Ce qui ne change pas : le parcours d'inscription, les bénéfices, la FAQ,
- * le chargement de /api/stats et les destinations des CTA (l'inscription
- * elle-même se fait sur /auth?mode=register).
+ * 2. **Les statistiques.** La page appelait `/api/stats` au montage pour
+ *    afficher des compteurs. La maquette n'en montre aucun, l'appel est
+ *    retiré avec eux — une requête réseau de moins au chargement.
+ *
+ * 3. **Une cinquième question.** La maquette en dessine quatre ; « Mes
+ *    données sont-elles protégées ? » recoupait « Puis-je rester
+ *    discret ? » et la FAQ complète, vers laquelle la section renvoie.
+ *
+ * ## Une correction de fond
+ *
+ * Les bénéfices annonçaient « Modération 24/7 ». Rien n'engage une
+ * surveillance continue : ce qui est vrai, et ce qu'écrit la maquette,
+ * c'est que les profils sont vérifiés et qu'une personne lit les
+ * signalements. La formule de la maquette est donc reprise telle quelle,
+ * et celle de l'ancienne page abandonnée.
+ *
+ * ## Les photographies des étapes
+ *
+ * Elles viennent du jeu de `/guide`, qui illustre le même parcours. La
+ * maquette dessine pour l'étape 2 une pièce d'identité et un selfie à
+ * l'écran : ces images n'existent pas, et une pièce d'identité fabriquée
+ * sur la page qui explique la vérification serait le pire endroit du site
+ * pour en poser une. `etape-2` tient la place en attendant une
+ * photographie réelle — un homme tenant son téléphone devant son visage,
+ * sans document lisible.
  */
 
-interface SiteStats {
-  membres: number;
-  matchs: number;
-  messages: number;
-  evenements: number;
-}
-
-/**
- * Formate les gros chiffres pour un affichage plus propre.
- * 1200 => 1.2K+ · 1000 => 1K+ · 0 => —
- */
-function formatStat(n: number): string {
-  if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'K+';
-  if (n === 0) return '—';
-  return n.toString();
-}
-
-type JourneyStep = {
-  number: number;
-  title: string;
-  duration: string;
-  summary: string;
-  details: string;
-  checklist: string[];
-  icon: React.ComponentType<{ size?: number | string; className?: string }>;
+type Etape = {
+  numero: string;
+  icon: IconeMarque;
+  titre: string;
+  duree: string;
+  dureeIcon: IconeMarque;
+  description: string;
+  image: string;
+  alt: string;
+  cadrage?: string;
 };
 
-/** Le parcours d'inscription, détaillé — l'ordre suit le stepper de la home. */
-const journey: JourneyStep[] = [
+const etapes: Etape[] = [
   {
-    number: 1,
-    title: 'Créer ton profil',
-    duration: '10 minutes',
-    summary: 'Partage ce qui te définit vraiment.',
-    details:
-      "Tu renseignes tes centres d'intérêt, tes valeurs et ce que tu recherches. Pas de questionnaire interminable : dix minutes suffisent, et tu peux compléter ton profil plus tard.",
-    checklist: [
-      "Tes centres d'intérêt, tes valeurs et tes intentions",
-      'Trois photos récentes minimum, non retouchées',
-      'Ta ville et le rayon dans lequel tu cherches',
-    ],
-    icon: Users,
+    numero: '01',
+    icon: UserPlus,
+    titre: 'Créer ton profil',
+    duree: '10 minutes',
+    dureeIcon: Clock,
+    description:
+      'Renseigne les informations essentielles et ajoute quelques photos qui te ressemblent.',
+    image: '/visuels/guide/etape-1.webp',
+    alt: 'Un homme seul sur une terrasse, téléphone en main.',
   },
   {
-    number: 2,
-    title: "Vérifier ton identité",
-    duration: 'immédiat',
-    summary: 'Document officiel et selfie en direct, comparés aussitôt.',
-    details:
-      "Tu photographies ta pièce d'identité, puis ton visage en direct. Stripe Identity compare les deux et répond dans la foulée : ton profil s'active sans attente. La vérification est gratuite et obligatoire — c'est elle qui rend la plateforme fiable. L'inscription est réservée aux hommes de 28 ans et plus.",
-    checklist: [
-      "Une pièce d'identité en cours de validité",
-      'Un selfie de contrôle, jamais publié sur ton profil',
-      'Une réponse immédiate, sans frais',
-    ],
+    numero: '02',
     icon: IdCard,
+    titre: 'Vérifier ton identité',
+    duree: 'Pièce officielle + selfie',
+    dureeIcon: ShieldCheck,
+    description:
+      'Nous utilisons Stripe Identity pour vérifier ton identité en toute sécurité.',
+    image: '/visuels/guide/etape-2.webp',
+    alt: 'Un homme assis, téléphone à la main, la ville illuminée derrière lui.',
   },
   {
-    number: 3,
-    title: 'Découvrir ton Circle of Six',
-    duration: 'chaque semaine',
-    summary: 'Six profils vérifiés qui te correspondent.',
-    details:
-      "Dès ton dossier validé, l'algorithme d'affinité te présente six profils vérifiés alignés avec tes valeurs et ton rythme de vie. Moins de swipe, plus de sens.",
-    checklist: [
-      'Six profils vérifiés proposés par semaine',
-      'Une sélection basée sur les valeurs, pas sur le volume',
-      'Des filtres pour affiner (distance, disponibilité…)',
-    ],
-    icon: Sparkles,
+    numero: '03',
+    icon: Users,
+    titre: 'Découvrir ton Circle of Six',
+    duree: '6 propositions / semaine',
+    dureeIcon: Sparkles,
+    description:
+      'Chaque semaine, six profils vérifiés alignés avec tes valeurs et ton rythme de vie.',
+    image: '/visuels/guide/etape-5.webp',
+    alt: 'Un groupe d’hommes en conversation lors d’une soirée sur un toit.',
   },
   {
-    number: 4,
-    title: 'Lancer la première conversation',
-    duration: 'quand tu veux',
-    summary: 'Un premier échange encadré, à ton rythme.',
-    details:
-      "Tu envoies ton premier message avec une amorce guidée, pensée pour désamorcer la gêne, ou tu rejoins un événement de la communauté Solys. Le Mode Fantôme te laisse garder la main sur ta visibilité à tout moment.",
-    checklist: [
-      'Une amorce de conversation guidée',
-      'Les événements de la communauté Solys',
-      'Le Mode Fantôme pour contrôler ta visibilité',
-    ],
+    numero: '04',
     icon: MessageCircle,
+    titre: 'Commencer à échanger',
+    duree: 'À ton rythme',
+    dureeIcon: Heart,
+    description:
+      'Fais connaissance, discute et organise des rencontres en toute sérénité.',
+    image: '/visuels/guide/etape-4.webp',
+    alt: 'Deux hommes en conversation sur un canapé, la ville en contrebas.',
   },
 ];
 
-/** Les trois faits à retenir sur la vérification — le cœur de la promesse. */
-const verificationFacts = [
+/** Les trois faits de la vérification. Chacun est vérifiable dans le code. */
+const faitsVerification: Array<{
+  icon: IconeMarque;
+  titre: string;
+  description: string;
+}> = [
   {
-    icon: Clock,
-    title: 'Quelques instants',
+    icon: IdCard,
+    titre: 'Document officiel',
     description:
-      "Le contrôle est automatisé : tu connais le résultat avant d'avoir quitté la page. Aucun dossier ne reste en attente.",
+      "Une pièce d'identité en cours de validité : carte d'identité, passeport ou titre de séjour.",
   },
   {
-    icon: ShieldCheck,
-    title: 'Un document officiel',
+    icon: Camera,
+    titre: 'Selfie en direct',
     description:
-      "Carte d'identité, passeport ou permis, comparés à un selfie pris en direct — pas une photo choisie dans ta galerie.",
+      "Un selfie de contrôle pour confirmer que c'est bien toi, réalisé via Stripe Identity. Il n'est jamais publié sur ton profil.",
   },
   {
     icon: CreditCard,
-    title: 'Gratuite, toujours',
+    titre: 'Gratuit pour tous',
     description:
-      "Vérifié ne se paie pas. La vérification est incluse dans toutes les offres, gratuite comprise.",
+      "La vérification est entièrement gratuite, quelle que soit l'offre choisie. Aucune carte bancaire n'est nécessaire.",
   },
 ];
 
-/** Bénéfices de la plateforme — repris tels quels de l'ancienne page. */
-const benefits = [
+/**
+ * Les bénéfices.
+ *
+ * « Modération 24/7 » a sauté : rien n'engage une surveillance continue.
+ * Ce qui tient, c'est que les profils sont vérifiés et qu'un signalement
+ * est lu par une personne.
+ */
+const benefices: Array<{
+  icon: IconeMarque;
+  titre: string;
+  description: string;
+}> = [
   {
-    icon: Shield,
-    title: 'Sécurité maximale',
-    description: 'Modération 24/7 et données protégées.',
+    icon: ShieldCheck,
+    titre: 'Sécurité et modération',
+    description:
+      'Des profils vérifiés et une communauté encadrée, pour des échanges plus sereins.',
   },
   {
-    icon: Lock,
-    title: 'Contrôle total',
-    description: 'Gère ta visibilité comme tu le souhaites.',
+    icon: Eye,
+    titre: 'Confidentialité et visibilité',
+    description:
+      'Tu restes maître de ce que tu partages et de ta visibilité sur la plateforme.',
   },
   {
-    icon: Zap,
-    title: 'Matching intelligent',
-    description: 'Basé sur les valeurs et les vibes, pas juste les photos.',
+    icon: Heart,
+    titre: 'Des affinités réelles',
+    description:
+      'Des profils sélectionnés selon tes valeurs et tes centres d’intérêt.',
   },
   {
     icon: Star,
-    title: 'Expérience premium',
-    description: 'Interface élégante et expérience fluide.',
+    titre: 'Une expérience simple et premium',
+    description:
+      'Un parcours fluide, sans frais cachés, pensé pour des rencontres de qualité.',
   },
 ];
 
 const faqs = [
   {
-    question: "L'inscription est-elle vraiment gratuite ?",
+    question: 'L’inscription est-elle gratuite ?',
     answer:
-      "Oui. L'inscription est gratuite, vérification d'identité comprise. Le compte gratuit est limité : 5 likes par jour, 3 matchs et 10 messages par jour. Les plans payants lèvent ces limites.",
+      "Oui, vérification d'identité comprise. Le compte gratuit est limité — 5 likes et 10 messages par jour, 3 matchs simultanés — et les offres payantes lèvent ces limites. Mais rien ne te sera demandé pour t'inscrire et faire vérifier ton identité.",
   },
   {
-    question: "Combien de temps prend la vérification d'identité ?",
+    question: 'Combien de temps prend la vérification ?',
     answer:
-      "Quelques instants. Le contrôle passe par Stripe Identity : tu photographies ta pièce d'identité puis ton visage, et la réponse arrive aussitôt. C'est gratuit, quelle que soit ton offre.",
+      "Quelques instants dans la plupart des cas. Tu photographies ta pièce d'identité puis ton visage en direct, et Stripe Identity compare les deux. La réponse est le plus souvent immédiate ; il arrive qu'une vérification reste en attente le temps d'un contrôle supplémentaire.",
   },
   {
     question: 'Comment fonctionne le Circle of Six ?',
     answer:
-      'Chaque semaine, notre algorithme te présente 6 profils vérifiés qui correspondent à tes valeurs et intérêts. Moins de swipe, plus de sens.',
+      "Chaque lundi, six profils vérifiés te sont proposés, choisis selon tes valeurs et tes centres d'intérêt. La sélection est figée jusqu'au lundi suivant : elle ne défile pas à l'infini, et c'est volontaire. À côté, l'annuaire reste accessible pour chercher par toi-même.",
   },
   {
-    question: 'Mes données sont-elles protégées ?',
+    question: 'Puis-je rester discret ?',
     answer:
-      "Oui. Sfera'Solys te donne un contrôle fort sur ta visibilité, tes informations et ton expérience sur la plateforme.",
-  },
-  {
-    question: "Puis-je utiliser Sfera'Solys discrètement ?",
-    answer:
-      'Oui. Le Mode Fantôme permet de contrôler ta visibilité, de naviguer plus discrètement et de garder le contrôle sur ton rythme.',
+      "Oui. Quatre niveaux de visibilité te laissent choisir qui voit ton profil, et le mode fantôme permet de rester sur la plateforme sans y apparaître. Le réglage se change à tout moment.",
   },
 ];
 
-/** Anneau de focus clavier, identique partout dans la direction A. */
-const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
+/** Les trois gages du héros. */
+const gages: Array<{ icon: IconeMarque; libelle: string }> = [
+  { icon: Users, libelle: 'Gratuit pour tous' },
+  { icon: CreditCard, libelle: 'Aucune carte bancaire' },
+  { icon: Lock, libelle: 'Données sécurisées' },
+];
 
 export default function CommencerPage() {
-  /**
-   * Étape affichée dans le détail du parcours. L'ancienne page faisait
-   * tourner cet état automatiquement toutes les 4s ; on l'a retiré (un
-   * onglet qui change tout seul est ingérable au clavier et au lecteur
-   * d'écran). L'utilisateur pilote, à la souris ou aux flèches.
-   */
-  const [step, setStep] = useState(1);
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
-  const [siteStats, setSiteStats] = useState<SiteStats | null>(null);
+  const [questionOuverte, setQuestionOuverte] = useState<number | null>(null);
+  const reduceMotion = useReducedMotion();
 
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const shouldReduceMotion = useReducedMotion();
-
-  /** Statistiques dynamiques — même source que le reste du site. */
-  useEffect(() => {
-    fetch('/api/stats')
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) setSiteStats(d.stats);
-      })
-      .catch(() => {});
-  }, []);
-
-  const activeStep = journey.find((item) => item.number === step) ?? journey[0];
-  const ActiveStepIcon = activeStep.icon;
-
-  /** Navigation aux flèches entre les onglets d'étape (pattern tablist). */
-  function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
-    const last = journey.length - 1;
-    let target: number | null = null;
-
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-      target = index === last ? 0 : index + 1;
-    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-      target = index === 0 ? last : index - 1;
-    } else if (event.key === 'Home') {
-      target = 0;
-    } else if (event.key === 'End') {
-      target = last;
-    }
-
-    if (target === null) return;
-
-    event.preventDefault();
-    setStep(journey[target].number);
-    tabRefs.current[target]?.focus();
-  }
+  const transition = reduceMotion ? { duration: 0 } : { duration: 0.2 };
 
   return (
     <>
       <Header />
 
       <main id="contenu" className="bg-nuit text-champagne">
-        {/* Hero */}
-        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
-          <div className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
-              Inscription gratuite · vérification immédiate
-            </span>
+        {/*
+          Héros. `solys-05` est semée de bougies et d'une skyline claire :
+          sous `lg`, où le texte passe sur la photographie, le voile monte
+          à 95 % au milieu et 85 % en haut — c'est le minimum pour que le
+          surtitre à 60 % tienne 4,52:1. Au-dessus de `lg`, l'image se range
+          à droite et le texte retrouve le fond `nuit` plein.
+        */}
+        <section className="relative isolate overflow-hidden px-4 sm:px-6 lg:px-16">
+          <div className="absolute inset-0 -z-20 lg:left-[40%]">
+            <Image
+              src="/visuels/solys-05.webp"
+              alt="Un groupe d’hommes en conversation sur une terrasse, la ville illuminée derrière eux."
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 60vw"
+              className="object-cover object-center"
+            />
 
-            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
-              Quatre étapes, un dossier vérifié.
-            </h1>
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-nuit via-nuit/95 to-nuit/85 lg:bg-gradient-to-r lg:from-nuit lg:via-nuit/30 lg:to-transparent"
+            />
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
-              Tu constitues ton dossier, Stripe Identity vérifie ton identité
-              dans la foulée, et ton profil s&apos;active. Aucun paiement demandé
-              pour être vérifié — l&apos;inscription est ouverte aux hommes de
-              28 ans et plus.
-            </p>
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-nuit to-transparent"
+            />
+          </div>
 
-            <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link
-                href="/auth?mode=register"
-                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
-              >
-                constituer mon dossier
-              </Link>
+          <div className={`relative mx-auto max-w-7xl pb-12 sm:pb-14 ${premierBloc}`}>
+            <div className="max-w-xl">
+              <Surtitre>Commencer</Surtitre>
 
-              <Link
-                href="/guide"
-                className={`fx-ghost rounded-xl border border-champagne/15 px-7 py-3.5 text-sm font-bold text-champagne/85 transition-colors hover:border-champagne/30 ${focusRing}`}
-              >
-                lire le guide
-              </Link>
+              <h1 className="font-display mt-6 text-[34px] font-normal leading-[1.08] tracking-tight text-ivoire sm:text-[48px]">
+                Quatre étapes,
+                <br />
+                <span className="italic text-cuivre">un dossier vérifié.</span>
+              </h1>
+
+              <p className="mt-5 text-[16px] font-semibold leading-snug text-champagne sm:text-[18px]">
+                Inscription et vérification gratuites.
+                <br />
+                Sans carte bancaire.
+              </p>
+
+              <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+                <Link
+                  href="/auth?mode=register"
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                >
+                  Constituer mon dossier
+                  <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+
+                <Link
+                  href="/guide"
+                  className={`inline-flex items-center justify-center rounded-xl border border-champagne/25 px-7 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-champagne/50 ${focusRing}`}
+                >
+                  Lire le guide
+                </Link>
+              </div>
+
+              <ul className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-[12.5px] text-champagne/80">
+                {gages.map(({ icon: Icone, libelle }) => (
+                  <li key={libelle} className="flex items-center gap-2">
+                    <Icone size={15} aria-hidden="true" className="text-cuivre" />
+                    {libelle}
+                  </li>
+                ))}
+              </ul>
             </div>
-
-            <p className="mt-5 text-[13px] text-champagne/55">
-              {siteStats
-                ? `${formatStat(siteStats.membres)} profils vérifiés à ce jour`
-                : 'des centaines de profils vérifiés à ce jour'}
-            </p>
           </div>
         </section>
 
-        {/* Le parcours, étape par étape */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        {/* Le parcours en quatre étapes */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-              Le parcours en détail
-            </h2>
-
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
-              Choisis une étape pour voir exactement ce qu&apos;on te demande,
-              ce qu&apos;on en fait, et combien de temps ça prend.
-            </p>
-
-            <div
-              role="tablist"
-              aria-label="Étapes du parcours d'inscription"
-              className="mt-8 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-4"
+            <EnteteSection
+              surtitre="Le parcours"
+              intro={
+                <>
+                  Un processus simple, rapide et sécurisé pour rejoindre
+                  Sfera&rsquo;Solys et commencer des rencontres authentiques.
+                </>
+              }
             >
-              {journey.map((item, index) => {
-                const isActive = item.number === step;
+              Ton parcours <span className="italic text-cuivre">en 4 étapes</span>
+            </EnteteSection>
+
+            <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {etapes.map((etape, index) => {
+                const Icone = etape.icon;
+                const Duree = etape.dureeIcon;
 
                 return (
-                  <button
-                    key={item.number}
-                    ref={(el) => {
-                      tabRefs.current[index] = el;
-                    }}
-                    type="button"
-                    role="tab"
-                    id={`etape-onglet-${item.number}`}
-                    aria-selected={isActive}
-                    aria-controls={`etape-panneau-${item.number}`}
-                    tabIndex={isActive ? 0 : -1}
-                    onClick={() => setStep(item.number)}
-                    onKeyDown={(event) => handleTabKeyDown(event, index)}
-                    className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-colors ${focusRing} ${
-                      isActive
-                        ? 'border-cuivre/40 bg-minuit ring-1 ring-cuivre/20'
-                        : 'border-champagne/8 bg-minuit hover:border-champagne/20'
-                    }`}
-                  >
-                    <span
-                      className={`font-display flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[14px] font-extrabold ${
-                        isActive ? 'bg-cuivre text-nuit' : 'bg-champagne/8 text-champagne/55'
-                      }`}
-                    >
-                      {item.number}
-                    </span>
+                  <li key={etape.numero} className="relative h-full">
+                    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-champagne/12 bg-minuit/80">
+                      <div className="relative aspect-[16/11] w-full">
+                        <Image
+                          src={etape.image}
+                          alt={etape.alt}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+                          className={`object-cover ${etape.cadrage ?? 'object-center'}`}
+                        />
 
-                    <span className="min-w-0">
+                        <div
+                          aria-hidden="true"
+                          className="absolute inset-0 bg-gradient-to-t from-minuit via-transparent to-nuit/40"
+                        />
+
+                        <span
+                          aria-hidden="true"
+                          className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full border border-cuivre/50 bg-nuit/80 text-[11.5px] font-bold text-cuivre backdrop-blur-sm"
+                        >
+                          {etape.numero}
+                        </span>
+                      </div>
+
+                      {/*
+                        Le médaillon chevauche la photographie mais vit dans
+                        le bloc de texte : posé dans l'image, son
+                        `overflow-hidden` le rognerait.
+                      */}
+                      <div className="relative flex flex-1 flex-col px-5 pb-5 pt-0">
+                        <span
+                          aria-hidden="true"
+                          className="absolute -top-6 left-5 flex h-12 w-12 items-center justify-center rounded-full border border-cuivre/45 bg-nuit text-cuivre"
+                        >
+                          <Icone size={19} />
+                        </span>
+
+                        <h3 className="font-display mt-10 text-[19px] font-normal leading-snug text-ivoire">
+                          {etape.titre}
+                        </h3>
+
+                        <p className="mt-2 flex items-center gap-2 text-[12px] text-champagne/75">
+                          <Duree
+                            size={13}
+                            aria-hidden="true"
+                            className="shrink-0 text-cuivre"
+                          />
+                          {etape.duree}
+                        </p>
+
+                        <p className="mt-3 text-[12.5px] leading-relaxed text-champagne/75">
+                          {etape.description}
+                        </p>
+                      </div>
+                    </article>
+
+                    {/*
+                      La flèche de liaison. Elle ne s'affiche qu'entre deux
+                      cartes effectivement côte à côte : empilées, elle
+                      pointerait dans le vide.
+                    */}
+                    {index < etapes.length - 1 && (
                       <span
-                        className={`font-display block text-[15px] font-bold ${
-                          isActive ? 'text-champagne' : 'text-champagne/70'
-                        }`}
+                        aria-hidden="true"
+                        className="absolute -right-2 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-cuivre/45 bg-nuit text-cuivre lg:flex"
                       >
-                        {item.title}
+                        <ArrowRight size={14} />
                       </span>
-                      <span className="mt-0.5 block text-[12px] text-champagne/55">
-                        {item.duration}
-                      </span>
-                    </span>
-                  </button>
+                    )}
+                  </li>
                 );
               })}
-            </div>
-
-            <div
-              role="tabpanel"
-              id={`etape-panneau-${activeStep.number}`}
-              aria-labelledby={`etape-onglet-${activeStep.number}`}
-              tabIndex={0}
-              className={`mt-3 rounded-2xl border border-champagne/8 bg-minuit p-6 sm:p-8 ${focusRing}`}
-            >
-              <motion.div
-                key={activeStep.number}
-                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
-                className="grid gap-7 lg:grid-cols-2 lg:gap-12"
-              >
-                <div>
-                  <ActiveStepIcon size={20} className="text-cuivre" />
-
-                  <h3 className="font-display mt-3 text-[17px] font-extrabold tracking-tight text-champagne">
-                    Étape {activeStep.number} — {activeStep.title}
-                  </h3>
-
-                  <p className="mt-1.5 text-sm font-semibold text-champagne/85">
-                    {activeStep.summary}
-                  </p>
-
-                  <p className="mt-3 text-[13px] leading-relaxed text-champagne/70">
-                    {activeStep.details}
-                  </p>
-                </div>
-
-                <div className="border-t border-champagne/8 pt-6 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0">
-                  <p className="text-[11px] font-bold uppercase tracking-wide text-champagne/55">
-                    Concrètement
-                  </p>
-
-                  <ul className="mt-4 space-y-2.5">
-                    {activeStep.checklist.map((entry) => (
-                      <li key={entry} className="flex items-start gap-2.5">
-                        <Check size={14} className="mt-[3px] shrink-0 text-succes" />
-                        <span className="text-[13px] leading-relaxed text-champagne/70">
-                          {entry}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </motion.div>
-            </div>
+            </ol>
           </div>
         </section>
 
         {/* La vérification, en clair */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-          <div className="mx-auto max-w-7xl">
-            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-              La vérification, en clair
-            </h2>
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+          <div className="mx-auto max-w-7xl rounded-3xl border border-champagne/12 bg-minuit/70 p-6 sm:p-8 lg:p-10">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.9fr)] lg:gap-12">
+              <div>
+                <h2 className="font-display text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
+                  La vérification,{' '}
+                  <span className="italic text-cuivre">en clair.</span>
+                </h2>
 
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
-              C&apos;est l&apos;étape qui prend le plus de temps, et c&apos;est
-              volontaire : chaque dossier est ouvert et relu par une personne
-              avant l&apos;activation du profil.
-            </p>
+                <p className="mt-4 text-[13.5px] leading-relaxed text-champagne/80">
+                  Une vérification simple et sécurisée, pour une communauté de
+                  confiance.
+                </p>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {verificationFacts.map(({ icon: Icon, title, description }) => (
-                <div
-                  key={title}
-                  className="rounded-2xl border border-champagne/8 bg-minuit p-5 sm:p-6"
+                <Link
+                  href="/guide"
+                  className={`mt-6 inline-flex items-center gap-2 rounded-xl bg-degrade-cuivre px-6 py-3 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
                 >
-                  <Icon size={20} className="text-cuivre" />
+                  En savoir plus
+                  <ArrowRight size={15} aria-hidden="true" />
+                </Link>
+              </div>
 
-                  <h3 className="font-display mt-3 text-[17px] font-extrabold tracking-tight text-champagne">
-                    {title}
-                  </h3>
+              <ul className="grid gap-7 sm:grid-cols-3 sm:gap-5">
+                {faitsVerification.map(({ icon: Icone, titre, description }) => (
+                  <li key={titre} className="text-center">
+                    <span
+                      aria-hidden="true"
+                      className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-cuivre/40 bg-nuit/60 text-cuivre"
+                    >
+                      <Icone size={19} />
+                    </span>
 
-                  <p className="mt-2 text-[13px] leading-relaxed text-champagne/70">
-                    {description}
-                  </p>
-                </div>
-              ))}
+                    <h3 className="font-display mt-4 text-[17px] font-normal leading-snug text-ivoire">
+                      {titre}
+                    </h3>
+
+                    <p className="mt-2 text-[12.5px] leading-relaxed text-champagne/75">
+                      {description}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             </div>
-
-            <p className="mt-6 text-[13px] text-champagne/55">
-              {siteStats
-                ? `${formatStat(siteStats.matchs)} mises en relation depuis l'ouverture de la plateforme.`
-                : 'Des mises en relation chaque semaine, entre profils vérifiés uniquement.'}
-            </p>
           </div>
         </section>
 
-        {/* Bénéfices */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        {/*
+          Ce que tu y gagnes. Fond photographique pleine largeur : voile
+          mesuré sur `solys-03`, 5,95:1 pour le champagne à 70 % dans la
+          zone de texte, 4,78 pour le surtitre à 60 %.
+        */}
+        <div className="relative isolate overflow-hidden">
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <Image
+              src="/visuels/solys-03.webp"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-[70%_40%]"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(10,13,18,0.92)_0%,rgba(10,13,18,0.88)_45%,rgba(10,13,18,0.55)_70%,rgba(10,13,18,0.15)_100%)]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit" />
+          </div>
+
+          <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+            <div className="mx-auto max-w-7xl">
+              <h2 className="font-display text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
+                Ce que tu y gagnes.
+              </h2>
+
+              <p className="mt-3 max-w-md text-[13.5px] leading-relaxed text-champagne/80">
+                Un espace plus sûr, plus qualitatif et aligné avec tes
+                attentes.
+              </p>
+
+              <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {benefices.map(({ icon: Icone, titre, description }) => (
+                  <li
+                    key={titre}
+                    className="h-full rounded-2xl border border-champagne/15 bg-minuit/85 p-5 backdrop-blur-sm sm:p-6"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="flex h-11 w-11 items-center justify-center rounded-full border border-cuivre/40 bg-nuit/60 text-cuivre"
+                    >
+                      <Icone size={18} />
+                    </span>
+
+                    <h3 className="font-display mt-4 text-[17px] font-normal leading-snug text-ivoire">
+                      {titre}
+                    </h3>
+
+                    <p className="mt-2 text-[12.5px] leading-relaxed text-champagne/75">
+                      {description}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        </div>
+
+        {/* Questions fréquentes */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-              Ce que tu y gagnes
-            </h2>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+              <h2 className="font-display text-[26px] font-normal leading-tight tracking-tight text-ivoire sm:text-[32px]">
+                Questions fréquentes
+              </h2>
 
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-champagne/60">
-              Une plateforme de rencontres pensée pour les hommes de 28 ans et
-              plus, où chaque profil en face de toi a passé le même contrôle que
-              le tien.
-            </p>
+              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center lg:gap-6">
+                <p className="max-w-xs text-[13px] leading-relaxed text-champagne/75">
+                  Tu ne trouves pas la réponse à ta question&nbsp;? Consulte la
+                  FAQ complète.
+                </p>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {benefits.map(({ icon: Icon, title, description }) => (
-                <div
-                  key={title}
-                  className="rounded-2xl border border-champagne/8 bg-minuit p-5 sm:p-6"
+                <Link
+                  href="/faq"
+                  className={`inline-flex shrink-0 items-center gap-2 rounded-xl border border-cuivre/55 bg-cuivre/10 px-5 py-2.5 text-[13px] font-bold text-champagne transition-colors hover:bg-cuivre/20 ${focusRing}`}
                 >
-                  <Icon size={18} className="text-cuivre" />
-
-                  <h3 className="font-display mt-3 text-[17px] font-extrabold tracking-tight text-champagne">
-                    {title}
-                  </h3>
-
-                  <p className="mt-2 text-[13px] leading-relaxed text-champagne/70">
-                    {description}
-                  </p>
-                </div>
-              ))}
+                  Voir la FAQ
+                  <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+              </div>
             </div>
 
-            <p className="mt-6 text-[13px] text-champagne/55">
-              Besoin du détail fonctionnalité par fonctionnalité ?{' '}
-              <Link
-                href="/fonctionnalites"
-                className={`fx-link font-semibold text-cuivre transition-colors hover:text-cuivre/80 ${focusRing}`}
-              >
-                Voir toutes les fonctionnalités
-              </Link>
-            </p>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-              Avant de commencer
-            </h2>
-
-            <div className="space-y-1.5">
+            <div className="mt-7 space-y-2">
               {faqs.map((faq, index) => {
-                const isOpen = openFaqIndex === index;
+                const ouverte = questionOuverte === index;
 
                 return (
                   <div
                     key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit"
+                    className="overflow-hidden rounded-2xl border border-champagne/12 bg-minuit"
                   >
                     <button
                       type="button"
                       onClick={() =>
-                        setOpenFaqIndex((current) => (current === index ? null : index))
+                        setQuestionOuverte((actuelle) =>
+                          actuelle === index ? null : index
+                        )
                       }
-                      aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-champagne sm:px-5 ${focusRing}`}
+                      aria-expanded={ouverte}
+                      className={`flex w-full items-center justify-between gap-4 px-5 py-4 text-left ${focusRing}`}
                     >
-                      {faq.question}
+                      <span className="text-[14px] font-semibold text-champagne">
+                        {faq.question}
+                      </span>
+
                       <ChevronDown
-                        size={16}
-                        className={`shrink-0 text-champagne/55 transition-transform ${
-                          isOpen ? 'rotate-180' : ''
+                        size={17}
+                        aria-hidden="true"
+                        className={`shrink-0 text-champagne/65 transition-transform ${
+                          ouverte ? 'rotate-180' : ''
                         }`}
                       />
                     </button>
 
                     <AnimatePresence initial={false}>
-                      {isOpen && (
+                      {ouverte && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
+                          transition={transition}
                           className="overflow-hidden"
                         >
-                          <p className="border-t border-champagne/8 px-4 py-4 text-[13px] leading-relaxed text-champagne/60 sm:px-5">
+                          <p className="border-t border-champagne/12 px-5 py-4 text-[13px] leading-relaxed text-champagne/75">
                             {faq.answer}
                           </p>
                         </motion.div>
@@ -556,50 +586,50 @@ export default function CommencerPage() {
                 );
               })}
             </div>
-
-            <p className="mt-6 text-center text-[13px] text-champagne/55">
-              Une autre question ?{' '}
-              <Link
-                href="/faq"
-                className={`fx-link font-semibold text-cuivre hover:text-cuivre/80 ${focusRing}`}
-              >
-                voir la FAQ complète
-              </Link>
-            </p>
           </div>
         </section>
 
-        {/* CTA final */}
-        <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:p-11 lg:flex-row lg:text-left">
-            <div>
-              <h2 className="font-display mb-1.5 text-xl font-extrabold text-champagne sm:text-2xl">
-                Ton dossier commence maintenant.
-              </h2>
-              <p className="text-sm text-champagne/60">
-                Dix minutes pour le constituer, quelques instants pour la
-                vérification. Gratuit, sans engagement, sans carte bancaire.
-              </p>
-            </div>
+        {/*
+          Appel à l'action. Le texte reste dans les 42 % de gauche de
+          `solys-07`, où l'image est sombre — 7,12:1 pour le champagne à
+          70 %. Au-delà commencent les baies vitrées.
+        */}
+        <div className="relative isolate overflow-hidden">
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <Image
+              src="/visuels/solys-07.webp"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-[50%_25%]"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(10,13,18,0.92)_0%,rgba(10,13,18,0.88)_45%,rgba(10,13,18,0.60)_70%,rgba(10,13,18,0.20)_100%)]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit/60" />
+          </div>
 
-            <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
+          <section className="px-4 py-14 sm:px-6 sm:py-16 lg:px-16">
+            <div className="mx-auto max-w-7xl">
+              <h2 className="font-display max-w-lg text-[28px] font-normal leading-[1.15] text-ivoire sm:text-[36px]">
+                Ton dossier
+                <br />
+                commence <span className="italic text-cuivre">maintenant.</span>
+              </h2>
+
+              <p className="mt-4 max-w-md text-[14px] leading-relaxed text-champagne/80">
+                Rejoins Sfera&rsquo;Solys et vis des rencontres authentiques,
+                dans un cadre sûr et respectueux.
+              </p>
+
               <Link
                 href="/auth?mode=register"
-                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
+                className={`mt-7 inline-flex items-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
               >
-                constituer mon dossier
-              </Link>
-
-              <Link
-                href="/tarifs"
- className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
-              >
-                voir les offres
-                <ArrowRight size={14} />
+                Créer mon profil
+                <ArrowRight size={16} aria-hidden="true" />
               </Link>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </main>
 
       <Footer />
