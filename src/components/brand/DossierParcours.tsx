@@ -368,7 +368,7 @@ export default function DossierParcours({
           role="tablist"
           aria-label="Les étapes du parcours"
           aria-orientation="horizontal"
-          className="mt-9 grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-4"
+          className="mt-7 grid gap-x-5 gap-y-7 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-4"
         >
           {etapes.map((item, index) => {
             const estActif = index === actif;

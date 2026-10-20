@@ -178,6 +178,22 @@ const featureTeasers = [
   question mérite d'être ajoutée là-bas.
 */
 
+/**
+ * Rythme vertical des sections.
+ *
+ * Défini une fois et appliqué partout. Chaque section réglée pour
+ * elle-même finit par dériver, et resserrer la page devient alors une
+ * tournée de huit retouches qu'on fait mal.
+ *
+ * Les valeurs précédentes — `py-16 sm:py-24` — laissaient 192 px entre
+ * deux sections sur grand écran. À cette distance, chaque section se lit
+ * isolée, avec du vide au-dessus et en dessous, et la page se parcourt par
+ * à-coups. 128 px séparent encore franchement, sans couper le fil.
+ *
+ * C'est le seul endroit à toucher pour resserrer ou aérer l'ensemble.
+ */
+const sectionY = 'py-10 sm:py-14 lg:py-16';
+
 /** Anneau de focus clavier, identique partout. */
 const focusRing =
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
@@ -329,7 +345,12 @@ export default function Home() {
             Elle reste sur les sections sans photo.
           */}
 
-          <div className="mx-auto max-w-7xl px-4 pb-12 pt-24 sm:px-6 sm:pb-14 sm:pt-28 lg:px-16 lg:pb-16 lg:pt-32">
+          {/*
+            Le `pt` du héros n'obéit pas à `sectionY` : il compense l'en-tête
+            fixe, qui recouvre le haut de la page. C'est une hauteur de
+            dégagement, pas une respiration entre deux sections.
+          */}
+          <div className="mx-auto max-w-7xl px-4 pb-10 pt-24 sm:px-6 sm:pb-12 sm:pt-28 lg:px-16 lg:pb-14">
             <motion.div {...fadeUp} className="max-w-xl">
               <Surtitre>Plateforme de rencontres vérifiées</Surtitre>
 
@@ -409,7 +430,7 @@ export default function Home() {
         */}
         <section
           aria-labelledby="apercu-produit"
-          className="px-4 pb-16 pt-6 sm:px-6 sm:pb-20 lg:px-16 lg:pb-24 lg:pt-8"
+          className="px-4 pb-10 pt-6 sm:px-6 sm:pb-14 lg:px-16 lg:pb-16 lg:pt-8"
         >
           <h2 id="apercu-produit" className="sr-only">
             Ce que tu trouveras sur Sfera&rsquo;Solys
@@ -503,7 +524,7 @@ export default function Home() {
           et c'est l'interface qui perd. La photo revient au témoignage,
           où il n'y a qu'une phrase à porter.
         */}
-        <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
           {/*
             Le titre passe en argument au lieu d'être posé au-dessus : il
             appartient à la colonne de gauche, sous laquelle les étapes se
@@ -521,7 +542,7 @@ export default function Home() {
                     en français il est obligatoire, et une espace ordinaire
                     laisserait le « ? » tomber seul en début de ligne.
                   */}
-                  <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
+                  <h2 className="font-display mt-4 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
                     Comment ça marche&nbsp;?
                   </h2>
 
@@ -539,11 +560,11 @@ export default function Home() {
         <Filet />
 
         {/* ═══════════════ À quoi ça ressemble ═══════════════ */}
-        <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
           <div className="mx-auto max-w-7xl">
             <Surtitre>Dans l’application</Surtitre>
 
-            <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
+            <h2 className="font-display mt-4 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
               À quoi ça ressemble&nbsp;?
             </h2>
 
@@ -553,7 +574,7 @@ export default function Home() {
               plutôt que sur sa première — sans quoi il flotte au-dessus dès
               que le texte passe sur deux lignes.
             */}
-            <div className="mb-10 mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+            <div className="mb-8 mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
               <p className="max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
                 Deux façons de parcourir les profils, au choix : six
                 propositions par semaine, ou l&apos;annuaire complet quand tu
@@ -598,7 +619,7 @@ export default function Home() {
         <Filet />
 
         {/* ═══════════════ Bandeau confiance ═══════════════ */}
-        <section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-16">
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
           <div className="mx-auto max-w-7xl">
             {/*
               La section n'avait aucun titre, visible ou non : au lecteur
@@ -609,7 +630,7 @@ export default function Home() {
             */}
             <Surtitre>Notre engagement</Surtitre>
 
-            <h2 className="font-display mb-9 mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
+            <h2 className="font-display mb-7 mt-4 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
               Une expérience fiable et sereine
             </h2>
 
@@ -645,7 +666,9 @@ export default function Home() {
         <Filet />
 
         {/* ═══════════════ Pourquoi 28 ans et plus ═══════════════ */}
-        <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+        <section
+          className={`relative overflow-hidden px-4 sm:px-6 lg:px-16 ${sectionY}`}
+        >
           <EclipseMark
             id="age"
             attenuation={0}
@@ -656,7 +679,7 @@ export default function Home() {
             <div>
               <Surtitre>Le critère d’entrée</Surtitre>
 
-              <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
+              <h2 className="font-display mt-4 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
                 Pourquoi 28 ans et plus&nbsp;?
               </h2>
 
@@ -737,9 +760,13 @@ export default function Home() {
           personne-là. Ce serait inventer un membre — exactement ce que la
           vérification d'identité est censée rendre impossible. Une scène
           sans personne ne peut rien laisser croire.
+
+          Sa hauteur ne suit pas `sectionY` : c'est une citation seule sur
+          une photographie, et serrée au rythme courant elle se lirait comme
+          un encart de plus.
         */}
         {testimonial && (
-        <section className="relative isolate overflow-hidden px-4 py-24 text-center sm:px-6 sm:py-32">
+        <section className="relative isolate overflow-hidden px-4 py-14 text-center sm:px-6 sm:py-20 lg:py-24">
           <div aria-hidden="true" className="absolute inset-0 -z-10">
             <Image
               src="/visuels/solys-04.webp"
@@ -816,12 +843,12 @@ export default function Home() {
           </div>
 
         {/* ═══════════════ FAQ ═══════════════ */}
-        <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
           <div className="mx-auto flex max-w-7xl flex-col gap-7 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
             <div>
               <Surtitre>Questions fréquentes</Surtitre>
 
-              <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
+              <h2 className="font-display mt-4 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
                 On répond aux questions les plus courantes
               </h2>
 
@@ -854,7 +881,7 @@ export default function Home() {
           voir à travers lui — c'est ce que montre la maquette, et c'est ce
           qui le distingue d'un encart collé par-dessus une image.
         */}
-        <section className="px-4 pb-20 sm:px-6 sm:pb-24 lg:px-16">
+        <section className="px-4 pb-14 sm:px-6 sm:pb-16 lg:px-16 lg:pb-20">
           <div className="mx-auto max-w-7xl rounded-3xl border border-cuivre/25 bg-nuit/55 p-8 backdrop-blur-md sm:p-10">
             <div className="flex flex-col items-start justify-between gap-7 lg:flex-row lg:items-center">
               <div>
