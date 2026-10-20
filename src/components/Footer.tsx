@@ -110,6 +110,7 @@ const COLONNES: {
     liens: [
       { label: 'Accueil', href: '/' },
       { label: 'Notre histoire', href: '/histoire' },
+      { label: 'Guide', href: '/guide' },
       { label: 'Nos valeurs', href: '/valeurs' },
       { label: 'Témoignages', href: '/temoignages' },
       { label: 'Équipe', href: '/equipe' },

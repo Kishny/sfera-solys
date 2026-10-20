@@ -76,7 +76,7 @@ type HeaderLink = {
  */
 const links: HeaderLink[] = [
   { label: 'Concept', href: '/histoire' },
-  { label: 'Découvrir', href: '/guide' },
+  { label: 'Guide', href: '/guide' },
   { label: 'Fonctionnalités', href: '/fonctionnalites' },
   { label: 'Tarifs', href: '/tarifs' },
 ];
