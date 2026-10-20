@@ -81,3 +81,15 @@ valeur n'est pas choisie à l'œil : le pied de page porte plus de petit
 texte que n'importe quelle autre partie du site, et à 88 % le champagne à
 55 % y tient 4,66:1 sur les lumières de la ville, juste au-dessus du seuil.
 Un voile plus clair fait passer la barre basse sous la limite.
+
+## Visuels du guide — `guide/`
+
+`etape-1.webp` à `etape-5.webp` (800 px de large, portrait) illustrent les
+cinq étapes du parcours ; `conseil-1.webp` à `conseil-3.webp` (1200 px,
+paysage) les trois conseils. Convertis depuis huit PNG du 20 octobre :
+454 Ko au total contre 13,8 Mo en source.
+
+L'ordre n'est pas interchangeable — chaque image a été générée pour son
+étape : le téléphone en main pour la création du profil, les lunettes
+sombres pour le réglage de la visibilité, la soirée de groupe pour les
+événements. Les renuméroter casserait la correspondance.
