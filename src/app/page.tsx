@@ -93,12 +93,17 @@ const garanties = [
 ];
 
 /**
- * Le bandeau de garanties.
+ * Les six raisons de la section « Le parti pris ».
  *
- * ## Ce qui a été retiré, et pourquoi
+ * Une seule liste, là où il y en avait deux : les trois conséquences du
+ * critère d'âge, puis les trois garanties de la plateforme. L'ordre compte
+ * — les trois premières prolongent les paragraphes sur les 28 ans, les
+ * trois suivantes les étayent.
  *
- * C'étaient quatre pastilles sans un mot d'explication. Deux ne tenaient
- * pas :
+ * ## Ce qui a été retiré en route, et pourquoi
+ *
+ * Les garanties étaient quatre pastilles sans un mot d'explication. Deux ne
+ * tenaient pas :
  *
  * - « Identité vérifiée » répétait mot pour mot une garantie du héros, qui
  *   l'explique, elle. Promettre deux fois la même chose, la seconde fois
@@ -108,25 +113,42 @@ const garanties = [
  *   d'identité et le selfie, rien ne compare ensuite les photos du profil à
  *   ce selfie. La pastille promettait une fonctionnalité absente.
  *
- * Restent trois promesses que le code tient, avec la phrase qui leur
- * manquait. Un bandeau qui explique vaut mieux qu'un bandeau qui rassure.
+ * Restent des promesses que le code tient, avec la phrase qui leur
+ * manquait. Une liste qui explique vaut mieux qu'une liste qui rassure.
  */
-const trustBadges = [
+const raisons = [
+  {
+    icon: Target,
+    titre: 'Des intentions dites franchement',
+    texte: 'Chaque profil précise ce qu’il cherche. Personne n’a à deviner.',
+  },
+  {
+    icon: Users,
+    titre: 'Un rythme d’adulte',
+    texte:
+      'Pas de notifications qui harcèlent, pas de score à entretenir tous les jours.',
+  },
+  {
+    icon: Gem,
+    titre: 'Une porte, pas un tourniquet',
+    texte:
+      'Devoir prouver son identité décourage ceux qui passaient juste pour voir.',
+  },
   {
     icon: IdCard,
-    label: 'Vérification gratuite',
+    titre: 'Vérification gratuite',
     texte:
       'Elle ne dépend d’aucune offre. Le premium lève des limites d’usage, jamais le droit d’être vérifié.',
   },
   {
     icon: ShieldCheck,
-    label: 'Modération humaine',
+    titre: 'Modération humaine',
     texte:
       'Un signalement est examiné par un administrateur, pas par un algorithme. Un compte peut être suspendu.',
   },
   {
     icon: Lock,
-    label: 'Tes données, nommément',
+    titre: 'Tes données, nommément',
     texte:
       'Notre page confidentialité nomme un par un les prestataires qui les traitent, et ce que chacun en fait.',
   },
@@ -667,54 +689,26 @@ export default function Home() {
 
         <Filet />
 
-        {/* ═══════════════ Bandeau confiance ═══════════════ */}
-        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
-          <div className="mx-auto max-w-7xl">
-            {/*
-              La section n'avait aucun titre, visible ou non : au lecteur
-              d'écran, elle se présentait comme des blocs sans rien qui dise
-              ce qu'ils ont en commun. La maquette lui en donne un vrai, à
-              l'œil comme dans le plan du document — ce qui vaut mieux que le
-              titre masqué qui bouchait le trou.
-            */}
-            <Surtitre>Notre engagement</Surtitre>
+        {/* ═══════════════ Le parti pris ═══════════════ */}
+        {/*
+          Fusion de deux sections qui se suivaient : « Notre engagement »
+          (trois garanties) et « Pourquoi 28 ans et plus ? » (l'argument du
+          critère d'âge, et trois cartes de plus).
 
-            <h2 className="font-display mb-6 mt-4 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
-              Une expérience fiable et sereine
-            </h2>
+          Elles faisaient environ 800 px à elles deux, pour deux blocs de
+          titre, deux hauteurs de section et six cartes bâties exactement sur
+          le même gabarit : tuile d'icône, titre, une phrase. Deux rangées de
+          trois sous un seul chapeau disent la même chose en 250 px de moins.
 
-            {/*
-              Trois cartes distinctes, et non le panneau unique divisé par
-              des filets que j'avais posé : la maquette les sépare, et sur
-              une rangée de trois le panneau continu faisait lire les
-              garanties comme un tableau de caractéristiques.
-            */}
-            <ul className="grid gap-4 lg:grid-cols-3 lg:gap-5">
-              {trustBadges.map(({ icon: Icon, label, texte }) => (
-                <li
-                  key={label}
-                  className="flex gap-4 rounded-2xl border border-cuivre/15 bg-minuit p-5 sm:p-6"
-                >
-                  <TuileIcone icon={Icon} />
+          Le titre a dû changer : « Pourquoi 28 ans et plus ? » ne pouvait
+          pas chapeauter une carte « Tes données, nommément ». La question
+          posée couvre maintenant les deux moitiés, et garde le nombre, qui
+          est ce que la marque a de plus distinctif.
 
-                  <div>
-                    <p className="text-[15px] font-semibold text-champagne">
-                      {label}
-                    </p>
-
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/65">
-                      {texte}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <Filet />
-
-        {/* ═══════════════ Pourquoi 28 ans et plus ═══════════════ */}
+          L'ordre des six n'est pas indifférent : les trois premières
+          prolongent les paragraphes sur l'âge, les trois suivantes sont les
+          garanties de la plateforme. On lit l'argument, puis ses preuves.
+        */}
         <section
           className={`relative overflow-hidden px-4 sm:px-6 lg:px-16 ${sectionY}`}
         >
@@ -724,12 +718,12 @@ export default function Home() {
             className="pointer-events-none absolute -left-32 bottom-[-18%] h-[380px] w-[380px] rotate-[200deg] opacity-25 lg:left-[-6%] lg:h-[460px] lg:w-[460px]"
           />
 
-          <div className="relative mx-auto grid max-w-5xl gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
-            <div>
-              <Surtitre>Le critère d’entrée</Surtitre>
+          <div className="relative mx-auto max-w-7xl">
+            <div className="max-w-3xl">
+              <Surtitre>Le parti pris</Surtitre>
 
               <h2 className="font-display mt-4 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
-                Pourquoi 28 ans et plus&nbsp;?
+                Pourquoi 28 ans, et pourquoi ici&nbsp;?
               </h2>
 
               <p className="mt-5 text-[15px] leading-relaxed text-champagne/65 sm:text-base">
@@ -747,41 +741,21 @@ export default function Home() {
               </p>
             </div>
 
-            {/*
-              Les puces rondes cèdent la place aux mêmes tuiles que la
-              section précédente. Une puce ne dit rien ; une icône dit de
-              quoi parle la ligne avant qu'on l'ait lue.
-            */}
-            <ul className="flex flex-col gap-3">
-              {[
-                {
-                  icon: Target,
-                  title: 'Des intentions dites franchement',
-                  text: 'Chaque profil précise ce qu’il cherche. Personne n’a à deviner.',
-                },
-                {
-                  icon: Users,
-                  title: 'Un rythme d’adulte',
-                  text: 'Pas de notifications qui harcèlent, pas de score à entretenir tous les jours.',
-                },
-                {
-                  icon: Gem,
-                  title: 'Une porte, pas un tourniquet',
-                  text: 'Devoir prouver son identité décourage ceux qui passaient juste pour voir.',
-                },
-              ].map((item) => (
+            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+              {raisons.map(({ icon: Icon, titre, texte }) => (
                 <li
-                  key={item.title}
-                  className="flex gap-4 rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:p-5"
+                  key={titre}
+                  className="flex gap-4 rounded-2xl border border-cuivre/15 bg-minuit p-5"
                 >
-                  <TuileIcone icon={item.icon} />
+                  <TuileIcone icon={Icon} />
 
                   <div>
-                    <p className="text-sm font-semibold text-champagne">
-                      {item.title}
+                    <p className="text-[15px] font-semibold text-champagne">
+                      {titre}
                     </p>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/60">
-                      {item.text}
+
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/65">
+                      {texte}
                     </p>
                   </div>
                 </li>
