@@ -183,10 +183,21 @@ const communityTips = [
  * rassemble en fin de guide plutôt que d'envoyer le lecteur chercher dans
  * le menu — aucune nouveauté, uniquement ce que le guide vient d'évoquer.
  */
+/*
+  Ces trois pages vivent dans le groupe `(app)` : elles affichent la barre
+  latérale de l'espace membre et renvoient un visiteur non connecté sur
+  `/auth?mode=login`. Le guide est public, et son lecteur type n'a pas
+  encore de compte — il lisait « Circle of Six » et recevait un formulaire
+  de connexion.
+
+  Les liens visent donc les sections publiques de /fonctionnalites, qui
+  décrivent ces trois fonctionnalités. Même correction que sur la page
+  d'accueil.
+*/
 const relatedPages = [
-  { label: 'Circle of Six', href: '/circle' },
-  { label: 'Mode Fantôme', href: '/mode-fantome' },
-  { label: 'Événements Solys', href: '/evenements' },
+  { label: 'Circle of Six', href: '/fonctionnalites#circle' },
+  { label: 'Mode Fantôme', href: '/fonctionnalites#ghost' },
+  { label: 'Événements Solys', href: '/fonctionnalites#events' },
 ];
 
 /** Anneau de focus clavier, identique partout dans la direction A. */

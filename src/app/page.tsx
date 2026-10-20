@@ -191,6 +191,22 @@ const garantiesAppel = [
  * Aperçu du produit. Quatre entrées suffisent, le reste vit sur
  * /fonctionnalites — descriptions identiques à cette page pour éviter deux
  * discours différents sur le même produit.
+ *
+ * ## Pourquoi ces liens visent des ancres et non les fonctionnalités
+ *
+ * Les trois cartes pointaient vers /circle, /mode-fantome et /evenements.
+ * Ces pages vivent dans le groupe de routes `(app)` : elles affichent la
+ * barre latérale de l'espace membre et renvoient tout visiteur non connecté
+ * sur `/auth?mode=login`.
+ *
+ * Autrement dit, une carte qui disait « Six profils choisis par semaine, au
+ * lieu de milliers de swipes » livrait un formulaire de connexion. Le
+ * visiteur venait comprendre, il tombait sur une porte.
+ *
+ * Elles mènent donc à la section correspondante de /fonctionnalites, qui est
+ * publique et décrit précisément ces trois fonctionnalités. Les ancres
+ * (`circle`, `ghost`, `events`) sont les identifiants déjà portés par les
+ * données de cette page-là.
  */
 const featureTeasers = [
   {
@@ -198,7 +214,7 @@ const featureTeasers = [
     title: 'Circle of Six',
     description:
       'Six profils choisis par semaine, au lieu de milliers de swipes.',
-    href: '/circle',
+    href: '/fonctionnalites#circle',
     image: '/visuels/solys-06.webp',
     alt: "Épaule et nuque d'un homme, en contre-jour doré.",
   },
@@ -206,7 +222,7 @@ const featureTeasers = [
     icon: Ghost,
     title: 'Mode Fantôme',
     description: "Disparais de l'annuaire sans perdre tes conversations.",
-    href: '/mode-fantome',
+    href: '/fonctionnalites#ghost',
     image: '/visuels/solys-07.webp',
     alt: "Silhouette d'un homme de dos devant une baie vitrée, à la nuit tombée.",
   },
@@ -214,7 +230,7 @@ const featureTeasers = [
     icon: CalendarDays,
     title: 'Événements Solys',
     description: 'Des rencontres encadrées, en ligne et en présentiel.',
-    href: '/evenements',
+    href: '/fonctionnalites#events',
     image: '/visuels/solys-08.webp',
     alt: 'Une réception au bord d’une piscine, lanternes allumées au crépuscule.',
   },

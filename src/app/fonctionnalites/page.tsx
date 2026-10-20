@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -233,6 +234,14 @@ export default function FonctionnalitesPage() {
    * 8 cartes restent parcourables au pouce. À partir de `sm`, tout est
    * affiché en permanence (même logique que les offres de la page Tarifs).
    */
+  const { status } = useSession();
+  /*
+    Tant que la session charge, on traite le visiteur comme non connecté :
+    /commencer est public et sans effet de bord, alors qu'une page de
+    l'espace membre renverrait sur le formulaire de connexion.
+  */
+  const connecte = status === 'authenticated';
+
   const [openFeature, setOpenFeature] = useState<string | null>('circle');
   const [openNoteIndex, setOpenNoteIndex] = useState<number | null>(0);
   const [siteStats, setSiteStats] = useState<SiteStats | null>(null);
@@ -331,9 +340,17 @@ export default function FonctionnalitesPage() {
                 const isOpen = openFeature === feature.id;
 
                 return (
+                  /*
+                    `id` et `scroll-mt` : les cartes de la page d'accueil
+                    renvoient ici, sur l'ancre de la fonctionnalité qu'elles
+                    annoncent. Sans `scroll-mt`, l'en-tête fixe recouvrirait
+                    le haut de la carte visée — 112 px, puis 128 au-delà de
+                    1280 px où l'en-tête passe à `h-20`.
+                  */
                   <div
                     key={feature.id}
-                    className={`relative flex flex-col rounded-2xl border p-5 sm:p-6 ${
+                    id={feature.id}
+                    className={`relative flex scroll-mt-28 flex-col rounded-2xl border p-5 sm:p-6 xl:scroll-mt-32 ${
                       feature.featured
                         ? 'border-cuivre/40 bg-minuit ring-1 ring-cuivre/20'
                         : 'border-champagne/8 bg-minuit'
@@ -396,12 +413,22 @@ export default function FonctionnalitesPage() {
                       </ul>
                     </div>
 
+                    {/*
+                      Le lien menait droit à la page de la fonctionnalité,
+                      c'est-à-dire à l'espace membre — qui renvoie un visiteur
+                      non connecté sur le formulaire de connexion. Il lisait
+                      « découvrir » et livrait une barrière.
+
+                      Il mène donc à l'inscription pour un visiteur, et à la
+                      fonctionnalité pour un membre. Le libellé suit la
+                      destination : un lien doit annoncer où il va.
+                    */}
                     {feature.link ? (
                       <Link
-                        href={feature.link}
- className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
+                        href={connecte ? feature.link : '/commencer'}
+                        className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
                       >
-                        découvrir
+                        {connecte ? 'ouvrir' : 'créer mon profil'}
                         <ArrowRight size={14} />
                       </Link>
                     ) : (

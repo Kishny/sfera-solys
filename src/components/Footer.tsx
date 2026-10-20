@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 import {
   Mail,
   Instagram,
@@ -90,7 +91,20 @@ const RESEAUX = [
   { label: 'Nous écrire', href: '/contact', icone: <Mail size={16} /> },
 ];
 
-const COLONNES: { titre: string; liens: { label: string; href: string }[] }[] = [
+/**
+ * Quatre entrées de la colonne « Explorer » mènent à l'espace membre, qui
+ * renvoie un visiteur non connecté sur le formulaire de connexion. Elles
+ * portent donc une destination publique de repli : la section de
+ * /fonctionnalites qui décrit la même chose.
+ *
+ * Le pied de page s'affiche aussi bien sur le site public que dans
+ * l'espace membre. Un membre va à la fonctionnalité, un visiteur à son
+ * explication — personne ne reçoit une porte à la place d'une réponse.
+ */
+const COLONNES: {
+  titre: string;
+  liens: { label: string; href: string; publique?: string }[];
+}[] = [
   {
     titre: "Sfera'Solys",
     liens: [
@@ -105,10 +119,26 @@ const COLONNES: { titre: string; liens: { label: string; href: string }[] }[] = 
   {
     titre: 'Explorer',
     liens: [
-      { label: 'Explorer des profils', href: '/explorer' },
-      { label: 'Circle of Six', href: '/circle' },
-      { label: 'Événements', href: '/evenements' },
-      { label: 'Entraide', href: '/entraide' },
+      {
+        label: 'Explorer des profils',
+        href: '/explorer',
+        publique: '/fonctionnalites',
+      },
+      {
+        label: 'Circle of Six',
+        href: '/circle',
+        publique: '/fonctionnalites#circle',
+      },
+      {
+        label: 'Événements',
+        href: '/evenements',
+        publique: '/fonctionnalites#events',
+      },
+      {
+        label: 'Entraide',
+        href: '/entraide',
+        publique: '/fonctionnalites#coaching',
+      },
       { label: "Centre d'aide", href: '/aide' },
       { label: 'FAQ', href: '/faq' },
     ],
@@ -184,6 +214,14 @@ function BadgeMagasin({ magasin }: { magasin: string }) {
 }
 
 export default function Footer() {
+  const { status } = useSession();
+  /*
+    Pendant le chargement de la session, on vise le public : /fonctionnalites
+    s'ouvre pour tout le monde, alors qu'une page de l'espace membre
+    renverrait un visiteur sur la connexion.
+  */
+  const connecte = status === 'authenticated';
+
   return (
     <footer className="relative isolate overflow-hidden bg-nuit text-champagne">
       {/*
@@ -262,7 +300,9 @@ export default function Footer() {
                   {colonne.liens.map((lien) => (
                     <li key={lien.href}>
                       <Link
-                        href={lien.href}
+                        href={
+                          lien.publique && !connecte ? lien.publique : lien.href
+                        }
                         className={`text-[14px] text-champagne/70 transition-colors hover:text-ivoire ${focusRing}`}
                       >
                         {lien.label}
