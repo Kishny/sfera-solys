@@ -170,7 +170,7 @@ function TitreColonne({ children }: { children: React.ReactNode }) {
 function BadgeMagasin({ magasin }: { magasin: string }) {
   return (
     <span className="flex items-center gap-3 rounded-xl border border-champagne/15 bg-nuit/50 px-4 py-2.5 backdrop-blur-sm">
-      <Smartphone size={20} className="shrink-0 text-champagne/60" />
+      <Smartphone size={20} className="shrink-0 text-champagne/70" />
       <span className="flex flex-col leading-tight">
         <span className="text-[10px] uppercase tracking-surtitre text-cuivre">
           Bientôt
@@ -187,10 +187,19 @@ export default function Footer() {
   return (
     <footer className="relative isolate overflow-hidden bg-nuit text-champagne">
       {/*
-        Fond photographique. Le voile est à 88 % : le pied de page est
-        l'endroit de la page qui porte le plus de petit texte, et sous un
-        voile plus clair le champagne atténué descend sous le seuil de
-        lisibilité sur les zones éclairées de la terrasse.
+        Fond photographique, voile à 88 %.
+
+        Règle qui en découle : **rien sous `champagne/70` au-dessus de cette
+        photographie.** Mesurée sur l'image réelle plutôt qu'estimée : sous
+        le voile, le pire pixel de la zone de texte donne 4,23:1 à 55 %,
+        4,74 à 60 %, 5,30 à 65 % et 5,89 à 70 %. Les valeurs à 55 %, qui
+        passaient sur un aplat de nuit, tombaient donc sous le seuil dès
+        qu'une photographie est passée derrière — c'était le cas de toute
+        la barre basse.
+
+        Assombrir le voile aurait aussi marché, mais au prix de l'image : à
+        92 % la photographie perd près de la moitié de son relief. Le texte
+        était le bon levier, pas le fond.
       */}
       <div aria-hidden="true" className="absolute inset-0 -z-10">
         <Image
@@ -219,7 +228,7 @@ export default function Footer() {
                 tagline="Plus que des rencontres, des horizons partagés."
               />
 
-              <p className="mt-5 max-w-xs text-[14px] leading-relaxed text-champagne/65">
+              <p className="mt-5 max-w-xs text-[14px] leading-relaxed text-champagne/70">
                 Une plateforme pensée pour les hommes qui veulent des
                 rencontres sincères, sûres et alignées avec leur vibe.
               </p>
@@ -230,7 +239,7 @@ export default function Footer() {
                     <Link
                       href={reseau.href}
                       aria-label={reseau.label}
-                      className={`flex h-10 w-10 items-center justify-center rounded-full border border-champagne/15 bg-nuit/40 text-champagne/65 backdrop-blur-sm transition-colors hover:border-cuivre/50 hover:text-champagne ${focusRing}`}
+                      className={`flex h-10 w-10 items-center justify-center rounded-full border border-champagne/15 bg-nuit/40 text-champagne/70 backdrop-blur-sm transition-colors hover:border-cuivre/50 hover:text-champagne ${focusRing}`}
                     >
                       {reseau.icone}
                     </Link>
@@ -254,7 +263,7 @@ export default function Footer() {
                     <li key={lien.href}>
                       <Link
                         href={lien.href}
-                        className={`text-[14px] text-champagne/65 transition-colors hover:text-ivoire ${focusRing}`}
+                        className={`text-[14px] text-champagne/70 transition-colors hover:text-ivoire ${focusRing}`}
                       >
                         {lien.label}
                       </Link>
@@ -268,7 +277,7 @@ export default function Footer() {
             <div>
               <TitreColonne>Rester informé</TitreColonne>
 
-              <p className="mt-4 max-w-[16rem] text-[14px] leading-relaxed text-champagne/65">
+              <p className="mt-4 max-w-[16rem] text-[14px] leading-relaxed text-champagne/70">
                 Conseils, événements et nouveautés en avant-première.
               </p>
 
@@ -305,7 +314,7 @@ export default function Footer() {
                   <span className="block text-[14px] font-semibold text-champagne">
                     {titre}
                   </span>
-                  <span className="mt-0.5 block text-[12px] text-champagne/60">
+                  <span className="mt-0.5 block text-[12px] text-champagne/70">
                     {texte}
                   </span>
                 </span>
@@ -315,7 +324,7 @@ export default function Footer() {
 
           {/* ───────── Barre basse ───────── */}
           <div className="mt-8 flex flex-col gap-5 border-t border-champagne/20 pt-6 lg:flex-row lg:items-center lg:justify-between">
-            <p className="text-[12px] text-champagne/55">
+            <p className="text-[12px] text-champagne/70">
               © {new Date().getFullYear()} Sfera&rsquo;Solys. Tous droits
               réservés.
             </p>
@@ -331,7 +340,7 @@ export default function Footer() {
                     <li key={lien.href}>
                       <Link
                         href={lien.href}
-                        className={`text-champagne/55 transition-colors hover:text-champagne ${focusRing}`}
+                        className={`text-champagne/70 transition-colors hover:text-champagne ${focusRing}`}
                       >
                         {lien.label}
                       </Link>
@@ -350,7 +359,7 @@ export default function Footer() {
                 type="button"
                 disabled
                 title="Sfera'Solys n'est disponible qu'en français pour l'instant."
-                className="flex cursor-not-allowed items-center gap-2 rounded-xl border border-champagne/15 bg-nuit/40 px-4 py-2 text-[12px] text-champagne/55 backdrop-blur-sm"
+                className="flex cursor-not-allowed items-center gap-2 rounded-xl border border-champagne/15 bg-nuit/40 px-4 py-2 text-[12px] text-champagne/70 backdrop-blur-sm"
               >
                 <Globe size={13} aria-hidden="true" />
                 Français

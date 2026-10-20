@@ -84,7 +84,7 @@ export default function NewsletterSignup({
           <Mail
             size={16}
             className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${
-              isLight ? "text-erreur" : "text-champagne/60"
+              isLight ? "text-erreur" : "text-champagne/70"
             }`}
           />
           <input
@@ -96,7 +96,7 @@ export default function NewsletterSignup({
             className={`w-full rounded-full py-2.5 pl-9 pr-4 text-sm outline-none transition ${
               isLight
                 ? "border border-cuivre/20 bg-white text-nuit placeholder-nuit/40 focus:border-cuivre focus:ring-2 focus:ring-cuivre/20"
-                : "border border-champagne/15 bg-champagne/[0.06] text-champagne placeholder-champagne/40 focus:border-cuivre/50"
+                : "border border-champagne/20 bg-nuit/70 text-champagne placeholder-champagne/65 backdrop-blur-sm focus:border-cuivre/50"
             }`}
           />
         </div>
@@ -107,7 +107,7 @@ export default function NewsletterSignup({
           className={`flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:opacity-60 ${
             isLight
               ? "bg-degrade-cuivre text-nuit hover:opacity-90"
-              : "bg-champagne text-erreur hover:scale-[1.02]"
+              : "bg-degrade-cuivre text-nuit hover:opacity-90"
           }`}
         >
           {status === "loading" ? (
@@ -120,8 +120,10 @@ export default function NewsletterSignup({
 
       {status === "error" && (
         <p
-          className={`mt-2 text-xs ${
-            isLight ? "text-red-500" : "text-red-300"
+          className={`mt-2 inline-block rounded-lg px-2.5 py-1 text-xs ${
+            isLight
+              ? "text-red-500"
+              : "bg-nuit/70 text-erreur backdrop-blur-sm"
           }`}
         >
           {message}
@@ -130,7 +132,7 @@ export default function NewsletterSignup({
 
       <p
         className={`mt-2 text-[11px] ${
-          isLight ? "text-nuit/40" : "text-champagne/60"
+          isLight ? "text-nuit/40" : "text-champagne/70"
         }`}
       >
         Pas de spam. Désabonnement en un clic à tout moment.
