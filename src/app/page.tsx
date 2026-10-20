@@ -247,7 +247,7 @@ export default function Home() {
             Elle reste sur les sections sans photo.
           */}
 
-          <div className="mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 sm:pb-20 sm:pt-28 lg:px-16 lg:pb-24 lg:pt-32">
+          <div className="mx-auto max-w-7xl px-4 pb-12 pt-24 sm:px-6 sm:pb-14 sm:pt-28 lg:px-16 lg:pb-16 lg:pt-32">
             <motion.div {...fadeUp} className="max-w-xl">
               <Surtitre>Plateforme de rencontres vérifiées</Surtitre>
 
@@ -316,25 +316,23 @@ export default function Home() {
         </section>
 
         {/* ═══════════════ Aperçu du produit ═══════════════ */}
-        <section className="border-t border-champagne/8 px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+        {/*
+          Pas de titre visible : la maquette enchaîne le héros et les cartes
+          sans respiration éditoriale. Un `h2` reste pourtant dans le code,
+          masqué à l'œil — retirer le titre d'une section la sort du plan du
+          document, et un lecteur d'écran arrive alors sur trois liens sans
+          savoir ce qu'ils ont en commun.
+        */}
+        <section
+          aria-labelledby="apercu-produit"
+          className="px-4 pb-16 pt-6 sm:px-6 sm:pb-20 lg:px-16 lg:pb-24 lg:pt-8"
+        >
+          <h2 id="apercu-produit" className="sr-only">
+            Ce que tu trouveras sur Sfera&rsquo;Solys
+          </h2>
+
           <div className="mx-auto max-w-7xl">
-            <Surtitre>Ce que tu trouveras</Surtitre>
-
-            <h2 className="font-display mt-5 max-w-2xl text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
-              La vérification n’est que la porte d’entrée.
-            </h2>
-
-            <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
-              Derrière, un produit pensé pour éviter le défilement sans fin.
-            </p>
-
-            {/*
-              La photo occupe la moitié droite de la carte et s'éteint vers
-              la gauche, où vit le texte. Première tentative : une vignette
-              en bandeau au-dessus du texte, qui donnait quatre cartes
-              étroites et un empilement d'images sans rapport entre elles.
-            */}
-            <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            <div className="grid gap-5 lg:grid-cols-3">
               {featureTeasers.map((feature) => {
                 const Icon = feature.icon;
 
@@ -342,20 +340,29 @@ export default function Home() {
                   <Link
                     key={feature.title}
                     href={feature.href}
-                    className={`group relative flex min-h-[220px] flex-col justify-between overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit p-6 transition-colors hover:border-cuivre/45 ${focusRing}`}
+                    className={`group relative flex min-h-[270px] overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit transition-colors hover:border-cuivre/45 ${focusRing}`}
                   >
-                    <div aria-hidden="true" className="absolute inset-0">
+                    {/*
+                      La photo tient la moitié droite et ne s'éteint que sur
+                      son bord gauche. Première version : elle couvrait toute
+                      la carte sous un voile à 85 %, ce qui revenait à ne pas
+                      l'afficher — on voyait trois rectangles sombres.
+                    */}
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-y-0 right-0 w-[58%]"
+                    >
                       <Image
                         src={feature.image}
                         alt=""
                         fill
-                        sizes="(max-width: 1024px) 100vw, 33vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                        sizes="(max-width: 1024px) 60vw, 20vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.05] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-r from-minuit via-minuit/85 to-minuit/20" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-minuit via-minuit/40 to-transparent" />
                     </div>
 
-                    <div className="relative">
+                    <div className="relative flex flex-1 flex-col p-6">
                       <span
                         aria-hidden="true"
                         className="flex h-11 w-11 items-center justify-center rounded-full border border-cuivre/40 text-cuivre"
@@ -363,18 +370,18 @@ export default function Home() {
                         <Icon size={20} />
                       </span>
 
-                      <h3 className="font-display mt-5 text-[21px] font-normal text-ivoire">
+                      <h3 className="font-display mt-6 text-[22px] font-normal leading-snug text-ivoire">
                         {feature.title}
                       </h3>
 
-                      <p className="mt-2 max-w-[17rem] text-[13px] leading-relaxed text-champagne/65">
+                      <p className="mt-2.5 max-w-[15rem] text-[13px] leading-relaxed text-champagne/70">
                         {feature.description}
                       </p>
                     </div>
 
                     <span
                       aria-hidden="true"
-                      className="relative mt-6 flex h-9 w-9 items-center justify-center self-end rounded-full border border-cuivre/35 text-cuivre transition-colors group-hover:border-cuivre group-hover:bg-cuivre group-hover:text-nuit"
+                      className="absolute bottom-6 right-6 flex h-9 w-9 items-center justify-center rounded-full border border-cuivre/35 bg-nuit/40 text-cuivre backdrop-blur-sm transition-colors group-hover:border-cuivre group-hover:bg-cuivre group-hover:text-nuit"
                     >
                       <ArrowRight size={15} />
                     </span>
