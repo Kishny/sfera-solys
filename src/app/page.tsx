@@ -600,11 +600,29 @@ export default function Home() {
               })}
             </div>
 
+            {/*
+              « les autres » et non « toutes ».
+
+              Ce lien et celui de la section « À quoi ça ressemble ? » visent
+              la même page et disaient la même chose, à deux écrans
+              d'intervalle : ça se lisait comme un lien oublié en double
+              plutôt que comme un choix.
+
+              Ils ferment pourtant deux moments différents. Ici, le lecteur
+              vient de voir trois fonctionnalités sur les sept que compte
+              /fonctionnalites — ce qui l'intéresse, c'est ce qu'il n'a pas
+              vu. Plus bas, après les aperçus d'interface, le catalogue
+              complet est la suite naturelle.
+
+              Pas de nombre dans le libellé, volontairement : « les quatre
+              autres » serait plus précis aujourd'hui et faux au premier
+              ajout sur /fonctionnalites.
+            */}
             <Link
               href="/fonctionnalites"
               className={`mt-8 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cuivre transition-colors hover:text-champagne ${focusRing}`}
             >
-              voir toutes les fonctionnalités
+              voir les autres fonctionnalités
               <ArrowRight size={14} />
             </Link>
           </div>
