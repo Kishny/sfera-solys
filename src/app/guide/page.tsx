@@ -422,12 +422,28 @@ export default function GuidePage() {
                           className="absolute inset-0 bg-gradient-to-t from-minuit via-minuit/25 to-transparent"
                         />
 
-                        <span className="font-display absolute -bottom-4 left-4 flex h-9 w-9 items-center justify-center rounded-full border border-cuivre/40 bg-nuit text-[14px] font-extrabold text-cuivre">
-                          {i + 1}
-                        </span>
                       </div>
 
-                      <div className="p-4 pt-7">
+                      {/*
+                        La pastille numérotée appartient au bloc de texte,
+                        pas au conteneur de la photo.
+
+                        Elle y était, en `-bottom-4`, et ce conteneur porte
+                        `overflow-hidden` pour arrondir l'image : la moitié
+                        basse de chaque pastille était donc rognée, ce qui
+                        donnait cinq demi-lunes au bas des photos.
+
+                        Rattachée au bloc de texte en `-top-[18px]`, elle
+                        chevauche toujours la photo — mais rien ne la coupe,
+                        la carte n'ayant pas de débordement masqué à cet
+                        endroit. C'est le même procédé que les tuiles des
+                        cartes de conseil, plus bas.
+                      */}
+                      <div className="relative p-4 pt-7">
+                        <span className="font-display absolute -top-[18px] left-4 flex h-9 w-9 items-center justify-center rounded-full border border-cuivre/40 bg-nuit text-[14px] font-extrabold text-cuivre">
+                          {i + 1}
+                        </span>
+
                         <h3 className="font-display text-[16px] font-normal leading-snug text-ivoire">
                           {step.label}
                         </h3>
@@ -437,7 +453,18 @@ export default function GuidePage() {
                           {step.duration}
                         </p>
 
-                        <p className="mt-2.5 text-[12.5px] leading-snug text-champagne/70">
+                        {/*
+                          `min-h` sur la description : les textes font deux
+                          ou trois lignes selon l'étape, et les cartes
+                          finissaient à cinq hauteurs différentes alors que
+                          la maquette les aligne. Trois lignes réservées
+                          suffisent à les égaliser.
+
+                          La grille reste en `items-start` : si elle
+                          étirait les cartes, déplier une étape creuserait
+                          quatre colonnes de vide à côté.
+                        */}
+                        <p className="mt-2.5 min-h-[3.4rem] text-[12.5px] leading-snug text-champagne/70">
                           {step.content}
                         </p>
 
