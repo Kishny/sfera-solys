@@ -295,7 +295,19 @@ export default function Home() {
 
       <main id="contenu" className="relative bg-nuit text-champagne">
         {/* ═══════════════ Héros ═══════════════ */}
-        <section className="relative isolate overflow-hidden">
+        {/*
+          Les marges latérales sont portées par la section, comme partout
+          ailleurs sur la page, et la largeur maximale par le bloc intérieur.
+          L'ordre inverse — `max-w-7xl` puis `px-16` sur un même élément —
+          rentrait le padding *dans* les 1280 px au lieu de l'ajouter autour :
+          le héros démarrait 64 px plus à droite que toutes les sections
+          suivantes, dès que la fenêtre dépassait 1408 px.
+
+          Le voile et la photographie ne bougent pas : un élément en
+          `absolute inset-0` se cale sur la boîte de padding de son ancêtre
+          positionné, donc il couvre toujours la section jusqu'aux bords.
+        */}
+        <section className="relative isolate overflow-hidden px-4 sm:px-6 lg:px-16">
           {/*
             La photo déborde. Sur grand écran elle occupe la moitié droite et
             touche les bords ; en dessous, elle passe derrière tout le bloc.
@@ -350,7 +362,7 @@ export default function Home() {
             fixe, qui recouvre le haut de la page. C'est une hauteur de
             dégagement, pas une respiration entre deux sections.
           */}
-          <div className="mx-auto max-w-7xl px-4 pb-10 pt-24 sm:px-6 sm:pb-12 sm:pt-28 lg:px-16 lg:pb-14">
+          <div className="mx-auto max-w-7xl pb-10 pt-24 sm:pb-12 sm:pt-28 lg:pb-14">
             <motion.div {...fadeUp} className="max-w-xl">
               <Surtitre>Plateforme de rencontres vérifiées</Surtitre>
 
