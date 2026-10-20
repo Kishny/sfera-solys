@@ -133,6 +133,39 @@ const trustBadges = [
 ];
 
 /**
+ * Les trois garanties du panneau d'appel final, reprises de la maquette.
+ *
+ * Elles remplacent la ligne « Aucune carte bancaire · Gratuit · Vérification
+ * incluse », qui disait des choses vérifiées mais les entassait en 11 px
+ * sous le bouton.
+ *
+ * Réserve à lever un jour : « Une communauté engagée » est la seule des six
+ * lignes qui n'affirme rien de vérifiable, et elle le fait au moment où la
+ * base compte une poignée de comptes. Les deux premières garanties, elles,
+ * décrivent des mécanismes réels. Si cette ligne doit être remplacée, « Sans
+ * engagement / Résiliable à tout moment » est vraie — la résiliation existe
+ * et conserve l'accès jusqu'à la fin de la période payée — et lève une
+ * objection à l'inscription plutôt que d'en décorer une.
+ */
+const garantiesAppel = [
+  {
+    icon: ShieldCheck,
+    titre: 'Profil vérifié',
+    texte: 'Plus de sérénité',
+  },
+  {
+    icon: Users,
+    titre: 'Hommes 28+',
+    texte: 'Des intentions claires',
+  },
+  {
+    icon: Gem,
+    titre: 'Rencontres authentiques',
+    texte: 'Une communauté engagée',
+  },
+];
+
+/**
  * Aperçu du produit. Quatre entrées suffisent, le reste vit sur
  * /fonctionnalites — descriptions identiques à cette page pour éviter deux
  * discours différents sur le même produit.
@@ -895,7 +928,7 @@ export default function Home() {
         */}
         <section className="px-4 pb-12 sm:px-6 sm:pb-14 lg:px-16 lg:pb-16">
           <div className="mx-auto max-w-7xl rounded-3xl border border-cuivre/25 bg-nuit/55 p-8 backdrop-blur-md sm:p-10">
-            <div className="flex flex-col items-start justify-between gap-7 lg:flex-row lg:items-center">
+            <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-14">
               <div>
                 {/*
                   Le seul autre mot cuivré de la page est dans le titre du
@@ -903,35 +936,63 @@ export default function Home() {
                   un encadrement, pas un tic — raison pour laquelle les
                   titres intermédiaires restent en ivoire.
                 */}
-                <h2 className="font-display text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
-                  Prêt à rencontrer{' '}
-                  <span className="text-cuivre">sérieusement</span>&nbsp;?
+                <h2 className="font-display text-[28px] font-normal leading-tight text-ivoire sm:text-[34px]">
+                  Prêt à rejoindre{' '}
+                  <span className="text-cuivre">Sfera&rsquo;Solys</span>&nbsp;?
                 </h2>
-                <p className="mt-2.5 max-w-md text-sm leading-relaxed text-champagne/70">
-                  Crée ton profil gratuitement et découvre une nouvelle façon
-                  de rencontrer.
+
+                <p className="mt-3 max-w-md text-[15px] leading-relaxed text-champagne/70">
+                  Crée ton profil et découvre une nouvelle façon de rencontrer.
                 </p>
+
+                <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Link
+                    href="/commencer"
+                    className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                  >
+                    S&rsquo;inscrire gratuitement
+                    <ArrowRight size={16} />
+                  </Link>
+
+                  <Link
+                    href="/guide"
+                    className={`inline-flex items-center justify-center rounded-xl border border-champagne/25 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-cuivre/60 hover:text-ivoire ${focusRing}`}
+                  >
+                    Découvrir le concept
+                  </Link>
+                </div>
               </div>
 
-              <div className="flex flex-col items-start gap-2.5 lg:items-end">
-                <Link
-                  href="/commencer"
-                  className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
-                >
-                  Créer mon profil
-                  <ArrowRight size={16} />
-                </Link>
+              {/*
+                Les trois garanties de la maquette, séparées par des filets
+                verticaux. Elles remplacent la ligne « Aucune carte bancaire ·
+                Gratuit · Vérification incluse » qui tenait cette place : les
+                mêmes arguments, mais lisibles d'un coup d'œil plutôt
+                qu'entassés en 11 px sous le bouton.
 
-                {/*
-                  Les trois mentions de la maquette, vérifiées une à une :
-                  l'inscription ne demande aucune carte (le paiement ne
-                  survient qu'à l'abonnement), le compte gratuit existe, et
-                  la vérification d'identité ne dépend d'aucune offre.
-                */}
-                <p className="text-[11px] text-champagne/60">
-                  Aucune carte bancaire · Gratuit · Vérification incluse
-                </p>
-              </div>
+                Mesuré sur le fond réel — photographie du bandeau, voile à
+                75 %, puis fond du panneau à 55 % : champagne/70 y donne
+                6,00:1 et les filets à 20 % se voient (1,60).
+              */}
+              <ul className="flex flex-col gap-6 sm:flex-row sm:gap-0 sm:divide-x sm:divide-champagne/20">
+                {garantiesAppel.map(({ icon: Icon, titre, texte }) => (
+                  <li key={titre} className="sm:px-7 sm:first:pl-0 sm:last:pr-0">
+                    <Icon
+                      size={20}
+                      className="text-cuivre"
+                      aria-hidden="true"
+                    />
+
+                    <p className="mt-3.5 text-[14px] font-semibold text-champagne">
+                      {titre}
+                    </p>
+
+                    <p className="mt-1 text-[12px] leading-snug text-champagne/70">
+                      {texte}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>
