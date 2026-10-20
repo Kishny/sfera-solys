@@ -22,9 +22,19 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 
+import Image from 'next/image';
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HexagonSix from '@/components/icons/HexagonSix';
+import GrainOverlay from '@/components/brand/GrainOverlay';
+import {
+  sectionY,
+  premierBloc,
+  focusRing,
+  Filet,
+  TitreSection,
+} from '@/components/brand/mise-en-page';
 
 /**
  * Page Fonctionnalités Sfera'Solys — direction A (« dossier de vérification »).
@@ -77,10 +87,6 @@ function formatStat(n: number): string {
   if (n === 0) return '—';
   return n.toString();
 }
-
-/** Anneau de focus clavier, identique partout dans la direction A. */
-const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 const features: FeatureItem[] = [
   {
@@ -181,21 +187,25 @@ const features: FeatureItem[] = [
 ];
 
 /** Les 3 temps du parcours, pour relier les fonctionnalités entre elles. */
+/*
+  Les pastilles alternaient orange et lime, une sur deux, sans que la
+  couleur dise rien. C'est exactement ce qui avait été corrigé dans le
+  parcours de la page d'accueil : dans ce projet, le vert est réservé à la
+  validation. Les trois étapes sont donc cuivrées, et le champ `dot` part
+  avec l'alternance.
+*/
 const journey = [
   {
-    dot: 'orange' as const,
     title: 'Découvrir',
     description:
       'Le Circle of Six te propose 6 profils par semaine, et l’annuaire te laisse chercher par toi-même.',
   },
   {
-    dot: 'lime' as const,
     title: 'Échanger',
     description:
       "Le Mode Fantôme protège ton intimité le temps de la mise en confiance, et la messagerie reste sobre : pas de relances, pas de score à tenir.",
   },
   {
-    dot: 'orange' as const,
     title: 'Se rencontrer',
     description:
       "Les Événements Solys et la Communauté Solys sortent la rencontre de l'écran, avec un cadre clair et des membres vérifiés.",
@@ -274,6 +284,27 @@ export default function FonctionnalitesPage() {
     },
   ];
 
+  /*
+    La section des chiffres ne s'affiche que si les quatre compteurs ont
+    démarré.
+
+    `formatStat` rend « — » pour zéro, ce qui donnait, sous un titre
+    « Sfera'Solys en chiffres », quatre tirets et un seul chiffre réel.
+    C'est la même raison qui avait fait retirer le compteur « N profils
+    vérifiés » du héros de la page d'accueil : un chiffre honnête peut
+    desservir, et quatre tirets annoncent qu'il n'y a rien à annoncer.
+
+    Le seuil est volontairement « strictement supérieur à zéro » et non un
+    nombre arbitraire : à partir de combien de membres la section devient
+    flatteuse plutôt que gênante est une décision de produit, pas de code.
+  */
+  const chiffresPrets =
+    siteStats !== null &&
+    siteStats.membres > 0 &&
+    siteStats.matchs > 0 &&
+    siteStats.messages > 0 &&
+    siteStats.evenements > 0;
+
   const fadeUp = {
     initial: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
     animate: { opacity: 1, y: 0 },
@@ -284,52 +315,80 @@ export default function FonctionnalitesPage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-nuit text-champagne">
-        {/* Hero */}
-        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
-          <motion.div {...fadeUp} className="mx-auto max-w-3xl py-12 text-center sm:py-16">
-            <span className="inline-block rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
+      <GrainOverlay />
+
+      <main id="contenu" className="relative bg-nuit text-champagne">
+        {/* ═══════════════ Héros ═══════════════ */}
+        {/*
+          Voile à 86 %, mesuré sur la photographie et non choisi à l'œil : le
+          texte du héros est centré, donc il passe partout sur l'image, y
+          compris sur les bougies de la table. À cette valeur, le champagne à
+          70 % y tient 5,60:1 et le cuivre 4,82 — l'un et l'autre au-dessus du
+          seuil du petit texte, ce qui n'était pas le cas à 78 %.
+        */}
+        <section className="relative isolate overflow-hidden px-4 sm:px-6 lg:px-16">
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <Image
+              src="/visuels/solys-05.webp"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-nuit/86" />
+            <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit" />
+          </div>
+
+          <motion.div
+            {...fadeUp}
+            className={`mx-auto max-w-3xl pb-14 text-center sm:pb-16 ${premierBloc}`}
+          >
+            <span className="inline-block rounded-full border border-cuivre/35 bg-nuit/50 px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne backdrop-blur-sm">
               7 fonctionnalités · vérification incluse
             </span>
 
-            <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
-              Tout ce que fait Sfera&apos;Solys.
+            <h1 className="font-display mt-6 text-[34px] font-normal leading-[1.1] tracking-tight text-ivoire sm:text-[46px]">
+              Tout ce que fait{' '}
+              <span className="text-cuivre">Sfera&rsquo;Solys</span>.
             </h1>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
+            <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-champagne/70 sm:text-base">
               Chaque fonctionnalité répond à un moment précis : découvrir des
               profils, te protéger, échanger, puis rencontrer. Rien de
               décoratif, et rien qui se cache derrière un abonnement sans le
               dire.
             </p>
 
-            <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/commencer"
-                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
+                className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
               >
-                constituer mon dossier
+                Constituer mon dossier
+                <ArrowRight size={16} />
               </Link>
 
               <Link
                 href="/tarifs"
- className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
+                className={`inline-flex items-center justify-center rounded-xl border border-champagne/25 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-cuivre/60 hover:text-ivoire ${focusRing}`}
               >
-                voir ce qui est inclus par offre
-                <ArrowRight size={14} />
+                Ce qui est inclus par offre
               </Link>
             </div>
           </motion.div>
         </section>
 
-        {/* Les 7 fonctionnalités */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-          <div className="mx-auto max-w-7xl">
-            <h2 className="font-display mb-2 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-              Les fonctionnalités
-            </h2>
+        <Filet />
 
-            <p className="mb-8 max-w-xl text-[15px] leading-relaxed text-champagne/60">
+        {/* ═══════════════ Les 7 fonctionnalités ═══════════════ */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+          <div className="mx-auto max-w-7xl">
+            <TitreSection surtitre="Le catalogue">
+              Les sept fonctionnalités
+            </TitreSection>
+
+            <p className="mb-8 mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70">
               Toutes sont pensées pour des hommes de 28 ans et plus, et ne
               fonctionnent qu&apos;entre profils vérifiés.
             </p>
@@ -353,7 +412,7 @@ export default function FonctionnalitesPage() {
                     className={`relative flex scroll-mt-28 flex-col rounded-2xl border p-5 sm:p-6 xl:scroll-mt-32 ${
                       feature.featured
                         ? 'border-cuivre/40 bg-minuit ring-1 ring-cuivre/20'
-                        : 'border-champagne/8 bg-minuit'
+                        : 'border-cuivre/15 bg-minuit'
                     }`}
                   >
                     <Icon
@@ -361,7 +420,7 @@ export default function FonctionnalitesPage() {
                       className={feature.featured ? 'text-cuivre' : 'text-champagne/55'}
                     />
 
-                    <h3 className="font-display mt-3 text-[17px] font-extrabold text-champagne">
+                    <h3 className="font-display mt-3 text-[18px] font-normal leading-snug text-ivoire">
                       {feature.title}
                     </h3>
 
@@ -378,7 +437,7 @@ export default function FonctionnalitesPage() {
                         )
                       }
                       aria-expanded={isOpen}
-                      className={`mt-4 flex items-center justify-between border-t border-champagne/8 pt-3 text-[13px] font-semibold text-champagne/70 sm:hidden ${focusRing}`}
+                      className={`mt-4 flex items-center justify-between border-t border-cuivre/10 pt-3 text-[13px] font-semibold text-champagne/70 sm:hidden ${focusRing}`}
                     >
                       {isOpen ? 'masquer le détail' : 'voir le détail'}
                       <ChevronDown
@@ -388,7 +447,7 @@ export default function FonctionnalitesPage() {
                     </button>
 
                     <div
-                      className={`flex-1 border-champagne/8 sm:mt-4 sm:block sm:border-t sm:pt-4 ${
+                      className={`flex-1 border-cuivre/10 sm:mt-4 sm:block sm:border-t sm:pt-4 ${
                         isOpen ? 'mt-4 block' : 'hidden'
                       }`}
                     >
@@ -443,33 +502,31 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* Comment elles s'enchaînent */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <Filet />
+
+        {/* ═══════════════ Comment elles s'enchaînent ═══════════════ */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display mb-10 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
+            <TitreSection surtitre="L'ordre des choses" className="mb-10">
               Comment elles s&apos;enchaînent
-            </h2>
+            </TitreSection>
 
             <ol className="flex flex-col">
               {journey.map((step, i) => (
                 <li key={step.title} className="flex gap-5">
                   <div className="flex shrink-0 flex-col items-center">
                     <span
-                      className={`font-display flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-extrabold ${
-                        step.dot === 'orange'
-                          ? 'bg-cuivre text-nuit'
-                          : 'bg-succes text-nuit'
-                      }`}
+                      className="font-display flex h-10 w-10 items-center justify-center rounded-full bg-cuivre text-[15px] font-extrabold text-nuit"
                     >
                       {i + 1}
                     </span>
                     {i < journey.length - 1 && (
-                      <span className="my-1.5 w-[2px] flex-1 bg-succes/35" />
+                      <span className="my-1.5 w-px flex-1 bg-cuivre/35" />
                     )}
                   </div>
 
                   <div className={i < journey.length - 1 ? 'pb-10' : ''}>
-                    <h3 className="font-display mb-1.5 text-[17px] font-bold text-champagne">
+                    <h3 className="font-display mb-1.5 text-[18px] font-normal text-ivoire">
                       {step.title}
                     </h3>
                     <p className="max-w-md text-sm leading-relaxed text-champagne/60">
@@ -482,14 +539,16 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* Socle commun */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-          <div className="mx-auto max-w-7xl">
-            <h2 className="font-display mb-2 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-              Le socle commun
-            </h2>
+        <Filet />
 
-            <p className="mb-8 max-w-xl text-[15px] leading-relaxed text-champagne/60">
+        {/* ═══════════════ Socle commun ═══════════════ */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+          <div className="mx-auto max-w-7xl">
+            <TitreSection surtitre="Sans condition">
+              Le socle commun
+            </TitreSection>
+
+            <p className="mb-8 mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70">
               Ces quatre règles ne dépendent d&apos;aucune fonctionnalité ni
               d&apos;aucune offre. Elles s&apos;appliquent à tous les comptes,
               dès la validation du dossier.
@@ -499,7 +558,7 @@ export default function FonctionnalitesPage() {
               {foundations.map(({ icon: Icon, label }) => (
                 <div
                   key={label}
-                  className="flex flex-col gap-2.5 rounded-2xl border border-champagne/8 bg-minuit p-4 sm:p-[18px]"
+                  className="flex flex-col gap-2.5 rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:p-[18px]"
                 >
                   <Icon size={18} className="text-cuivre" />
                   <span className="text-[13px] font-semibold text-champagne">{label}</span>
@@ -509,20 +568,24 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* Chiffres */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        {chiffresPrets && (
+        <>
+        <Filet />
+
+        {/* ═══════════════ Chiffres ═══════════════ */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
           <div className="mx-auto max-w-7xl">
-            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-              Sfera&apos;Solys en chiffres
-            </h2>
+            <TitreSection surtitre="En chiffres" className="mb-8">
+              Sfera&apos;Solys aujourd&apos;hui
+            </TitreSection>
 
             <dl className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-2xl border border-champagne/8 bg-minuit p-4 sm:p-[18px]"
+                  className="rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:p-[18px]"
                 >
-                  <dd className="font-display text-[26px] font-extrabold leading-none text-champagne sm:text-[30px]">
+                  <dd className="font-display text-[30px] font-normal leading-none text-ivoire sm:text-[34px]">
                     {stat.value}
                   </dd>
                   <dt className="mt-2 text-[13px] text-champagne/55">{stat.label}</dt>
@@ -530,19 +593,22 @@ export default function FonctionnalitesPage() {
               ))}
             </dl>
 
-            <p className="mt-6 text-[13px] text-champagne/55">
-              Chiffres mis à jour en continu depuis la plateforme. Un tiret
-              signifie qu&apos;un compteur n&apos;a pas encore démarré.
+            <p className="mt-6 text-[13px] text-champagne/60">
+              Chiffres mis à jour en continu depuis la plateforme.
             </p>
           </div>
         </section>
+        </>
+        )}
 
-        {/* Bon à savoir */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
+        <Filet />
+
+        {/* ═══════════════ Bon à savoir ═══════════════ */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
           <div className="mx-auto max-w-3xl">
-            <h2 className="font-display mb-8 text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
+            <TitreSection surtitre="Les questions qui reviennent" className="mb-8">
               Bon à savoir
-            </h2>
+            </TitreSection>
 
             <div className="space-y-1.5">
               {notes.map((note, index) => {
@@ -551,7 +617,7 @@ export default function FonctionnalitesPage() {
                 return (
                   <div
                     key={note.question}
-                    className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit"
+                    className="overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit"
                   >
                     <button
                       type="button"
@@ -579,7 +645,7 @@ export default function FonctionnalitesPage() {
                           transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                           className="overflow-hidden"
                         >
-                          <p className="border-t border-champagne/8 px-4 py-4 text-[13px] leading-relaxed text-champagne/60 sm:px-5">
+                          <p className="border-t border-cuivre/10 px-4 py-4 text-[13px] leading-relaxed text-champagne/60 sm:px-5">
                             {note.answer}
                           </p>
                         </motion.div>
@@ -602,36 +668,58 @@ export default function FonctionnalitesPage() {
           </div>
         </section>
 
-        {/* CTA final */}
-        <section className="px-4 py-12 sm:px-6 sm:py-14 lg:px-16">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:p-11 lg:flex-row lg:text-left">
-            <div>
-              <h2 className="font-display mb-1.5 text-xl font-extrabold text-champagne sm:text-2xl">
-                Les fonctionnalités s&apos;ouvrent après la vérification.
-              </h2>
-              <p className="text-sm text-champagne/60">
-                Constitution du dossier gratuite, sans engagement. Tu choisiras
-                une offre ensuite, si tu en as envie.
-              </p>
-            </div>
+        {/* ═══════════════ Appel final ═══════════════ */}
+        {/*
+          Même traitement que l'appel final de la page d'accueil : la
+          photographie court derrière, et le panneau se contente d'un fond
+          translucide pour qu'elle continue de se voir à travers lui.
 
-            <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
-              <Link
-                href="/commencer"
-                className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
-              >
-                constituer mon dossier
-              </Link>
-
-              <Link
-                href="/tarifs"
-                className={`fx-ghost rounded-xl border border-champagne/15 px-7 py-3.5 text-sm font-bold text-champagne/85 transition-colors hover:border-champagne/30 ${focusRing}`}
-              >
-                voir les tarifs
-              </Link>
-            </div>
+          Pas de filet avant : la photographie s'éteint d'elle-même en haut.
+        */}
+        <div className="relative isolate overflow-hidden">
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <Image
+              src="/visuels/solys-10.webp"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-nuit/80" />
+            <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit" />
           </div>
-        </section>
+
+          <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+            <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-7 rounded-3xl border border-cuivre/25 bg-nuit/55 p-8 text-center backdrop-blur-md sm:p-10 lg:flex-row lg:text-left">
+              <div>
+                <h2 className="font-display text-[24px] font-normal leading-tight text-ivoire sm:text-[30px]">
+                  Les fonctionnalités s&apos;ouvrent après la vérification.
+                </h2>
+                <p className="mt-2.5 max-w-md text-sm leading-relaxed text-champagne/70">
+                  Constitution du dossier gratuite, sans engagement. Tu
+                  choisiras une offre ensuite, si tu en as envie.
+                </p>
+              </div>
+
+              <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
+                <Link
+                  href="/commencer"
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                >
+                  Constituer mon dossier
+                  <ArrowRight size={16} />
+                </Link>
+
+                <Link
+                  href="/tarifs"
+                  className={`inline-flex items-center justify-center rounded-xl border border-champagne/25 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-cuivre/60 hover:text-ivoire ${focusRing}`}
+                >
+                  Voir les tarifs
+                </Link>
+              </div>
+            </div>
+          </section>
+        </div>
       </main>
 
       <Footer />
