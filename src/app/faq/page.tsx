@@ -92,6 +92,23 @@ const categories: {
  * Liste complète des questions. Ordre et contenu conservés à l'identique.
  */
 const allFAQs: Faq[] = [
+  /*
+    En tête de liste, et pas par hasard : c'est la question qu'un visiteur
+    se pose avant toutes les autres, et elle n'avait de réponse nulle part
+    sur le site depuis que l'accordéon de la page d'accueil a été remplacé
+    par un lien vers cette page.
+
+    La formulation ne promet pas une réponse immédiate dans tous les cas :
+    `identityVerificationStatus` connaît un état « pending », et
+    l'onglet Sécurité de Mon compte l'affiche. Annoncer l'instantané pour
+    tout le monde serait faux pour ceux qui attendent.
+  */
+  {
+    question: "Combien de temps prend la vérification d'identité ?",
+    answer:
+      "Quelques instants dans la plupart des cas. Tu photographies ta pièce d'identité puis ton visage en direct, et Stripe Identity compare les deux. La réponse est le plus souvent immédiate ; il arrive qu'une vérification reste en attente le temps d'un contrôle supplémentaire. Dans tous les cas c'est gratuit, quelle que soit l'offre choisie ensuite.",
+    category: 'security',
+  },
   {
     question: 'Comment fonctionne le Circle of Six ?',
     image: '/visuels/solys-06.webp',
@@ -219,8 +236,18 @@ export default function FAQPage() {
    * question (et non de l'index) pour que l'état d'ouverture survive à un
    * changement de filtre ou de recherche.
    */
+  /*
+    La première question est ouverte au chargement, comme la maquette.
+
+    L'identifiant était préfixé `popular::`, du temps où les questions
+    mises en avant avaient leur propre accordéon. Ce second accordéon
+    ayant disparu, la liste ne rend plus que des `all::` — et cet état
+    initial ne correspondait donc à aucune question affichée : la page
+    s'ouvrait entièrement repliée. Défaut introduit en retirant le
+    doublon, corrigé ici.
+  */
   const [openQuestions, setOpenQuestions] = useState<string[]>([
-    `popular::${allFAQs[0].question}`,
+    `all::${allFAQs[0].question}`,
   ]);
 
   /** Catégorie active. */
