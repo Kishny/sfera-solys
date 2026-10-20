@@ -315,6 +315,16 @@ export default function Home() {
           </div>
         </section>
 
+        {/*
+          Filet de séparation. Un `border-t` pleine largeur tranchait trop
+          net sous une photo qui déborde ; celui-ci s'éteint à ses deux
+          extrémités, donc il sépare sans couper.
+        */}
+        <div
+          aria-hidden="true"
+          className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-champagne/15 to-transparent"
+        />
+
         {/* ═══════════════ Aperçu du produit ═══════════════ */}
         {/*
           Pas de titre visible : la maquette enchaîne le héros et les cartes
@@ -340,26 +350,34 @@ export default function Home() {
                   <Link
                     key={feature.title}
                     href={feature.href}
-                    className={`group relative flex min-h-[270px] overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit transition-colors hover:border-cuivre/45 ${focusRing}`}
+                    className={`group relative isolate flex min-h-[270px] overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit transition-colors hover:border-cuivre/45 ${focusRing}`}
                   >
                     {/*
-                      La photo tient la moitié droite et ne s'éteint que sur
-                      son bord gauche. Première version : elle couvrait toute
-                      la carte sous un voile à 85 %, ce qui revenait à ne pas
-                      l'afficher — on voyait trois rectangles sombres.
+                      La photo couvre toute la carte, et c'est le dégradé qui
+                      décide où elle commence à se voir — pas le bord d'un
+                      conteneur.
+
+                      La version précédente la logeait dans un bloc occupant
+                      la moitié droite. Au survol, l'image passe sur une
+                      couche de composition pour s'agrandir, et le fond de la
+                      carte ne peint plus sous cette couche : le fond de page
+                      apparaissait dans la couture, sous la forme d'un trait
+                      noir vertical coupant la carte en deux. Sans bord, pas
+                      de couture — et la transition vers le texte est plus
+                      douce.
                     */}
                     <div
                       aria-hidden="true"
-                      className="absolute inset-y-0 right-0 w-[58%]"
+                      className="absolute inset-0 overflow-hidden"
                     >
                       <Image
                         src={feature.image}
                         alt=""
                         fill
-                        sizes="(max-width: 1024px) 60vw, 20vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-[1.05] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                        sizes="(max-width: 1024px) 100vw, 33vw"
+                        className="object-cover object-[60%_50%] transition-transform duration-700 group-hover:scale-[1.05] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-r from-minuit via-minuit/40 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-minuit from-[38%] via-minuit/40 via-[64%] to-transparent" />
                     </div>
 
                     <div className="relative flex flex-1 flex-col p-6">
