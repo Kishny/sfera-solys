@@ -6,7 +6,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   IdCard,
-  Camera,
   ShieldCheck,
   Lock,
   ArrowRight,
@@ -76,7 +75,13 @@ const garanties = [
   {
     icon: ShieldCheck,
     titre: 'Identité vérifiée',
-    texte: 'Pièce d’identité et selfie en direct, avant le premier message.',
+    /*
+      Disait « avant le premier message ». Rien dans le code ne l'impose :
+      `identityVerified` est lu pour afficher un badge, jamais pour bloquer
+      une action. La phrase décrit maintenant ce que la vérification est,
+      pas une barrière qui n'existe pas encore.
+    */
+    texte: 'Pièce d’identité et selfie en direct, comparés par Stripe.',
   },
   {
     icon: HexagonSix,
@@ -85,11 +90,50 @@ const garanties = [
   },
 ];
 
+/**
+ * Le bandeau de garanties.
+ *
+ * ## Ce qui a été retiré, et pourquoi
+ *
+ * C'étaient quatre pastilles sans un mot d'explication. Deux ne tenaient
+ * pas :
+ *
+ * - « Identité vérifiée » répétait mot pour mot une garantie du héros, qui
+ *   l'explique, elle. Promettre deux fois la même chose, la seconde fois
+ *   sans rien en dire, affaiblit les deux.
+ * - « Photos authentifiées » n'existe pas. Aucune validation de photo n'est
+ *   présente dans le code : la vérification Stripe compare la pièce
+ *   d'identité et le selfie, rien ne compare ensuite les photos du profil à
+ *   ce selfie. La pastille promettait une fonctionnalité absente.
+ *
+ * Restent trois promesses que le code tient, avec la phrase qui leur
+ * manquait. Un bandeau qui explique vaut mieux qu'un bandeau qui rassure.
+ */
 const trustBadges = [
-  { icon: IdCard, label: 'Identité vérifiée' },
-  { icon: Camera, label: 'Photos authentifiées' },
-  { icon: ShieldCheck, label: 'Modération active' },
-  { icon: Lock, label: 'Données sécurisées (RGPD)' },
+  {
+    icon: IdCard,
+    label: 'La vérification est gratuite',
+    texte:
+      'Elle ne dépend d’aucune offre. Passer au premium lève des limites d’usage, jamais le droit d’être vérifié.',
+    href: '/tarifs',
+    lien: 'voir les offres',
+  },
+  {
+    icon: ShieldCheck,
+    label: 'Modération humaine',
+    texte:
+      'Un signalement n’est pas arbitré par un algorithme : un administrateur l’examine, et un compte peut être suspendu.',
+    href: null,
+    lien: null,
+  },
+  {
+    icon: Lock,
+    label: 'Tes données, nommément',
+    texte:
+      'Notre page confidentialité nomme un par un les prestataires qui traitent tes données, et ce que chacun en fait.',
+    href: '/confidentialite',
+    lien: 'lire la page confidentialité',
+  },
 ];
 
 /**
@@ -154,6 +198,27 @@ function Surtitre({ children }: { children: React.ReactNode }) {
       <span aria-hidden="true" className="h-px w-8 bg-cuivre" />
       {children}
     </p>
+  );
+}
+
+/**
+ * Filet de séparation entre deux sections.
+ *
+ * Les sections étaient séparées par un `border-t` pleine largeur. Sous le
+ * héros, dont la photo déborde jusqu'aux bords, cette ligne continue
+ * tranchait l'écran au lieu de marquer une respiration — et une fois le
+ * défaut corrigé là, les six autres bordures identiques devenaient
+ * l'exception.
+ *
+ * Celui-ci s'arrête à la largeur du contenu et s'éteint à ses deux
+ * extrémités : il sépare sans couper.
+ */
+function Filet() {
+  return (
+    <div
+      aria-hidden="true"
+      className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-champagne/15 to-transparent"
+    />
   );
 }
 
@@ -315,15 +380,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/*
-          Filet de séparation. Un `border-t` pleine largeur tranchait trop
-          net sous une photo qui déborde ; celui-ci s'éteint à ses deux
-          extrémités, donc il sépare sans couper.
-        */}
-        <div
-          aria-hidden="true"
-          className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-champagne/15 to-transparent"
-        />
+        <Filet />
 
         {/* ═══════════════ Aperçu du produit ═══════════════ */}
         {/*
@@ -418,8 +475,18 @@ export default function Home() {
           </div>
         </section>
 
+        <Filet />
+
         {/* ═══════════════ Comment ça marche ═══════════════ */}
-        <section className="border-t border-champagne/8 px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+        {/*
+          Pas de photographie derrière cette section, ni derrière la
+          suivante : les deux portent une interface — le dossier qui se
+          remplit, les deux aperçus d'écran. Une image sous un cadre
+          d'interface donne deux profondeurs qui se disputent la même place,
+          et c'est l'interface qui perd. La photo revient au témoignage,
+          où il n'y a qu'une phrase à porter.
+        */}
+        <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
           <div className="mx-auto max-w-7xl">
             <Surtitre>Le parcours</Surtitre>
 
@@ -437,8 +504,10 @@ export default function Home() {
           </div>
         </section>
 
+        <Filet />
+
         {/* ═══════════════ À quoi ça ressemble ═══════════════ */}
-        <section className="border-t border-champagne/8 px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+        <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
           <div className="mx-auto max-w-7xl">
             <Surtitre>Dans l’application</Surtitre>
 
@@ -478,25 +547,74 @@ export default function Home() {
           </div>
         </section>
 
+        <Filet />
+
         {/* ═══════════════ Bandeau confiance ═══════════════ */}
-        <section className="border-t border-champagne/8 px-4 py-12 sm:px-6 sm:py-16 lg:px-16">
-          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            {trustBadges.map(({ icon: Icon, label }) => (
-              <div
+        <section
+          aria-labelledby="garanties"
+          className="px-4 py-16 sm:px-6 sm:py-20 lg:px-16"
+        >
+          {/*
+            La section n'avait aucun titre, visible ou non : au lecteur
+            d'écran, elle se présentait comme quatre blocs sans rien qui
+            dise ce qu'ils ont en commun. Le titre est masqué à l'œil —
+            la maquette n'en veut pas — mais il existe dans le plan du
+            document.
+          */}
+          <h2 id="garanties" className="sr-only">
+            Ce que Sfera&rsquo;Solys garantit
+          </h2>
+
+          {/*
+            Un seul panneau divisé par des filets, plutôt que des cartes qui
+            flottent côte à côte — la même logique que le filet entre les
+            sections : marquer une limite sans découper.
+
+            Les filets viennent du `gap-px` sur une grille au fond cuivré :
+            les cellules, opaques, laissent apparaître ce fond dans
+            l'interstice. `divide-x` aurait tracé ses traits dans l'ordre du
+            DOM, donc au mauvais endroit dès que la grille repasse sur une
+            colonne.
+          */}
+          <ul className="mx-auto grid max-w-7xl gap-px overflow-hidden rounded-2xl border border-cuivre/20 bg-cuivre/20 sm:grid-cols-3">
+            {trustBadges.map(({ icon: Icon, label, texte, href, lien }) => (
+              <li
                 key={label}
-                className="flex flex-col gap-2.5 rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:p-[18px]"
+                className="flex flex-col bg-minuit p-6 sm:p-7"
               >
-                <Icon size={18} className="text-cuivre" aria-hidden="true" />
-                <span className="text-[13px] font-semibold text-champagne">
-                  {label}
+                <span
+                  aria-hidden="true"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-cuivre/35 text-cuivre"
+                >
+                  <Icon size={18} />
                 </span>
-              </div>
+
+                <p className="mt-5 text-[15px] font-semibold text-champagne">
+                  {label}
+                </p>
+
+                <p className="mt-2 text-[13px] leading-relaxed text-champagne/65">
+                  {texte}
+                </p>
+
+                {href && lien && (
+                  <Link
+                    href={href}
+                    className={`mt-4 inline-flex items-center gap-1.5 self-start text-[12px] font-semibold text-cuivre transition-colors hover:text-champagne ${focusRing}`}
+                  >
+                    {lien}
+                    <ArrowRight size={13} />
+                  </Link>
+                )}
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
 
+        <Filet />
+
         {/* ═══════════════ Pourquoi 28 ans et plus ═══════════════ */}
-        <section className="relative overflow-hidden border-t border-champagne/8 px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+        <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
           <EclipseMark
             id="age"
             attenuation={0}
@@ -562,7 +680,38 @@ export default function Home() {
         </section>
 
         {/* ═══════════════ Témoignage ═══════════════ */}
-        <section className="border-t border-champagne/8 px-4 py-20 text-center sm:px-6 sm:py-28">
+        {/*
+          Pas de filet ni avant ni après celle-ci : la photo s'éteint
+          d'elle-même en haut et en bas, ce qui sépare mieux qu'un trait.
+          Deux marques de séparation au même endroit en font une de trop.
+
+          La photographie est une terrasse vide. C'est un choix, pas le
+          hasard d'un fichier disponible : à côté d'un témoignage signé d'un
+          prénom et d'un âge, un portrait se lit comme la photo de cette
+          personne-là. Ce serait inventer un membre — exactement ce que la
+          vérification d'identité est censée rendre impossible. Une scène
+          sans personne ne peut rien laisser croire.
+        */}
+        <section className="relative isolate overflow-hidden px-4 py-24 text-center sm:px-6 sm:py-32">
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <Image
+              src="/visuels/solys-02.webp"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            {/*
+              Deux voiles superposés. Le premier assombrit partout, assez
+              pour que le champagne atténué garde ses 4,5:1 même sur la
+              zone la plus claire de l'image. Le second éteint les bords
+              haut et bas, pour que la photo ne se lise pas comme un
+              bandeau collé entre deux sections.
+            */}
+            <div className="absolute inset-0 bg-nuit/80" />
+            <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit" />
+          </div>
+
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
             <span aria-hidden="true" className="h-px w-12 bg-cuivre" />
 
@@ -571,18 +720,23 @@ export default function Home() {
                 <p className="font-display text-[24px] font-normal italic leading-[1.45] text-ivoire sm:text-[32px]">
                   « {testimonial.content} »
                 </p>
-                <span className="text-[13px] text-champagne/55">
+                {/*
+                  champagne/70 et non /55 : sur fond plein, 55 % passait
+                  (4,79:1), mais la zone la plus claire de la photo sous son
+                  voile fait tomber le même texte à 4,43:1 — sous le seuil.
+                */}
+                <span className="text-[13px] text-champagne/70">
                   — {testimonial.authorName}
                   {testimonial.age ? `, ${testimonial.age} ans` : ''}
                   {testimonial.city ? ` · ${testimonial.city}` : ''}
                 </span>
               </>
             ) : testimonialsLoaded ? (
-              <p className="text-sm text-champagne/55">
+              <p className="text-sm text-champagne/70">
                 Les premiers témoignages arrivent bientôt.
               </p>
             ) : (
-              <p className="text-sm text-champagne/55">Chargement…</p>
+              <p className="text-sm text-champagne/70">Chargement…</p>
             )}
 
             <Link
@@ -596,7 +750,7 @@ export default function Home() {
         </section>
 
         {/* ═══════════════ FAQ ═══════════════ */}
-        <section className="border-t border-champagne/8 px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+        <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
           <div className="mx-auto max-w-3xl">
             <Surtitre>Avant de commencer</Surtitre>
 
@@ -673,17 +827,36 @@ export default function Home() {
               sizes="(max-width: 1280px) 100vw, 1280px"
               className="object-cover"
             />
+            {/*
+              Le voile était à 90 % puis 60 % de nuit : la photo ne se
+              voyait plus, et le panneau revenait à un rectangle sombre avec
+              un liseré cuivré. Il suit maintenant la logique du héros —
+              opaque là où le texte se pose, dégagé là où il n'y a rien.
+
+              La direction change avec la mise en page : en colonne, le
+              texte occupe toute la largeur en haut, donc le voile descend ;
+              en ligne, le texte tient la gauche, donc il traverse. Les
+              valeurs gardent le petit texte au-dessus de 4,5:1 même sur la
+              partie la plus claire de l'image.
+            */}
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-r from-nuit via-nuit/90 to-nuit/60"
+              className="absolute inset-0 bg-gradient-to-br from-nuit via-nuit/85 to-nuit/40 lg:bg-gradient-to-r lg:from-nuit lg:via-nuit/75 lg:to-nuit/25"
             />
 
             <div className="relative flex flex-col items-start justify-between gap-7 p-8 sm:p-12 lg:flex-row lg:items-center">
               <div>
+                {/*
+                  Le seul autre mot cuivré de la page est dans le titre du
+                  héros. Les deux se répondent d'un bout à l'autre : c'est
+                  un encadrement, pas un tic — raison pour laquelle les
+                  titres intermédiaires restent en ivoire.
+                */}
                 <h2 className="font-display text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
-                  Prêt à rencontrer sérieusement ?
+                  Prêt à rencontrer{' '}
+                  <span className="text-cuivre">sérieusement</span> ?
                 </h2>
-                <p className="mt-2 text-sm text-champagne/65">
+                <p className="mt-2 text-sm text-champagne/70">
                   Constitution du dossier gratuite, sans engagement.
                 </p>
               </div>
