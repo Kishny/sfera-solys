@@ -206,19 +206,22 @@ export default function Home() {
           */}
           <div className="absolute inset-0 -z-20 lg:left-[46%]">
             <Image
-              src="/visuels/solys-01.webp"
+              src="/visuels/solys-01-hero.webp"
               alt="Deux hommes en costume sur un rooftop, au crépuscule, la ville en contrebas."
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 56vw"
               /*
-                `object-center` coupait le second homme : sur cette photo
-                les deux sujets occupent le tiers droit, et le conteneur est
-                plus étroit que l'image. 85 % les cadre tous les deux en
-                gardant l'éclipse du ciel — vérifié en simulant le recadrage
-                sur l'image réelle, pas calculé de tête.
+                Variante recadrée, pas la photo d'origine. Les deux sujets
+                occupent le tiers droit de l'image complète, et le conteneur
+                du héros est plus étroit qu'elle : même poussé au maximum,
+                `object-position` ne laissait que 164 px de marge et le
+                second homme restait au ras du bord. Le recadrage est donc
+                fait dans le fichier — 30 % de la largeur retirés à gauche —
+                ce qui rapproche vraiment les visages au lieu de déplacer
+                une fenêtre trop large.
               */
-              className="object-cover object-[85%_50%]"
+              className="object-cover object-center"
             />
 
             {/*

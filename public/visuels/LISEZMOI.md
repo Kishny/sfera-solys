@@ -10,6 +10,7 @@ source si une nouvelle passe de conversion devient nécessaire.
 | Fichier         | Sujet                                                |
 |-----------------|------------------------------------------------------|
 | `solys-01.webp` | Deux hommes sur un rooftop, éclipse au-dessus de la skyline |
+| `solys-01-hero.webp` | La même, recadrée sur les deux hommes (30 % retirés à gauche) — c'est elle qu'utilise le héros de la page d'accueil |
 | `solys-02.webp` | Terrasse déserte à la bougie, piscine à débordement   |
 | `solys-03.webp` | Homme seul de profil, verre à la main, skyline        |
 | `solys-04.webp` | Terrasse en marbre noir, reflets, piscine             |
@@ -28,3 +29,11 @@ voile supplémentaire.
 `maquettes/explorer.webp` sont les écrans de référence de la direction
 artistique. Elles ne sont pas du contenu : rien dans `src/` ne doit les
 importer.
+
+## Résolution
+
+Les sources font 1672 px de large. C'est suffisant pour un affichage
+simple, mais un recadrage serré comme `solys-01-hero.webp` (1170 px) sera
+légèrement doux sur un écran à forte densité. Si de nouveaux visuels sont
+générés, demander des exports plus larges — 2560 px laisserait de la marge
+pour recadrer sans perte visible.
