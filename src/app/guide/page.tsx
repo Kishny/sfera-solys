@@ -401,15 +401,18 @@ export default function GuidePage() {
               vingt points concrets en moins dans un guide, c'est-à-dire
               l'essentiel de ce qu'un guide apporte.
             */}
-            <ul className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {steps.map((step, i) => {
-                const Icone = step.icon;
                 const ouverte = etapeOuverte === i;
 
                 return (
-                  <li key={step.label}>
-                    <div className="overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit">
-                      <div className="relative aspect-[4/3] w-full overflow-hidden">
+                  <li key={step.label} className="h-full">
+                    <div
+                      className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-minuit transition-colors ${
+                        ouverte ? 'border-cuivre/45' : 'border-cuivre/15'
+                      }`}
+                    >
+                      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden">
                         <Image
                           src={step.image}
                           alt=""
@@ -421,25 +424,15 @@ export default function GuidePage() {
                           aria-hidden="true"
                           className="absolute inset-0 bg-gradient-to-t from-minuit via-minuit/25 to-transparent"
                         />
-
                       </div>
 
                       {/*
-                        La pastille numérotée appartient au bloc de texte,
-                        pas au conteneur de la photo.
-
-                        Elle y était, en `-bottom-4`, et ce conteneur porte
-                        `overflow-hidden` pour arrondir l'image : la moitié
-                        basse de chaque pastille était donc rognée, ce qui
-                        donnait cinq demi-lunes au bas des photos.
-
-                        Rattachée au bloc de texte en `-top-[18px]`, elle
-                        chevauche toujours la photo — mais rien ne la coupe,
-                        la carte n'ayant pas de débordement masqué à cet
-                        endroit. C'est le même procédé que les tuiles des
-                        cartes de conseil, plus bas.
+                        La pastille appartient au bloc de texte, pas au
+                        conteneur de l'image : celui-ci porte
+                        `overflow-hidden` pour arrondir la photographie, et
+                        rognait donc la moitié basse de chaque pastille.
                       */}
-                      <div className="relative p-4 pt-7">
+                      <div className="relative flex flex-1 flex-col p-4 pt-7">
                         <span className="font-display absolute -top-[18px] left-4 flex h-9 w-9 items-center justify-center rounded-full border border-cuivre/40 bg-nuit text-[14px] font-extrabold text-cuivre">
                           {i + 1}
                         </span>
@@ -453,82 +446,117 @@ export default function GuidePage() {
                           {step.duration}
                         </p>
 
-                        {/*
-                          `min-h` sur la description : les textes font deux
-                          ou trois lignes selon l'étape, et les cartes
-                          finissaient à cinq hauteurs différentes alors que
-                          la maquette les aligne. Trois lignes réservées
-                          suffisent à les égaliser.
-
-                          La grille reste en `items-start` : si elle
-                          étirait les cartes, déplier une étape creuserait
-                          quatre colonnes de vide à côté.
-                        */}
-                        <p className="mt-2.5 min-h-[3.4rem] text-[12.5px] leading-snug text-champagne/70">
+                        <p className="mt-2.5 text-[12.5px] leading-snug text-champagne/70">
                           {step.content}
                         </p>
 
+                        {/*
+                          `mt-auto` colle la flèche au bas de la carte. Les
+                          descriptions font deux à quatre lignes selon
+                          l'étape : sans ça, les cinq flèches se posaient à
+                          cinq hauteurs différentes.
+                        */}
                         <button
                           type="button"
                           onClick={() => setEtapeOuverte(ouverte ? null : i)}
                           aria-expanded={ouverte}
+                          aria-controls="detail-etape"
                           aria-label={
                             ouverte
                               ? `Replier le détail de l'étape ${i + 1}`
                               : `Voir le détail de l'étape ${i + 1}`
                           }
-                          className={`mt-4 flex h-9 w-9 items-center justify-center rounded-full border border-cuivre/35 text-cuivre transition-colors hover:border-cuivre hover:bg-cuivre hover:text-nuit ${anneauFocus}`}
+                          className={`mt-auto flex h-9 w-9 shrink-0 items-center justify-center self-start rounded-full border text-cuivre transition-colors hover:border-cuivre hover:bg-cuivre hover:text-nuit ${
+                            ouverte
+                              ? 'border-cuivre bg-cuivre text-nuit'
+                              : 'border-cuivre/35'
+                          } ${anneauFocus}`}
                         >
                           <ArrowRight
                             size={15}
                             className={`transition-transform ${ouverte ? 'rotate-90' : ''}`}
                           />
                         </button>
-
-                        <AnimatePresence initial={false}>
-                          {ouverte && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: reduceMotion ? 0 : 0.22 }}
-                              className="overflow-hidden"
-                            >
-                              <ul className="mt-4 space-y-2 border-t border-cuivre/10 pt-4">
-                                {step.details.map((detail) => (
-                                  <li key={detail} className="flex items-start gap-2">
-                                    <Check
-                                      size={11}
-                                      strokeWidth={3}
-                                      aria-hidden="true"
-                                      className="mt-1 shrink-0 text-cuivre"
-                                    />
-                                    <span className="text-[12px] leading-snug text-champagne/70">
-                                      {detail}
-                                    </span>
-                                  </li>
-                                ))}
-                              </ul>
-
-                              {step.tip && (
-                                <p className="mt-3 flex gap-2 rounded-lg border border-cuivre/25 bg-cuivre/[0.06] p-2.5 text-[11.5px] leading-snug text-champagne/75">
-                                  <Lightbulb
-                                    size={13}
-                                    aria-hidden="true"
-                                    className="mt-0.5 shrink-0 text-cuivre"
-                                  />
-                                  {step.tip}
-                                </p>
-                              )}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                       </div>
                     </div>
                   </li>
                 );
               })}
             </ul>
+
+            {/*
+              Le détail s'ouvre sous la grille, pas dans la carte.
+
+              Il y était, et ça posait deux problèmes. Les cartes faisaient
+              230 px de large : quatre points de détail et un conseil y
+              tenaient à l'étroit. Et une carte qui grandit force les
+              quatre autres à grandir avec elle, ou laisse la rangée
+              dentelée — c'est le défaut que tu as vu.
+
+              Sous la grille, les cartes gardent toutes la même hauteur, le
+              détail a toute la largeur, et la carte ouverte se signale par
+              son liseré cuivré et sa flèche pivotée.
+            */}
+            <AnimatePresence initial={false}>
+              {etapeOuverte !== null && (
+                <motion.div
+                  id="detail-etape"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-5 rounded-2xl border border-cuivre/25 bg-minuit p-5 sm:p-6">
+                    {/*
+                      L'icône de l'étape apparaît ici, et nulle part
+                      ailleurs : les cartes de la maquette ne portent que
+                      leur numéro. Le champ `icon` était donc renseigné
+                      pour les cinq étapes sans jamais être rendu — une
+                      donnée morte, que le panneau remet au travail.
+                    */}
+                    <div className="flex items-center gap-3.5">
+                      <span className="font-display flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cuivre text-[14px] font-extrabold text-nuit">
+                        {etapeOuverte + 1}
+                      </span>
+
+                      <TuileIcone icon={steps[etapeOuverte].icon} className="h-10 w-10" />
+
+                      <h4 className="font-display text-[19px] font-normal leading-snug text-ivoire">
+                        {steps[etapeOuverte].title}
+                      </h4>
+                    </div>
+
+                    <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                      {steps[etapeOuverte].details.map((detail) => (
+                        <li key={detail} className="flex items-start gap-2.5">
+                          <Check
+                            size={12}
+                            strokeWidth={3}
+                            aria-hidden="true"
+                            className="mt-1 shrink-0 text-cuivre"
+                          />
+                          <span className="text-[13px] leading-relaxed text-champagne/70">
+                            {detail}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {steps[etapeOuverte].tip && (
+                      <p className="mt-5 flex gap-2.5 rounded-xl border border-cuivre/25 bg-cuivre/[0.06] p-3.5 text-[13px] leading-relaxed text-champagne/75">
+                        <Lightbulb
+                          size={15}
+                          aria-hidden="true"
+                          className="mt-0.5 shrink-0 text-cuivre"
+                        />
+                        {steps[etapeOuverte].tip}
+                      </p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </section>
 
