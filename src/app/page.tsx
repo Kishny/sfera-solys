@@ -27,6 +27,14 @@ import {
   AnnuairePreview,
   CircleOfSixPreview,
 } from '@/components/brand/InterfacePreviews';
+import {
+  sectionY,
+  premierBloc,
+  focusRing,
+  Surtitre,
+  Filet,
+  TuileIcone,
+} from '@/components/brand/mise-en-page';
 import type { PublicTestimonial } from '@/components/testimonials/TestimonialCard';
 
 /**
@@ -249,89 +257,6 @@ const featureTeasers = [
   question mérite d'être ajoutée là-bas.
 */
 
-/**
- * Rythme vertical des sections.
- *
- * Défini une fois et appliqué partout. Chaque section réglée pour
- * elle-même finit par dériver, et resserrer la page devient alors une
- * tournée de huit retouches qu'on fait mal.
- *
- * Deux passes de resserrage. `py-16 sm:py-24` au départ, soit 192 px entre
- * deux sections sur grand écran : chaque section s'y lisait isolée, avec du
- * vide au-dessus et en dessous. Puis 128 px. Puis 96 px, la valeur actuelle,
- * la page restant trop haute au défilement.
- *
- * 96 px séparent encore nettement deux sections. En dessous, le rythme
- * commencerait à se perdre et les sections à se confondre — ce serait alors
- * le nombre de sections qu'il faudrait revoir, pas leur hauteur.
- *
- * C'est le seul endroit à toucher pour resserrer ou aérer l'ensemble.
- */
-const sectionY = 'py-8 sm:py-10 lg:py-12';
-
-/** Anneau de focus clavier, identique partout. */
-const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
-
-/** Surtitre en petites capitales, précédé d'un filet cuivré. */
-function Surtitre({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-surtitre text-champagne/60">
-      <span aria-hidden="true" className="h-px w-8 bg-cuivre" />
-      {children}
-    </p>
-  );
-}
-
-/**
- * Filet de séparation entre deux sections.
- *
- * Les sections étaient séparées par un `border-t` pleine largeur. Sous le
- * héros, dont la photo déborde jusqu'aux bords, cette ligne continue
- * tranchait l'écran au lieu de marquer une respiration — et une fois le
- * défaut corrigé là, les six autres bordures identiques devenaient
- * l'exception.
- *
- * Celui-ci s'arrête à la largeur du contenu et s'éteint à ses deux
- * extrémités : il sépare sans couper.
- */
-function Filet() {
-  return (
-    <div
-      aria-hidden="true"
-      className="mx-auto h-px max-w-7xl bg-gradient-to-r from-transparent via-champagne/15 to-transparent"
-    />
-  );
-}
-
-/**
- * Tuile d'icône.
- *
- * La maquette abandonne la pastille ronde pour un carré aux angles
- * adoucis, posé à gauche du texte plutôt qu'au-dessus. Le gain n'est pas
- * seulement décoratif : à gauche, la tuile aligne les titres sur une même
- * verticale et la carte tient en deux lignes au lieu de quatre.
- *
- * Les ronds cuivrés subsistent là où ils ne servent pas de puce — sur les
- * cartes de fonctionnalités, où la pastille porte l'icône seule au-dessus
- * d'un titre, et sur la flèche de leur coin.
- */
-/*
-  `LucideIcon` et non un `ComponentType<{ size?: number }>` écrit à la main :
-  les icônes lucide sont des `forwardRef`, et leur type porte une référence
-  SVG qu'une signature réduite à `size` refuse. Le type maison compilait à
-  la lecture mais pas à l'usage.
-*/
-function TuileIcone({ icon: Icon }: { icon: LucideIcon }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-cuivre/30 bg-nuit/60 text-cuivre"
-    >
-      <Icon size={20} />
-    </span>
-  );
-}
 
 export default function Home() {
   const [testimonial, setTestimonial] = useState<PublicTestimonial | null>(null);
@@ -447,7 +372,7 @@ export default function Home() {
             1280 px — le surtitre venait se coller à la bordure. Le palier
             qui compte pour cette valeur est `xl`, pas `lg`.
           */}
-          <div className="mx-auto max-w-7xl pb-8 pt-24 sm:pb-10 sm:pt-28 lg:pb-12 xl:pt-32">
+          <div className={`mx-auto max-w-7xl pb-8 sm:pb-10 lg:pb-12 ${premierBloc}`}>
             <motion.div {...fadeUp} className="max-w-xl">
               <Surtitre>Plateforme de rencontres vérifiées</Surtitre>
 
