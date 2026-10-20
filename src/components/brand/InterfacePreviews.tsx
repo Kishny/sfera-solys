@@ -155,6 +155,22 @@ function AvatarProfil({
   );
 }
 
+/*
+  Trois vignettes dans le Circle, quatre lignes dans l'annuaire — et non
+  six et cinq.
+
+  C'est ce que montre la maquette, et c'est surtout le plus gros poste de
+  hauteur de la page d'accueil : six vignettes en deux rangées faisaient
+  près de 400 px à elles seules, contre 195 pour une rangée. La section
+  entière perd environ 190 px.
+
+  L'annuaire en montre une de plus que le Circle, volontairement : le
+  Circle est une sélection de l'annuaire, et le voir contenir davantage de
+  monde dit cette relation sans un mot. Les trois portraits restants ne
+  sont pas perdus, ils restent dans `PROFILS` et dans
+  `public/visuels/profils/`.
+*/
+
 /**
  * Aperçu du Circle of Six : les 6 profils proposés dans la semaine.
  */
@@ -183,7 +199,7 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
 
         {/* Les 6 propositions */}
         <div className="grid grid-cols-3 gap-2">
-          {PROFILS.map((profil, slot) => (
+          {PROFILS.slice(0, 3).map((profil, slot) => (
             <div
               key={profil.ville}
               className={`rounded-xl border p-2 ${
@@ -265,7 +281,7 @@ export function AnnuairePreview({ className = '' }: { className?: string }) {
 
         {/* Lignes */}
         <div className="divide-y divide-champagne/8 border-t border-champagne/8">
-          {PROFILS.slice(0, 5).map((row, index) => (
+          {PROFILS.slice(0, 4).map((row, index) => (
             <div
               key={row.ville}
               className={`flex items-center gap-3 py-2.5 ${

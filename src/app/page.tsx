@@ -218,14 +218,18 @@ const featureTeasers = [
  * elle-même finit par dériver, et resserrer la page devient alors une
  * tournée de huit retouches qu'on fait mal.
  *
- * Les valeurs précédentes — `py-16 sm:py-24` — laissaient 192 px entre
- * deux sections sur grand écran. À cette distance, chaque section se lit
- * isolée, avec du vide au-dessus et en dessous, et la page se parcourt par
- * à-coups. 128 px séparent encore franchement, sans couper le fil.
+ * Deux passes de resserrage. `py-16 sm:py-24` au départ, soit 192 px entre
+ * deux sections sur grand écran : chaque section s'y lisait isolée, avec du
+ * vide au-dessus et en dessous. Puis 128 px. Puis 96 px, la valeur actuelle,
+ * la page restant trop haute au défilement.
+ *
+ * 96 px séparent encore nettement deux sections. En dessous, le rythme
+ * commencerait à se perdre et les sections à se confondre — ce serait alors
+ * le nombre de sections qu'il faudrait revoir, pas leur hauteur.
  *
  * C'est le seul endroit à toucher pour resserrer ou aérer l'ensemble.
  */
-const sectionY = 'py-10 sm:py-14 lg:py-16';
+const sectionY = 'py-8 sm:py-10 lg:py-12';
 
 /** Anneau de focus clavier, identique partout. */
 const focusRing =
@@ -395,22 +399,22 @@ export default function Home() {
             fixe, qui recouvre le haut de la page. C'est une hauteur de
             dégagement, pas une respiration entre deux sections.
           */}
-          <div className="mx-auto max-w-7xl pb-10 pt-24 sm:pb-12 sm:pt-28 lg:pb-14">
+          <div className="mx-auto max-w-7xl pb-8 pt-24 sm:pb-10 sm:pt-24 lg:pb-12 lg:pt-20">
             <motion.div {...fadeUp} className="max-w-xl">
               <Surtitre>Plateforme de rencontres vérifiées</Surtitre>
 
-              <h1 className="font-display mt-6 text-[40px] font-normal leading-[1.04] tracking-tight text-ivoire sm:text-[54px] lg:text-[66px]">
+              <h1 className="font-display mt-5 text-[40px] font-normal leading-[1.04] tracking-tight text-ivoire sm:text-[54px] lg:text-[66px]">
                 Des rencontres
                 <br />
                 qui ont <span className="text-cuivre">du sens.</span>
               </h1>
 
-              <p className="mt-5 max-w-md text-[16px] leading-relaxed text-champagne/70 sm:text-[17px]">
+              <p className="mt-4 max-w-md text-[16px] leading-relaxed text-champagne/70 sm:text-[17px]">
                 Pour les hommes de 28 ans et plus qui préfèrent la qualité à la
                 quantité — et qui savent avec qui ils parlent.
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
                   href="/commencer"
                   className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
@@ -440,7 +444,7 @@ export default function Home() {
               </div>
 
               {/* Les trois garanties */}
-              <ul className="mt-10 grid gap-5 sm:grid-cols-3 sm:gap-4">
+              <ul className="mt-8 grid gap-5 sm:grid-cols-3 sm:gap-4">
                 {garanties.map(({ icon: Icon, titre, texte }) => (
                   <li key={titre} className="flex gap-2.5">
                     <Icon
@@ -475,7 +479,7 @@ export default function Home() {
         */}
         <section
           aria-labelledby="apercu-produit"
-          className="px-4 pb-10 pt-6 sm:px-6 sm:pb-14 lg:px-16 lg:pb-16 lg:pt-8"
+          className="px-4 pb-8 pt-5 sm:px-6 sm:pb-10 lg:px-16 lg:pb-12 lg:pt-6"
         >
           <h2 id="apercu-produit" className="sr-only">
             Ce que tu trouveras sur Sfera&rsquo;Solys
@@ -490,7 +494,7 @@ export default function Home() {
                   <Link
                     key={feature.title}
                     href={feature.href}
-                    className={`group relative isolate flex min-h-[270px] overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit transition-colors hover:border-cuivre/45 ${focusRing}`}
+                    className={`group relative isolate flex min-h-[230px] overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit transition-colors hover:border-cuivre/45 ${focusRing}`}
                   >
                     {/*
                       La photo couvre toute la carte, et c'est le dégradé qui
@@ -675,7 +679,7 @@ export default function Home() {
             */}
             <Surtitre>Notre engagement</Surtitre>
 
-            <h2 className="font-display mb-7 mt-4 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
+            <h2 className="font-display mb-6 mt-4 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
               Une expérience fiable et sereine
             </h2>
 

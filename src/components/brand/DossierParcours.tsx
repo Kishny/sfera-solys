@@ -498,7 +498,7 @@ export default function DossierParcours({
         Deux réglages tiennent l'équilibre de la colonne de droite, une fois
         le défilement retiré :
 
-        `lg:min-h-[330px]` — les quatre panneaux ne font pas la même hauteur
+        `lg:min-h-[260px]` — les quatre panneaux ne font pas la même hauteur
         (environ 280 à 320px). Sans plancher, le bas de la carte sautait de
         près de 40px d'une étape à l'autre, juste après le clic : on voyait
         le saut plus que le changement de contenu. C'est un plancher, pas
@@ -517,7 +517,7 @@ export default function DossierParcours({
         role="tabpanel"
         aria-labelledby={`etape-onglet-${etape.numero}`}
         tabIndex={0}
-        className="relative flex w-full flex-col justify-center self-start rounded-[1.75rem] lg:min-h-[300px] lg:self-start border border-champagne/10 bg-minuit p-5 shadow-[0_35px_80px_-40px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit sm:p-7"
+        className="relative flex w-full flex-col justify-center self-start rounded-[1.75rem] lg:min-h-[260px] lg:self-start border border-champagne/10 bg-minuit p-5 shadow-[0_35px_80px_-40px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit sm:p-7"
       >
         <div
           aria-hidden="true"
