@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -9,6 +9,8 @@ import {
   ChevronDown,
   Heart,
   HelpCircle,
+  ChevronRight,
+  Lightbulb,
   Lock,
   Mail,
   MessageSquare,
@@ -20,6 +22,16 @@ import {
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Image from 'next/image';
+import GrainOverlay from '@/components/brand/GrainOverlay';
+import {
+  sectionY,
+  premierBloc,
+  focusRing,
+  Filet,
+  Surtitre,
+  TuileIcone,
+} from '@/components/brand/mise-en-page';
 
 /**
  * Page FAQ Sfera'Solys — direction A (« dossier de vérification »).
@@ -53,11 +65,15 @@ type Faq = {
   answer: string;
   category: Exclude<CategoryId, 'all'>;
   popular?: boolean;
+  /**
+   * Photographie de la carte « question populaire ».
+   *
+   * Seules les trois questions mises en avant en ont une : ce sont les
+   * seules rendues sous forme de carte illustrée.
+   */
+  image?: string;
 };
 
-/** Anneau de focus clavier, identique partout dans la direction A. */
-const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit';
 
 const categories: {
   id: CategoryId;
@@ -78,6 +94,7 @@ const categories: {
 const allFAQs: Faq[] = [
   {
     question: 'Comment fonctionne le Circle of Six ?',
+    image: '/visuels/solys-06.webp',
     answer:
       'Le Circle of Six est notre système de matching unique. Chaque semaine, notre algorithme te présente 6 profils qui correspondent à tes valeurs, intérêts et préférences. Tu peux interagir avec ces 6 personnes toute la semaine, sans la pression des applications de swipe traditionnelles.',
     category: 'matching',
@@ -85,6 +102,7 @@ const allFAQs: Faq[] = [
   },
   {
     question: 'Mes données sont-elles vraiment sécurisées ?',
+    image: '/visuels/solys-04.webp',
     answer:
       "Les échanges avec le site sont chiffrés et les mots de passe sont stockés sous forme de condensats, jamais en clair. Ton document d'identité n'est pas conservé sur nos serveurs : il est transmis à Stripe, qui renvoie seulement le résultat de la vérification. Le détail de ce qui est collecté, par qui et pour combien de temps figure sur la page Confidentialité.",
     category: 'security',
@@ -92,6 +110,7 @@ const allFAQs: Faq[] = [
   },
   {
     question: "Puis-je utiliser Sfera'Solys de manière anonyme ?",
+    image: '/visuels/solys-07.webp',
     answer:
       "En partie. La vérification d'identité est obligatoire, mais ton document part chez Stripe et n'apparaît jamais sur le site : les autres membres voient le pseudonyme et les photos que tu as choisis. Tu règles ensuite qui te voit — profil public, réservé à tes mises en relation, ou invisible avec le Mode Fantôme.",
     category: 'security',
@@ -152,27 +171,40 @@ function getCategoryMeta(category: CategoryId): { label: string; icon: IconType 
   return { label: found.label, icon: found.icon };
 }
 
+/*
+  Les trois voies d'aide de la maquette.
+
+  Une formulation n'est pas reprise telle quelle : « Discute avec notre
+  équipe d'assistance » annonce une conversation en direct, et il n'y a pas
+  de messagerie d'assistance dans ce projet — /contact est un formulaire.
+  La carte garde son titre, sa description dit ce qu'elle fait.
+
+  À surveiller : `contact@sferasolys.com` apparaît ici et dans neuf autres
+  endroits du projet, mais le domaine n'est pas encore enregistré. Tant
+  qu'il ne l'est pas, ce lien ouvre un brouillon vers une adresse qui
+  n'existe pas.
+*/
 const helpLinks = [
   {
     href: 'mailto:contact@sferasolys.com',
     external: true,
     icon: Mail,
-    title: 'Email',
-    description: 'Réponse sous 24h',
+    title: 'Nous écrire',
+    description: 'Une question précise ? Un e-mail direct, réponse sous 24 h.',
   },
   {
     href: '/guide',
     external: false,
     icon: BookOpen,
     title: 'Guide complet',
-    description: 'Toutes les ressources',
+    description: 'Découvre tous nos conseils et modes d’emploi.',
   },
   {
     href: '/contact',
     external: false,
     icon: MessageSquare,
-    title: 'Contact',
-    description: 'Formulaire détaillé',
+    title: 'Nous contacter',
+    description: 'Un problème précis ? Décris-le dans le formulaire.',
   },
 ];
 
@@ -193,6 +225,34 @@ export default function FAQPage() {
 
   /** Catégorie active. */
   const [activeCategory, setActiveCategory] = useState<CategoryId>('all');
+
+  /**
+   * Les cartes « question populaire » renvoient vers la question dans la
+   * liste complète, au lieu de la répéter dans un second accordéon.
+   *
+   * Elles portaient leur propre `FaqItem` : la même question s'ouvrait donc
+   * à deux endroits de la page, avec deux états indépendants. La carte
+   * ouvre maintenant la vraie entrée et y défile — c'est ce que sa flèche
+   * promet.
+   *
+   * `scrollIntoView` est appelé après le rendu, sinon l'élément visé peut
+   * encore être masqué par un filtre actif que le clic vient de lever.
+   */
+  const listeRef = useRef<HTMLDivElement | null>(null);
+
+  const ouvrirQuestion = (question: string) => {
+    const id = `all::${question}`;
+    setSearchTerm('');
+    setActiveCategory('all');
+    setOpenQuestions((prev) => (prev.includes(id) ? prev : [...prev, id]));
+
+    requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({
+        block: 'center',
+        behavior: reduceMotion ? 'auto' : 'smooth',
+      });
+    });
+  };
 
   const toggleQuestion = (id: string) => {
     setOpenQuestions((prev) =>
@@ -234,37 +294,54 @@ export default function FAQPage() {
     <>
       <Header />
 
-      <main id="contenu" className="bg-nuit text-champagne">
-        {/* Hero + recherche + filtres */}
-        <section className="border-b border-champagne/8 px-4 pt-20 sm:px-6 sm:pt-24 lg:px-16 xl:pt-28">
-          <div className="mx-auto max-w-3xl py-12 sm:py-16">
-            <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne">
-                <HelpCircle size={13} />
-                centre d&apos;aide
-              </span>
+      <GrainOverlay />
 
-              <h1 className="font-display mt-5 text-[30px] font-extrabold leading-[1.15] tracking-tight text-champagne sm:text-[40px]">
-                La FAQ de Sfera&apos;Solys.
+      <main id="contenu" className="relative bg-nuit text-champagne">
+        {/* ═══════════════ Héros ═══════════════ */}
+        <section className="relative isolate overflow-hidden px-4 sm:px-6 lg:px-16">
+          <div className="absolute inset-0 -z-20 lg:left-[48%]">
+            <Image
+              src="/visuels/solys-01.webp"
+              alt="Deux hommes en conversation sur une terrasse, la ville illuminée derrière eux."
+              fill
+              priority
+              sizes="(max-width: 1024px) 100vw, 54vw"
+              className="object-cover object-center"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-nuit via-nuit/80 to-nuit/45 lg:bg-gradient-to-r lg:from-nuit lg:via-nuit/35 lg:to-nuit/10"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-nuit to-transparent"
+            />
+          </div>
+
+          <div className={`relative mx-auto max-w-7xl pb-14 sm:pb-16 ${premierBloc}`}>
+            <div className="max-w-xl">
+              <Surtitre>Centre d&rsquo;aide</Surtitre>
+
+              <h1 className="font-display mt-6 text-[34px] font-normal leading-[1.08] tracking-tight text-ivoire sm:text-[46px]">
+                Une question&nbsp;?
+                <br />
+                <span className="text-cuivre">On a la réponse.</span>
               </h1>
 
-              <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
-                Trouve rapidement les réponses à tes questions : vérification,
-                compte, rencontres, offres payantes. Si la tienne n&apos;y est
-                pas, notre support répond directement.
+              <p className="mt-5 max-w-md text-[15px] leading-relaxed text-champagne/70 sm:text-base">
+                Vérification, compte, rencontres, abonnements : trouve
+                l&apos;essentiel en quelques clics.
               </p>
-            </div>
 
-            {/* Recherche */}
-            <div className="mt-8">
-              <label htmlFor="faq-search" className="sr-only">
-                Rechercher une question
-              </label>
+              {/* Recherche */}
+              <div className="relative mt-8 max-w-md">
+                <label htmlFor="faq-search" className="sr-only">
+                  Rechercher une question
+                </label>
 
-              <div className="relative">
                 <Search
                   size={16}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-champagne/55"
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-champagne/60"
                   aria-hidden="true"
                 />
 
@@ -274,7 +351,7 @@ export default function FAQPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Rechercher une question…"
-                  className={`w-full rounded-xl border border-champagne/15 bg-minuit py-3 pl-10 pr-11 text-sm text-champagne outline-none transition-colors placeholder:text-champagne/55 hover:border-champagne/30 focus:border-cuivre/50 ${focusRing}`}
+                  className={`w-full rounded-full border border-champagne/20 bg-nuit/70 py-3.5 pl-11 pr-11 text-sm text-champagne outline-none backdrop-blur-sm transition-colors placeholder:text-champagne/60 hover:border-champagne/35 focus:border-cuivre/50 ${focusRing}`}
                 />
 
                 {searchTerm && (
@@ -282,214 +359,309 @@ export default function FAQPage() {
                     type="button"
                     onClick={() => setSearchTerm('')}
                     aria-label="Effacer la recherche"
-                    className={`absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-champagne/55 transition-colors hover:text-champagne ${focusRing}`}
+                    className={`absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-champagne/60 transition-colors hover:text-champagne ${focusRing}`}
                   >
                     <X size={15} />
                   </button>
                 )}
               </div>
-
-              {/* Filtres par catégorie */}
-              <div className="-mx-4 mt-4 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0">
-                {categories.map((category) => {
-                  const Icon = category.icon;
-                  const isActive = activeCategory === category.id;
-
-                  return (
-                    <button
-                      key={category.id}
-                      type="button"
-                      onClick={() => setActiveCategory(category.id)}
-                      aria-pressed={isActive}
-                      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12px] font-semibold transition-colors ${focusRing} ${
-                        isActive
-                          ? 'border-cuivre/40 bg-cuivre/[0.12] text-champagne'
-                          : 'border-champagne/15 text-champagne/70 hover:border-champagne/30 hover:text-champagne'
-                      }`}
-                    >
-                      <Icon size={14} />
-                      <span className="sm:hidden">{category.shortLabel}</span>
-                      <span className="hidden sm:inline">{category.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <p
-                role="status"
-                aria-live="polite"
-                className="mt-3 text-center text-[13px] text-champagne/55"
-              >
-                {resultLabel}
-              </p>
             </div>
           </div>
         </section>
 
-        {/* Questions populaires — seulement sans filtre actif */}
-        {!isFiltering && (
-          <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-            <div className="mx-auto max-w-3xl">
-              <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-                Questions populaires
-              </h2>
+        <Filet />
 
-              <p className="mb-8 mt-2 text-[13px] text-champagne/60">
-                Les réponses les plus consultées.
-              </p>
+        {/* ═══════════════ Filtres ═══════════════ */}
+        {/*
+          Les pastilles de catégorie quittent le héros pour une barre à
+          elles, avec le compte de résultats à l'autre bout — c'est la
+          disposition de la maquette, et elle sépare mieux ce qui présente
+          la page de ce qui la manipule.
+        */}
+        <section className="px-4 pb-2 pt-8 sm:px-6 lg:px-16">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
+            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+              {categories.map((category) => {
+                const isActive = activeCategory === category.id;
 
-              <div className="space-y-1.5">
-                {popularFAQs.map((faq) => {
-                  const id = `popular::${faq.question}`;
-
-                  return (
-                    <FaqItem
-                      key={id}
-                      id={id}
-                      faq={faq}
-                      isOpen={openQuestions.includes(id)}
-                      isPopular
-                      onToggle={toggleQuestion}
-                      reduceMotion={Boolean(reduceMotion)}
-                    />
-                  );
-                })}
-              </div>
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    onClick={() => setActiveCategory(category.id)}
+                    aria-pressed={isActive}
+                    className={`shrink-0 rounded-full border px-5 py-2.5 text-[13px] font-semibold transition-colors ${focusRing} ${
+                      isActive
+                        ? 'border-transparent bg-degrade-cuivre text-nuit'
+                        : 'border-champagne/20 text-champagne/75 hover:border-cuivre/50 hover:text-champagne'
+                    }`}
+                  >
+                    {category.shortLabel}
+                  </button>
+                );
+              })}
             </div>
-          </section>
-        )}
 
-        {/* Toutes les questions */}
-        <section className="border-b border-champagne/8 px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-              Toutes les questions
-            </h2>
-
-            <p className="mb-8 mt-2 text-[13px] text-champagne/60">
-              Filtre par catégorie ou utilise la recherche.
+            <p
+              role="status"
+              aria-live="polite"
+              className="text-[13px] text-champagne/70"
+            >
+              {resultLabel}
             </p>
+          </div>
+        </section>
 
-            {searchResults.length > 0 ? (
-              <div className="space-y-1.5">
-                {searchResults.map((faq) => {
-                  const id = `all::${faq.question}`;
-
-                  return (
-                    <FaqItem
-                      key={id}
-                      id={id}
-                      faq={faq}
-                      isOpen={openQuestions.includes(id)}
-                      onToggle={toggleQuestion}
-                      reduceMotion={Boolean(reduceMotion)}
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-champagne/15 bg-minuit p-8 text-center sm:p-10">
-                <HelpCircle
-                  size={28}
-                  className="mx-auto text-champagne/55"
-                  aria-hidden="true"
-                />
-
-                <h3 className="font-display mt-4 text-lg font-extrabold text-champagne">
-                  Aucun résultat
-                </h3>
-
-                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
-                  Essaie d&apos;autres mots-clés ou change de catégorie.
-                </p>
+        {/* ═══════════════ Questions populaires ═══════════════ */}
+        {!isFiltering && (
+          <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+            <div className="mx-auto max-w-7xl">
+              <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+                <h2 className="font-display text-[26px] font-normal leading-tight tracking-tight text-ivoire sm:text-[32px]">
+                  Questions populaires
+                </h2>
 
                 <button
                   type="button"
                   onClick={() => {
                     setSearchTerm('');
                     setActiveCategory('all');
+                    listeRef.current?.scrollIntoView({
+                      block: 'start',
+                      behavior: reduceMotion ? 'auto' : 'smooth',
+                    });
                   }}
- className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
+                  className={`inline-flex items-center gap-1.5 text-[13px] font-semibold text-cuivre transition-colors hover:text-champagne ${focusRing}`}
                 >
-                  réinitialiser les filtres
+                  Voir toutes les questions
                   <ArrowRight size={14} />
                 </button>
               </div>
-            )}
+
+              <ul className="grid gap-5 lg:grid-cols-3">
+                {popularFAQs.map((faq) => {
+                  const meta = getCategoryMeta(faq.category);
+                  const Icon = meta.icon;
+
+                  return (
+                    <li key={faq.question}>
+                      <button
+                        type="button"
+                        onClick={() => ouvrirQuestion(faq.question)}
+                        className={`group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit p-5 text-left transition-colors hover:border-cuivre/45 ${focusRing}`}
+                      >
+                        {faq.image && (
+                          <span
+                            aria-hidden="true"
+                            className="absolute inset-0 -z-10 block"
+                          >
+                            <Image
+                              src={faq.image}
+                              alt=""
+                              fill
+                              sizes="(max-width: 1024px) 100vw, 33vw"
+                              className="object-cover object-[65%_50%] transition-transform duration-700 group-hover:scale-[1.05] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                            />
+                            <span className="absolute inset-0 block bg-gradient-to-r from-minuit from-[40%] via-minuit/55 via-[70%] to-transparent" />
+                          </span>
+                        )}
+
+                        <TuileIcone icon={Icon} className="h-11 w-11" />
+
+                        <span className="mt-16 block text-[11px] font-semibold uppercase tracking-surtitre text-champagne/70">
+                          {meta.label}
+                        </span>
+
+                        <span className="font-display mt-2 block max-w-[14rem] text-[19px] font-normal leading-snug text-ivoire">
+                          {faq.question}
+                        </span>
+
+                        <span
+                          aria-hidden="true"
+                          className="absolute bottom-5 right-5 flex h-9 w-9 items-center justify-center rounded-full border border-cuivre/35 bg-nuit/50 text-cuivre backdrop-blur-sm transition-colors group-hover:border-cuivre group-hover:bg-cuivre group-hover:text-nuit"
+                        >
+                          <ArrowRight size={15} />
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </section>
+        )}
+
+        {/* ═══════════════ Toutes vos questions ═══════════════ */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+          <div className="mx-auto max-w-7xl" ref={listeRef}>
+            <h2 className="font-display mb-6 text-[26px] font-normal leading-tight tracking-tight text-ivoire sm:text-[32px]">
+              Toutes vos questions
+            </h2>
+
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-8">
+              {/* La liste */}
+              <div>
+                {searchResults.length > 0 ? (
+                  <div className="space-y-2">
+                    {searchResults.map((faq) => {
+                      const id = `all::${faq.question}`;
+
+                      return (
+                        <FaqItem
+                          key={id}
+                          id={id}
+                          faq={faq}
+                          isOpen={openQuestions.includes(id)}
+                          onToggle={toggleQuestion}
+                          reduceMotion={Boolean(reduceMotion)}
+                        />
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-champagne/20 bg-minuit p-8 text-center sm:p-10">
+                    <HelpCircle
+                      size={28}
+                      className="mx-auto text-champagne/60"
+                      aria-hidden="true"
+                    />
+
+                    <h3 className="font-display mt-4 text-[19px] font-normal text-ivoire">
+                      Aucun résultat
+                    </h3>
+
+                    <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/70">
+                      Essaie d&apos;autres mots-clés ou change de catégorie.
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setActiveCategory('all');
+                      }}
+                      className={`mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cuivre transition-colors hover:text-champagne ${focusRing}`}
+                    >
+                      Réinitialiser les filtres
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Le panneau d'aide */}
+              <aside className="rounded-2xl border border-cuivre/15 bg-minuit p-5 sm:p-6">
+                <h2 className="font-display text-[22px] font-normal leading-tight text-ivoire">
+                  Besoin d&rsquo;aide&nbsp;?
+                </h2>
+
+                <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/70">
+                  Notre équipe est là pour t&apos;accompagner.
+                </p>
+
+                <ul className="mt-5 space-y-3">
+                  {helpLinks.map((link) => {
+                    const Icon = link.icon;
+
+                    const contenu = (
+                      <>
+                        <TuileIcone icon={Icon} className="h-11 w-11" />
+
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-[14px] font-semibold text-champagne">
+                            {link.title}
+                          </span>
+                          <span className="mt-0.5 block text-[12.5px] leading-snug text-champagne/70">
+                            {link.description}
+                          </span>
+                        </span>
+
+                        <ChevronRight
+                          size={16}
+                          aria-hidden="true"
+                          className="mt-1 shrink-0 text-champagne/50"
+                        />
+                      </>
+                    );
+
+                    const classes = `flex items-start gap-3.5 rounded-xl border border-cuivre/15 bg-nuit/40 p-4 transition-colors hover:border-cuivre/45 ${focusRing}`;
+
+                    return (
+                      <li key={link.href}>
+                        {link.external ? (
+                          <a href={link.href} className={classes}>
+                            {contenu}
+                          </a>
+                        ) : (
+                          <Link href={link.href} className={classes}>
+                            {contenu}
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <div className="mt-5 flex gap-3 rounded-xl border border-cuivre/25 bg-cuivre/[0.06] p-4">
+                  <Lightbulb
+                    size={17}
+                    aria-hidden="true"
+                    className="mt-0.5 shrink-0 text-cuivre"
+                  />
+
+                  <p className="text-[12.5px] leading-relaxed text-champagne/75">
+                    <span className="block font-semibold text-cuivre">
+                      Conseil
+                    </span>
+                    Pense à consulter notre guide complet avant de nous
+                    contacter. Tu y trouveras peut-être déjà la réponse à ta
+                    question.
+                  </p>
+                </div>
+              </aside>
+            </div>
           </div>
         </section>
 
-        {/* Aide directe */}
-        <section className="px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="font-display text-2xl font-extrabold tracking-tight text-champagne sm:text-[26px]">
-              Tu n&apos;as pas trouvé ta réponse ?
-            </h2>
+        {/* ═══════════════ Appel final ═══════════════ */}
+        <section className="px-4 pb-14 sm:px-6 sm:pb-16 lg:px-16">
+          <div className="relative isolate mx-auto max-w-7xl overflow-hidden rounded-3xl border border-cuivre/25">
+            <Image
+              src="/visuels/solys-03.webp"
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="-z-10 object-cover object-center"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 -z-10 bg-gradient-to-br from-nuit via-nuit/85 to-nuit/40 lg:bg-gradient-to-r lg:from-nuit lg:via-nuit/75 lg:to-nuit/25"
+            />
 
-            <p className="mb-8 mt-2 text-[13px] leading-relaxed text-champagne/60">
-              Notre support peut t&apos;aider rapidement. Trois façons de nous
-              joindre, au choix.
-            </p>
+            <div className="p-8 sm:p-10">
+              <h2 className="font-display text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
+                Prêt à constituer ton dossier&nbsp;?
+              </h2>
 
-            <div className="grid gap-2 sm:grid-cols-3">
-              {helpLinks.map((link) => {
-                const Icon = link.icon;
+              <p className="mt-2.5 max-w-md text-[14px] leading-relaxed text-champagne/70">
+                Rejoins une communauté d&apos;hommes qui partagent les mêmes
+                valeurs.
+              </p>
 
-                const content = (
-                  <>
-                    <Icon size={18} className="shrink-0 text-cuivre" aria-hidden="true" />
+              <div className="mt-7 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                <Link
+                  href="/commencer"
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                >
+                  Créer mon profil
+                  <ArrowRight size={16} />
+                </Link>
 
-                    <span className="block">
-                      <span className="block text-sm font-semibold text-champagne">
-                        {link.title}
-                      </span>
-                      <span className="block text-[12px] text-champagne/60">
-                        {link.description}
-                      </span>
-                    </span>
-                  </>
-                );
-
-                const className = `flex items-center gap-3 rounded-2xl border border-champagne/8 bg-minuit px-4 py-4 transition-colors hover:border-champagne/25 sm:flex-col sm:items-start ${focusRing}`;
-
-                return link.external ? (
-                  <a key={link.href} href={link.href} className={className}>
-                    {content}
-                  </a>
-                ) : (
-                  <Link key={link.href} href={link.href} className={className}>
-                    {content}
-                  </Link>
-                );
-              })}
-            </div>
-
-            <div className="mt-8 flex flex-col items-center gap-3 rounded-3xl border border-cuivre/25 bg-minuit p-7 text-center sm:flex-row sm:justify-between sm:p-9 sm:text-left">
-              <div>
-                <h3 className="font-display text-xl font-extrabold text-champagne">
-                  Prêt à constituer ton dossier ?
-                </h3>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/60">
-                  L&apos;inscription et la vérification d&apos;identité sont
-                  gratuites, quelle que soit l&apos;offre choisie ensuite.
+                <p className="flex items-center gap-2.5 text-[13px] text-champagne/70">
+                  <Shield size={15} aria-hidden="true" className="text-cuivre" />
+                  Inscription et vérification gratuites
                 </p>
-              </div>
-
-              <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
-                <Link
-                  href="/auth?mode=register"
-                  className={`fx-btn rounded-xl bg-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
-                >
-                  constituer mon dossier
-                </Link>
-
-                <Link
-                  href="/tarifs"
- className={`fx-link inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
-                >
-                  voir les tarifs
-                  <ArrowRight size={14} />
-                </Link>
               </div>
             </div>
           </div>
@@ -506,18 +678,29 @@ export default function FAQPage() {
  * `aria-expanded`, chevron pivotant, panneau animé par AnimatePresence),
  * enrichi de la catégorie et du marqueur « populaire ».
  */
+/**
+ * Une question de la liste.
+ *
+ * L'élément porte l'identifiant dans le DOM : c'est ce qui permet aux
+ * cartes « question populaire » d'ouvrir la vraie entrée et d'y défiler,
+ * plutôt que d'en afficher une copie avec son propre état.
+ *
+ * `scroll-mt` empêche l'en-tête fixe de recouvrir la question atteinte —
+ * 112 px, puis 128 au-delà de 1280 px où l'en-tête passe à `h-20`.
+ *
+ * La pastille « Populaire » disparaît avec le second accordéon : la seule
+ * liste restante les contient toutes, la mention n'y distinguait plus rien.
+ */
 function FaqItem({
   id,
   faq,
   isOpen,
-  isPopular = false,
   onToggle,
   reduceMotion,
 }: {
   id: string;
   faq: Faq;
   isOpen: boolean;
-  isPopular?: boolean;
   onToggle: (id: string) => void;
   reduceMotion: boolean;
 }) {
@@ -525,29 +708,28 @@ function FaqItem({
   const Icon = meta.icon;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-champagne/8 bg-minuit">
+    <div
+      id={id}
+      className={`scroll-mt-28 overflow-hidden rounded-2xl border bg-minuit transition-colors xl:scroll-mt-32 ${
+        isOpen ? 'border-cuivre/40' : 'border-cuivre/15'
+      }`}
+    >
       <button
         type="button"
         onClick={() => onToggle(id)}
         aria-expanded={isOpen}
-        className={`flex w-full items-start justify-between gap-4 px-4 py-4 text-left sm:px-5 ${focusRing}`}
+        className={`flex w-full items-center justify-between gap-4 px-5 py-4 text-left ${focusRing}`}
       >
-        <span className="min-w-0">
-          <span className="block text-sm font-semibold text-champagne">
-            {faq.question}
+        <span className="flex min-w-0 items-center gap-3.5">
+          <span
+            aria-hidden="true"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cuivre/25 bg-nuit/50 text-cuivre"
+          >
+            <Icon size={16} />
           </span>
 
-          <span className="mt-1.5 flex flex-wrap items-center gap-2">
-            {isPopular && (
-              <span className="rounded-full bg-succes px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-nuit">
-                Populaire
-              </span>
-            )}
-
-            <span className="inline-flex items-center gap-1 text-[11px] text-champagne/55">
-              <Icon size={12} aria-hidden="true" />
-              {meta.label}
-            </span>
+          <span className="min-w-0 text-[14px] font-semibold text-champagne">
+            {faq.question}
           </span>
         </span>
 
@@ -569,7 +751,7 @@ function FaqItem({
             transition={{ duration: reduceMotion ? 0 : 0.2 }}
             className="overflow-hidden"
           >
-            <p className="border-t border-champagne/8 px-4 py-4 text-[13px] leading-relaxed text-champagne/70 sm:px-5">
+            <p className="border-t border-cuivre/10 px-5 pb-4 pl-[4.4rem] pt-4 text-[13px] leading-relaxed text-champagne/70">
               {faq.answer}
             </p>
           </motion.div>
