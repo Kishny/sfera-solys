@@ -504,25 +504,35 @@ export default function Home() {
           où il n'y a qu'une phrase à porter.
         */}
         <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
+          {/*
+            Le titre passe en argument au lieu d'être posé au-dessus : il
+            appartient à la colonne de gauche, sous laquelle les étapes se
+            rangent. Laissé ici, il poussait la carte du dossier sous son
+            propre niveau, et la maquette la veut à hauteur du surtitre.
+          */}
           <div className="mx-auto max-w-7xl">
-            <Surtitre>Le parcours</Surtitre>
+            <DossierParcours
+              entete={
+                <>
+                  <Surtitre>Le parcours</Surtitre>
 
-            {/*
-              L'espace avant le point d'interrogation est insécable : en
-              français il est obligatoire, et une espace ordinaire laisserait
-              le « ? » tomber seul en début de ligne.
-            */}
-            <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
-              Comment ça marche&nbsp;?
-            </h2>
+                  {/*
+                    L'espace avant le point d'interrogation est insécable :
+                    en français il est obligatoire, et une espace ordinaire
+                    laisserait le « ? » tomber seul en début de ligne.
+                  */}
+                  <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
+                    Comment ça marche&nbsp;?
+                  </h2>
 
-            <p className="mb-8 mt-4 max-w-2xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
-              Quatre étapes, et un dossier qui se remplit à mesure.{' '}
-              <span className="text-champagne/80">Clique une étape</span> pour
-              voir l&apos;état du dossier à ce moment-là.
-            </p>
-
-            <DossierParcours />
+                  <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
+                    Quatre étapes, et un dossier qui se remplit à mesure.{' '}
+                    <span className="text-champagne/80">Clique une étape</span>{' '}
+                    pour voir l&apos;état du dossier à ce moment-là.
+                  </p>
+                </>
+              }
+            />
           </div>
         </section>
 

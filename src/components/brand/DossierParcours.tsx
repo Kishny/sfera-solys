@@ -8,17 +8,22 @@ import {
   Check,
   MessageCircle,
   Sparkles,
-  ChevronRight,
 } from 'lucide-react';
 
 /**
  * Le parcours en 4 étapes, version « le dossier se constitue ».
  *
- * Remplace le stepper vertical qui posait deux problèmes : un rail fin et
- * plat, et une colonne étroite perdue au milieu d'un écran large. Ici, les
- * étapes tiennent la colonne de gauche et un panneau montre à droite
- * l'état du dossier à l'étape sélectionnée. La métaphore de la marque —
- * « un dossier vérifié » — est montrée au lieu d'être racontée.
+ * Les quatre étapes se suivent sur une ligne, reliées par un trait, et un
+ * panneau montre à droite l'état du dossier à l'étape sélectionnée. La
+ * métaphore de la marque — « un dossier vérifié » — est montrée au lieu
+ * d'être racontée.
+ *
+ * Les étapes ont d'abord été empilées, chacune dans sa carte avec un rail
+ * vertical et un chevron. La maquette les remet sur une rangée et retire
+ * les cartes : on voit les quatre d'un coup, et c'est l'axe qui porte leur
+ * ordre. Le titre de la section descend dans la colonne de gauche (prop
+ * `entete`) pour que la carte remonte à sa hauteur, au lieu de pendre dans
+ * le coin droit sous un grand vide.
  *
  * Deux règles du projet sont appliquées :
  *
@@ -272,7 +277,21 @@ const panneaux = [
   PanneauRelation,
 ];
 
-export default function DossierParcours() {
+export default function DossierParcours({
+  entete,
+}: {
+  /**
+   * Le titre de la section — surtitre, `h2`, chapô.
+   *
+   * Il vivait dans la page, au-dessus du composant, donc au-dessus des
+   * deux colonnes : la carte commençait sous lui et pendait dans le coin
+   * droit, avec un grand vide à la hauteur du titre. La maquette fait
+   * monter la carte au niveau du surtitre, ce qui suppose que le titre
+   * appartienne à la colonne de gauche. Le composant le reçoit donc
+   * plutôt que de le laisser flotter au-dessus.
+   */
+  entete?: React.ReactNode;
+}) {
   const [actif, setActif] = useState(0);
   const shouldReduceMotion = useReducedMotion();
   /** Un bouton par étape : nécessaire pour redonner le focus au clavier. */
@@ -326,145 +345,132 @@ export default function DossierParcours() {
   const Panneau = panneaux[actif];
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1fr)] lg:gap-12">
-      {/* Les étapes */}
-      <div
-        role="tablist"
-        aria-label="Les étapes du parcours"
-        aria-orientation="vertical"
-        className="flex flex-col lg:block"
-      >
-        {etapes.map((item, index) => {
-          const estActif = index === actif;
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] lg:gap-12">
+      <div className="flex flex-col">
+        {entete}
 
-          return (
-            /*
-              `role="presentation"` : cette enveloppe ne porte que
-              l'espacement et le trait de liaison. Sans ce rôle, elle
-              s'intercalerait entre le tablist et ses onglets dans l'arbre
-              d'accessibilité, ce qui casse la relation attendue.
-            */
-            <div
-              key={item.numero}
-              role="presentation"
-              /*
-                `py-1` symétrique : la carte reste centrée dans son
-                enveloppe, ce qui permet au trait de liaison de démarrer et
-                de s'arrêter exactement au niveau des pastilles (`top-1/2`
-                et `bottom-1/2` sur la première et la dernière). Ces 8px
-                de part et d'autre suffisent à laisser voir le trait entre
-                deux cartes sans étirer la section.
-              */
-              className="relative py-1"
-            >
-              {/*
-                Trait de liaison. Sans lui, les quatre cartes se lisent
-                comme une liste ; avec lui, comme un chemin. Il se remplit
-                au passage : plein derrière l'étape atteinte, en dégradé sur
-                l'étape courante, éteint devant. C'est un second repère de
-                progression, lisible d'un coup d'œil, qui ne coûte aucune
-                hauteur supplémentaire.
+        {/*
+          Les étapes, sur une ligne.
 
-                Il est calé sur le centre des pastilles (padding gauche +
-                demi-pastille), passe derrière elles, et s'arrête au niveau
-                de la première et de la dernière au lieu de déborder.
-              */}
-              <span
-                aria-hidden="true"
-                className={`absolute left-[40px] w-px -translate-x-1/2 ${
-                  index === 0 ? 'top-1/2' : 'top-0'
-                } ${index === etapes.length - 1 ? 'bottom-1/2' : 'bottom-0'} ${
-                  index < actif
-                    ? 'bg-cuivre/45'
-                    : index === actif
-                      ? 'bg-gradient-to-b from-cuivre/45 to-champagne/10'
-                      : 'bg-champagne/10'
-                }`}
-              />
+          Elles étaient empilées, chacune dans sa carte, avec un rail
+          vertical et un chevron. La maquette les met côte à côte, sans
+          carte : il ne reste que la pastille numérotée, le titre et sa
+          phrase, reliés par un trait horizontal. C'est la lecture d'un
+          parcours — on voit les quatre d'un coup, et leur ordre est porté
+          par l'axe plutôt que par la numérotation seule.
 
-            <button
-              ref={(node) => {
-                ongletsRef.current[index] = node;
-              }}
-              id={`etape-onglet-${item.numero}`}
-              data-index={index}
-              role="tab"
-              type="button"
-              aria-selected={estActif}
-              aria-controls={`etape-panneau-${item.numero}`}
-              tabIndex={estActif ? 0 : -1}
-              onClick={() => choisir(index)}
-              onKeyDown={(event) => auClavier(event, index)}
-              className={`group relative z-10 flex w-full items-center gap-4 rounded-2xl border p-4 pl-5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit ${
-                estActif
-                  ? 'border-champagne/10 bg-minuit'
-                  : 'border-transparent hover:border-champagne/12 hover:bg-champagne/[0.06]'
-              }`}
-            >
-              {/*
-                Barre d'accent à gauche : l'idiome des onglets verticaux.
-                Pleine hauteur sur l'étape active, réduite à un trait au
-                survol des autres — c'est ce qui dit « ces lignes se
-                sélectionnent » avant même qu'on ait cliqué.
-              */}
-              <span
-                aria-hidden="true"
-                className={`absolute left-0 top-1/2 w-[3px] -translate-y-1/2 rounded-full transition-all duration-200 ${
-                  estActif
-                    ? item.validation
-                      ? 'h-[60%] bg-succes'
-                      : 'h-[60%] bg-cuivre'
-                    : 'h-0 bg-champagne/40 group-hover:h-[35%]'
-                }`}
-              />
+          `aria-orientation` reste « horizontal », la disposition de
+          référence, même si la grille repasse en colonnes sous `lg` :
+          l'attribut ne peut pas suivre un point de rupture. Ça ne gêne
+          personne, le clavier acceptant déjà les quatre flèches.
+        */}
+        <div
+          role="tablist"
+          aria-label="Les étapes du parcours"
+          aria-orientation="horizontal"
+          className="mt-9 grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-4"
+        >
+          {etapes.map((item, index) => {
+            const estActif = index === actif;
 
-              <span
-                className={`font-display flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-extrabold transition-colors ${
-                  item.validation
-                    ? estActif
-                      ? 'bg-succes text-nuit'
-                      : 'bg-succes/20 text-succes group-hover:bg-succes/30'
-                    : estActif
-                      ? 'bg-cuivre text-nuit'
-                      : 'bg-cuivre/20 text-champagne group-hover:bg-cuivre/30'
-                }`}
+            return (
+              <button
+                key={item.numero}
+                ref={(node) => {
+                  ongletsRef.current[index] = node;
+                }}
+                id={`etape-onglet-${item.numero}`}
+                data-index={index}
+                role="tab"
+                type="button"
+                aria-selected={estActif}
+                aria-controls={`etape-panneau-${item.numero}`}
+                tabIndex={estActif ? 0 : -1}
+                onClick={() => choisir(index)}
+                onKeyDown={(event) => auClavier(event, index)}
+                className="group relative flex flex-col items-start rounded-xl text-left outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-4 focus-visible:ring-offset-nuit"
               >
-                {item.numero}
-              </span>
+                {/*
+                  Trait de liaison vers l'étape suivante. Il part du bord
+                  droit de la pastille et traverse la gouttière jusqu'au
+                  bord de la suivante — d'où le `-right-4`, qui vaut
+                  exactement le `gap-x-4` de la grille.
 
-              <span className="min-w-0 flex-1">
+                  Seulement à partir de `lg` : c'est la seule largeur où les
+                  quatre étapes tiennent sur une rangée. Sur deux colonnes,
+                  le trait de la deuxième partirait vers le vide.
+
+                  Il se remplit au passage — cuivré derrière l'étape
+                  atteinte, éteint devant. Un second repère de progression
+                  qui ne coûte aucune hauteur.
+                */}
+                {index < etapes.length - 1 && (
+                  <span
+                    aria-hidden="true"
+                    className={`absolute left-12 -right-4 top-5 hidden h-px lg:block ${
+                      index < actif ? 'bg-cuivre/45' : 'bg-champagne/12'
+                    }`}
+                  />
+                )}
+
+                {/*
+                  Les chiffres au repos sont mesurés, pas estimés : sur le
+                  minuit de la pastille, champagne/55 ne donne que 4,29:1 et
+                  succes/80 que 4,49:1 — tous deux sous le seuil du petit
+                  texte. D'où champagne/70 (6,03) et le succes à pleine
+                  opacité (6,19). Un chiffre d'étape n'est pas un ornement :
+                  il doit se lire.
+                */}
                 <span
-                  className={`font-display block text-[16px] font-bold transition-colors ${
-                    estActif ? 'text-champagne' : 'text-champagne/70 group-hover:text-champagne'
+                  className={`font-display relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-[15px] font-extrabold transition-colors ${
+                    item.validation
+                      ? estActif
+                        ? 'border-succes bg-succes text-nuit'
+                        : 'border-succes/35 bg-minuit text-succes group-hover:border-succes/60'
+                      : estActif
+                        ? 'border-cuivre bg-cuivre text-nuit'
+                        : 'border-champagne/15 bg-minuit text-champagne/70 group-hover:border-cuivre/50 group-hover:text-champagne'
+                  }`}
+                >
+                  {item.numero}
+                </span>
+
+                <span
+                  className={`font-display mt-4 block text-[16px] font-bold leading-snug transition-colors ${
+                    estActif
+                      ? 'text-champagne'
+                      : 'text-champagne/70 group-hover:text-champagne'
                   }`}
                 >
                   {item.titre}
                 </span>
 
-                <span className="mt-0.5 block text-[13px] leading-snug text-champagne/60">
+                <span className="mt-1.5 block text-[12.5px] leading-snug text-champagne/60">
                   {item.description}
                 </span>
-              </span>
 
-              {/*
-                Chevron : le signal le plus direct qu'il y a quelque chose à
-                ouvrir. Visible en permanence, même au repos — s'il
-                n'apparaissait qu'au survol, il ne servirait à rien sur
-                mobile, où le survol n'existe pas.
-              */}
-              <ChevronRight
-                aria-hidden="true"
-                size={17}
-                className={`shrink-0 transition-all duration-200 ${
-                  estActif
-                    ? 'translate-x-0.5 text-cuivre'
-                    : 'text-champagne/60 group-hover:translate-x-0.5 group-hover:text-champagne'
-                }`}
-              />
-            </button>
-            </div>
-          );
-        })}
+                {/*
+                  Soulignement au survol et sur l'étape active. Les cartes
+                  disparues emportaient avec elles le seul indice qu'on
+                  pouvait cliquer ; le chapô dit « clique une étape », il
+                  faut que quelque chose le confirme. Un trait qui se
+                  déploie sous le titre suffit, et ne rajoute pas de cadre
+                  là où la maquette n'en veut pas.
+                */}
+                <span
+                  aria-hidden="true"
+                  className={`mt-3 block h-px rounded-full transition-all duration-300 ${
+                    estActif
+                      ? item.validation
+                        ? 'w-10 bg-succes'
+                        : 'w-10 bg-cuivre'
+                      : 'w-0 bg-champagne/40 group-hover:w-6'
+                  }`}
+                />
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/*
@@ -479,11 +485,11 @@ export default function DossierParcours() {
         le saut plus que le changement de contenu. C'est un plancher, pas
         une hauteur fixe : si le contenu dépasse, la carte grandit.
 
-        `lg:self-center` — la liste fait environ 550px, la carte 330. Calée
-        en haut, elle laissait 220px de vide sous elle et pendait dans le
-        coin. Centrée, le vide se répartit des deux côtés et les deux
-        colonnes se répondent. Remplir la hauteur de la liste a été essayé :
-        ça déplace le vide à l'intérieur de la carte, ce qui est pire.
+        `lg:self-start` — la carte était centrée pour compenser une colonne
+        de gauche beaucoup plus haute qu'elle, du temps où les étapes
+        étaient empilées. Sur une rangée, les deux colonnes font à peu près
+        la même hauteur, et la maquette aligne le haut de la carte sur le
+        surtitre. Caler en haut suffit donc, et c'est plus juste.
       */}
 
       <div
@@ -492,7 +498,7 @@ export default function DossierParcours() {
         role="tabpanel"
         aria-labelledby={`etape-onglet-${etape.numero}`}
         tabIndex={0}
-        className="relative flex w-full flex-col justify-center self-start rounded-[1.75rem] lg:min-h-[300px] lg:self-center border border-champagne/10 bg-minuit p-5 shadow-[0_35px_80px_-40px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit sm:p-7"
+        className="relative flex w-full flex-col justify-center self-start rounded-[1.75rem] lg:min-h-[300px] lg:self-start border border-champagne/10 bg-minuit p-5 shadow-[0_35px_80px_-40px_rgba(0,0,0,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit sm:p-7"
       >
         <div
           aria-hidden="true"
