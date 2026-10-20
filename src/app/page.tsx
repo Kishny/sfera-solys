@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -9,11 +9,13 @@ import {
   ShieldCheck,
   Lock,
   ArrowRight,
-  ChevronDown,
   Ghost,
   CalendarDays,
   Users,
+  Target,
+  Gem,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -112,27 +114,21 @@ const garanties = [
 const trustBadges = [
   {
     icon: IdCard,
-    label: 'La vérification est gratuite',
+    label: 'Vérification gratuite',
     texte:
-      'Elle ne dépend d’aucune offre. Passer au premium lève des limites d’usage, jamais le droit d’être vérifié.',
-    href: '/tarifs',
-    lien: 'voir les offres',
+      'Elle ne dépend d’aucune offre. Le premium lève des limites d’usage, jamais le droit d’être vérifié.',
   },
   {
     icon: ShieldCheck,
     label: 'Modération humaine',
     texte:
-      'Un signalement n’est pas arbitré par un algorithme : un administrateur l’examine, et un compte peut être suspendu.',
-    href: null,
-    lien: null,
+      'Un signalement est examiné par un administrateur, pas par un algorithme. Un compte peut être suspendu.',
   },
   {
     icon: Lock,
     label: 'Tes données, nommément',
     texte:
-      'Notre page confidentialité nomme un par un les prestataires qui traitent tes données, et ce que chacun en fait.',
-    href: '/confidentialite',
-    lien: 'lire la page confidentialité',
+      'Notre page confidentialité nomme un par un les prestataires qui les traitent, et ce que chacun en fait.',
   },
 ];
 
@@ -169,23 +165,18 @@ const featureTeasers = [
   },
 ];
 
-const homeFaqs = [
-  {
-    question: "Combien de temps prend la vérification d'identité ?",
-    answer:
-      "Quelques instants. Tu photographies ta pièce d'identité puis ton visage en direct, Stripe Identity compare les deux et répond aussitôt. C'est gratuit, quelle que soit ton offre.",
-  },
-  {
-    question: "L'inscription est-elle vraiment gratuite ?",
-    answer:
-      "Oui, vérification comprise. Le compte gratuit est limité (5 likes par jour, 3 matchs, 10 messages par jour) et les offres payantes lèvent ces limites — mais être vérifié ne se paie jamais.",
-  },
-  {
-    question: 'Puis-je annuler à tout moment ?',
-    answer:
-      "Oui, depuis ton espace Mon Compte, sans engagement. Tu conserves l'accès premium jusqu'à la fin de la période déjà payée.",
-  },
-];
+/*
+  L'accueil portait un accordéon de trois questions — délai de vérification,
+  gratuité, résiliation. La maquette le remplace par une invitation vers
+  /faq, et c'est le choix retenu.
+
+  À surveiller : /faq couvre la résiliation (« Comment annuler mon
+  abonnement premium ? ») et, en partie, la gratuité (« Quelle est la
+  différence entre le compte gratuit et premium ? »). Elle ne dit rien du
+  **délai de vérification** — probablement la première chose qu'un visiteur
+  se demande, et qui n'a désormais de réponse nulle part sur le site. La
+  question mérite d'être ajoutée là-bas.
+*/
 
 /** Anneau de focus clavier, identique partout. */
 const focusRing =
@@ -222,10 +213,37 @@ function Filet() {
   );
 }
 
+/**
+ * Tuile d'icône.
+ *
+ * La maquette abandonne la pastille ronde pour un carré aux angles
+ * adoucis, posé à gauche du texte plutôt qu'au-dessus. Le gain n'est pas
+ * seulement décoratif : à gauche, la tuile aligne les titres sur une même
+ * verticale et la carte tient en deux lignes au lieu de quatre.
+ *
+ * Les ronds cuivrés subsistent là où ils ne servent pas de puce — sur les
+ * cartes de fonctionnalités, où la pastille porte l'icône seule au-dessus
+ * d'un titre, et sur la flèche de leur coin.
+ */
+/*
+  `LucideIcon` et non un `ComponentType<{ size?: number }>` écrit à la main :
+  les icônes lucide sont des `forwardRef`, et leur type porte une référence
+  SVG qu'une signature réduite à `size` refuse. Le type maison compilait à
+  la lecture mais pas à l'usage.
+*/
+function TuileIcone({ icon: Icon }: { icon: LucideIcon }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-cuivre/30 bg-nuit/60 text-cuivre"
+    >
+      <Icon size={20} />
+    </span>
+  );
+}
+
 export default function Home() {
   const [testimonial, setTestimonial] = useState<PublicTestimonial | null>(null);
-  const [testimonialsLoaded, setTestimonialsLoaded] = useState(false);
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const shouldReduceMotion = useReducedMotion();
 
   /*
@@ -244,8 +262,7 @@ export default function Home() {
           setTestimonial(featured || d.testimonials[0]);
         }
       })
-      .catch(() => {})
-      .finally(() => setTestimonialsLoaded(true));
+      .catch(() => {});
   }, []);
 
   const fadeUp = {
@@ -490,8 +507,13 @@ export default function Home() {
           <div className="mx-auto max-w-7xl">
             <Surtitre>Le parcours</Surtitre>
 
+            {/*
+              L'espace avant le point d'interrogation est insécable : en
+              français il est obligatoire, et une espace ordinaire laisserait
+              le « ? » tomber seul en début de ligne.
+            */}
             <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
-              Comment ça marche
+              Comment ça marche&nbsp;?
             </h2>
 
             <p className="mb-8 mt-4 max-w-2xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
@@ -512,14 +534,30 @@ export default function Home() {
             <Surtitre>Dans l’application</Surtitre>
 
             <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
-              À quoi ça ressemble
+              À quoi ça ressemble&nbsp;?
             </h2>
 
-            <p className="mb-10 mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
-              Deux façons de parcourir les profils, au choix : six propositions
-              par semaine, ou l&apos;annuaire complet quand tu veux prendre le
-              temps.
-            </p>
+            {/*
+              Le lien se range sur la ligne de base du sous-titre, à l'autre
+              bout. `items-end` le cale sur la dernière ligne du paragraphe
+              plutôt que sur sa première — sans quoi il flotte au-dessus dès
+              que le texte passe sur deux lignes.
+            */}
+            <div className="mb-10 mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+              <p className="max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
+                Deux façons de parcourir les profils, au choix : six
+                propositions par semaine, ou l&apos;annuaire complet quand tu
+                veux prendre le temps.
+              </p>
+
+              <Link
+                href="/fonctionnalites"
+                className={`inline-flex shrink-0 items-center gap-1.5 self-start text-[13px] font-semibold text-cuivre transition-colors hover:text-champagne lg:self-auto ${focusRing}`}
+              >
+                Découvrir toutes les fonctionnalités
+                <ArrowRight size={14} />
+              </Link>
+            </div>
 
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
               <motion.div
@@ -550,65 +588,48 @@ export default function Home() {
         <Filet />
 
         {/* ═══════════════ Bandeau confiance ═══════════════ */}
-        <section
-          aria-labelledby="garanties"
-          className="px-4 py-16 sm:px-6 sm:py-20 lg:px-16"
-        >
-          {/*
-            La section n'avait aucun titre, visible ou non : au lecteur
-            d'écran, elle se présentait comme quatre blocs sans rien qui
-            dise ce qu'ils ont en commun. Le titre est masqué à l'œil —
-            la maquette n'en veut pas — mais il existe dans le plan du
-            document.
-          */}
-          <h2 id="garanties" className="sr-only">
-            Ce que Sfera&rsquo;Solys garantit
-          </h2>
+        <section className="px-4 py-16 sm:px-6 sm:py-20 lg:px-16">
+          <div className="mx-auto max-w-7xl">
+            {/*
+              La section n'avait aucun titre, visible ou non : au lecteur
+              d'écran, elle se présentait comme des blocs sans rien qui dise
+              ce qu'ils ont en commun. La maquette lui en donne un vrai, à
+              l'œil comme dans le plan du document — ce qui vaut mieux que le
+              titre masqué qui bouchait le trou.
+            */}
+            <Surtitre>Notre engagement</Surtitre>
 
-          {/*
-            Un seul panneau divisé par des filets, plutôt que des cartes qui
-            flottent côte à côte — la même logique que le filet entre les
-            sections : marquer une limite sans découper.
+            <h2 className="font-display mb-9 mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
+              Une expérience fiable et sereine
+            </h2>
 
-            Les filets viennent du `gap-px` sur une grille au fond cuivré :
-            les cellules, opaques, laissent apparaître ce fond dans
-            l'interstice. `divide-x` aurait tracé ses traits dans l'ordre du
-            DOM, donc au mauvais endroit dès que la grille repasse sur une
-            colonne.
-          */}
-          <ul className="mx-auto grid max-w-7xl gap-px overflow-hidden rounded-2xl border border-cuivre/20 bg-cuivre/20 sm:grid-cols-3">
-            {trustBadges.map(({ icon: Icon, label, texte, href, lien }) => (
-              <li
-                key={label}
-                className="flex flex-col bg-minuit p-6 sm:p-7"
-              >
-                <span
-                  aria-hidden="true"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-cuivre/35 text-cuivre"
+            {/*
+              Trois cartes distinctes, et non le panneau unique divisé par
+              des filets que j'avais posé : la maquette les sépare, et sur
+              une rangée de trois le panneau continu faisait lire les
+              garanties comme un tableau de caractéristiques.
+            */}
+            <ul className="grid gap-4 lg:grid-cols-3 lg:gap-5">
+              {trustBadges.map(({ icon: Icon, label, texte }) => (
+                <li
+                  key={label}
+                  className="flex gap-4 rounded-2xl border border-cuivre/15 bg-minuit p-5 sm:p-6"
                 >
-                  <Icon size={18} />
-                </span>
+                  <TuileIcone icon={Icon} />
 
-                <p className="mt-5 text-[15px] font-semibold text-champagne">
-                  {label}
-                </p>
+                  <div>
+                    <p className="text-[15px] font-semibold text-champagne">
+                      {label}
+                    </p>
 
-                <p className="mt-2 text-[13px] leading-relaxed text-champagne/65">
-                  {texte}
-                </p>
-
-                {href && lien && (
-                  <Link
-                    href={href}
-                    className={`mt-4 inline-flex items-center gap-1.5 self-start text-[12px] font-semibold text-cuivre transition-colors hover:text-champagne ${focusRing}`}
-                  >
-                    {lien}
-                    <ArrowRight size={13} />
-                  </Link>
-                )}
-              </li>
-            ))}
-          </ul>
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/65">
+                      {texte}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
 
         <Filet />
@@ -626,7 +647,7 @@ export default function Home() {
               <Surtitre>Le critère d’entrée</Surtitre>
 
               <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
-                Pourquoi 28 ans et plus ?
+                Pourquoi 28 ans et plus&nbsp;?
               </h2>
 
               <p className="mt-5 text-[15px] leading-relaxed text-champagne/65 sm:text-base">
@@ -644,35 +665,43 @@ export default function Home() {
               </p>
             </div>
 
+            {/*
+              Les puces rondes cèdent la place aux mêmes tuiles que la
+              section précédente. Une puce ne dit rien ; une icône dit de
+              quoi parle la ligne avant qu'on l'ait lue.
+            */}
             <ul className="flex flex-col gap-3">
               {[
                 {
+                  icon: Target,
                   title: 'Des intentions dites franchement',
                   text: 'Chaque profil précise ce qu’il cherche. Personne n’a à deviner.',
                 },
                 {
+                  icon: Users,
                   title: 'Un rythme d’adulte',
                   text: 'Pas de notifications qui harcèlent, pas de score à entretenir tous les jours.',
                 },
                 {
+                  icon: Gem,
                   title: 'Une porte, pas un tourniquet',
                   text: 'Devoir prouver son identité décourage ceux qui passaient juste pour voir.',
                 },
               ].map((item) => (
                 <li
                   key={item.title}
-                  className="rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:p-5"
+                  className="flex gap-4 rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:p-5"
                 >
-                  <p className="flex items-start gap-2.5 text-sm font-semibold text-champagne">
-                    <span
-                      aria-hidden="true"
-                      className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-cuivre"
-                    />
-                    {item.title}
-                  </p>
-                  <p className="mt-1.5 pl-[16px] text-[13px] leading-relaxed text-champagne/60">
-                    {item.text}
-                  </p>
+                  <TuileIcone icon={item.icon} />
+
+                  <div>
+                    <p className="text-sm font-semibold text-champagne">
+                      {item.title}
+                    </p>
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/60">
+                      {item.text}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -681,21 +710,29 @@ export default function Home() {
 
         {/* ═══════════════ Témoignage ═══════════════ */}
         {/*
-          Pas de filet ni avant ni après celle-ci : la photo s'éteint
-          d'elle-même en haut et en bas, ce qui sépare mieux qu'un trait.
-          Deux marques de séparation au même endroit en font une de trop.
+          Toute la section disparaît tant qu'aucun témoignage n'est publié —
+          c'est l'état de la production aujourd'hui. Elle affichait sinon
+          « Les premiers témoignages arrivent bientôt », c'est-à-dire un
+          grand bloc dont le message est qu'il n'a rien à dire. Elle
+          réapparaîtra seule au premier témoignage validé, sans rien à
+          changer ici. La maquette, qui ne la montre pas, décrit donc
+          exactement la page telle qu'elle est en ligne.
 
-          La photographie est une terrasse vide. C'est un choix, pas le
+          Pas de filet ni avant ni après : la photo s'éteint d'elle-même en
+          haut et en bas, ce qui sépare mieux qu'un trait.
+
+          La photographie est une terrasse déserte. C'est un choix, pas le
           hasard d'un fichier disponible : à côté d'un témoignage signé d'un
           prénom et d'un âge, un portrait se lit comme la photo de cette
           personne-là. Ce serait inventer un membre — exactement ce que la
           vérification d'identité est censée rendre impossible. Une scène
           sans personne ne peut rien laisser croire.
         */}
+        {testimonial && (
         <section className="relative isolate overflow-hidden px-4 py-24 text-center sm:px-6 sm:py-32">
           <div aria-hidden="true" className="absolute inset-0 -z-10">
             <Image
-              src="/visuels/solys-02.webp"
+              src="/visuels/solys-04.webp"
               alt=""
               fill
               sizes="100vw"
@@ -715,29 +752,20 @@ export default function Home() {
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
             <span aria-hidden="true" className="h-px w-12 bg-cuivre" />
 
-            {testimonial ? (
-              <>
-                <p className="font-display text-[24px] font-normal italic leading-[1.45] text-ivoire sm:text-[32px]">
-                  « {testimonial.content} »
-                </p>
-                {/*
-                  champagne/70 et non /55 : sur fond plein, 55 % passait
-                  (4,79:1), mais la zone la plus claire de la photo sous son
-                  voile fait tomber le même texte à 4,43:1 — sous le seuil.
-                */}
-                <span className="text-[13px] text-champagne/70">
-                  — {testimonial.authorName}
-                  {testimonial.age ? `, ${testimonial.age} ans` : ''}
-                  {testimonial.city ? ` · ${testimonial.city}` : ''}
-                </span>
-              </>
-            ) : testimonialsLoaded ? (
-              <p className="text-sm text-champagne/70">
-                Les premiers témoignages arrivent bientôt.
-              </p>
-            ) : (
-              <p className="text-sm text-champagne/70">Chargement…</p>
-            )}
+            <p className="font-display text-[24px] font-normal italic leading-[1.45] text-ivoire sm:text-[32px]">
+              « {testimonial.content} »
+            </p>
+
+            {/*
+              champagne/70 et non /55 : sur fond plein, 55 % passait
+              (4,79:1), mais la zone la plus claire de la photo sous son
+              voile fait tomber le même texte à 4,43:1 — sous le seuil.
+            */}
+            <span className="text-[13px] text-champagne/70">
+              — {testimonial.authorName}
+              {testimonial.age ? `, ${testimonial.age} ans` : ''}
+              {testimonial.city ? ` · ${testimonial.city}` : ''}
+            </span>
 
             <Link
               href="/temoignages"
@@ -748,103 +776,77 @@ export default function Home() {
             </Link>
           </div>
         </section>
+        )}
+
+        {/*
+          ═══════════════ Bandeau final : FAQ + appel ═══════════════
+
+          Une seule photographie court derrière les deux dernières sections.
+          C'est ce que montre la maquette, et ce n'est pas qu'une économie de
+          fichier : deux images consécutives, chacune avec ses propres bords,
+          auraient découpé le bas de la page en bandes. Une image continue
+          fait du bas de page un seul lieu.
+
+          Le voile est à 75 %, mesuré et non choisi à l'œil : sur la zone la
+          plus claire de la terrasse, le champagne à 60 % y tient 4,79:1,
+          juste au-dessus du seuil du petit texte. En dessous de ce voile,
+          le surtitre serait passé sous la limite.
+        */}
+        <div className="relative isolate overflow-hidden">
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <Image
+              src="/visuels/solys-02.webp"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-nuit/75" />
+            <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit" />
+          </div>
 
         {/* ═══════════════ FAQ ═══════════════ */}
         <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-16">
-          <div className="mx-auto max-w-3xl">
-            <Surtitre>Avant de commencer</Surtitre>
+          <div className="mx-auto flex max-w-7xl flex-col gap-7 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+            <div>
+              <Surtitre>Questions fréquentes</Surtitre>
 
-            <h2 className="font-display mb-9 mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
-              Les trois questions qu&apos;on nous pose
-            </h2>
+              <h2 className="font-display mt-5 text-[30px] font-normal leading-tight tracking-tight text-ivoire sm:text-[38px]">
+                On répond aux questions les plus courantes
+              </h2>
 
-            <div className="space-y-2">
-              {homeFaqs.map((faq, index) => {
-                const isOpen = openFaqIndex === index;
-
-                return (
-                  <div
-                    key={faq.question}
-                    className="overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenFaqIndex((current) =>
-                          current === index ? null : index
-                        )
-                      }
-                      aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-semibold text-champagne ${focusRing}`}
-                    >
-                      {faq.question}
-                      <ChevronDown
-                        size={16}
-                        className={`shrink-0 text-cuivre transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <p className="border-t border-cuivre/10 px-5 py-4 text-[13px] leading-relaxed text-champagne/65">
-                            {faq.answer}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
+              <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70 sm:text-base">
+                Inscription, vérification, fonctionnement… tout ce qu&apos;il
+                faut savoir.
+              </p>
             </div>
 
             <Link
               href="/faq"
-              className={`mt-7 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cuivre transition-colors hover:text-champagne ${focusRing}`}
+              className={`inline-flex shrink-0 items-center gap-2.5 self-start rounded-xl border border-cuivre/40 bg-nuit/50 px-6 py-3.5 text-sm font-semibold text-champagne backdrop-blur-sm transition-colors hover:border-cuivre hover:text-ivoire lg:self-auto ${focusRing}`}
             >
-              voir la FAQ complète
-              <ArrowRight size={14} />
+              Voir la FAQ complète
+              <span
+                aria-hidden="true"
+                className="flex h-6 w-6 items-center justify-center rounded-full border border-cuivre/40 text-cuivre"
+              >
+                <ArrowRight size={11} />
+              </span>
             </Link>
           </div>
         </section>
 
         {/* ═══════════════ Appel final ═══════════════ */}
-        <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-20 lg:px-16">
-          <div className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl border border-cuivre/25">
-            <Image
-              src="/visuels/solys-04.webp"
-              alt=""
-              aria-hidden="true"
-              fill
-              sizes="(max-width: 1280px) 100vw, 1280px"
-              className="object-cover"
-            />
-            {/*
-              Le voile était à 90 % puis 60 % de nuit : la photo ne se
-              voyait plus, et le panneau revenait à un rectangle sombre avec
-              un liseré cuivré. Il suit maintenant la logique du héros —
-              opaque là où le texte se pose, dégagé là où il n'y a rien.
-
-              La direction change avec la mise en page : en colonne, le
-              texte occupe toute la largeur en haut, donc le voile descend ;
-              en ligne, le texte tient la gauche, donc il traverse. Les
-              valeurs gardent le petit texte au-dessus de 4,5:1 même sur la
-              partie la plus claire de l'image.
-            */}
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-br from-nuit via-nuit/85 to-nuit/40 lg:bg-gradient-to-r lg:from-nuit lg:via-nuit/75 lg:to-nuit/25"
-            />
-
-            <div className="relative flex flex-col items-start justify-between gap-7 p-8 sm:p-12 lg:flex-row lg:items-center">
+        {/*
+          Pas de photo propre : le panneau se pose sur celle du bandeau, qui
+          court derrière les deux sections. Il se contente d'un fond
+          translucide et d'un flou, de sorte que la terrasse continue de se
+          voir à travers lui — c'est ce que montre la maquette, et c'est ce
+          qui le distingue d'un encart collé par-dessus une image.
+        */}
+        <section className="px-4 pb-20 sm:px-6 sm:pb-24 lg:px-16">
+          <div className="mx-auto max-w-7xl rounded-3xl border border-cuivre/25 bg-nuit/55 p-8 backdrop-blur-md sm:p-10">
+            <div className="flex flex-col items-start justify-between gap-7 lg:flex-row lg:items-center">
               <div>
                 {/*
                   Le seul autre mot cuivré de la page est dans le titre du
@@ -854,23 +856,37 @@ export default function Home() {
                 */}
                 <h2 className="font-display text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
                   Prêt à rencontrer{' '}
-                  <span className="text-cuivre">sérieusement</span> ?
+                  <span className="text-cuivre">sérieusement</span>&nbsp;?
                 </h2>
-                <p className="mt-2 text-sm text-champagne/70">
-                  Constitution du dossier gratuite, sans engagement.
+                <p className="mt-2.5 max-w-md text-sm leading-relaxed text-champagne/70">
+                  Crée ton profil gratuitement et découvre une nouvelle façon
+                  de rencontrer.
                 </p>
               </div>
 
-              <Link
-                href="/commencer"
-                className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
-              >
-                Créer mon profil
-                <ArrowRight size={16} />
-              </Link>
+              <div className="flex flex-col items-start gap-2.5 lg:items-end">
+                <Link
+                  href="/commencer"
+                  className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                >
+                  Créer mon profil
+                  <ArrowRight size={16} />
+                </Link>
+
+                {/*
+                  Les trois mentions de la maquette, vérifiées une à une :
+                  l'inscription ne demande aucune carte (le paiement ne
+                  survient qu'à l'abonnement), le compte gratuit existe, et
+                  la vérification d'identité ne dépend d'aucune offre.
+                */}
+                <p className="text-[11px] text-champagne/60">
+                  Aucune carte bancaire · Gratuit · Vérification incluse
+                </p>
+              </div>
             </div>
           </div>
         </section>
+        </div>
       </main>
 
       <Footer />

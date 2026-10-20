@@ -528,14 +528,14 @@ export default function Header() {
                     href="/auth?mode=login"
                     className={`text-[13px] font-medium text-champagne/70 transition-colors hover:text-champagne ${focusRing}`}
                   >
-                    Connexion
+                    Se connecter
                   </Link>
 
                   <Link
                     href="/auth?mode=register"
                     className={`flex items-center gap-2 rounded-xl bg-degrade-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
                   >
-                    Rejoindre Solys
+                    Créer mon profil
                     <ArrowRight size={15} />
                   </Link>
                 </>
@@ -550,7 +550,7 @@ export default function Header() {
                   router.push(isLoggedIn ? '/mon-compte' : '/auth?mode=login')
                 }
                 className={`relative flex h-10 w-10 items-center justify-center rounded-full border border-champagne/15 text-champagne/80 transition-colors hover:border-cuivre/40 ${focusRing}`}
-                aria-label={isLoggedIn ? 'Mon compte' : 'Connexion'}
+                aria-label={isLoggedIn ? 'Mon compte' : 'Se connecter'}
               >
                 {isLoggedIn && session?.user?.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
