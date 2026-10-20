@@ -19,10 +19,10 @@
   ## Contraste
 
   Le panneau coulissant ne peut pas être cuivre plein : le champagne sur
-  #BD9365 tombe à 2,01:1, très en dessous du seuil AA. Il est donc en
-  dégradé de cuivre profond (#4A351C → #5C4223), où le champagne tient
-  6,71:1 au point le plus clair, et le cuivre reste ce qu'il doit être — un
-  accent, et l'anneau de l'éclipse.
+  #BD9365 tombe à 2,01:1, très en dessous du seuil AA. Il porte désormais
+  une photographie, voilée de telle sorte que le champagne y tienne 8,53:1
+  au pire pixel de la bande de texte — voir `.voilePhoto`. Le cuivre reste
+  ce qu'il doit être : un accent, et l'anneau de l'éclipse.
 */
 
 .scene {
@@ -63,21 +63,64 @@
    Le panneau coulissant
    ──────────────────────────────────────────────────────────── */
 
+/*
+  Le panneau portait un dégradé de cuivre profond. La maquette y pose une
+  photographie, et c'est ce qu'il fait désormais : l'image est servie par
+  next/image (voir `.photo`), le dégradé ne subsiste qu'en fond de secours
+  le temps du chargement, et le voile qui la recouvre est calculé plus bas.
+*/
 .voile {
   position: absolute;
   inset: 0;
   z-index: 2;
   width: 50%;
   overflow: hidden;
-  background:
-    radial-gradient(
-      120% 90% at 20% 0%,
-      rgba(255, 65, 3, 0.45) 0%,
-      transparent 60%
-    ),
-    linear-gradient(155deg, #4A351C 0%, #5C4223 45%, #1A1208 100%);
+  background: linear-gradient(155deg, #4A351C 0%, #5C4223 45%, #1A1208 100%);
   translate: 0 0;
   transition: translate 0.75s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* La photographie, en dessous de tout le reste du panneau. */
+.photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+
+/*
+  Le voile.
+
+  Il n'est pas uniforme : il s'ouvre en haut et en bas, et se ferme sur la
+  bande centrale où vivent le titre, le paragraphe et le bouton. Un voile
+  constant assez fort pour le texte éteignait la photographie partout —
+  c'était le défaut de la première passe, un panneau si sombre qu'on n'y
+  distinguait plus la scène.
+
+  Mesuré sur l'image, dans la bande de texte (33 % à 70 % de la hauteur) :
+  le champagne y tient 8,53:1 au pire pixel, 6,10 à 80 % d'opacité, et
+  l'ivoire 10,69. Au-dessus et en dessous, la photographie passe à 28 % et
+  42 % de voile — elle s'y lit pleinement.
+
+  La couche cuivrée ne sert qu'à réchauffer : elle assombrit les zones
+  claires, donc elle ne peut pas dégrader le contraste mesuré.
+*/
+.voilePhoto {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(160deg, rgba(74, 53, 28, 0.3) 0%, rgba(26, 18, 8, 0.24) 100%),
+    linear-gradient(
+      180deg,
+      rgba(10, 13, 18, 0.28) 0%,
+      rgba(10, 13, 18, 0.34) 22%,
+      rgba(10, 13, 18, 0.76) 32%,
+      rgba(10, 13, 18, 0.8) 72%,
+      rgba(10, 13, 18, 0.52) 88%,
+      rgba(10, 13, 18, 0.42) 100%
+    );
 }
 
 .voileConnexion {
@@ -89,6 +132,7 @@
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 3;
   opacity: 0.22;
   mix-blend-mode: overlay;
   background-image: radial-gradient(
@@ -107,6 +151,7 @@
 */
 .eclipse {
   position: absolute;
+  z-index: 2;
   bottom: -150px;
   left: -130px;
   width: 440px;

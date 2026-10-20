@@ -30,6 +30,7 @@
  */
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -646,6 +647,22 @@ function Contenu() {
           className={`${styles.voile} ${connexion ? styles.voileConnexion : ""}`}
           aria-hidden="true"
         >
+          {/*
+            La photographie du panneau. `priority` parce qu'elle occupe la
+            moitié de la carte dès le premier rendu : la charger paresseuse
+            donnerait un panneau cuivre nu pendant une seconde, puis un saut.
+          */}
+          <Image
+            src="/visuels/guide/etape-4.webp"
+            alt=""
+            fill
+            priority
+            sizes="(max-width: 900px) 100vw, 50vw"
+            className={styles.photo}
+          />
+
+          <div className={styles.voilePhoto} />
+
           <Eclipse />
         </div>
 
