@@ -139,7 +139,7 @@ export default function Step4() {
 
           <select
             {...register("question")}
-            className="w-full rounded-xl border border-champagne/15 bg-champagne/10 px-4 py-3 text-champagne outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
+            className="w-full rounded-xl border border-champagne/15 bg-nuit/60 px-4 py-3 text-champagne outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
           >
             <option value="" className="bg-nuit text-champagne">
               Choisis une question
@@ -174,7 +174,7 @@ export default function Step4() {
             type="text"
             placeholder="Ta réponse, maximum 200 caractères"
             maxLength={200}
-            className="w-full rounded-xl border border-champagne/15 bg-champagne/10 px-4 py-3 text-champagne placeholder:text-champagne/55 outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
+            className="w-full rounded-xl border border-champagne/15 bg-nuit/60 px-4 py-3 text-champagne placeholder:text-champagne/55 outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
           />
 
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -226,8 +226,8 @@ export default function Step4() {
                   isSelected
                     ? "border-cuivre bg-cuivre/15 text-champagne"
                     : isDisabled
-                      ? "cursor-not-allowed border-champagne/10 bg-champagne/5 text-champagne/55"
-                      : "border-champagne/12 bg-champagne/10 text-champagne/80 hover:border-cuivre/50 hover:bg-champagne/15"
+                      ? "cursor-not-allowed border-champagne/15 bg-nuit/40 text-champagne/55"
+                      : "border-champagne/20 bg-nuit/50 text-champagne/85 hover:border-cuivre/60 hover:bg-nuit/70"
                 }`}
               >
                 <div className="flex items-center gap-3">

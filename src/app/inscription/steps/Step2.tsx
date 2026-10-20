@@ -96,7 +96,7 @@ export default function Step2() {
                 className={`flex cursor-pointer items-center rounded-xl border p-3 transition-all sm:p-4 ${
                   isSelected
                     ? "border-cuivre bg-cuivre/15 shadow-lg shadow-cuivre/10"
-                    : "border-champagne/15 bg-champagne/5 hover:border-cuivre/50 hover:bg-champagne/10"
+                    : "border-champagne/20 bg-nuit/50 hover:border-cuivre/60 hover:bg-nuit/70"
                 }`}
               >
                 <input
@@ -150,7 +150,7 @@ export default function Step2() {
                 className={`rounded-xl border p-3 text-left transition-all sm:p-4 ${
                   isSelected
                     ? "border-cuivre bg-cuivre/15 shadow-lg shadow-cuivre/10"
-                    : "border-champagne/15 bg-champagne/5 hover:border-cuivre/50 hover:bg-champagne/10"
+                    : "border-champagne/20 bg-nuit/50 hover:border-cuivre/60 hover:bg-nuit/70"
                 }`}
               >
                 <div className="flex items-center">
@@ -158,7 +158,7 @@ export default function Step2() {
                     className={`mr-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
                       isSelected
                         ? "border-cuivre bg-cuivre"
-                        : "border-champagne/15 bg-champagne/5"
+                        : "border-champagne/20 bg-nuit/50"
                     }`}
                   >
                     {isSelected && <Check className="h-3.5 w-3.5 text-nuit" />}

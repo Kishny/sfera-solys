@@ -104,13 +104,29 @@ export default function Step1() {
       </div>
 
       <style jsx global>{`
+        /*
+          Ce bloc portait encore la charte d'origine : un focus rose
+          (#F472B6, halo #EC4899) hérité de la plateforme féminine, du blanc
+          pur pour le texte, et un fond à 10 % de blanc qui se lisait comme
+          un champ transparent. C'était le dernier endroit du parcours
+          public où le rose survivait.
+
+          Les valeurs sont désormais celles de la charte : fond nuit, texte
+          champagne, bordure et halo cuivre. Le fond opaque n'est pas
+          cosmétique — à 10 % de blanc sur un panneau minuit, la limite du
+          champ n'était plus perceptible.
+
+          Pas d'accent grave ni d'apostrophe inversée dans ce commentaire :
+          il vit dans un gabarit de chaîne, et une apostrophe inversée y
+          fermerait le littéral.
+        */
         .input-step {
           width: 100%;
           border-radius: 0.75rem;
-          border: 1px solid rgba(255, 255, 255, 0.25);
-          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(234, 217, 189, 0.15);
+          background: rgba(10, 13, 18, 0.6);
           padding: 0.75rem 1rem;
-          color: white;
+          color: #ead9bd;
           outline: none;
           transition:
             border-color 0.2s ease,
@@ -119,13 +135,13 @@ export default function Step1() {
         }
 
         .input-step::placeholder {
-          color: rgba(156, 163, 175, 1);
+          color: rgba(234, 217, 189, 0.6);
         }
 
         .input-step:focus {
-          border-color: rgba(244, 114, 182, 1);
-          box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.3);
-          background: rgba(255, 255, 255, 0.12);
+          border-color: #bd9365;
+          box-shadow: 0 0 0 2px rgba(189, 147, 101, 0.25);
+          background: rgba(10, 13, 18, 0.75);
         }
 
         @media (max-width: 420px) {

@@ -123,7 +123,7 @@ export default function Step5() {
                 className={`rounded-xl border p-4 text-left transition-all ${
                   isSelected
                     ? "border-cuivre bg-cuivre/15 shadow-lg shadow-cuivre/10"
-                    : "border-champagne/15 bg-champagne/5 hover:border-cuivre/50 hover:bg-champagne/10"
+                    : "border-champagne/20 bg-nuit/50 hover:border-cuivre/60 hover:bg-nuit/70"
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -131,7 +131,7 @@ export default function Step5() {
                     className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
                       isSelected
                         ? "border-cuivre bg-cuivre/15 text-cuivre"
-                        : "border-champagne/12 bg-champagne/5 text-champagne/70"
+                        : "border-champagne/20 bg-nuit/50 text-champagne/70"
                     }`}
                   >
                     {option.icon}
@@ -149,7 +149,7 @@ export default function Step5() {
                     className={`mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                       isSelected
                         ? "border-cuivre bg-cuivre"
-                        : "border-champagne/15 bg-champagne/5"
+                        : "border-champagne/20 bg-nuit/50"
                     }`}
                   >
                     {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-nuit" />}
@@ -175,7 +175,7 @@ export default function Step5() {
           className={`w-full rounded-xl border p-4 text-left transition-all ${
             consentement
               ? "border-succes bg-succes/12"
-              : "border-champagne/15 bg-champagne/5 hover:border-cuivre/50 hover:bg-champagne/10"
+              : "border-champagne/20 bg-nuit/50 hover:border-cuivre/60 hover:bg-nuit/70"
           }`}
         >
           <div className="flex items-start gap-3">
@@ -183,7 +183,7 @@ export default function Step5() {
               className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
                 consentement
                   ? "border-succes bg-succes"
-                  : "border-champagne/15 bg-champagne/5"
+                  : "border-champagne/20 bg-nuit/50"
               }`}
             >
               {consentement && <Check className="h-3.5 w-3.5 text-nuit" />}

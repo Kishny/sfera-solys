@@ -28,8 +28,11 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSession, useSession } from "next-auth/react";
+
+import { Logo } from "@/components/ui/Logo";
 
 import Step1 from "./steps/Step1";
 import Step2 from "./steps/Step2";
@@ -40,7 +43,6 @@ import Step5 from "./steps/Step5";
 import {
   ArrowLeft,
   Check,
-  Crown,
   Loader2,
   Lock,
   ShieldCheck,
@@ -136,6 +138,10 @@ type FormData = z.infer<typeof formSchema>;
  */
 const steps = [Step1, Step2, Step3, Step4, Step5];
 
+/** Anneau de focus clavier, identique au reste du site public. */
+const anneauFocus =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
+
 /**
  * Champs à valider par étape.
  *
@@ -157,19 +163,6 @@ const stepFields: FieldPath<FormData>[][] = [
  */
 const allProfileFields: FieldPath<FormData>[] = stepFields.flat();
 
-/**
- * Avantages affichés dans le panneau latéral.
- */
-const lunaBenefits = [
-  "Profils illimités sans swipes",
-  "Messages prioritaires",
-  "Vue complète des visiteurs",
-  "Mode invisible",
-  "Filtres avancés",
-  "Statistiques détaillées",
-  "Rencontres personnalisées",
-  "Support VIP 24/7",
-];
 
 /**
  * Cartes affichées sur l'écran final avant /tarifs.
@@ -214,35 +207,6 @@ function getStepFromErrors(errors: Partial<Record<keyof FormData, unknown>>) {
 
 type IdentityVerificationStatus = "unverified" | "pending" | "verified" | "failed";
 
-/**
- * Motif orbite décoratif (cercles concentriques + points d'accent),
- * écho visuel du nom "Sfera".
- */
-function OrbitGlow({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 200 200"
-      className={`pointer-events-none absolute opacity-[0.14] ${className}`}
-      aria-hidden="true"
-    >
-      <circle cx="100" cy="100" r="90" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-      <circle
-        cx="100"
-        cy="100"
-        r="62"
-        fill="none"
-        stroke="#FFFFFF"
-        strokeWidth="1"
-        strokeDasharray="4 6"
-      />
-      <circle cx="100" cy="100" r="34" fill="none" stroke="#FFFFFF" strokeWidth="1" />
-      <circle cx="100" cy="10" r="3" fill="#FFFFFF" />
-      <circle cx="190" cy="100" r="3" fill="#FFFFFF" />
-      <circle cx="100" cy="190" r="3" fill="#FFFFFF" />
-      <circle cx="10" cy="100" r="3" fill="#FFFFFF" />
-    </svg>
-  );
-}
 
 /**
  * Palette tournante pour les cartes "finalHighlights" de l'écran final.
@@ -312,28 +276,7 @@ function InscriptionPageContent() {
     setIsInAppBrowser(inAppPatterns.test(ua));
   }, []);
 
-  /**
-   * Statistiques réelles (MongoDB), affichées dans la colonne latérale.
-   * Remplacent les chiffres marketing en dur — se mettent à jour
-   * automatiquement à chaque inscription, message, match, etc.
-   */
-  const [liveStats, setLiveStats] = useState<{
-    membres: number;
-    matchs: number;
-    messages: number;
-    evenements: number;
-  } | null>(null);
 
-  /**
-   * Témoignage réel le plus récent (modèle Testimonial, validé par un admin).
-   * Tant qu'aucun témoignage n'est approuvé, on n'affiche aucun témoignage
-   * fictif.
-   */
-  const [latestTestimonial, setLatestTestimonial] = useState<{
-    authorName: string;
-    age?: number;
-    content: string;
-  } | null>(null);
 
   const methods = useForm<FormData>({
     resolver: zodResolver(formSchema) as Resolver<FormData>,
@@ -488,40 +431,6 @@ function InscriptionPageContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, step, searchParams?.get("verification")]);
 
-  /**
-   * Charge les statistiques réelles et le dernier témoignage approuvé.
-   * Données réelles uniquement — aucune valeur marketing en dur.
-   */
-  useEffect(() => {
-    let isMounted = true;
-
-    fetch("/api/stats")
-      .then((res) => res.json())
-      .then((data) => {
-        if (isMounted && data?.success) {
-          setLiveStats(data.stats);
-        }
-      })
-      .catch(() => {});
-
-    fetch("/api/testimonials")
-      .then((res) => res.json())
-      .then((data) => {
-        const first = data?.testimonials?.[0];
-        if (isMounted && first) {
-          setLatestTestimonial({
-            authorName: first.authorName,
-            age: first.age,
-            content: first.content,
-          });
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   /**
    * Progression visuelle.
@@ -754,9 +663,9 @@ function InscriptionPageContent() {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#0A0D12] via-minuit to-minuit px-4 text-champagne">
+      <div className="flex min-h-screen items-center justify-center bg-nuit px-4 text-champagne">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-champagne/20 border-t-white" />
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-champagne/20 border-t-cuivre" />
           <p className="text-sm text-champagne/70 sm:text-base">
             Chargement de ton espace Sfera'Solys...
           </p>
@@ -766,74 +675,157 @@ function InscriptionPageContent() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-[#0A0D12] via-minuit to-minuit font-sans text-champagne">
-      {/* Éléments décoratifs de fond */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-cuivre/10 blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 h-80 w-80 rounded-full bg-succes/[0.06] blur-3xl sm:h-96 sm:w-96" />
-        <div className="absolute left-1/3 top-1/3 h-64 w-64 rounded-full bg-cuivre/10 blur-3xl" />
-        <OrbitGlow className="right-[-10%] top-16 h-72 w-72 sm:h-96 sm:w-96" />
-        <OrbitGlow className="left-[-10%] top-[60%] h-80 w-80 sm:h-[28rem] sm:w-[28rem]" />
+    <main className="relative min-h-screen bg-nuit font-sans text-champagne">
+      {/*
+        Colonne photographique, à partir de `lg`.
+
+        Elle est `fixed` plutôt que posée dans le flux : le formulaire est
+        long — cinq étapes, puis l'écran de vérification — et une colonne
+        d'image qui défile avec lui laisserait du vide sous la photo dès la
+        deuxième étape. Fixée, elle tient tout le défilement.
+
+        Les blobs flous, les `OrbitGlow` et le champ d'étoiles de l'ancienne
+        version disparaissent avec elle : c'était le décor de la charte
+        précédente, et la photographie fait ce travail-là mieux qu'eux.
+      */}
+      <div
+        aria-hidden="true"
+        className="fixed inset-y-0 left-0 hidden w-[42%] lg:block"
+      >
+        <Image
+          src="/visuels/solys-03.webp"
+          alt=""
+          fill
+          priority
+          sizes="42vw"
+          className="object-cover object-[60%_40%]"
+        />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-nuit via-nuit/45 to-nuit/70" />
+        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-r from-transparent to-nuit" />
+
+        <div className="absolute inset-x-0 top-0 p-8 xl:p-10">
+          <Logo
+            href={null}
+            size="lg"
+            withMark
+            markId="inscription-marque"
+            tagline="Rencontres sérieuses pour hommes exigeants"
+          />
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 p-8 xl:p-10">
+          <p className="font-display max-w-md text-[32px] font-normal leading-[1.12] text-ivoire xl:text-[40px]">
+            Des rencontres à la hauteur
+            <br />
+            <span className="italic text-cuivre">de ton parcours.</span>
+          </p>
+
+          <span
+            aria-hidden="true"
+            className="mt-6 block h-px w-16 bg-cuivre"
+          />
+
+          <p className="mt-6 max-w-sm text-[13.5px] leading-relaxed text-champagne/80">
+            Sfera&rsquo;Solys, la plateforme de rencontres pensée pour les
+            hommes de 28 ans et plus qui souhaitent des relations
+            authentiques et durables.
+          </p>
+        </div>
       </div>
 
-      {/* Étoiles globales depuis globals.css */}
-      <div className="stars" />
+      <div className="relative mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-8 lg:ml-[42%] lg:mr-0 lg:max-w-none lg:px-10 xl:px-16">
+        {/*
+          Le logo n'apparaît ici qu'en dessous de `lg` : au-delà, il est
+          posé sur la colonne photographique, et deux logos sur un même
+          écran se contredisent.
+        */}
+        <div className="mb-7 flex items-center justify-between gap-4">
+          <Logo
+            href="/"
+            size="sm"
+            withMark
+            markId="inscription-marque-mobile"
+            className="lg:hidden"
+          />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-3 py-5 sm:px-4 sm:py-8">
-        {/* Bouton retour accueil */}
-        <div className="mb-5 sm:mb-6">
           <button
+            type="button"
             onClick={() => router.push("/")}
-            className="group flex items-center gap-2 rounded-full border border-champagne/10 bg-champagne/5 px-3 py-2 text-sm text-champagne/70 transition-all duration-200 hover:border-cuivre/40 hover:bg-champagne/10 hover:text-champagne sm:px-4"
+            className={`group ml-auto flex items-center gap-2 text-[13px] font-semibold text-champagne/80 transition-colors hover:text-champagne ${anneauFocus}`}
           >
             <ArrowLeft className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1" />
             Retour à l&apos;accueil
           </button>
         </div>
 
-        {/* En-tête */}
-        <section className="mb-6 text-center sm:mb-8">
-          <div className="mb-3 flex items-center justify-center gap-2 sm:mb-4">
-            <Crown className="h-7 w-7 text-cuivre sm:h-8 sm:w-8" />
+        {/* En-tête du panneau */}
+        <section className="text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-surtitre text-champagne/70">
+            Créer un compte
+          </p>
 
-            <h1 className="bg-gradient-to-r from-cuivre to-champagne bg-clip-text text-2xl font-bold leading-tight text-transparent sm:text-4xl">
-              Création du profil Sfera'Solys
-            </h1>
-          </div>
+          <h1 className="font-display mt-4 text-[30px] font-normal leading-tight text-ivoire sm:text-[38px]">
+            Faisons connaissance.
+          </h1>
 
-          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-champagne/70 sm:text-lg">
-            Complète ton profil, puis choisis l'offre qui correspond à
+          <p className="mx-auto mt-3 max-w-md text-[13.5px] leading-relaxed text-champagne/80">
+            Complète ton profil, puis choisis l&apos;offre qui correspond à
             ton expérience.
           </p>
         </section>
 
-        {/* Barre de progression */}
-        <section className="mx-auto mb-6 max-w-3xl sm:mb-8">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs text-champagne/70 sm:text-sm">
-              Étape {step + 1} sur {totalScreens}
-            </span>
+        {/*
+          Progression en pastilles reliées, comme la maquette. Le
+          pourcentage disparaît : sur six écrans, une pastille dit la même
+          chose en se lisant d'un coup d'œil. `progress` reste calculé en
+          amont et sert encore à la largeur du trait rempli.
+        */}
+        <section className="mt-7" aria-label="Progression de l&apos;inscription">
+          <ol className="relative mx-auto flex max-w-xs items-center justify-between">
+            <span
+              aria-hidden="true"
+              className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-champagne/20"
+            />
 
-            <span className="text-xs text-champagne/70 sm:text-sm">
-              {Math.round(progress)}%
-            </span>
-          </div>
-
-          <div className="h-2 overflow-hidden rounded-full bg-champagne/10">
-            <div
-              className="h-full rounded-full bg-degrade-cuivre transition-all duration-300"
+            <span
+              aria-hidden="true"
+              className="absolute left-0 top-1/2 h-px -translate-y-1/2 bg-cuivre transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
-          </div>
+
+            {Array.from({ length: totalScreens }).map((_, index) => {
+              const atteinte = index <= step;
+
+              return (
+                <li
+                  key={index}
+                  aria-current={index === step ? "step" : undefined}
+                  className={`relative h-3 w-3 rounded-full border transition-colors ${
+                    atteinte
+                      ? "border-cuivre bg-cuivre"
+                      : "border-champagne/35 bg-nuit"
+                  }`}
+                >
+                  <span className="sr-only">
+                    Étape {index + 1} sur {totalScreens}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+
+          <p className="mt-3 text-center text-[12.5px] text-champagne/75">
+            Étape {step + 1} sur {totalScreens}
+          </p>
         </section>
 
-        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
-          {/* Colonne principale */}
-          <div className="lg:col-span-2">
-            <div className="rounded-2xl border border-champagne/10 bg-gradient-to-br from-nuit/80 to-minuit/80 p-4 shadow-2xl backdrop-blur-sm sm:p-6 lg:p-8">
+        <section className="mt-7">
+          <div>
+            <div className="rounded-3xl border border-champagne/12 bg-minuit/80 p-5 sm:p-7">
               {/* Erreur globale */}
               {submitError && (
-                <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 sm:mb-6">
+                <div className="mb-5 flex items-start gap-3 rounded-xl border border-erreur/50 bg-erreur/20 px-4 py-3 text-sm text-champagne sm:mb-6">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{submitError}</span>
                 </div>
@@ -847,9 +839,9 @@ function InscriptionPageContent() {
                   >
                     {/* Badge étape */}
                     <div className="mb-4 sm:mb-6">
-                      <div className="inline-flex items-center rounded-full border border-cuivre/25 bg-gradient-to-r from-cuivre/15 to-cuivre-sombre/15 px-4 py-2">
-                        <Star className="mr-2 h-4 w-4 text-cuivre" />
-                        <span className="text-sm font-medium text-champagne">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-cuivre/35 bg-cuivre/10 px-4 py-1.5">
+                        <Star className="h-3.5 w-3.5 text-cuivre" />
+                        <span className="text-[12px] font-semibold text-champagne">
                           Étape profil
                         </span>
                       </div>
@@ -863,7 +855,7 @@ function InscriptionPageContent() {
                         <button
                           type="button"
                           onClick={onBack}
-                          className="flex w-full items-center justify-center gap-2 rounded-lg border border-champagne/12 px-6 py-3 text-champagne/70 transition-colors hover:bg-champagne/10 hover:text-champagne sm:w-auto"
+                          className={`flex w-full items-center justify-center gap-2 rounded-xl border border-champagne/25 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-champagne/50 sm:w-auto ${anneauFocus}`}
                         >
                           <ArrowLeft className="h-4 w-4" />
                           Retour
@@ -875,7 +867,7 @@ function InscriptionPageContent() {
                       <button
                         type="button"
                         onClick={onNext}
-                        className="fx-btn w-full rounded-lg bg-cuivre px-8 py-3 font-bold text-nuit transition-colors hover:bg-cuivre/90 sm:w-auto"
+                        className={`w-full rounded-xl bg-degrade-cuivre px-8 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 sm:w-auto ${anneauFocus}`}
                       >
                         Continuer
                       </button>
@@ -1091,7 +1083,7 @@ function InscriptionPageContent() {
                             type="button"
                             onClick={() => setStep(steps.length - 1)}
                             disabled={isSubmittingProfile}
-                            className="flex w-full items-center justify-center gap-2 rounded-lg border border-champagne/12 px-6 py-3 text-champagne/70 transition-colors hover:bg-champagne/10 hover:text-champagne disabled:opacity-50 sm:w-auto"
+                            className={`flex w-full items-center justify-center gap-2 rounded-xl border border-champagne/25 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-champagne/50 disabled:opacity-50 sm:w-auto ${anneauFocus}`}
                           >
                             <ArrowLeft className="h-4 w-4" />
                             Retour
@@ -1101,7 +1093,7 @@ function InscriptionPageContent() {
                             type="button"
                             onClick={handleSaveProfile}
                             disabled={isSubmittingProfile}
-                            className="fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-cuivre px-8 py-4 text-base font-bold text-nuit shadow-lg shadow-cuivre/20 transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:text-lg"
+                            className={`flex w-full items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-8 py-4 text-base font-bold text-nuit transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto ${anneauFocus}`}
                           >
                             {isSubmittingProfile ? (
                               <>
@@ -1121,7 +1113,7 @@ function InscriptionPageContent() {
                           <button
                             type="button"
                             onClick={handleGoToOffers}
-                            className="flex w-full items-center justify-center gap-2 rounded-lg border border-champagne/12 px-6 py-3 text-champagne/70 transition-colors hover:bg-champagne/10 hover:text-champagne sm:w-auto"
+                            className={`flex w-full items-center justify-center gap-2 rounded-xl border border-champagne/25 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-champagne/50 sm:w-auto ${anneauFocus}`}
                           >
                             <Star className="h-4 w-4" />
                             Voir les offres Premium
@@ -1130,7 +1122,7 @@ function InscriptionPageContent() {
                           <button
                             type="button"
                             onClick={handleAccessFreeAccount}
-                            className="fx-btn flex w-full items-center justify-center gap-2 rounded-xl bg-cuivre px-8 py-4 text-base font-bold text-nuit shadow-lg shadow-cuivre/20 transition-colors hover:bg-cuivre/90 sm:w-auto sm:text-lg"
+                            className={`flex w-full items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-8 py-4 text-base font-bold text-nuit transition-opacity hover:opacity-90 sm:w-auto ${anneauFocus}`}
                           >
                             <Sparkles className="h-5 w-5" />
                             Accéder à mon compte gratuit
@@ -1149,119 +1141,31 @@ function InscriptionPageContent() {
             </div>
           </div>
 
-          {/* Colonne latérale */}
-          <aside className="lg:col-span-1">
-            <div className="space-y-5 lg:sticky lg:top-8 lg:space-y-6">
-              {/* Avantages */}
-              <div className="rounded-2xl border border-cuivre/25 bg-gradient-to-br from-cuivre-sombre/25 to-cuivre/15 p-5 backdrop-blur-sm sm:p-6">
-                <div className="mb-5 flex items-center gap-3 sm:mb-6">
-                  <Crown className="h-6 w-6 text-cuivre" />
-
-                  <h3 className="text-lg font-bold text-champagne sm:text-xl">
-                    Avantages Sfera'Solys
-                  </h3>
-                </div>
-
-                <ul className="space-y-3 sm:space-y-4">
-                  {lunaBenefits.map((feature) => (
-                    <li key={feature} className="flex items-center gap-3">
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-succes/10">
-                        <Check className="h-3 w-3 text-succes" />
-                      </div>
-
-                      <span className="text-sm text-champagne/80">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-5 border-t border-cuivre/25 pt-5 sm:mt-6 sm:pt-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-sm text-champagne/70">
-                      Matches créés sur Sfera'Solys :
-                    </span>
-
-                    <span className="font-bold text-champagne">
-                      {liveStats ? liveStats.matchs : "—"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Témoignage — uniquement des témoignages réels et approuvés */}
-              {latestTestimonial && (
-                <div className="rounded-2xl border border-champagne/10 bg-nuit/60 p-5 backdrop-blur-sm sm:p-6">
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-degrade-cuivre">
-                      <Users className="h-6 w-6 text-champagne" />
-                    </div>
-
-                    <div>
-                      <h4 className="font-bold text-champagne">
-                        {latestTestimonial.authorName}
-                        {latestTestimonial.age
-                          ? `, ${latestTestimonial.age} ans`
-                          : ""}
-                      </h4>
-
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, index) => (
-                          <Star
-                            key={index}
-                            className="h-4 w-4 fill-current text-cuivre"
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-sm italic leading-relaxed text-champagne/70 sm:text-base">
-                    “{latestTestimonial.content}”
-                  </p>
-                </div>
-              )}
-
-              {/* Compteur — données réelles, mises à jour automatiquement */}
-              <div className="rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-minuit to-cyan-900/40 p-5 backdrop-blur-sm sm:p-6">
-                <div className="text-center">
-                  <div className="mb-2 text-sm font-medium text-cyan-400">
-                    MEMBRES INSCRITS
-                  </div>
-
-                  <div className="mb-2 text-3xl font-bold text-champagne sm:text-4xl">
-                    {liveStats ? liveStats.membres : "—"}
-                  </div>
-
-                  <div className="text-sm text-champagne/70">
-                    {liveStats ? liveStats.messages : "—"} messages échangés
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
         </section>
 
-        {/* Footer sécurisé */}
-        <footer className="mx-auto mt-8 max-w-3xl text-center">
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-champagne/55">
-            <div className="flex items-center gap-2">
-              <Lock className="h-4 w-4" />
-              <span>Paiement 100% sécurisé</span>
-            </div>
+        {/*
+          Pied du panneau. Les trois gages de l'ancienne version
+          (« Paiement 100% sécurisé », « Annulation à tout moment »,
+          « Données protégées ») ont sauté avec la colonne latérale : deux
+          d'entre eux parlaient de paiement, sur un écran où rien n'est
+          payant. Reste la seule phrase que la maquette garde.
+        */}
+        <footer className="mt-7 space-y-4 text-center">
+          <p className="text-[13px] text-champagne/80">
+            Déjà membre&nbsp;?{" "}
+            <button
+              type="button"
+              onClick={() => router.push("/auth?mode=login")}
+              className={`font-semibold text-cuivre transition-colors hover:text-champagne ${anneauFocus}`}
+            >
+              Connexion
+            </button>
+          </p>
 
-            <div className="hidden sm:block">•</div>
-
-            <div className="flex items-center gap-2">
-              <Check className="h-4 w-4" />
-              <span>Annulation à tout moment</span>
-            </div>
-
-            <div className="hidden sm:block">•</div>
-
-            <div className="flex items-center gap-2">
-              <Lock className="h-4 w-4" />
-              <span>Données protégées</span>
-            </div>
-          </div>
+          <p className="flex items-center justify-center gap-2 text-[12.5px] text-champagne/70">
+            <Lock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            Tes informations restent confidentielles.
+          </p>
         </footer>
       </div>
     </main>
@@ -1272,9 +1176,9 @@ export default function InscriptionPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#0A0D12] via-minuit to-minuit px-4 text-champagne">
+        <div className="flex min-h-screen items-center justify-center bg-nuit px-4 text-champagne">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-champagne/20 border-t-white" />
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-champagne/20 border-t-cuivre" />
             <p className="text-sm text-champagne/70 sm:text-base">
               Chargement de ton espace Sfera'Solys...
             </p>

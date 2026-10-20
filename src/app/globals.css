@@ -188,8 +188,10 @@ body {
   motif de nuit — la signature de la marque d'origine. Retourné en poussière
   solaire, des particules crème et vulcanico en suspension.
 
-  Toujours utilisé via <div className="stars" /> sur /auth, /inscription et
-  /paiement ; le nom de classe est conservé pour ne pas casser ces pages.
+  Il ne reste plus que /auth à s'en servir, via <div className="stars" />.
+  /paiement a été supprimée avec la refonte des tarifs, et /inscription a
+  troqué son décor contre une photographie en écran scindé. Le nom de classe
+  est conservé pour ne pas casser la seule page qui l'emploie encore.
 */
 .stars {
   position: fixed;

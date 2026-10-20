@@ -74,7 +74,7 @@ export default function Step3() {
 
         <select
           {...register("departement")}
-          className="w-full rounded-xl border border-champagne/15 bg-champagne/10 px-4 py-3 text-champagne outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
+          className="w-full rounded-xl border border-champagne/15 bg-nuit/60 px-4 py-3 text-champagne outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
         >
           <option value="" className="bg-[#0A0D12] text-champagne/70">
             Sélectionne ton département…
@@ -123,7 +123,7 @@ export default function Step3() {
           {...register("localisation")}
           type="text"
           placeholder="Saisis ta ville"
-          className="w-full rounded-xl border border-champagne/15 bg-champagne/10 px-4 py-3 text-champagne placeholder:text-champagne/55 outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
+          className="w-full rounded-xl border border-champagne/15 bg-nuit/60 px-4 py-3 text-champagne placeholder:text-champagne/55 outline-none transition-all focus:border-cuivre focus:ring-2 focus:ring-cuivre/25"
         />
 
         <div>
@@ -141,7 +141,7 @@ export default function Step3() {
                   className={`rounded-xl border px-3 py-3 text-sm font-medium transition-all ${
                     isSelected
                       ? "border-cuivre bg-cuivre/15 text-champagne shadow-lg shadow-cuivre/10"
-                      : "border-champagne/15 bg-champagne/5 text-champagne/90 hover:border-cuivre/50 hover:bg-champagne/10"
+                      : "border-champagne/20 bg-nuit/50 text-champagne/90 hover:border-cuivre/50 hover:bg-champagne/10"
                   }`}
                 >
                   {ville}
@@ -174,7 +174,7 @@ export default function Step3() {
                 className={`flex cursor-pointer items-center rounded-xl border p-3 transition-all sm:p-4 ${
                   isSelected
                     ? "border-cuivre bg-cuivre/15 shadow-lg shadow-cuivre/10"
-                    : "border-champagne/15 bg-champagne/5 hover:border-cuivre/50 hover:bg-champagne/10"
+                    : "border-champagne/20 bg-nuit/50 hover:border-cuivre/60 hover:bg-nuit/70"
                 }`}
               >
                 <input
