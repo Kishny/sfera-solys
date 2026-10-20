@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   IdCard,
@@ -128,11 +129,29 @@ function PanneauProfil() {
         cours de chargement et ne disaient pas ce que l'étape demande.
       */}
       <div className="flex items-center gap-4">
+        {/*
+          Une photographie, là où un pictogramme d'appareil photo sur un
+          aplat tenait la place. Le pictogramme se lisait comme un bouton
+          « ajouter une photo » resté vide, c'est-à-dire comme un défaut
+          d'affichage plutôt que comme un dossier qui se remplit.
+
+          C'est le septième portrait, découpé dans la même scène de groupe
+          que `profil-05` mais sur un autre homme : les six autres sont
+          déjà dans les aperçus juste en dessous, et retrouver le même
+          visage en « ton profil » puis en « 29 ans · Bron » deux sections
+          plus bas se remarquerait.
+        */}
         <span
           aria-hidden="true"
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cuivre/35 via-cuivre/10 to-succes/20"
+          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-nuit"
         >
-          <Camera size={18} className="text-champagne/75" />
+          <Image
+            src="/visuels/profils/profil-07.webp"
+            alt=""
+            fill
+            sizes="64px"
+            className="object-cover"
+          />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] font-semibold text-champagne/85">

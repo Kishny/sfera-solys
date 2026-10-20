@@ -40,11 +40,14 @@ pour recadrer sans perte visible.
 
 ## Portraits d'aperçu — `profils/`
 
-`profil-01.webp` à `profil-06.webp`, 512 × 512, recadrés depuis six sources
+`profil-01.webp` à `profil-07.webp`, 512 × 512, recadrés depuis six sources
 de `public/new-visuel/` datées du 20 octobre. Quatre venaient de portraits
 seuls ; `profil-05` et `profil-06` sont des visages découpés dans deux
 scènes de groupe, le cadrage ayant été calé sur une détection de visage
-plutôt qu'à l'œil.
+plutôt qu'à l'œil. `profil-07` est un septième visage, pris dans la même
+scène de groupe que `profil-05` mais sur un autre homme ; il sert au
+panneau « Ton profil » du parcours, et n'est pas dans les aperçus pour que
+le même visage ne se retrouve pas à deux titres différents sur la page.
 
 Ils servent **uniquement** aux avatars des aperçus d'interface
 (`InterfacePreviews.tsx`). Ce sont des photographies générées, pas des

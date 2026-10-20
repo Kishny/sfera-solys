@@ -138,8 +138,18 @@ function AvatarProfil({
         src={src}
         alt=""
         fill
-        sizes="(max-width: 640px) 120px, 160px"
-        className="object-cover"
+        sizes="(max-width: 640px) 120px, 200px"
+        /*
+          `object-[50%_42%]` et non le centre : les sources sont carrées et
+          la vignette du Circle est en 6/5, donc le haut et le bas sont
+          rognés. Centré, le cadre coupait le crâne et le menton et ne
+          laissait qu'une bande à hauteur des yeux. Remonter le point de
+          référence à 42 % garde la tête entière et les épaules.
+
+          Sans effet sur les vignettes de l'annuaire, carrées comme les
+          sources : il n'y a alors rien à rogner.
+        */
+        className="object-cover object-[50%_42%]"
       />
     </span>
   );
@@ -182,7 +192,7 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
                   : 'border-champagne/8 bg-nuit/50'
               }`}
             >
-              <AvatarProfil src={profil.photo} className="h-12 w-full sm:h-14" />
+              <AvatarProfil src={profil.photo} className="aspect-[6/5] w-full" />
 
               <span className="mt-2 block truncate text-[10px] font-semibold text-champagne/80">
                 {profil.age} ans · {profil.ville}
