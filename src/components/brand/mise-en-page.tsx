@@ -18,6 +18,21 @@ import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 
 /**
+ * Une icône posable dans une tuile.
+ *
+ * `LucideIcon` ne suffit pas : la marque a ses propres pictogrammes —
+ * `HexagonSix` pour le Circle of Six — qui ne sont pas des `forwardRef`
+ * lucide. Et l'inverse ne suffit pas non plus : une signature réduite à
+ * `size` refuse les icônes lucide, dont le type porte une référence SVG.
+ *
+ * L'union accepte les deux, et `size` étant commun aux deux, l'appel reste
+ * valide quel que soit le composant passé.
+ */
+export type IconeMarque =
+  | LucideIcon
+  | React.ComponentType<{ size?: number | string; className?: string }>;
+
+/**
  * Rythme vertical des sections.
  *
  * Trois passes de resserrage depuis le début de la refonte :
@@ -114,7 +129,7 @@ export function TuileIcone({
   icon: Icon,
   className,
 }: {
-  icon: LucideIcon;
+  icon: IconeMarque;
   className?: string;
 }) {
   return (
@@ -158,6 +173,51 @@ export function TitreSection({
       >
         {children}
       </h2>
+    </div>
+  );
+}
+
+
+/**
+ * En-tête de section en deux colonnes : le titre à gauche, une phrase
+ * d'introduction alignée à droite.
+ *
+ * C'est le motif que la maquette répète à chaque section. Il tient en une
+ * hauteur ce qu'un titre suivi d'un chapô prendrait en deux, et il donne au
+ * défilement une ligne de lecture constante : on sait où regarder pour le
+ * titre, où regarder pour le détail.
+ *
+ * `items-end` cale la phrase sur la dernière ligne du titre plutôt que sur
+ * sa première — sans quoi elle flotte dès que le titre passe sur deux
+ * lignes, ce qui arrive à toutes les largeurs intermédiaires.
+ */
+export function EnteteSection({
+  surtitre,
+  intro,
+  children,
+  className,
+}: {
+  surtitre: string;
+  intro?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-12',
+        className
+      )}
+    >
+      <TitreSection surtitre={surtitre} className="max-w-2xl">
+        {children}
+      </TitreSection>
+
+      {intro && (
+        <p className="max-w-sm text-[14px] leading-relaxed text-champagne/70 lg:text-right">
+          {intro}
+        </p>
+      )}
     </div>
   );
 }

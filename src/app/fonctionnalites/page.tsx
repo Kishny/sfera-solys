@@ -10,16 +10,18 @@ import {
   CalendarDays,
   Check,
   ChevronDown,
-  Compass,
   EyeOff,
   Flag,
   Ghost,
   GraduationCap,
-  Lightbulb,
+  Heart,
   Lock,
   MessageCircle,
   Rocket,
+  Search,
   ShieldCheck,
+  UserCheck,
+  Users,
 } from 'lucide-react';
 
 import Image from 'next/image';
@@ -33,7 +35,9 @@ import {
   premierBloc,
   focusRing,
   Filet,
-  TitreSection,
+  Surtitre,
+  EnteteSection,
+  TuileIcone,
 } from '@/components/brand/mise-en-page';
 
 /**
@@ -76,6 +80,14 @@ interface FeatureItem {
   link?: string;
   /** Fonctionnalité de tête, mise en avant comme l'offre recommandée des tarifs. */
   featured?: boolean;
+  /**
+   * Photographie de la carte.
+   *
+   * Les trois premières reprennent celles des cartes de la page d'accueil :
+   * une fonctionnalité doit avoir la même image aux deux endroits, sinon le
+   * visiteur qui clique croit arriver ailleurs.
+   */
+  image: string;
 }
 
 /**
@@ -105,6 +117,7 @@ const features: FeatureItem[] = [
     ],
     link: '/circle',
     featured: true,
+    image: '/visuels/solys-06.webp',
   },
   {
     id: 'ghost',
@@ -119,6 +132,7 @@ const features: FeatureItem[] = [
       'Conversations conservées',
     ],
     link: '/mode-fantome',
+    image: '/visuels/solys-07.webp',
   },
   {
     id: 'events',
@@ -133,6 +147,7 @@ const features: FeatureItem[] = [
       'Rencontres organisées',
     ],
     link: '/evenements',
+    image: '/visuels/solys-08.webp',
   },
   {
     id: 'coaching',
@@ -147,6 +162,7 @@ const features: FeatureItem[] = [
       'La réponse retenue reste visible',
     ],
     link: '/entraide',
+    image: '/visuels/solys-05.webp',
   },
   {
     id: 'security',
@@ -156,6 +172,7 @@ const features: FeatureItem[] = [
     details:
       'Modération, données protégées et outils de contrôle pour ton bien-être numérique. Rien à activer : ce socle est appliqué à tous les comptes, dès la vérification.',
     benefits: ['Modération active', 'Données protégées', 'Signalement rapide'],
+    image: '/visuels/solys-04.webp',
   },
   {
     id: 'boost',
@@ -169,6 +186,7 @@ const features: FeatureItem[] = [
       '1, 3 ou 10 par mois selon l’offre',
       'Mise en avant signalée sur la carte',
     ],
+    image: '/visuels/solys-01.webp',
   },
   {
     id: 'community',
@@ -183,6 +201,7 @@ const features: FeatureItem[] = [
       'Support entre membres',
     ],
     link: '/communaute',
+    image: '/visuels/solys-02.webp',
   },
 ];
 
@@ -195,29 +214,25 @@ const features: FeatureItem[] = [
   avec l'alternance.
 */
 const journey = [
+  { icon: Search, title: 'Découvrir', resume: 'Circle of Six et annuaire' },
   {
-    title: 'Découvrir',
-    description:
-      'Le Circle of Six te propose 6 profils par semaine, et l’annuaire te laisse chercher par toi-même.',
-  },
-  {
+    icon: MessageCircle,
     title: 'Échanger',
-    description:
-      "Le Mode Fantôme protège ton intimité le temps de la mise en confiance, et la messagerie reste sobre : pas de relances, pas de score à tenir.",
+    resume: 'Mode Fantôme et messagerie sobre',
   },
   {
+    icon: Users,
     title: 'Se rencontrer',
-    description:
-      "Les Événements Solys et la Communauté Solys sortent la rencontre de l'écran, avec un cadre clair et des membres vérifiés.",
+    resume: 'Événements et Communauté Solys',
   },
 ];
 
 /** Socle commun : ce qui s'applique à toutes les fonctionnalités. */
 const foundations = [
-  { icon: BadgeCheck, label: 'Identité vérifiée par document officiel' },
-  { icon: Lock, label: 'Données sécurisées (RGPD)' },
-  { icon: EyeOff, label: 'Tu décides ce que tu montres' },
-  { icon: Flag, label: 'Signalement traité par un humain' },
+  { icon: BadgeCheck, titre: 'Identité vérifiée', detail: 'par document officiel' },
+  { icon: Lock, titre: 'Données sécurisées', detail: '(RGPD)' },
+  { icon: EyeOff, titre: 'Tu décides', detail: 'ce que tu montres' },
+  { icon: Flag, titre: 'Signalement traité', detail: 'par un humain' },
 ];
 
 const notes = [
@@ -272,13 +287,23 @@ export default function FonctionnalitesPage() {
   }, []);
 
   const stats = [
-    { value: siteStats ? formatStat(siteStats.membres) : '…', label: 'Profils vérifiés' },
-    { value: siteStats ? formatStat(siteStats.matchs) : '…', label: 'Mises en relation' },
     {
+      icon: UserCheck,
+      value: siteStats ? formatStat(siteStats.membres) : '…',
+      label: 'Profils vérifiés',
+    },
+    {
+      icon: Heart,
+      value: siteStats ? formatStat(siteStats.matchs) : '…',
+      label: 'Mises en relation',
+    },
+    {
+      icon: MessageCircle,
       value: siteStats ? formatStat(siteStats.messages) : '…',
       label: 'Messages échangés',
     },
     {
+      icon: CalendarDays,
       value: siteStats ? formatStat(siteStats.evenements) : '…',
       label: 'Événements organisés',
     },
@@ -320,388 +345,80 @@ export default function FonctionnalitesPage() {
       <main id="contenu" className="relative bg-nuit text-champagne">
         {/* ═══════════════ Héros ═══════════════ */}
         {/*
-          Voile à 86 %, mesuré sur la photographie et non choisi à l'œil : le
-          texte du héros est centré, donc il passe partout sur l'image, y
-          compris sur les bougies de la table. À cette valeur, le champagne à
-          70 % y tient 5,60:1 et le cuivre 4,82 — l'un et l'autre au-dessus du
-          seuil du petit texte, ce qui n'était pas le cas à 78 %.
+          Aligné à gauche et non centré, comme la maquette : le texte tient
+          la moitié gauche, la photographie la droite. Même construction que
+          le héros de la page d'accueil, à ceci près que l'image s'arrête
+          plus tôt pour laisser la place au bandeau de vignettes.
+
+          Le surtitre remplace la pastille arrondie d'avant. Une pastille
+          annonce une étiquette ; le surtitre annonce une section, et c'est
+          celui qu'emploie tout le reste du site.
         */}
         <section className="relative isolate overflow-hidden px-4 sm:px-6 lg:px-16">
-          <div aria-hidden="true" className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 -z-20 lg:left-[44%]">
             <Image
-              src="/visuels/solys-05.webp"
-              alt=""
+              src="/visuels/solys-03.webp"
+              alt="Un homme de profil sur une terrasse, un verre à la main, la ville en contrebas."
               fill
               priority
-              sizes="100vw"
+              sizes="(max-width: 1024px) 100vw, 58vw"
               className="object-cover object-center"
             />
-            <div className="absolute inset-0 bg-nuit/86" />
-            <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit" />
+
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-nuit via-nuit/80 to-nuit/45 lg:bg-gradient-to-r lg:from-nuit lg:via-nuit/35 lg:to-nuit/15"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-nuit to-transparent"
+            />
+          </div>
+
+          {/*
+            Le bandeau de vignettes de la maquette : trois portraits empilés
+            au bord droit. Décoratifs — pas de nom, pas d'âge, pas de badge
+            « vérifié » à côté, donc rien qui puisse se lire comme un membre.
+            Masqués sous `xl`, où ils mangeraient la photographie.
+          */}
+          <div
+            aria-hidden="true"
+            className="absolute right-6 top-1/2 hidden -translate-y-1/2 flex-col gap-3 xl:flex"
+          >
+            {['profil-02', 'profil-03', 'profil-06'].map((nom) => (
+              <span
+                key={nom}
+                className="relative block h-20 w-16 overflow-hidden rounded-xl border border-champagne/15"
+              >
+                <Image
+                  src={`/visuels/profils/${nom}.webp`}
+                  alt=""
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
+              </span>
+            ))}
           </div>
 
           <motion.div
             {...fadeUp}
-            className={`mx-auto max-w-3xl pb-14 text-center sm:pb-16 ${premierBloc}`}
+            className={`relative mx-auto max-w-7xl pb-16 sm:pb-20 ${premierBloc}`}
           >
-            <span className="inline-block rounded-full border border-cuivre/35 bg-nuit/50 px-3.5 py-1.5 text-[11px] font-bold tracking-wide text-champagne backdrop-blur-sm">
-              7 fonctionnalités · vérification incluse
-            </span>
+            <div className="max-w-xl">
+              <Surtitre>7 fonctionnalités · vérification incluse</Surtitre>
 
-            <h1 className="font-display mt-6 text-[34px] font-normal leading-[1.1] tracking-tight text-ivoire sm:text-[46px]">
-              Tout ce que fait{' '}
-              <span className="text-cuivre">Sfera&rsquo;Solys</span>.
-            </h1>
+              <h1 className="font-display mt-6 text-[34px] font-normal leading-[1.08] tracking-tight text-ivoire sm:text-[46px]">
+                Tout ce que fait{' '}
+                <span className="text-cuivre">Sfera&rsquo;Solys</span>.
+              </h1>
 
-            <p className="mx-auto mt-5 max-w-xl text-[15px] leading-relaxed text-champagne/70 sm:text-base">
-              Chaque fonctionnalité répond à un moment précis : découvrir des
-              profils, te protéger, échanger, puis rencontrer. Rien de
-              décoratif, et rien qui se cache derrière un abonnement sans le
-              dire.
-            </p>
+              <p className="mt-5 max-w-md text-[15px] leading-relaxed text-champagne/70 sm:text-base">
+                Sept fonctionnalités pensées pour chaque moment de ton
+                parcours : découvrir, protéger, échanger, se rencontrer.
+              </p>
 
-            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link
-                href="/commencer"
-                className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
-              >
-                Constituer mon dossier
-                <ArrowRight size={16} />
-              </Link>
-
-              <Link
-                href="/tarifs"
-                className={`inline-flex items-center justify-center rounded-xl border border-champagne/25 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-cuivre/60 hover:text-ivoire ${focusRing}`}
-              >
-                Ce qui est inclus par offre
-              </Link>
-            </div>
-          </motion.div>
-        </section>
-
-        <Filet />
-
-        {/* ═══════════════ Les 7 fonctionnalités ═══════════════ */}
-        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
-          <div className="mx-auto max-w-7xl">
-            <TitreSection surtitre="Le catalogue">
-              Les sept fonctionnalités
-            </TitreSection>
-
-            <p className="mb-8 mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70">
-              Toutes sont pensées pour des hommes de 28 ans et plus, et ne
-              fonctionnent qu&apos;entre profils vérifiés.
-            </p>
-
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {features.map((feature) => {
-                const Icon = feature.icon;
-                const isOpen = openFeature === feature.id;
-
-                return (
-                  /*
-                    `id` et `scroll-mt` : les cartes de la page d'accueil
-                    renvoient ici, sur l'ancre de la fonctionnalité qu'elles
-                    annoncent. Sans `scroll-mt`, l'en-tête fixe recouvrirait
-                    le haut de la carte visée — 112 px, puis 128 au-delà de
-                    1280 px où l'en-tête passe à `h-20`.
-                  */
-                  <div
-                    key={feature.id}
-                    id={feature.id}
-                    className={`relative flex scroll-mt-28 flex-col rounded-2xl border p-5 sm:p-6 xl:scroll-mt-32 ${
-                      feature.featured
-                        ? 'border-cuivre/40 bg-minuit ring-1 ring-cuivre/20'
-                        : 'border-cuivre/15 bg-minuit'
-                    }`}
-                  >
-                    <Icon
-                      size={22}
-                      className={feature.featured ? 'text-cuivre' : 'text-champagne/55'}
-                    />
-
-                    <h3 className="font-display mt-3 text-[18px] font-normal leading-snug text-ivoire">
-                      {feature.title}
-                    </h3>
-
-                    <p className="mt-1 text-[13px] leading-relaxed text-champagne/55">
-                      {feature.description}
-                    </p>
-
-                    {/* Bouton de dépli, mobile uniquement */}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenFeature((current) =>
-                          current === feature.id ? null : feature.id
-                        )
-                      }
-                      aria-expanded={isOpen}
-                      className={`mt-4 flex items-center justify-between border-t border-cuivre/10 pt-3 text-[13px] font-semibold text-champagne/70 sm:hidden ${focusRing}`}
-                    >
-                      {isOpen ? 'masquer le détail' : 'voir le détail'}
-                      <ChevronDown
-                        size={15}
-                        className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-
-                    <div
-                      className={`flex-1 border-cuivre/10 sm:mt-4 sm:block sm:border-t sm:pt-4 ${
-                        isOpen ? 'mt-4 block' : 'hidden'
-                      }`}
-                    >
-                      <p className="text-[13px] leading-relaxed text-champagne/70">
-                        {feature.details}
-                      </p>
-
-                      <ul className="mt-3 space-y-2">
-                        {feature.benefits.map((benefit) => (
-                          <li key={benefit} className="flex items-start gap-2">
-                            <Check
-                              size={14}
-                              className={`mt-[3px] shrink-0 ${
-                                feature.featured ? 'text-cuivre' : 'text-succes'
-                              }`}
-                            />
-                            <span className="text-[13px] leading-relaxed text-champagne/70">
-                              {benefit}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/*
-                      Le lien menait droit à la page de la fonctionnalité,
-                      c'est-à-dire à l'espace membre — qui renvoie un visiteur
-                      non connecté sur le formulaire de connexion. Il lisait
-                      « découvrir » et livrait une barrière.
-
-                      Il mène donc à l'inscription pour un visiteur, et à la
-                      fonctionnalité pour un membre. Le libellé suit la
-                      destination : un lien doit annoncer où il va.
-                    */}
-                    {feature.link ? (
-                      <Link
-                        href={connecte ? feature.link : '/commencer'}
-                        className={`fx-link mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-champagne transition-colors ${focusRing}`}
-                      >
-                        {connecte ? 'ouvrir' : 'créer mon profil'}
-                        <ArrowRight size={14} />
-                      </Link>
-                    ) : (
-                      <p className="mt-5 text-[13px] text-champagne/55">
-                        Incluse partout, sans réglage.
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <Filet />
-
-        {/* ═══════════════ Comment elles s'enchaînent ═══════════════ */}
-        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
-          <div className="mx-auto max-w-3xl">
-            <TitreSection surtitre="L'ordre des choses" className="mb-10">
-              Comment elles s&apos;enchaînent
-            </TitreSection>
-
-            <ol className="flex flex-col">
-              {journey.map((step, i) => (
-                <li key={step.title} className="flex gap-5">
-                  <div className="flex shrink-0 flex-col items-center">
-                    <span
-                      className="font-display flex h-10 w-10 items-center justify-center rounded-full bg-cuivre text-[15px] font-extrabold text-nuit"
-                    >
-                      {i + 1}
-                    </span>
-                    {i < journey.length - 1 && (
-                      <span className="my-1.5 w-px flex-1 bg-cuivre/35" />
-                    )}
-                  </div>
-
-                  <div className={i < journey.length - 1 ? 'pb-10' : ''}>
-                    <h3 className="font-display mb-1.5 text-[18px] font-normal text-ivoire">
-                      {step.title}
-                    </h3>
-                    <p className="max-w-md text-sm leading-relaxed text-champagne/60">
-                      {step.description}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        <Filet />
-
-        {/* ═══════════════ Socle commun ═══════════════ */}
-        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
-          <div className="mx-auto max-w-7xl">
-            <TitreSection surtitre="Sans condition">
-              Le socle commun
-            </TitreSection>
-
-            <p className="mb-8 mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/70">
-              Ces quatre règles ne dépendent d&apos;aucune fonctionnalité ni
-              d&apos;aucune offre. Elles s&apos;appliquent à tous les comptes,
-              dès la validation du dossier.
-            </p>
-
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              {foundations.map(({ icon: Icon, label }) => (
-                <div
-                  key={label}
-                  className="flex flex-col gap-2.5 rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:p-[18px]"
-                >
-                  <Icon size={18} className="text-cuivre" />
-                  <span className="text-[13px] font-semibold text-champagne">{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {chiffresPrets && (
-        <>
-        <Filet />
-
-        {/* ═══════════════ Chiffres ═══════════════ */}
-        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
-          <div className="mx-auto max-w-7xl">
-            <TitreSection surtitre="En chiffres" className="mb-8">
-              Sfera&apos;Solys aujourd&apos;hui
-            </TitreSection>
-
-            <dl className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-              {stats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:p-[18px]"
-                >
-                  <dd className="font-display text-[30px] font-normal leading-none text-ivoire sm:text-[34px]">
-                    {stat.value}
-                  </dd>
-                  <dt className="mt-2 text-[13px] text-champagne/55">{stat.label}</dt>
-                </div>
-              ))}
-            </dl>
-
-            <p className="mt-6 text-[13px] text-champagne/60">
-              Chiffres mis à jour en continu depuis la plateforme.
-            </p>
-          </div>
-        </section>
-        </>
-        )}
-
-        <Filet />
-
-        {/* ═══════════════ Bon à savoir ═══════════════ */}
-        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
-          <div className="mx-auto max-w-3xl">
-            <TitreSection surtitre="Les questions qui reviennent" className="mb-8">
-              Bon à savoir
-            </TitreSection>
-
-            <div className="space-y-1.5">
-              {notes.map((note, index) => {
-                const isOpen = openNoteIndex === index;
-
-                return (
-                  <div
-                    key={note.question}
-                    className="overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenNoteIndex((current) => (current === index ? null : index))
-                      }
-                      aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-champagne sm:px-5 ${focusRing}`}
-                    >
-                      {note.question}
-                      <ChevronDown
-                        size={16}
-                        className={`shrink-0 text-champagne/55 transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <p className="border-t border-cuivre/10 px-4 py-4 text-[13px] leading-relaxed text-champagne/60 sm:px-5">
-                            {note.answer}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
-            </div>
-
-            <p className="mt-6 text-center text-[13px] text-champagne/55">
-              Une autre question ?{' '}
-              <Link
-                href="/faq"
-                className={`fx-link font-semibold text-cuivre hover:text-cuivre/80 ${focusRing}`}
-              >
-                voir la FAQ complète
-              </Link>
-            </p>
-          </div>
-        </section>
-
-        {/* ═══════════════ Appel final ═══════════════ */}
-        {/*
-          Même traitement que l'appel final de la page d'accueil : la
-          photographie court derrière, et le panneau se contente d'un fond
-          translucide pour qu'elle continue de se voir à travers lui.
-
-          Pas de filet avant : la photographie s'éteint d'elle-même en haut.
-        */}
-        <div className="relative isolate overflow-hidden">
-          <div aria-hidden="true" className="absolute inset-0 -z-10">
-            <Image
-              src="/visuels/solys-10.webp"
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover object-center"
-            />
-            <div className="absolute inset-0 bg-nuit/80" />
-            <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit" />
-          </div>
-
-          <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
-            <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-7 rounded-3xl border border-cuivre/25 bg-nuit/55 p-8 text-center backdrop-blur-md sm:p-10 lg:flex-row lg:text-left">
-              <div>
-                <h2 className="font-display text-[24px] font-normal leading-tight text-ivoire sm:text-[30px]">
-                  Les fonctionnalités s&apos;ouvrent après la vérification.
-                </h2>
-                <p className="mt-2.5 max-w-md text-sm leading-relaxed text-champagne/70">
-                  Constitution du dossier gratuite, sans engagement. Tu
-                  choisiras une offre ensuite, si tu en as envie.
-                </p>
-              </div>
-
-              <div className="flex shrink-0 flex-col items-center gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
                   href="/commencer"
                   className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
@@ -713,6 +430,409 @@ export default function FonctionnalitesPage() {
                 <Link
                   href="/tarifs"
                   className={`inline-flex items-center justify-center rounded-xl border border-champagne/25 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-cuivre/60 hover:text-ivoire ${focusRing}`}
+                >
+                  Voir ce qui est inclus par offre
+                </Link>
+              </div>
+            </div>
+
+            {/*
+              L'accroche manuscrite de la maquette, rendue en Playfair
+              italique. Aucune police supplémentaire n'est chargée pour une
+              ligne décorative : un troisième caractère coûterait une requête
+              et un risque de décalage au chargement, pour un ornement.
+            */}
+            <p
+              aria-hidden="true"
+              className="font-display mt-12 hidden text-right text-[19px] italic leading-snug text-cuivre lg:block"
+            >
+              Des rencontres
+              <br />
+              qui ont du sens
+            </p>
+          </motion.div>
+        </section>
+
+        <Filet />
+
+        {/* ═══════════════ Les sept fonctionnalités ═══════════════ */}
+        {/*
+          Quatre cartes puis trois, en deux grilles distinctes : c'est la
+          disposition de la maquette, et elle a une raison. Une grille unique
+          de quatre colonnes laisserait la seconde rangée à trois cartes
+          calées à gauche, avec un vide à droite qui se lit comme un oubli.
+          Deux grilles donnent deux rangées pleines.
+        */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+          <div className="mx-auto max-w-7xl">
+            <EnteteSection
+              surtitre="Nos 7 fonctionnalités"
+              intro="Chaque fonctionnalité sert un moment précis de ton parcours, du premier regard jusqu'à la rencontre."
+              className="mb-10"
+            >
+              Des outils pensés pour des rencontres de qualité.
+            </EnteteSection>
+
+            {[features.slice(0, 4), features.slice(4)].map((rangee, r) => (
+              <div
+                key={r}
+                className={`grid gap-5 sm:grid-cols-2 ${
+                  r === 0 ? 'lg:grid-cols-4' : 'mt-5 lg:grid-cols-3'
+                }`}
+              >
+                {rangee.map((feature) => {
+                  const Icon = feature.icon;
+
+                  return (
+                    <article
+                      key={feature.id}
+                      id={feature.id}
+                      className={`flex scroll-mt-28 flex-col overflow-hidden rounded-2xl border bg-minuit xl:scroll-mt-32 ${
+                        feature.featured
+                          ? 'border-cuivre/40 ring-1 ring-cuivre/20'
+                          : 'border-cuivre/15'
+                      }`}
+                    >
+                      <div className="relative aspect-[16/9] w-full overflow-hidden">
+                        <Image
+                          src={feature.image}
+                          alt=""
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover object-center"
+                        />
+                        <div
+                          aria-hidden="true"
+                          className="absolute inset-0 bg-gradient-to-t from-minuit via-minuit/30 to-transparent"
+                        />
+                      </div>
+
+                      <div className="flex flex-1 flex-col p-5">
+                        <div className="flex items-start gap-3.5">
+                          <TuileIcone icon={Icon} className="h-11 w-11" />
+
+                          <div className="min-w-0">
+                            <h3 className="font-display text-[18px] font-normal leading-snug text-ivoire">
+                              {feature.title}
+                            </h3>
+                            <p className="mt-1 text-[12.5px] leading-snug text-champagne/70">
+                              {feature.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        <ul className="mt-5 space-y-2.5">
+                          {feature.benefits.map((benefit) => (
+                            <li key={benefit} className="flex items-start gap-2.5">
+                              <span
+                                aria-hidden="true"
+                                className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-cuivre/40 text-cuivre"
+                              >
+                                <Check size={9} strokeWidth={3} />
+                              </span>
+                              <span className="text-[12.5px] leading-snug text-champagne/70">
+                                {benefit}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        {/*
+                          Le lien menait droit à l'espace membre, qui renvoie
+                          un visiteur non connecté sur le formulaire de
+                          connexion : il lisait « découvrir » et livrait une
+                          barrière. Il mène à l'inscription pour un visiteur,
+                          à la fonctionnalité pour un membre, et le libellé
+                          suit la destination.
+                        */}
+                        {feature.link ? (
+                          <Link
+                            href={connecte ? feature.link : '/commencer'}
+                            className={`mt-auto inline-flex items-center gap-1.5 pt-5 text-[13px] font-semibold text-cuivre transition-colors hover:text-champagne ${focusRing}`}
+                          >
+                            {connecte ? 'Ouvrir' : 'Découvrir'}
+                            <ArrowRight size={14} />
+                          </Link>
+                        ) : (
+                          <p className="mt-auto pt-5 text-[12.5px] text-champagne/55">
+                            Incluse partout, sans réglage.
+                          </p>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <Filet />
+
+        {/* ═══════════════ Le parcours ═══════════════ */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+          <div className="mx-auto max-w-7xl">
+            <EnteteSection
+              surtitre="Comment elles s'enchaînent"
+              intro="De la découverte à la rencontre, chaque fonctionnalité trouve sa place au bon moment."
+              className="mb-10"
+            >
+              Un parcours simple et naturel.
+            </EnteteSection>
+
+            {/*
+              Horizontal, avec une flèche entre les étapes — la maquette lit
+              le parcours comme une ligne, pas comme une liste. La flèche
+              disparaît sous `lg`, où les étapes s'empilent : une flèche qui
+              pointe à droite entre deux blocs superposés ne veut rien dire.
+            */}
+            <ol className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-3">
+              {journey.map((step, i) => {
+                const Icone = step.icon;
+
+                return (
+                  <li
+                    key={step.title}
+                    className="flex flex-1 items-center gap-3"
+                  >
+                    <div className="flex flex-1 items-center gap-4 rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:p-5">
+                      <span className="font-display flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cuivre text-[14px] font-extrabold text-nuit">
+                        {i + 1}
+                      </span>
+
+                      <span
+                        aria-hidden="true"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-cuivre/30 bg-nuit/60 text-cuivre"
+                      >
+                        <Icone size={18} />
+                      </span>
+
+                      <span className="min-w-0">
+                        <span className="block text-[15px] font-semibold text-champagne">
+                          {step.title}
+                        </span>
+                        <span className="mt-0.5 block text-[12.5px] leading-snug text-champagne/70">
+                          {step.resume}
+                        </span>
+                      </span>
+                    </div>
+
+                    {i < journey.length - 1 && (
+                      <ArrowRight
+                        aria-hidden="true"
+                        size={18}
+                        className="hidden shrink-0 text-cuivre/60 lg:block"
+                      />
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        </section>
+
+        <Filet />
+
+        {/* ═══════════════ Le socle commun ═══════════════ */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+          <div className="mx-auto max-w-7xl">
+            <EnteteSection
+              surtitre="Le socle commun"
+              intro="Ces principes s'appliquent à toutes les fonctionnalités."
+              className="mb-10"
+            >
+              Un environnement sûr et maîtrisé.
+            </EnteteSection>
+
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+              {foundations.map(({ icon: Icon, titre, detail }) => (
+                <li
+                  key={titre}
+                  className="flex items-center gap-4 rounded-2xl border border-cuivre/15 bg-minuit p-5"
+                >
+                  <TuileIcone icon={Icon} />
+
+                  <span className="min-w-0">
+                    <span className="block text-[14px] font-semibold text-champagne">
+                      {titre}
+                    </span>
+                    <span className="mt-0.5 block text-[12.5px] leading-snug text-champagne/70">
+                      {detail}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {chiffresPrets && (
+          <>
+            <Filet />
+
+            {/* ═══════════════ Les chiffres ═══════════════ */}
+            <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+              <div className="mx-auto max-w-7xl">
+                <EnteteSection
+                  surtitre="Sfera'Solys en chiffres"
+                  intro="Chiffres mis à jour en continu depuis la plateforme."
+                  className="mb-10"
+                >
+                  Une communauté en pleine croissance.
+                </EnteteSection>
+
+                <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+                  {stats.map(({ icon: Icon, value, label }) => (
+                    <div
+                      key={label}
+                      className="flex items-center gap-4 rounded-2xl border border-cuivre/15 bg-minuit p-5"
+                    >
+                      <TuileIcone icon={Icon} />
+
+                      <div className="min-w-0">
+                        <dt className="text-[12.5px] text-champagne/70">
+                          {label}
+                        </dt>
+                        <dd className="font-display mt-1 text-[26px] font-normal leading-none text-ivoire">
+                          {value}
+                        </dd>
+                      </div>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </section>
+          </>
+        )}
+
+        <Filet />
+
+        {/* ═══════════════ Bon à savoir ═══════════════ */}
+        <section className={`px-4 sm:px-6 lg:px-16 ${sectionY}`}>
+          <div className="mx-auto max-w-7xl">
+            <EnteteSection
+              surtitre="Bon à savoir"
+              intro="Des réponses claires pour avancer sereinement."
+              className="mb-10"
+            >
+              Vos questions, nos réponses.
+            </EnteteSection>
+
+            {/*
+              L'accordéon tient la colonne de gauche et le lien vers la FAQ
+              se cale en bas à droite, comme la maquette. Il était centré
+              sous les questions, où il se lisait comme une quatrième
+              question plutôt que comme une sortie.
+            */}
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:gap-10">
+              <div className="flex-1 space-y-2">
+                {notes.map((note, index) => {
+                  const isOpen = openNoteIndex === index;
+
+                  return (
+                    <div
+                      key={note.question}
+                      className="overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit"
+                    >
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenNoteIndex((current) =>
+                            current === index ? null : index
+                          )
+                        }
+                        aria-expanded={isOpen}
+                        className={`flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-sm font-semibold text-champagne ${focusRing}`}
+                      >
+                        {note.question}
+                        <ChevronDown
+                          size={16}
+                          className={`shrink-0 text-cuivre transition-transform ${
+                            isOpen ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </button>
+
+                      <AnimatePresence initial={false}>
+                        {isOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{
+                              duration: shouldReduceMotion ? 0 : 0.2,
+                            }}
+                            className="overflow-hidden"
+                          >
+                            <p className="border-t border-cuivre/10 px-5 py-4 text-[13px] leading-relaxed text-champagne/70">
+                              {note.answer}
+                            </p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <Link
+                href="/faq"
+                className={`inline-flex shrink-0 items-center gap-2.5 self-start rounded-xl border border-cuivre/40 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-cuivre hover:text-ivoire lg:self-auto ${focusRing}`}
+              >
+                Voir la FAQ complète
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════ Appel final ═══════════════ */}
+        {/*
+          Une bande pleine largeur sur la photographie, et non le panneau
+          encadré d'avant : la maquette laisse l'image aller jusqu'aux bords.
+          Pas de filet avant, la photographie s'éteint d'elle-même en haut.
+
+          Voile à 80 %, mesuré sur l'image : le champagne à 70 % y tient
+          5,03:1 et le cuivre 4,18.
+        */}
+        <div className="relative isolate overflow-hidden">
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <Image
+              src="/visuels/solys-10.webp"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-nuit/80" />
+            <div className="absolute inset-0 bg-gradient-to-b from-nuit via-transparent to-nuit/60" />
+          </div>
+
+          <section className="px-4 py-14 sm:px-6 sm:py-16 lg:px-16">
+            <div className="mx-auto flex max-w-7xl flex-col gap-7 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+              <div>
+                <h2 className="font-display text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
+                  Les fonctionnalités s&apos;ouvrent après la vérification.
+                </h2>
+                <p className="mt-3 max-w-md text-[14px] leading-relaxed text-champagne/70">
+                  Constitution du dossier gratuite, sans engagement.
+                  <br className="hidden sm:block" /> Tu choisiras une offre
+                  ensuite, si tu en as envie.
+                </p>
+              </div>
+
+              <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/commencer"
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                >
+                  Constituer mon dossier
+                  <ArrowRight size={16} />
+                </Link>
+
+                <Link
+                  href="/tarifs"
+                  className={`inline-flex items-center justify-center rounded-xl border border-champagne/25 bg-nuit/40 px-6 py-3.5 text-sm font-semibold text-champagne backdrop-blur-sm transition-colors hover:border-cuivre/60 hover:text-ivoire ${focusRing}`}
                 >
                   Voir les tarifs
                 </Link>
