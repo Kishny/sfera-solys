@@ -420,8 +420,18 @@ export default function Home() {
             Le `pt` du héros n'obéit pas à `sectionY` : il compense l'en-tête
             fixe, qui recouvre le haut de la page. C'est une hauteur de
             dégagement, pas une respiration entre deux sections.
+
+            **L'en-tête ne fait pas la même hauteur partout** : `h-14` (56 px),
+            `sm:h-16` (64) puis `xl:h-20` (80). Le `pt` doit donc suivre ces
+            trois paliers-là, et non ceux de la grille. Règle : environ 48 px
+            de dégagement sous la bordure de l'en-tête, à toutes les largeurs.
+
+            C'est ce qui avait été raté en resserrant la page : `lg:pt-20`
+            valait 80 px, exactement la hauteur de l'en-tête au-delà de
+            1280 px — le surtitre venait se coller à la bordure. Le palier
+            qui compte pour cette valeur est `xl`, pas `lg`.
           */}
-          <div className="mx-auto max-w-7xl pb-8 pt-24 sm:pb-10 sm:pt-24 lg:pb-12 lg:pt-20">
+          <div className="mx-auto max-w-7xl pb-8 pt-24 sm:pb-10 sm:pt-28 lg:pb-12 xl:pt-32">
             <motion.div {...fadeUp} className="max-w-xl">
               <Surtitre>Plateforme de rencontres vérifiées</Surtitre>
 
