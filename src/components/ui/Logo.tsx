@@ -97,14 +97,35 @@ export function Logo({
       )}
 
       <span className="inline-flex flex-col">
+        {/*
+          Le mot-symbole est en deux moitiés, et c'est volontaire.
+
+          « Sfera » reste en Playfair romain sur l'ivoire : c'est le nom
+          commun aux deux marques, celui que Solys partage avec Luna.
+          « Solys » passe en italique grasse cuivrée — ce qui distingue
+          cette marque-ci est donc ce qui est mis en avant.
+
+          Les trois écarts jouent ensemble plutôt qu'en concurrence : la
+          graisse donne le poids, l'italique l'inclinaison, le cuivre la
+          chaleur. Aucune police supplémentaire n'est chargée : Playfair est
+          déjà pris en 400 et 700, romain et italique (voir `app/fonts.ts`).
+
+          `pl-[0.02em]` : un italique qui suit un romain a besoin d'un
+          souffle, sinon le S penché vient toucher l'apostrophe. La valeur est
+          en em pour suivre la taille, de 18 px dans l'en-tête mobile à 48
+          dans le pied de page.
+        */}
         <span
           aria-hidden="true"
           className={cn(
-            "font-display font-normal leading-none tracking-tight text-ivoire",
+            "font-display leading-none tracking-tight",
             sizeStyles[size]
           )}
         >
-          Sfera&rsquo;Solys
+          <span className="font-normal text-ivoire">Sfera&rsquo;</span>
+          <span className="pl-[0.02em] font-bold italic text-cuivre">
+            Solys
+          </span>
         </span>
 
         {tagline && (
