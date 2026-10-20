@@ -893,7 +893,7 @@ export default function Home() {
           voir à travers lui — c'est ce que montre la maquette, et c'est ce
           qui le distingue d'un encart collé par-dessus une image.
         */}
-        <section className="px-4 pb-14 sm:px-6 sm:pb-16 lg:px-16 lg:pb-20">
+        <section className="px-4 pb-12 sm:px-6 sm:pb-14 lg:px-16 lg:pb-16">
           <div className="mx-auto max-w-7xl rounded-3xl border border-cuivre/25 bg-nuit/55 p-8 backdrop-blur-md sm:p-10">
             <div className="flex flex-col items-start justify-between gap-7 lg:flex-row lg:items-center">
               <div>

@@ -11,7 +11,6 @@ import {
   ShieldCheck,
   Users,
   Gem,
-  Lock,
   Globe,
   ChevronDown,
   Smartphone,
@@ -206,9 +205,9 @@ export default function Footer() {
       </div>
 
       <div className="px-4 sm:px-6 lg:px-16">
-        <div className="mx-auto max-w-7xl py-14 sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl py-12 sm:py-14 lg:py-16">
           {/* ───────── Haut : marque + colonnes ───────── */}
-          <div className="grid gap-12 lg:grid-cols-[1.8fr_0.9fr_1fr_1fr_2fr] lg:gap-10">
+          <div className="grid gap-10 lg:grid-cols-[1.8fr_0.9fr_1fr_1fr_2fr] lg:gap-8">
             {/* La marque */}
             <div>
               <Logo
@@ -220,12 +219,12 @@ export default function Footer() {
                 tagline="Plus que des rencontres, des horizons partagés."
               />
 
-              <p className="mt-6 max-w-xs text-[14px] leading-relaxed text-champagne/65">
+              <p className="mt-5 max-w-xs text-[14px] leading-relaxed text-champagne/65">
                 Une plateforme pensée pour les hommes qui veulent des
                 rencontres sincères, sûres et alignées avec leur vibe.
               </p>
 
-              <ul className="mt-6 flex flex-wrap items-center gap-2">
+              <ul className="mt-5 flex flex-wrap items-center gap-2">
                 {RESEAUX.map((reseau) => (
                   <li key={reseau.label}>
                     <Link
@@ -239,7 +238,7 @@ export default function Footer() {
                 ))}
               </ul>
 
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-5 flex flex-wrap gap-3">
                 <BadgeMagasin magasin="App Store" />
                 <BadgeMagasin magasin="Google Play" />
               </div>
@@ -250,7 +249,7 @@ export default function Footer() {
               <nav key={colonne.titre} aria-label={colonne.titre}>
                 <TitreColonne>{colonne.titre}</TitreColonne>
 
-                <ul className="mt-5 space-y-3">
+                <ul className="mt-4 space-y-2.5">
                   {colonne.liens.map((lien) => (
                     <li key={lien.href}>
                       <Link
@@ -269,16 +268,16 @@ export default function Footer() {
             <div>
               <TitreColonne>Rester informé</TitreColonne>
 
-              <p className="mt-5 max-w-[16rem] text-[14px] leading-relaxed text-champagne/65">
+              <p className="mt-4 max-w-[16rem] text-[14px] leading-relaxed text-champagne/65">
                 Conseils, événements et nouveautés en avant-première.
               </p>
 
+              {/*
+                Pas de mention « pas de spam » ajoutée ici : NewsletterSignup
+                porte déjà la sienne. En doubler une deuxième par-dessus
+                faisait se chevaucher deux phrases presque identiques.
+              */}
               <NewsletterSignup variant="dark" className="mt-4" />
-
-              <p className="mt-3 flex items-center gap-1.5 text-[11px] text-champagne/55">
-                <Lock size={11} aria-hidden="true" className="shrink-0" />
-                Pas de spam. Désabonnement en un clic.
-              </p>
             </div>
           </div>
 
@@ -289,7 +288,7 @@ export default function Footer() {
             `flex`, où l'ordre du DOM et l'ordre visuel coïncident — ce qui
             n'aurait pas été vrai sur une grille repassant en colonnes.
           */}
-          <ul className="mt-14 flex flex-col gap-6 border-t border-champagne/10 pt-10 sm:flex-row sm:gap-0 sm:divide-x sm:divide-champagne/10">
+          <ul className="mt-10 flex flex-col gap-6 border-t border-champagne/20 pt-8 sm:flex-row sm:gap-0 sm:divide-x sm:divide-champagne/20">
             {GARANTIES.map(({ icone: Icone, titre, texte }) => (
               <li
                 key={titre}
@@ -315,7 +314,7 @@ export default function Footer() {
           </ul>
 
           {/* ───────── Barre basse ───────── */}
-          <div className="mt-10 flex flex-col gap-5 border-t border-champagne/10 pt-7 lg:flex-row lg:items-center lg:justify-between">
+          <div className="mt-8 flex flex-col gap-5 border-t border-champagne/20 pt-6 lg:flex-row lg:items-center lg:justify-between">
             <p className="text-[12px] text-champagne/55">
               © {new Date().getFullYear()} Sfera&rsquo;Solys. Tous droits
               réservés.
