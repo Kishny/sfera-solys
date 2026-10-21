@@ -34,6 +34,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import EnteteEspace from "@/components/espace/EnteteEspace";
 import { useSession } from "next-auth/react";
@@ -47,6 +48,7 @@ import {
   Heart,
   Loader2,
   Lock,
+  Info,
   Sparkle,
   X,
 } from "lucide-react";
@@ -201,13 +203,55 @@ export default function PageVisibilite() {
 
   return (
     <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-6xl">
         <EnteteEspace
           className="mb-6"
           surtitre="Confidentialité et visibilité"
           titre="Qui peut voir ton profil&nbsp;?"
           sousTitre="Quatre options de visibilité, à ajuster librement sans perdre tes conversations."
         />
+
+        {/*
+          Panneau d'introduction.
+
+          Voile mesuré sur `solys-06` dans la zone de texte : l'ivoire y
+          tient 15,93:1, le champagne à 80 % 8,50 et le surtitre cuivré
+          6,31. La photographie reste franche à droite, où rien n'est posé.
+        */}
+        <section className="relative isolate mb-5 overflow-hidden rounded-2xl border border-champagne/12">
+          <Image
+            src="/visuels/solys-06.webp"
+            alt=""
+            fill
+            sizes="(max-width: 1280px) 100vw, 1100px"
+            className="-z-10 object-cover object-center"
+          />
+
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(10,13,18,0.92)_0%,rgba(10,13,18,0.88)_45%,rgba(10,13,18,0.55)_70%,rgba(10,13,18,0.15)_100%)]"
+          />
+
+          <div className="p-6 sm:p-8">
+            <p className="text-[11px] font-semibold uppercase tracking-surtitre text-cuivre/90">
+              Visibilité et confidentialité
+            </p>
+
+            <h2 className="font-display mt-3.5 max-w-lg text-[24px] font-normal leading-tight text-ivoire sm:text-[30px]">
+              Garde le contrôle de ta présence.
+            </h2>
+
+            <p className="mt-3.5 max-w-xl text-[13.5px] leading-relaxed text-champagne/85">
+              Choisis qui peut découvrir ton profil. Tes messages et tes mises
+              en relation restent accessibles, quel que soit ton réglage de
+              visibilité.
+            </p>
+
+            <p className="mt-8 text-right text-[10.5px] text-champagne/70">
+              Visuel de démonstration — aucun membre représenté
+            </p>
+          </div>
+        </section>
 
         {/* Confirmation */}
         {confirmation && (
@@ -271,7 +315,11 @@ export default function PageVisibilite() {
           </div>
         ) : (
           <>
-            <ul className="space-y-3" role="radiogroup" aria-label="Visibilité">
+            <ul
+              className="grid gap-4 lg:grid-cols-2"
+              role="radiogroup"
+              aria-label="Visibilité"
+            >
               {NIVEAUX.map((niveau) => {
                 const Icone = niveau.icone;
                 const actif = visibilite === niveau.valeur;
@@ -279,64 +327,78 @@ export default function PageVisibilite() {
                 const enCours = enregistrement === niveau.valeur;
 
                 return (
-                  <li key={niveau.valeur}>
+                  <li key={niveau.valeur} className="h-full">
                     <button
                       type="button"
                       role="radio"
                       aria-checked={actif}
                       disabled={verrouille || enregistrement !== null}
                       onClick={() => choisir(niveau)}
-                      className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-colors sm:p-5 ${focusRing} ${
+                      className={`flex h-full w-full flex-col rounded-2xl border p-5 text-left transition-colors sm:p-6 ${focusRing} ${
                         actif
-                          ? "border-cuivre bg-cuivre/[0.08]"
-                          : "border-champagne/10 bg-minuit hover:border-champagne/25"
-                      } ${verrouille ? "cursor-not-allowed opacity-60" : ""} ${
+                          ? "border-cuivre bg-cuivre/[0.07]"
+                          : "border-champagne/12 bg-minuit/80 hover:border-cuivre/45"
+                      } ${verrouille ? "cursor-not-allowed opacity-70" : ""} ${
                         enregistrement !== null && !enCours ? "opacity-60" : ""
                       }`}
                     >
-                      <span
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                          actif ? "bg-cuivre text-nuit" : "bg-champagne/[0.06] text-champagne/70"
-                        }`}
-                      >
-                        {enCours ? (
-                          <Loader2
-                            size={17}
-                            className="animate-spin"
-                            aria-hidden="true"
-                          />
+                      {/*
+                        La pastille de droite dit l'état, pas la couleur : vert
+                        quand c'est le réglage en cours, cuivre quand c'est un
+                        choix possible, cuivre aussi quand il demande une offre
+                        — et elle porte alors le cadenas pour le distinguer.
+                      */}
+                      <span className="flex w-full items-start justify-between gap-4">
+                        <span
+                          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border bg-nuit/60 ${
+                            actif
+                              ? "border-cuivre text-cuivre"
+                              : "border-cuivre/40 text-cuivre"
+                          }`}
+                        >
+                          {enCours ? (
+                            <Loader2
+                              size={18}
+                              className="animate-spin"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <Icone size={18} aria-hidden="true" />
+                          )}
+                        </span>
+
+                        {actif ? (
+                          <span className="shrink-0 rounded-full border border-succes/45 bg-succes/12 px-3 py-1 text-[11.5px] font-semibold text-succes">
+                            Actif
+                          </span>
+                        ) : verrouille ? (
+                          <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-cuivre/45 px-3 py-1 text-[11.5px] font-semibold text-cuivre">
+                            <Lock size={11} aria-hidden="true" />
+                            Premium
+                          </span>
                         ) : (
-                          <Icone size={17} aria-hidden="true" />
+                          <span className="shrink-0 rounded-full border border-cuivre/45 px-3 py-1 text-[11.5px] font-semibold text-cuivre">
+                            Choisir
+                          </span>
                         )}
                       </span>
 
-                      <span className="min-w-0 flex-1">
-                        <span className="flex flex-wrap items-center gap-2">
-                          <span className="font-display text-[15px] font-bold text-champagne">
-                            {niveau.titre}
-                          </span>
+                      <span className="font-display mt-5 block text-[20px] font-normal leading-snug text-ivoire">
+                        {niveau.titre}
+                      </span>
 
-                          {actif && (
-                            <span className="rounded-full bg-cuivre px-2 py-0.5 text-[11px] font-bold text-nuit">
-                              Actif
-                            </span>
-                          )}
+                      <span className="mt-2.5 block text-[13px] leading-relaxed text-champagne/85">
+                        {niveau.resume}
+                      </span>
 
-                          {verrouille && (
-                            <span className="flex items-center gap-1 rounded-full border border-champagne/15 px-2 py-0.5 text-[11px] font-semibold text-champagne/70">
-                              <Lock size={10} aria-hidden="true" />
-                              Premium
-                            </span>
-                          )}
-                        </span>
-
-                        <span className="mt-1 block text-[13px] font-semibold text-champagne/80">
-                          {niveau.resume}
-                        </span>
-
-                        <span className="mt-1.5 block text-[12px] leading-relaxed text-champagne/60">
-                          {niveau.detail}
-                        </span>
+                      {/*
+                        La maquette s'arrête au résumé. Le détail est conservé
+                        en dessous : il dit ce que le réglage fait vraiment —
+                        et c'est précisément ce qui manquait quand la page
+                        promettait des photos floutées qui n'existent pas.
+                      */}
+                      <span className="mt-2 block text-[12px] leading-relaxed text-champagne/65">
+                        {niveau.detail}
                       </span>
                     </button>
                   </li>
@@ -345,16 +407,24 @@ export default function PageVisibilite() {
             </ul>
 
             {!isPremium && (
-              <p className="mt-5 text-[12px] leading-relaxed text-champagne/60">
-                Le Mode Fantôme fait partie des offres Premium et Elite.{" "}
+              <div className="mt-5 flex flex-col gap-4 rounded-2xl border border-cuivre/35 bg-cuivre/[0.07] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="flex items-start gap-3 text-[13px] leading-relaxed text-champagne/85">
+                  <Info
+                    size={16}
+                    aria-hidden="true"
+                    className="mt-0.5 shrink-0 text-cuivre"
+                  />
+                  Le Mode Fantôme est inclus dans les offres Premium et Elite.
+                  Les trois autres réglages sont accessibles à tous.
+                </p>
+
                 <Link
                   href="/tarifs"
-                  className={`font-semibold text-champagne underline underline-offset-2 hover:text-cuivre ${focusRing}`}
+                  className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-5 py-3 text-[13px] font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
                 >
-                  Voir les offres
+                  Comparer les offres
                 </Link>
-                . Les trois autres réglages sont accessibles à tous.
-              </p>
+              </div>
             )}
 
             {/* Ce que le mode ne fait pas */}

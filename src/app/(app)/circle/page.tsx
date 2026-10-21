@@ -36,11 +36,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import EnteteEspace from "@/components/espace/EnteteEspace";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   AlertCircle,
+  ArrowRight,
   CalendarClock,
   Crown,
   Flag,
@@ -51,6 +53,7 @@ import {
   MessageCircle,
   ShieldCheck,
   Sparkle,
+  Sparkles,
   UserRound,
   X,
 } from "lucide-react";
@@ -264,7 +267,7 @@ export default function PageCircle() {
   return (
     <>
       <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-6xl">
           <EnteteEspace
             className="mb-6"
             surtitre={verrouille ? "Aperçu de la fonctionnalité" : "Cercle & communauté"}
@@ -278,38 +281,175 @@ export default function PageCircle() {
             }}
           />
 
-          {/* Accès réservé */}
+          {/*
+            Aperçu, pour qui n'a pas encore l'accès.
+
+            L'ancienne version tenait en un cadre centré : un cadenas, deux
+            phrases, un bouton. La maquette en fait une présentation de la
+            fonctionnalité — ce qu'elle est, ce qu'elle donne, comment elle
+            marche — parce que c'est l'écran où quelqu'un décide de payer ou
+            non. Le contenu factuel ne change pas : le Circle s'ouvre dès
+            l'offre Essentiel, le reste est déjà accessible.
+
+            Voile mesuré sur `solys-08` dans la zone de texte : l'ivoire y
+            tient 13,25:1 et le champagne à 80 % 7,32.
+          */}
           {verrouille ? (
-            <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
-              <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-cuivre/15">
-                <Lock size={20} className="text-cuivre" aria-hidden="true" />
-              </span>
+            <div className="space-y-4">
+              <section className="relative isolate overflow-hidden rounded-2xl border border-cuivre/25">
+                <Image
+                  src="/visuels/solys-08.webp"
+                  alt=""
+                  fill
+                  sizes="(max-width: 1280px) 100vw, 1100px"
+                  className="-z-10 object-cover object-center"
+                />
 
-              <h2 className="font-display text-[19px] font-bold text-champagne">
-                Le Circle fait partie des offres payantes
-              </h2>
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(10,13,18,0.92)_0%,rgba(10,13,18,0.88)_45%,rgba(10,13,18,0.55)_70%,rgba(10,13,18,0.15)_100%)]"
+                />
 
-              <p className="mx-auto mt-2.5 max-w-md text-[13px] leading-relaxed text-champagne/60">
-                La vérification d’identité, le profil, l’annuaire et la messagerie
-                restent accessibles dès l’offre gratuite. Le Circle of Six
-                s’ouvre à partir de l’offre Essentiel.
-              </p>
+                <div className="p-6 sm:p-8">
+                  <div className="flex flex-wrap gap-2.5">
+                    <span className="flex items-center gap-2 rounded-full border border-cuivre/45 bg-nuit/60 px-3.5 py-1.5 text-[12px] font-semibold text-champagne backdrop-blur-sm">
+                      <Crown size={13} aria-hidden="true" className="text-cuivre" />
+                      Réservé aux offres payantes
+                    </span>
 
-              <Link
-                href="/tarifs"
-                className={`mt-6 inline-flex items-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
-              >
-                Voir les offres
-              </Link>
+                    {/*
+                      La maquette affiche ici « Profil vérifié », qui
+                      décrirait le membre qui regarde. Cette page ne charge
+                      pas son statut de vérification, et la vérification
+                      n'est pas imposée côté serveur : la pastille dit donc
+                      ce qui est vrai de la plateforme, pas du visiteur.
+                    */}
+                    <span className="flex items-center gap-2 rounded-full border border-succes/45 bg-succes/12 px-3.5 py-1.5 text-[12px] font-semibold text-succes backdrop-blur-sm">
+                      <ShieldCheck size={13} aria-hidden="true" />
+                      Vérification incluse
+                    </span>
+                  </div>
 
-              <p className="mt-4 text-[12px] text-champagne/55">
-                <Link
-                  href="/explorer"
-                  className={`underline underline-offset-2 hover:text-cuivre ${focusRing}`}
-                >
-                  Ou parcourir l’annuaire
-                </Link>
-              </p>
+                  <h2 className="font-display mt-6 max-w-lg text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
+                    Six belles découvertes.
+                    <br />
+                    <span className="text-cuivre">Chaque semaine.</span>
+                  </h2>
+
+                  <p className="mt-4 max-w-xl text-[13.5px] leading-relaxed text-champagne/85">
+                    Le Circle of Six te présente six profils choisis selon tes
+                    valeurs et tes affinités, sans défilement infini. Il
+                    s’ouvre dès l’offre Essentiel ; la vérification, le profil,
+                    l’annuaire et la messagerie restent accessibles sans payer.
+                  </p>
+
+                  <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+                    <Link
+                      href="/tarifs"
+                      className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-6 py-3 text-[13px] font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                    >
+                      Découvrir les offres
+                      <ArrowRight size={15} aria-hidden="true" />
+                    </Link>
+
+                    <Link
+                      href="/explorer"
+                      className={`inline-flex items-center justify-center rounded-xl border border-champagne/30 bg-nuit/50 px-6 py-3 text-[13px] font-semibold text-champagne backdrop-blur-sm transition-colors hover:border-champagne/55 ${focusRing}`}
+                    >
+                      Explorer gratuitement
+                    </Link>
+                  </div>
+
+                  <p className="mt-8 text-right text-[10.5px] text-champagne/70">
+                    Visuel de démonstration — aucun membre représenté
+                  </p>
+                </div>
+              </section>
+
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+                <section className="rounded-2xl border border-champagne/12 bg-minuit/70 p-5 sm:p-7">
+                  <p className="text-[11px] font-semibold uppercase tracking-surtitre text-cuivre/90">
+                    Aperçu de ton cercle
+                  </p>
+
+                  <h3 className="font-display mt-3 text-[22px] font-normal leading-snug text-ivoire sm:text-[26px]">
+                    Une sélection pensée pour toi
+                  </h3>
+
+                  <p className="mt-2.5 text-[13px] leading-relaxed text-champagne/80">
+                    Tes six profils apparaîtront ici lorsque ton offre donnera
+                    accès au Circle. Nouvelle sélection chaque lundi.
+                  </p>
+
+                  <ul
+                    aria-hidden="true"
+                    className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((rang) => (
+                      <li
+                        key={rang}
+                        className="flex flex-col items-center justify-center rounded-xl border border-dashed border-champagne/20 bg-nuit/40 px-2 py-7"
+                      >
+                        <span className="font-display text-[24px] text-champagne/45">
+                          {rang}
+                        </span>
+                        <span className="mt-1.5 text-[11px] text-champagne/60">
+                          À découvrir
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="rounded-2xl border border-champagne/12 bg-minuit/70 p-5 sm:p-7">
+                  <span
+                    aria-hidden="true"
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-cuivre/40 bg-nuit/60 text-cuivre"
+                  >
+                    <Sparkles size={18} />
+                  </span>
+
+                  <h3 className="font-display mt-4 text-[22px] font-normal leading-snug text-ivoire sm:text-[26px]">
+                    Comment ça marche&nbsp;?
+                  </h3>
+
+                  <ol className="mt-4 space-y-2.5 text-[13px] leading-relaxed text-champagne/80">
+                    <li>1. Indique ce qui compte pour toi.</li>
+                    <li>2. Découvre six propositions chaque lundi.</li>
+                    <li>3. Échange librement avec celles qui t’intéressent.</li>
+                  </ol>
+
+                  <span
+                    aria-hidden="true"
+                    className="mt-6 block h-px w-full bg-champagne/15"
+                  />
+
+                  <Link
+                    href="/fonctionnalites#circle"
+                    className={`mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cuivre underline underline-offset-4 transition-colors hover:text-champagne ${focusRing}`}
+                  >
+                    En savoir plus sur le concept
+                    <ArrowRight size={14} aria-hidden="true" />
+                  </Link>
+                </section>
+              </div>
+
+              <div className="flex flex-col gap-2 rounded-2xl border border-champagne/12 bg-minuit/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-[13px] text-champagne/85">
+                  <span className="font-semibold text-champagne">
+                    Une approche plus sereine des rencontres
+                  </span>
+                  <span className="px-2 text-champagne/45" aria-hidden="true">
+                    ·
+                  </span>
+                  Moins de profils, davantage de sens.
+                </p>
+
+                <p className="flex items-center gap-2 text-[12px] text-champagne/70">
+                  <Sparkles size={13} aria-hidden="true" className="text-cuivre" />
+                  Sfera&rsquo;Solys
+                </p>
+              </div>
             </div>
           ) : chargement ? (
             <div className="flex flex-col items-center gap-3 py-24">
