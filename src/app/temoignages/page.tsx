@@ -7,6 +7,9 @@ import { ArrowRight, Heart, Lock, Quote, ShieldCheck, Star } from "lucide-react"
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { blocagesDe } from "@/lib/blocages";
 import {
   Surtitre,
   TuileIcone,
@@ -87,8 +90,21 @@ export const metadata = buildMeta(
   "/temoignages"
 );
 
-// Revalidation toutes les 5 minutes (les témoignages changent peu).
-export const revalidate = 300;
+/**
+ * Rendu dynamique, et non plus statique toutes les cinq minutes.
+ *
+ * Un témoignage est signé d'un membre : il doit disparaître pour qui l'a
+ * bloqué. Cela dépend du lecteur, donc d'une session, et une page figée
+ * servirait la même liste à tout le monde. Pire, la mettre en cache après
+ * filtrage resservirait à d'autres la liste expurgée d'un membre.
+ *
+ * Le coût est assumé : /temoignages est une page publique qui perd sa
+ * génération statique, y compris pour les visiteurs non connectés. La
+ * requête reste modeste — au plus trois cents documents, triés sur index,
+ * et `Testimonial.userId` porte un index unique. Le contenu reste rendu
+ * côté serveur, donc le référencement n'y perd rien.
+ */
+export const dynamic = "force-dynamic";
 
 const baseUrl = URL_SITE.replace(/\/$/, "");
 
@@ -100,7 +116,19 @@ async function getApprovedTestimonials(): Promise<PublicTestimonial[]> {
   try {
     await connectDB();
 
-    const docs = await Testimonial.find({ status: "approved" })
+    /*
+     * Pour un visiteur non connecté, `blocagesDe` renvoie un ensemble vide
+     * sans toucher la base : la requête reste celle d'avant.
+     */
+    const session = await getServerSession(authOptions);
+    const blocages = await blocagesDe(
+      (session?.user as { id?: string } | undefined)?.id
+    );
+
+    const docs = await Testimonial.find({
+      status: "approved",
+      ...(blocages.ids.length ? { userId: { $nin: blocages.ids } } : {}),
+    })
       .sort({ featured: -1, createdAt: -1 })
       .limit(300)
       .select(
