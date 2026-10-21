@@ -30,6 +30,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import EnteteEspace from "@/components/espace/EnteteEspace";
 import { AnimatePresence, motion } from "framer-motion";
@@ -38,6 +39,7 @@ import {
   BellOff,
   Inbox,
   Loader2,
+  Lock,
   MapPin,
   MessageCircle,
   RefreshCw,
@@ -179,11 +181,19 @@ export default function PageMessages() {
     [relations]
   );
 
+  /**
+   * La conversation que le panneau de droite propose de reprendre.
+   *
+   * `user` peut être nul — compte supprimé ou banni — et la page ne lie
+   * jamais ces conversations-là. Le panneau applique la même règle.
+   */
+  const premiereOuvrable = visibles.find((relation) => relation.user) ?? null;
+
   return (
     // Même gabarit que /matches et /circle : la marge et la largeur de
     // lecture de l'espace connecté sont communes à toutes ses pages.
     <div className="min-h-screen px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-6xl">
         <EnteteEspace
           className="mb-6"
           surtitre="Mes échanges"
@@ -208,6 +218,32 @@ export default function PageMessages() {
               Actualiser
             </button>
         </EnteteEspace>
+
+        {/*
+          Deux colonnes, comme la maquette : la liste à gauche, le contexte
+          à droite.
+
+          La maquette dessine à droite un aperçu de conversation avec sa
+          zone de saisie. Elle reconnaît elle-même n'y montrer aucun message
+          privé — et pour cause : une conversation s'ouvre sur sa propre
+          page, `/messages/[matchId]`, qui porte la lecture, l'envoi et le
+          marquage comme lu. Reproduire ici un champ « Écris ton message… »
+          qui n'enverrait rien serait le genre de faux-semblant que ce
+          projet passe son temps à retirer. Le panneau dit donc où vont les
+          conversations, et ouvre la dernière d'un clic.
+        */}
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+          <section className="rounded-2xl border border-champagne/12 bg-minuit/70 p-5 sm:p-6">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <h2 className="font-display text-[22px] font-normal leading-snug text-ivoire">
+                Conversations
+              </h2>
+
+              <span className="shrink-0 rounded-full border border-cuivre/45 bg-cuivre/10 px-3.5 py-1.5 text-[12px] font-semibold text-champagne">
+                {visibles.length}{" "}
+                {visibles.length > 1 ? "conversations" : "conversation"}
+              </span>
+            </div>
 
         {/* Recherche + onglets */}
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -454,6 +490,61 @@ export default function PageMessages() {
             </ul>
           </AnimatePresence>
         )}
+
+            <p className="mt-5 text-[12px] leading-relaxed text-champagne/70">
+              Tes conversations sont privées et restent accessibles depuis cet
+              espace.
+            </p>
+          </section>
+
+          <aside className="relative isolate flex min-h-[380px] flex-col overflow-hidden rounded-2xl border border-champagne/12">
+            <Image
+              src="/visuels/solys-11.webp"
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 560px"
+              className="-z-10 object-cover object-center"
+            />
+
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 -z-10 bg-nuit/85"
+            />
+
+            <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+              <span
+                aria-hidden="true"
+                className="flex h-14 w-14 items-center justify-center rounded-full border border-cuivre/40 bg-nuit/70 text-cuivre"
+              >
+                <MessageCircle size={22} />
+              </span>
+
+              <h2 className="font-display mt-5 text-[24px] font-normal leading-snug text-ivoire sm:text-[28px]">
+                Ta conversation, à ton rythme.
+              </h2>
+
+              <p className="mt-3 max-w-sm text-[13px] leading-relaxed text-champagne/85">
+                Chaque échange s&rsquo;ouvre sur sa propre page, pour que rien
+                ne s&rsquo;affiche par-dessus l&rsquo;épaule. Choisis une
+                conversation à gauche, ou reprends la dernière.
+              </p>
+
+              {premiereOuvrable && (
+                <Link
+                  href={`/messages/${premiereOuvrable.matchId}`}
+                  className={`mt-7 inline-flex items-center gap-2 rounded-xl bg-degrade-cuivre px-6 py-3 text-[13px] font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                >
+                  Reprendre avec {premiereOuvrable.user?.pseudonyme}
+                </Link>
+              )}
+
+              <p className="mt-6 flex items-center gap-2 rounded-xl border border-champagne/20 bg-nuit/60 px-4 py-2.5 text-[12px] text-champagne/85">
+                <Lock size={13} aria-hidden="true" className="text-cuivre" />
+                Messages privés et sécurisés
+              </p>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );

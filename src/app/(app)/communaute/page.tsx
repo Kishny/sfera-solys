@@ -33,12 +33,15 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import EnteteEspace from "@/components/espace/EnteteEspace";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   AlertCircle,
+  Check,
   ChevronLeft,
   ChevronRight,
   Flag,
@@ -50,6 +53,7 @@ import {
   Pin,
   Plus,
   Send,
+  ShieldCheck,
   Smile,
   Sprout,
   Trash2,
@@ -412,15 +416,34 @@ export default function PageCommunaute() {
   return (
     <>
       <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-6xl">
           {/* En-tête */}
           <EnteteEspace
             className="mb-6"
             surtitre="Cercle & communauté"
             titre="Communauté Solys"
-            sousTitre="Échange, partage et découvre un espace de discussion respectueux, ouvert dès l’offre gratuite."
-          >
-            <button
+            sousTitre="Échange, partage et découvre un espace de discussion respectueux."
+            action={{ libelle: "Communauté vérifiée", icone: ShieldCheck, ton: "succes" }}
+          />
+
+          {/*
+            Panneau d'accroche : l'accroche, le bouton et les filtres dans un
+            même bloc, comme la maquette. C'est la zone d'action de la page.
+          */}
+          <section className="mb-5 rounded-2xl border border-champagne/12 bg-minuit/70 p-5 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
+              <div className="min-w-0">
+                <h2 className="font-display text-[22px] font-normal leading-snug text-ivoire sm:text-[26px]">
+                  Un espace pour échanger librement.
+                </h2>
+
+                <p className="mt-2 text-[13px] leading-relaxed text-champagne/80">
+                  Le fil entre membres vérifiés, ouvert dès l’offre gratuite —
+                  et modéré comme la messagerie.
+                </p>
+              </div>
+
+              <button
               type="button"
               onClick={() => setFormulaire(true)}
               className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-cuivre px-4 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
@@ -428,18 +451,18 @@ export default function PageCommunaute() {
               <Plus size={15} aria-hidden="true" />
               Créer une publication
             </button>
-          </EnteteEspace>
+            </div>
 
-          {/* Filtres */}
-          <div className="mb-5 flex flex-wrap gap-2">
+            {/* Filtres */}
+            <div className="mt-6 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => changerFiltre("all")}
               aria-pressed={filtre === "all"}
-              className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+              className={`rounded-full border px-4 py-2 text-[12.5px] font-semibold transition-colors ${focusRing} ${
                 filtre === "all"
-                  ? "border-cuivre bg-cuivre text-nuit"
-                  : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
+                  ? "border-transparent bg-degrade-cuivre text-nuit"
+                  : "border-champagne/20 bg-nuit/40 text-champagne/85 hover:border-cuivre/45"
               }`}
             >
               Tout
@@ -455,10 +478,10 @@ export default function PageCommunaute() {
                   type="button"
                   onClick={() => changerFiltre(item.valeur)}
                   aria-pressed={actif}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12.5px] font-semibold transition-colors ${focusRing} ${
                     actif
-                      ? "border-cuivre bg-cuivre text-nuit"
-                      : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
+                      ? "border-transparent bg-degrade-cuivre text-nuit"
+                      : "border-champagne/20 bg-nuit/40 text-champagne/85 hover:border-cuivre/45"
                   }`}
                 >
                   <Icone size={13} aria-hidden="true" />
@@ -494,6 +517,8 @@ export default function PageCommunaute() {
           )}
 
           {/* Fil */}
+          </section>
+
           {chargement ? (
             <div className="flex flex-col items-center gap-3 py-24">
               <Loader2
@@ -503,33 +528,105 @@ export default function PageCommunaute() {
               <p className="text-[13px] text-champagne/55">Chargement du fil…</p>
             </div>
           ) : posts.length === 0 ? (
-            <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
-              <MessageCircle
-                size={26}
-                className="mx-auto mb-4 text-champagne/60"
-                aria-hidden="true"
-              />
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+              <div className="relative isolate overflow-hidden rounded-2xl border border-cuivre/25 px-6 py-16 text-center">
+                <Image
+                  src="/visuels/solys-04.webp"
+                  alt=""
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 680px"
+                  className="-z-10 object-cover object-center"
+                />
+                <div aria-hidden="true" className="absolute inset-0 -z-10 bg-nuit/88" />
 
-              <h2 className="font-display text-[18px] font-bold text-champagne">
-                {filtre === "all"
-                  ? "Le fil est vide"
-                  : "Rien dans cette catégorie"}
-              </h2>
+                <span
+                  aria-hidden="true"
+                  className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-cuivre/40 bg-nuit/70 text-cuivre"
+                >
+                  <MessageCircle size={22} />
+                </span>
 
-              <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
-                {filtre === "all"
-                  ? "Personne n’a encore écrit. La première publication a toujours l’air de rien, et elle lance tout."
-                  : "Essaie une autre catégorie, ou ouvre le sujet toi-même."}
-              </p>
+                <h2 className="font-display mt-5 text-[24px] font-normal leading-snug text-ivoire sm:text-[28px]">
+                  {filtre === "all"
+                    ? "À toi d’ouvrir la discussion."
+                    : "Rien dans cette catégorie."}
+                </h2>
 
-              <button
-                type="button"
-                onClick={() => setFormulaire(true)}
-                className={`mt-6 inline-flex items-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
-              >
-                <Plus size={15} aria-hidden="true" />
-                Publier
-              </button>
+                <p className="mx-auto mt-3 max-w-sm text-[13px] leading-relaxed text-champagne/85">
+                  {filtre === "all"
+                    ? "Le fil est encore vide. Partage une pensée, une question ou une idée de sortie pour lancer les échanges."
+                    : "Essaie une autre catégorie, ou ouvre le sujet toi-même."}
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setFormulaire(true)}
+                  className={`mt-7 inline-flex items-center gap-2 rounded-xl bg-degrade-cuivre px-6 py-3 text-[13px] font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                >
+                  <Plus size={15} aria-hidden="true" />
+                  Publier
+                </button>
+              </div>
+
+              {/*
+                Colonne de repères.
+
+                Les quatre règles ne sont pas inventées pour la maquette :
+                ce sont celles de /valeurs, auxquelles le lien renvoie. Une
+                page qui édicte ses propres règles à côté du document qui les
+                porte, c'est deux versions d'une même promesse.
+              */}
+              <aside className="rounded-2xl border border-champagne/12 bg-minuit/70 p-5 sm:p-6">
+                <p className="text-[11px] font-semibold uppercase tracking-surtitre text-cuivre/90">
+                  Une communauté bienveillante
+                </p>
+
+                <h2 className="font-display mt-3 text-[22px] font-normal leading-snug text-ivoire sm:text-[26px]">
+                  Quelques repères simples
+                </h2>
+
+                <ul className="mt-5 space-y-3">
+                  {[
+                    "Respecter les échanges",
+                    "Partager sans jugement",
+                    "Préserver la confidentialité",
+                    "Signaler si nécessaire",
+                  ].map((regle) => (
+                    <li
+                      key={regle}
+                      className="flex items-start gap-3 text-[13px] leading-relaxed text-champagne/85"
+                    >
+                      <Check
+                        size={14}
+                        aria-hidden="true"
+                        className="mt-0.5 shrink-0 text-cuivre"
+                      />
+                      {regle}
+                    </li>
+                  ))}
+                </ul>
+
+                <span
+                  aria-hidden="true"
+                  className="mt-6 block h-px w-full bg-champagne/15"
+                />
+
+                <h3 className="font-display mt-5 text-[19px] font-normal leading-snug text-ivoire">
+                  Une idée de publication&nbsp;?
+                </h3>
+
+                <p className="mt-2 text-[12.5px] leading-relaxed text-champagne/80">
+                  Présente-toi, lance une discussion ou propose une activité à
+                  la communauté.
+                </p>
+
+                <Link
+                  href="/valeurs#principes"
+                  className={`mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cuivre underline underline-offset-4 transition-colors hover:text-champagne ${focusRing}`}
+                >
+                  Lire les règles de la communauté
+                </Link>
+              </aside>
             </div>
           ) : (
             <>

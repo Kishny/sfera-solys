@@ -32,6 +32,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import EnteteEspace from "@/components/espace/EnteteEspace";
 import { useSession } from "next-auth/react";
@@ -39,6 +40,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   AlertCircle,
+  ArrowRight,
   CalendarDays,
   Check,
   Clock,
@@ -225,7 +227,7 @@ export default function PageEvenements() {
 
   return (
     <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-6xl">
         {/* En-tête */}
         <EnteteEspace
           className="mb-6"
@@ -234,23 +236,52 @@ export default function PageEvenements() {
           action={{ libelle: "Calendrier Solys", icone: CalendarDays }}
         />
 
-        <header className="mb-5">
+        {/*
+          Panneau d'introduction.
 
-          <p
-            className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm"
-            aria-live="polite"
-          >
-            {chargement
-              ? "Chargement…"
-              : aVenir.length === 0
-                ? "Aucun événement à venir pour l’instant."
-                : `${aVenir.length} événement${aVenir.length > 1 ? "s" : ""} à venir${
-                    mesInscriptions > 0
-                      ? ` · tu es inscrit à ${mesInscriptions}`
-                      : ""
-                  }.`}
-          </p>
-        </header>
+          Le décompte dynamique qui vivait ici rejoint la rangée de filtres,
+          sous la forme de la pastille d'état de la maquette : il y est lu
+          au même endroit que ce sur quoi il porte.
+
+          Voile mesuré sur `solys-05` dans la zone de texte : l'ivoire y
+          tient 13,12:1, le champagne à 85 % 7,99 et le surtitre cuivré 5,20.
+        */}
+        <section className="relative isolate mb-5 overflow-hidden rounded-2xl border border-champagne/12">
+          <Image
+            src="/visuels/solys-05.webp"
+            alt=""
+            fill
+            sizes="(max-width: 1280px) 100vw, 1100px"
+            className="-z-10 object-cover object-center"
+          />
+
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(10,13,18,0.92)_0%,rgba(10,13,18,0.88)_45%,rgba(10,13,18,0.55)_70%,rgba(10,13,18,0.15)_100%)]"
+          />
+
+          <div className="p-6 sm:p-8">
+            <p className="text-[11px] font-semibold uppercase tracking-surtitre text-cuivre/90">
+              Des rencontres au-delà de l’écran
+            </p>
+
+            <h2 className="font-display mt-3.5 max-w-lg text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
+              Des moments à vivre.
+              <br />
+              <span className="text-cuivre">Ensemble.</span>
+            </h2>
+
+            <p className="mt-4 max-w-xl text-[13.5px] leading-relaxed text-champagne/85">
+              Les futurs événements Solys seront annoncés ici. Tu peux
+              consulter le calendrier gratuitement&nbsp;; l’inscription
+              s’ouvre dès l’offre Essentiel.
+            </p>
+
+            <p className="mt-8 text-right text-[10.5px] text-champagne/70">
+              Visuel de démonstration — aucun membre représenté
+            </p>
+          </div>
+        </section>
 
         {/* Accès */}
         {!chargement && !peutSinscrire && (
@@ -276,9 +307,23 @@ export default function PageEvenements() {
           </section>
         )}
 
-        {/* Filtres */}
-        {!chargement && evenements.length > 0 && (
-          <div className="mb-5 flex flex-wrap gap-2">
+        {/*
+          Filtres.
+
+          La maquette propose « À venir / Passés / Mes inscriptions ». Ce
+          sont trois axes que la page traite déjà autrement : les passés ont
+          leur propre section repliable plus bas, et les inscriptions sont
+          comptées dans la pastille de droite. Les filtres restent donc ceux
+          du format — changer d'axe demanderait de refaire la récupération
+          des données pour un gain nul.
+
+          Ils s'affichent désormais même sans événement : la maquette les
+          montre avec un calendrier vide, et une rangée qui disparaît quand
+          il n'y a rien laisse croire qu'on a perdu un réglage.
+        */}
+        {!chargement && (
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
             {FILTRES.map((item) => {
               const actif = filtre === item.valeur;
 
@@ -288,16 +333,31 @@ export default function PageEvenements() {
                   type="button"
                   onClick={() => setFiltre(item.valeur)}
                   aria-pressed={actif}
-                  className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+                  className={`rounded-xl border px-4 py-2.5 text-[13px] font-semibold transition-colors ${focusRing} ${
                     actif
-                      ? "border-cuivre bg-cuivre text-nuit"
-                      : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
+                      ? "border-transparent bg-degrade-cuivre text-nuit"
+                      : "border-champagne/15 bg-minuit/70 text-champagne/85 hover:border-cuivre/45"
                   }`}
                 >
                   {item.label}
                 </button>
               );
             })}
+            </div>
+
+            <p
+              aria-live="polite"
+              className="flex items-center gap-2 rounded-xl border border-champagne/15 bg-minuit/70 px-4 py-2.5 text-[12.5px] text-champagne/85"
+            >
+              <CalendarDays size={14} aria-hidden="true" className="text-cuivre" />
+              {aVenir.length === 0
+                ? "Aucun événement programmé"
+                : `${aVenir.length} événement${aVenir.length > 1 ? "s" : ""} à venir${
+                    mesInscriptions > 0
+                      ? ` · inscrit à ${mesInscriptions}`
+                      : ""
+                  }`}
+            </p>
           </div>
         )}
 
@@ -338,24 +398,35 @@ export default function PageEvenements() {
             </p>
           </div>
         ) : aVenir.length === 0 ? (
-          <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
-            <CalendarDays
-              size={26}
-              className="mx-auto mb-4 text-champagne/60"
+          <div className="rounded-2xl border border-champagne/12 bg-minuit/70 px-6 py-16 text-center">
+            <span
               aria-hidden="true"
-            />
+              className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-cuivre/40 bg-nuit/60 text-cuivre"
+            >
+              <CalendarDays size={22} />
+            </span>
 
-            <h2 className="font-display text-[18px] font-bold text-champagne">
+            <h2 className="font-display text-[24px] font-normal leading-snug text-ivoire sm:text-[28px]">
               {filtre === "all"
-                ? "Rien de prévu pour l’instant"
-                : "Rien dans ce format"}
+                ? "Le calendrier attend sa première date."
+                : "Rien dans ce format."}
             </h2>
 
-            <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
+            <p className="mx-auto mt-3 max-w-md text-[13px] leading-relaxed text-champagne/80">
               {filtre === "all"
-                ? "Les événements sont annoncés ici dès qu’une date est fixée. Rien n’est inventé pour remplir la page."
+                ? "Aucun événement n’est annoncé pour le moment. Les prochaines rencontres apparaîtront ici dès qu’une date sera confirmée — rien n’est inventé pour remplir la page."
                 : "Essaie l’autre format, ou reviens quand une date sera fixée."}
             </p>
+
+            {!peutSinscrire && (
+              <Link
+                href="/tarifs"
+                className={`mt-7 inline-flex items-center gap-2 rounded-xl border border-cuivre/50 bg-cuivre/10 px-6 py-3 text-[13px] font-bold text-champagne transition-colors hover:bg-cuivre/20 ${focusRing}`}
+              >
+                Découvrir les offres
+                <ArrowRight size={15} aria-hidden="true" />
+              </Link>
+            )}
           </div>
         ) : (
           <ul className="space-y-3">

@@ -40,6 +40,8 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import EnteteEspace from "@/components/espace/EnteteEspace";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -58,6 +60,7 @@ import {
   Send,
   ShieldCheck,
   Sparkle,
+  Sparkles,
   UserRound,
   X,
 } from "lucide-react";
@@ -362,15 +365,38 @@ export default function PageEntraide() {
   return (
     <>
       <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-6xl">
           {/* En-tête */}
           <EnteteEspace
             className="mb-6"
             surtitre="Cercle & communauté"
             titre="Entraide"
-            sousTitre="Pose une question à ceux qui ont déjà vécu une situation semblable. Ce sont des membres qui répondent, pas des professionnels."
-          >
-            <button
+            sousTitre="Pose une question à ceux qui ont déjà vécu une situation semblable."
+            action={{ libelle: "Accessible gratuitement", icone: Heart }}
+          />
+
+          {/*
+            Panneau d'accroche.
+
+            La maquette réunit l'accroche, le bouton de publication et les
+            filtres dans un même bloc : c'est la zone d'action de la page, et
+            la séparer de son bouton obligeait l'œil à faire deux allers.
+          */}
+          <section className="mb-5 rounded-2xl border border-champagne/12 bg-minuit/70 p-5 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
+              <div className="min-w-0">
+                <h2 className="font-display text-[22px] font-normal leading-snug text-ivoire sm:text-[26px]">
+                  À chacun son expérience, à tous les réponses.
+                </h2>
+
+                <p className="mt-2 text-[13px] leading-relaxed text-champagne/80">
+                  Questions et conseils entre membres vérifiés — gratuit dès
+                  l’inscription. Ce sont des membres qui répondent, pas des
+                  professionnels.
+                </p>
+              </div>
+
+              <button
               type="button"
               onClick={() => setFormulaire(true)}
               className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-cuivre px-4 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
@@ -378,10 +404,10 @@ export default function PageEntraide() {
               <Plus size={15} aria-hidden="true" />
               Poser une question
             </button>
-          </EnteteEspace>
+            </div>
 
-          {/* Filtres */}
-          <div className="mb-5 flex flex-wrap gap-2">
+            {/* Filtres */}
+            <div className="mt-6 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => {
@@ -389,10 +415,10 @@ export default function PageEntraide() {
                 setDeplie(null);
               }}
               aria-pressed={filtre === "all"}
-              className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+              className={`rounded-full border px-4 py-2 text-[12.5px] font-semibold transition-colors ${focusRing} ${
                 filtre === "all"
-                  ? "border-cuivre bg-cuivre text-nuit"
-                  : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
+                  ? "border-transparent bg-degrade-cuivre text-nuit"
+                  : "border-champagne/20 bg-nuit/40 text-champagne/85 hover:border-cuivre/45"
               }`}
             >
               Tout
@@ -411,10 +437,10 @@ export default function PageEntraide() {
                     setDeplie(null);
                   }}
                   aria-pressed={actif}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12.5px] font-semibold transition-colors ${focusRing} ${
                     actif
-                      ? "border-cuivre bg-cuivre text-nuit"
-                      : "border-champagne/15 text-champagne/70 hover:border-champagne/30"
+                      ? "border-transparent bg-degrade-cuivre text-nuit"
+                      : "border-champagne/20 bg-nuit/40 text-champagne/85 hover:border-cuivre/45"
                   }`}
                 >
                   <Icone size={13} aria-hidden="true" />
@@ -450,6 +476,8 @@ export default function PageEntraide() {
           )}
 
           {/* Liste */}
+          </section>
+
           {chargement ? (
             <div className="flex flex-col items-center gap-3 py-24">
               <Loader2
@@ -461,33 +489,94 @@ export default function PageEntraide() {
               </p>
             </div>
           ) : questions.length === 0 ? (
-            <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
-              <HeartHandshake
-                size={26}
-                className="mx-auto mb-4 text-champagne/60"
-                aria-hidden="true"
-              />
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+              <div className="relative isolate overflow-hidden rounded-2xl border border-cuivre/25 px-6 py-16 text-center">
+                <Image
+                  src="/visuels/solys-02.webp"
+                  alt=""
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 680px"
+                  className="-z-10 object-cover object-center"
+                />
+                <div aria-hidden="true" className="absolute inset-0 -z-10 bg-nuit/88" />
 
-              <h2 className="font-display text-[18px] font-bold text-champagne">
-                {filtre === "all"
-                  ? "Aucune question pour l’instant"
-                  : "Rien dans cette catégorie"}
-              </h2>
+                <span
+                  aria-hidden="true"
+                  className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-cuivre/40 bg-nuit/70 text-cuivre"
+                >
+                  <HeartHandshake size={22} />
+                </span>
 
-              <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
-                {filtre === "all"
-                  ? "La première question est la plus difficile à poser, et celle qui sert le plus aux suivants."
-                  : "Essaie une autre catégorie, ou ouvre le sujet toi-même."}
-              </p>
+                <h2 className="font-display mt-5 text-[24px] font-normal leading-snug text-ivoire sm:text-[28px]">
+                  {filtre === "all"
+                    ? "La conversation commence ici."
+                    : "Rien dans cette catégorie."}
+                </h2>
 
-              <button
-                type="button"
-                onClick={() => setFormulaire(true)}
-                className={`mt-6 inline-flex items-center gap-2 rounded-xl bg-cuivre px-5 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
-              >
-                <Plus size={15} aria-hidden="true" />
-                Poser une question
-              </button>
+                <p className="mx-auto mt-3 max-w-sm text-[13px] leading-relaxed text-champagne/85">
+                  {filtre === "all"
+                    ? "Aucune question pour l’instant. La première est la plus difficile à poser, et c’est celle qui sert le plus aux suivants."
+                    : "Essaie une autre catégorie, ou ouvre le sujet toi-même."}
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setFormulaire(true)}
+                  className={`mt-7 inline-flex items-center gap-2 rounded-xl bg-degrade-cuivre px-6 py-3 text-[13px] font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                >
+                  <Plus size={15} aria-hidden="true" />
+                  Poser la première question
+                </button>
+              </div>
+
+              {/*
+                Colonne d'inspiration.
+
+                La maquette la titre « Tu pourrais demander… » et aligne trois
+                formulations. Elles sont présentées comme des suggestions, pas
+                comme des questions déjà posées — la page le dit d'ailleurs
+                noir sur blanc, sans quoi on croirait lire un fil existant.
+              */}
+              <aside className="rounded-2xl border border-champagne/12 bg-minuit/70 p-5 sm:p-6">
+                <p className="text-[11px] font-semibold uppercase tracking-surtitre text-cuivre/90">
+                  Besoin d’inspiration&nbsp;?
+                </p>
+
+                <h2 className="font-display mt-3 text-[22px] font-normal leading-snug text-ivoire sm:text-[26px]">
+                  Tu pourrais demander…
+                </h2>
+
+                <ul className="mt-5 divide-y divide-champagne/12">
+                  {[
+                    "Comment engager une conversation ?",
+                    "Comment décrire mes intentions ?",
+                    "Comment préparer un premier rendez-vous ?",
+                  ].map((idee) => (
+                    <li
+                      key={idee}
+                      className="flex items-start gap-3 py-3.5 text-[13px] leading-relaxed text-champagne/85"
+                    >
+                      <Sparkles
+                        size={14}
+                        aria-hidden="true"
+                        className="mt-0.5 shrink-0 text-cuivre"
+                      />
+                      {idee}
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="mt-4 text-[12px] leading-relaxed text-champagne/70">
+                  Ce sont des suggestions, pas des questions déjà publiées.
+                </p>
+
+                <Link
+                  href="/valeurs#principes"
+                  className={`mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-cuivre underline underline-offset-4 transition-colors hover:text-champagne ${focusRing}`}
+                >
+                  Consulter les règles de la communauté
+                </Link>
+              </aside>
             </div>
           ) : (
             <>
