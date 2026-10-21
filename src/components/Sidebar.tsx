@@ -30,16 +30,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Sun,
-  Compass,
-  Heart,
-  MessageCircle,
-  Users2,
-  Crown,
-  User,
   ChevronDown,
+  Compass,
+  Crown,
+  Globe,
+  Heart,
+  Home,
   LogOut,
+  MessageCircle,
   ShieldCheck,
+  User,
+  Users2,
 } from "lucide-react";
 import { clientPusherOuNull } from "@/lib/pusher-client";
 import EclipseMark from "@/components/brand/EclipseMark";
@@ -69,8 +70,16 @@ type SidebarLink = {
   pastille?: "messages" | "matches";
 };
 
+/**
+ * La navigation de l'espace membre.
+ *
+ * « Accueil » pointait vers `/`, c'est-à-dire la page d'accueil publique :
+ * depuis l'intérieur de l'application, le premier lien de la barre faisait
+ * sortir. Il mène désormais au tableau de bord, et le retour au site
+ * public a son propre lien, détaché en bas de la navigation.
+ */
 const links: SidebarLink[] = [
-  { href: "/", label: "Accueil", icon: Sun },
+  { href: "/mon-compte", label: "Accueil", icon: Home },
   { href: "/explorer", label: "Explorer", icon: Compass },
   { href: "/matches", label: "Matches", icon: Heart, pastille: "matches" },
   {
@@ -194,6 +203,7 @@ export default function Sidebar() {
     >
       <div className="px-2 pb-7">
         <Logo
+          href="/mon-compte"
           size="sm"
           withMark
           markId="barre-laterale"
@@ -295,6 +305,24 @@ export default function Sidebar() {
         >
           <Crown size={16} />
           <span>Premium</span>
+        </Link>
+
+        {/*
+          Sortie vers le site public.
+
+          Détachée par un filet : ce n'est pas une destination de
+          l'application, c'est la porte. La confondre avec les autres
+          entrées est précisément ce qui rendait l'ancien « Accueil »
+          trompeur.
+        */}
+        <span aria-hidden="true" className="my-3 block h-px bg-champagne/10" />
+
+        <Link
+          href="/"
+          className="flex items-center gap-3 rounded-xl px-3 py-[11px] text-sm font-medium text-champagne/65 transition-colors hover:bg-champagne/5 hover:text-champagne"
+        >
+          <Globe size={16} />
+          <span>Retour au site</span>
         </Link>
       </nav>
 
