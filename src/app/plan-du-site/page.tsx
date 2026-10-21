@@ -59,7 +59,7 @@ const GROUPES: { titre: string; intro: string; entrees: Entree[] }[] = [
       { label: 'Messages', href: '/messages', compte: true },
       { label: 'Événements', href: '/evenements', compte: true },
       { label: 'Entraide', href: '/entraide', compte: true },
-      { label: 'Mon compte', href: '/mon-compte', compte: true },
+      { label: 'Ma sphère', href: '/mon-compte', compte: true },
     ],
   },
   {

@@ -115,7 +115,7 @@ export async function GET() {
      * Deux curseurs distincts, et pas un seul.
      *
      * `lastSeenNotificationsAt` servait aux trois compteurs. Conséquence :
-     * ouvrir l'onglet Interactions de Mon Compte éteignait aussi la pastille
+     * ouvrir l'onglet Interactions de Ma sphère éteignait aussi la pastille
      * des matchs, et consulter ses matchs n'éteignait rien, puisque aucune
      * page ne touchait le curseur. Les visites gardent l'ancien champ — c'est
      * bien dans cet onglet qu'on les regarde — les matchs ont le leur.

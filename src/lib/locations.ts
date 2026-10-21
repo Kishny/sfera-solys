@@ -7,7 +7,7 @@
  * (971 Guadeloupe, 972 Martinique, 973 Guyane, 974 La Réunion, 976 Mayotte).
  *
  * Utilisé pour :
- * - le sélecteur de département à l'inscription et dans Mon Compte ;
+ * - le sélecteur de département à l'inscription et dans Ma sphère ;
  * - le filtrage des profils par bassin géographique cohérent ;
  * - les suggestions de villes contextuelles.
  *

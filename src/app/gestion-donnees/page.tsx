@@ -15,7 +15,7 @@ import PageLegale, { type SectionLegale } from '@/components/legal/PageLegale';
  * Ce qui est affirmé ici a été vérifié dans le code, pas supposé :
  *
  * - La suppression du compte existe réellement — `DELETE /api/users/me`,
- *   déclenchée depuis Mon compte, onglet Sécurité. Elle résilie
+ *   déclenchée depuis Ma sphère, onglet Sécurité. Elle résilie
  *   l'abonnement Stripe, supprime les photographies chez Cloudinary puis
  *   les likes, matchs, messages, visites et publications.
  * - La vérification d'identité passe par Stripe Identity : la pièce
@@ -87,7 +87,7 @@ const sections: SectionLegale[] = [
             <strong>Corriger tes informations</strong> — profil, photographies,
             centres d&apos;intérêt et intentions se modifient depuis{' '}
             <Link href="/mon-compte" className="text-cuivre underline">
-              Mon compte
+              Ma sphère
             </Link>
             .
           </li>
@@ -98,7 +98,7 @@ const sections: SectionLegale[] = [
           <li>
             <strong>Supprimer ton compte</strong> — depuis{' '}
             <Link href="/mon-compte" className="text-cuivre underline">
-              Mon compte
+              Ma sphère
             </Link>
             , onglet Sécurité. La suppression résilie ton abonnement en cours,
             efface tes photographies, puis tes likes, matchs, messages, visites

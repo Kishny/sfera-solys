@@ -521,7 +521,7 @@ export default function AdminPage() {
             className="mb-6 flex items-center gap-2 px-2 text-xs text-champagne/60 transition hover:text-champagne"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Mon compte
+            Ma sphère
           </button>
 
           <div className="mb-8 flex items-center gap-3 px-2">

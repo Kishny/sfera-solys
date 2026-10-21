@@ -197,7 +197,7 @@ export default function PageRelations() {
   /**
    * Consulter ses mises en relation les marque comme vues : la pastille de la
    * barre latérale s'éteint. Elle ne s'éteignait jamais — aucune page ne
-   * touchait le curseur, seul l'onglet Interactions de Mon Compte le faisait,
+   * touchait le curseur, seul l'onglet Interactions de Ma sphère le faisait,
    * et il marquait alors les trois compteurs à la fois.
    *
    * Appel volontairement silencieux : rater le marquage laisse une pastille

@@ -106,8 +106,7 @@ export default function Step5() {
           </h3>
 
           <p className="mt-2 text-sm text-champagne/70">
-            Tu pourras modifier ce choix plus tard depuis ton espace
-            Mon Compte.
+            Tu pourras modifier ce choix plus tard depuis ta sphère.
           </p>
         </div>
 

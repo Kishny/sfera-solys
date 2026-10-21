@@ -87,7 +87,7 @@ const sections: SectionLegale[] = [
           Sfera'Solys propose des abonnements payants : Essentiel, Premium et
           Elite. Les paiements sont gérés via Stripe. Les abonnements sont
           renouvelés automatiquement chaque mois. Vous pouvez annuler à tout
-          moment depuis votre espace « Mon compte ». Aucun remboursement
+          moment depuis « Ma sphère ». Aucun remboursement
           n&apos;est effectué pour les périodes entamées, sauf obligation
           légale.
         </p>

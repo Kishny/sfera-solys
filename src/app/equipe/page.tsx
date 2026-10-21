@@ -204,7 +204,7 @@ export default function EquipePage() {
               <h1 className="font-display mt-6 text-[34px] font-normal leading-[1.08] tracking-tight text-ivoire sm:text-[48px]">
                 Qui regarde
                 <br />
-                <span className="italic text-cuivre">ton dossier.</span>
+                <span className="italic text-cuivre">ta sphère.</span>
               </h1>
 
               <p className="mt-5 text-[16px] font-semibold leading-snug text-champagne sm:text-[18px]">

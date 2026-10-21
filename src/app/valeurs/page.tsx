@@ -119,7 +119,7 @@ const valeurs: Valeur[] = [
       'Des intentions claires et des échanges honnêtes, sans pression ni jugement.',
     detail:
       "On demande ce que tu cherches dès l'inscription, et on l'affiche. Savoir qui veut quoi évite des semaines de malentendu poli — des deux côtés.",
-    preuve: 'Intentions déclarées au dossier, visibles sur le profil',
+    preuve: 'Intentions déclarées dans ta sphère, visibles sur le profil',
     image: '/visuels/guide/conseil-3.webp',
     alt: 'Un homme détendu sur un canapé, la ville illuminée derrière lui.',
   },
@@ -525,7 +525,7 @@ export default function ValeursPage() {
 
               <p className="mt-4 max-w-md text-[14px] leading-relaxed text-champagne/80">
                 Des rencontres authentiques, dans un cadre sûr et respectueux.
-                Le dossier prend dix minutes, la vérification quelques
+                Ouvrir ta sphère prend dix minutes, la vérification quelques
                 instants.
               </p>
 
@@ -534,7 +534,7 @@ export default function ValeursPage() {
                   href="/commencer"
                   className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
                 >
-                  Constituer mon dossier
+                  Ouvrir ma sphère
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
 

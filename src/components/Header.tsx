@@ -23,7 +23,7 @@ import { clientPusherOuNull } from '@/lib/pusher-client';
 import { Logo } from '@/components/ui/Logo';
 
 /**
- * Header Sfera'Solys — nav publique, direction A (« dossier de vérification »).
+ * Header Sfera'Solys — nav publique, direction A (« sphère vérifiée »).
  *
  * Restructuration (voir CLAUDE.md § Restructuration de l'architecture) :
  * cette nav ne sert plus qu'aux pages publiques (marketing). Une fois
@@ -117,7 +117,7 @@ const links: HeaderLink[] = [
     panelTitle: 'Vérifier d’abord',
     panelText:
       "Une pièce d'identité officielle, comparée à un selfie pris en direct. C'est la règle qui tient tout le reste — et elle est gratuite.",
-    panelCta: { label: 'Constituer mon dossier', href: '/commencer' },
+    panelCta: { label: 'Ouvrir ma sphère', href: '/commencer' },
   },
   { label: 'Fonctionnalités', href: '/fonctionnalites' },
   { label: 'Guide', href: '/guide' },
@@ -493,7 +493,7 @@ export default function Header() {
                       }}
                       aria-expanded={showUserDropdown}
                       className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-champagne/15 text-champagne/80 transition-colors hover:border-cuivre/40 hover:text-champagne ${focusRing}`}
-                      aria-label="Mon compte"
+                      aria-label="Ma sphère"
                     >
                       {session?.user?.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -534,7 +534,7 @@ export default function Header() {
                             className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-champagne/75 transition-colors hover:bg-champagne/5 hover:text-champagne ${focusRing}`}
                           >
                             <User size={15} />
-                            mon dossier
+                            ma sphère
                           </Link>
 
                           <Link
@@ -594,7 +594,7 @@ export default function Header() {
                   router.push(isLoggedIn ? '/mon-compte' : '/auth?mode=login')
                 }
                 className={`relative flex h-10 w-10 items-center justify-center rounded-full border border-champagne/15 text-champagne/80 transition-colors hover:border-cuivre/40 ${focusRing}`}
-                aria-label={isLoggedIn ? 'Mon compte' : 'Se connecter'}
+                aria-label={isLoggedIn ? 'Ma sphère' : 'Se connecter'}
               >
                 {isLoggedIn && session?.user?.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -783,7 +783,7 @@ export default function Header() {
                       <p className="truncate text-xs text-champagne/55">
                         {isLoggedIn
                           ? session?.user?.email
-                          : 'une communauté vérifiée, dossier par dossier'}
+                          : 'une communauté vérifiée, sphère par sphère'}
                       </p>
                     </div>
 
@@ -916,7 +916,7 @@ export default function Header() {
                         className={`fx-btn flex items-center justify-center gap-2 rounded-2xl bg-cuivre px-4 py-3 text-sm font-bold text-nuit ${focusRing}`}
                       >
                         <User size={16} />
-                        mon compte
+                        ma sphère
                       </button>
 
                       <button
