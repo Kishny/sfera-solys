@@ -1,22 +1,26 @@
 // src/app/(app)/layout.tsx
 
 /**
- * Layout du groupe de routes (app) — espace connecté.
+ * Gabarit du groupe de routes (app) — l'espace connecté.
  *
- * Restructuration (direction A + sidebar de la direction B, voir
- * CLAUDE.md § Restructuration de l'architecture) : les pages de ce
- * groupe n'utilisent plus Header/Footer individuellement — elles
- * héritent toutes de la sidebar verticale persistante définie ici.
+ * Les pages de ce groupe n'utilisent pas Header/Footer : elles héritent
+ * de la navigation définie ici. Les route groups Next.js (parenthèses)
+ * ne changent pas l'URL — `(app)/explorer/page.tsx` reste servi sur
+ * `/explorer`.
  *
- * Les route groups Next.js (parenthèses) ne changent pas l'URL :
- * src/app/(app)/explorer/page.tsx reste servi sur /explorer.
+ * Deux navigations, un seul jeu de compteurs. La barre latérale tient
+ * à partir de 1024 px, la barre d'onglets en dessous ; les deux sont
+ * montées en permanence et se masquent en CSS, d'où le fournisseur
+ * commun qui leur évite de sonder `/api/notifications` chacune de son
+ * côté.
  *
- * Page pilote de la migration : /explorer (25/09/2026). Les autres
- * pages listées dans CLAUDE.md rejoindront ce groupe une fois le
- * pattern validé.
+ * La marge basse du contenu compense la hauteur de la barre d'onglets,
+ * sans quoi la dernière ligne de chaque page passerait dessous.
  */
 
 import Sidebar from "@/components/Sidebar";
+import BarreOngletsMobile from "@/components/espace/BarreOngletsMobile";
+import { FournisseurCompteurs } from "@/components/espace/CompteursEspace";
 
 export default function AppLayout({
   children,
@@ -24,9 +28,16 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-nuit">
-      <Sidebar />
-      <main className="min-w-0 flex-1">{children}</main>
-    </div>
+    <FournisseurCompteurs>
+      <div className="flex min-h-screen bg-nuit">
+        <Sidebar />
+
+        <main className="min-w-0 flex-1 pb-[calc(68px+env(safe-area-inset-bottom))] lg:pb-0">
+          {children}
+        </main>
+      </div>
+
+      <BarreOngletsMobile />
+    </FournisseurCompteurs>
   );
 }

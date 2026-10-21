@@ -15,16 +15,15 @@
  * temps réel via Pusher, sous-menus dépliables) pour rester cohérent
  * avec le reste du code plutôt que réinventer un système parallèle.
  *
- * Portée de cette première version : desktop uniquement (lg et plus).
- * TODO restructuration : équivalent mobile en tab bar basse (voir la
- * maquette "Direction B — mobile" du canvas de maquettes) — à faire
- * quand on migre les pages une par une vers cette sidebar.
+ * Portée : desktop uniquement (lg et plus). Sous 1024 px, c'est
+ * `BarreOngletsMobile` qui prend le relais — les deux lisent les mêmes
+ * compteurs, via `FournisseurCompteurs`.
  *
  * TODO restructuration : /admin n'apparaît pas ici — c'est une zone à
  * accès restreint, traitée séparément du reste de l'espace membre.
  */
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -42,8 +41,8 @@ import {
   User,
   Users2,
 } from "lucide-react";
-import { clientPusherOuNull } from "@/lib/pusher-client";
 import EclipseMark from "@/components/brand/EclipseMark";
+import { useCompteurs } from "@/components/espace/CompteursEspace";
 import { Logo } from "@/components/ui/Logo";
 
 type SidebarSubItem = {
@@ -106,85 +105,20 @@ export default function Sidebar() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const [compteurs, setCompteurs] = useState({
-    messages: 0,
-    matches: 0,
-  });
   const [circleOpen, setCircleOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const isLoggedIn = !!session?.user;
 
   /**
-   * Notifications : même logique que Header.tsx (polling + Pusher),
-   * pour garder un seul compteur cohérent partout dans l'appli.
+   * Les compteurs viennent du contexte de l'espace, pas d'ici.
+   *
+   * Cette barre portait son propre sondage de `/api/notifications` et son
+   * propre abonnement Pusher. Avec l'arrivée de la barre d'onglets mobile,
+   * les deux auraient tourné en parallèle : elles sont montées ensemble,
+   * l'une masquée en CSS et non démontée. Le sondage a donc été remonté
+   * d'un cran, dans `FournisseurCompteurs`.
    */
-  useEffect(() => {
-    if (!isLoggedIn) return;
-
-    const fetchNotifs = async () => {
-      try {
-        const res = await fetch("/api/notifications", { cache: "no-store" });
-        if (!res.ok) return;
-        const data = await res.json();
-
-        setCompteurs({
-          messages: data.unreadMessages || 0,
-          matches: data.newMatches || 0,
-        });
-      } catch {
-        // On ignore volontairement l'erreur pour ne pas casser la sidebar.
-      }
-    };
-
-    fetchNotifs();
-    const interval = setInterval(fetchNotifs, 30_000);
-
-    /*
-     * Relecture immédiate quand une page vient de marquer quelque chose comme
-     * vu. Sans ça, la pastille reste allumée jusqu'à la prochaine relecture —
-     * jusqu'à trente secondes à regarder un compteur qu'on vient justement de
-     * vider.
-     */
-    window.addEventListener("solys:notifications", fetchNotifs);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("solys:notifications", fetchNotifs);
-    };
-  }, [isLoggedIn]);
-
-  useEffect(() => {
-    if (!isLoggedIn) return;
-
-    const sessionUser = session?.user as { id?: string } | undefined;
-    const userId = sessionUser?.id;
-    if (!userId) return;
-
-    const client = clientPusherOuNull();
-    if (!client) return;
-
-    const channelName = `private-user-${userId}`;
-    const channel = client.subscribe(channelName);
-
-    /*
-     * Le canal `private-user-{id}` porte les nouveaux matchs. Les nouveaux
-     * messages, eux, passent par `private-match-{id}` : la barre latérale
-     * n'y est pas abonnée, c'est la relecture toutes les 30 s qui met leur
-     * compteur à jour.
-     */
-    channel.bind("new-match", () => {
-      setCompteurs((precedents) => ({
-        ...precedents,
-        matches: precedents.matches + 1,
-      }));
-    });
-
-    return () => {
-      channel.unbind_all();
-      client.unsubscribe(channelName);
-    };
-  }, [isLoggedIn, session?.user]);
+  const compteurs = useCompteurs();
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
