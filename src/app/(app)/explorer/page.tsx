@@ -414,7 +414,7 @@ export default function AnnuairePage() {
   return (
     <>
       <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-screen-2xl">
           {/* ─────────────────────────────
               En-tête
           ───────────────────────────── */}

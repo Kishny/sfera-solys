@@ -203,7 +203,7 @@ export default function PageVisibilite() {
 
   return (
     <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-screen-2xl">
         <EnteteEspace
           className="mb-6"
           surtitre="Confidentialité et visibilité"
@@ -223,7 +223,7 @@ export default function PageVisibilite() {
             src="/visuels/solys-06.webp"
             alt=""
             fill
-            sizes="(max-width: 1280px) 100vw, 1100px"
+            sizes="(max-width: 1280px) 100vw, 1460px"
             className="-z-10 object-cover object-center"
           />
 

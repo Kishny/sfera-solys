@@ -308,7 +308,7 @@ export default function PageRelations() {
   return (
     <>
       <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-screen-2xl">
           {/* En-tête */}
           <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div className="min-w-0">

@@ -416,7 +416,7 @@ export default function PageCommunaute() {
   return (
     <>
       <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-screen-2xl">
           {/* En-tête */}
           <EnteteEspace
             className="mb-6"
@@ -534,7 +534,7 @@ export default function PageCommunaute() {
                   src="/visuels/solys-04.webp"
                   alt=""
                   fill
-                  sizes="(max-width: 1024px) 100vw, 680px"
+                  sizes="(max-width: 1024px) 100vw, 860px"
                   className="-z-10 object-cover object-center"
                 />
                 <div aria-hidden="true" className="absolute inset-0 -z-10 bg-nuit/88" />

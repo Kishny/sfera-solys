@@ -193,7 +193,7 @@ export default function PageMessages() {
     // Même gabarit que /matches et /circle : la marge et la largeur de
     // lecture de l'espace connecté sont communes à toutes ses pages.
     <div className="min-h-screen px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-screen-2xl">
         <EnteteEspace
           className="mb-6"
           surtitre="Mes échanges"
@@ -502,7 +502,7 @@ export default function PageMessages() {
               src="/visuels/solys-11.webp"
               alt=""
               fill
-              sizes="(max-width: 1024px) 100vw, 560px"
+              sizes="(max-width: 1024px) 100vw, 780px"
               className="-z-10 object-cover object-center"
             />
 

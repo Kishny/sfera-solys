@@ -167,7 +167,7 @@ export default function OngletAccueil({
       </div>
 
       {/* Les quatre états */}
-      <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
         {tuiles.map((tuile, index) => {
           const Icone = tuile.icone;
 
@@ -320,7 +320,7 @@ export default function OngletAccueil({
           src="/visuels/solys-10.webp"
           alt=""
           fill
-          sizes="(max-width: 1024px) 100vw, 900px"
+          sizes="(max-width: 1280px) 100vw, 1460px"
           className="-z-10 object-cover object-center"
         />
 
