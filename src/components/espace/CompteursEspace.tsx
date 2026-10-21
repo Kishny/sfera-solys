@@ -30,9 +30,20 @@ export type Compteurs = {
   messages: number;
   /** Mises en relation nouvelles depuis la dernière visite. */
   matches: number;
+  /**
+   * La sélection du Circle de cette semaine n'a pas encore été ouverte.
+   *
+   * Un booléen et non un nombre : il n'y a rien à dénombrer, c'est
+   * « ta semaine t'attend ». Toujours faux pour qui n'a pas l'offre.
+   */
+  circlePret: boolean;
 };
 
-const ContexteCompteurs = createContext<Compteurs>({ messages: 0, matches: 0 });
+const ContexteCompteurs = createContext<Compteurs>({
+  messages: 0,
+  matches: 0,
+  circlePret: false,
+});
 
 /** Les compteurs de l'espace membre. Renvoie des zéros hors du fournisseur. */
 export function useCompteurs(): Compteurs {
@@ -44,6 +55,7 @@ export function FournisseurCompteurs({ children }: { children: ReactNode }) {
   const [compteurs, setCompteurs] = useState<Compteurs>({
     messages: 0,
     matches: 0,
+    circlePret: false,
   });
 
   const isLoggedIn = !!session?.user;
@@ -69,6 +81,7 @@ export function FournisseurCompteurs({ children }: { children: ReactNode }) {
         setCompteurs({
           messages: donnees.unreadMessages || 0,
           matches: donnees.newMatches || 0,
+          circlePret: donnees.circlePret === true,
         });
       } catch {
         // Ignoré volontairement : une barre de navigation ne casse pas

@@ -142,6 +142,32 @@ export async function sendMatchReminderPush(params: {
  * Digest matinal : résumé du nombre de nouveaux profils compatibles
  * inscrits dans les dernières 24h — voir /api/cron/morning-digest.
  */
+/**
+ * Relance du lundi : la sélection du Circle attend d'être découverte.
+ *
+ * Le tirage est paresseux — il a lieu au premier affichage de la page —
+ * et rien ne prévenait le lundi. « Six nouveaux profils chaque semaine »
+ * ne tenait donc que si le membre y pensait de lui-même.
+ *
+ * Le libellé est solaire, contrairement aux relances plus anciennes qui
+ * ont gardé la lune de SferaLuna.
+ */
+export async function sendCircleHebdoPush(params: {
+  recipientUserId: string;
+}): Promise<void> {
+  const token = await getPushToken(params.recipientUserId);
+  if (!token) return;
+
+  await sendPushNotification({
+    to: token,
+    title: "Ton Circle of Six t'attend",
+    body: "Six profils choisis pour toi cette semaine. Ils changent lundi prochain.",
+    data: { type: "circle_weekly" },
+    sound: "default",
+    channelId: "matches",
+  });
+}
+
 export async function sendMorningDigestPush(params: {
   recipientUserId: string;
   newProfilesCount: number;

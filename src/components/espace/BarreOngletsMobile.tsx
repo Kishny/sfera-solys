@@ -44,16 +44,19 @@ import {
   X,
 } from "lucide-react";
 
-import { useCompteurs, type Compteurs } from "./CompteursEspace";
+import { useCompteurs } from "./CompteursEspace";
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cuivre/70 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
+
+/** Les compteurs qui se comptent. `circlePret` est un signal, pas un nombre. */
+type ClePastille = "messages" | "matches";
 
 type Onglet = {
   href: string;
   label: string;
   icon: React.ComponentType<{ size?: number | string; className?: string }>;
-  pastille?: keyof Compteurs;
+  pastille?: ClePastille;
 };
 
 /** Les quatre destinations de la barre. Même ordre que la barre latérale. */
@@ -79,7 +82,7 @@ const SECONDAIRES = [
 ];
 
 /** Libellé lisible d'une pastille, pour les lecteurs d'écran. */
-function libellePastille(cle: keyof Compteurs, valeur: number): string {
+function libellePastille(cle: ClePastille, valeur: number): string {
   if (cle === "messages") {
     return `${valeur} message${valeur > 1 ? "s" : ""} non lu${valeur > 1 ? "s" : ""}`;
   }
@@ -164,6 +167,13 @@ export default function BarreOngletsMobile() {
               >
                 <item.icon size={16} className="shrink-0 text-cuivre" />
                 {item.label}
+
+                {item.href === "/circle" && compteurs.circlePret && (
+                  <span
+                    aria-label="Nouvelle sélection cette semaine"
+                    className="ml-auto h-2 w-2 shrink-0 rounded-full bg-succes"
+                  />
+                )}
               </Link>
             ))}
 
@@ -252,7 +262,16 @@ export default function BarreOngletsMobile() {
                 plusOuvert || sousMenuActif ? "text-cuivre" : "text-champagne/60"
               }`}
             >
-              {plusOuvert ? <X size={20} /> : <Menu size={20} />}
+              <span className="relative">
+                {plusOuvert ? <X size={20} /> : <Menu size={20} />}
+
+                {compteurs.circlePret && !plusOuvert && (
+                  <span
+                    aria-label="Nouvelle sélection du Circle cette semaine"
+                    className="absolute -right-1.5 -top-1 h-2 w-2 rounded-full bg-succes"
+                  />
+                )}
+              </span>
               Plus
 
               {sousMenuActif && !plusOuvert && (

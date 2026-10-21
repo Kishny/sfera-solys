@@ -11,6 +11,7 @@ import { Match } from "@/models/Match";
 import { Message } from "@/models/Message";
 import { ProfileVisit } from "@/models/ProfileVisit";
 import { User } from "@/models/User";
+import { circleAVoir } from "@/lib/circle";
 
 /**
  * GET /api/notifications
@@ -78,7 +79,8 @@ export async function GET() {
      * énumératif oblige à penser à chaque nouveau champ, à chaque endroit qui
      * lit.
      */
-    const champsCurseurs = "_id lastSeenNotificationsAt lastSeenMatchesAt";
+    const champsCurseurs =
+      "_id lastSeenNotificationsAt lastSeenMatchesAt plan isPremium subscriptionStatus";
 
     if (rawUserId && mongoose.Types.ObjectId.isValid(rawUserId)) {
       dbUser = await User.findById(rawUserId).select(champsCurseurs);
@@ -195,6 +197,22 @@ export async function GET() {
      * - les matches comptent comme 1 notification groupée ;
      * - les visites comptent comme 1 notification groupée.
      */
+    /**
+     * 4. La sélection de la semaine attend-elle d'être découverte ?
+     *
+     * Le tirage du Circle est paresseux : il a lieu au premier affichage
+     * de la page. Rien ne prévenait donc le lundi, et « six nouveaux
+     * profils chaque lundi » ne tenait que si le membre y pensait tout
+     * seul. L'absence de tirage pour le lundi courant est exactement le
+     * signal manquant.
+     *
+     * Volontairement hors de `total` : ce n'est pas une sollicitation de
+     * plus dans la cloche, c'est une pastille sur une entrée de
+     * navigation. Et la requête ne part pas du tout pour une offre qui
+     * n'y donne pas droit.
+     */
+    const circlePret = await circleAVoir(userId, dbUser);
+
     const total =
       unreadMessages + (newMatches > 0 ? 1 : 0) + (newVisits > 0 ? 1 : 0);
 
@@ -205,6 +223,7 @@ export async function GET() {
         unreadMessages,
         newMatches,
         newVisits,
+        circlePret,
         depuisMatchs,
         depuisVisites,
       },

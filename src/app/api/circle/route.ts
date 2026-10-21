@@ -11,6 +11,7 @@ import { Like } from "@/models/Like";
 import { CircleWeek } from "@/models/CircleWeek";
 import { planEffectif } from "@/lib/quotas";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
+import { TAILLE_CERCLE, debutDeSemaine, prochainTirage } from "@/lib/circle";
 
 /**
  * GET /api/circle
@@ -52,9 +53,6 @@ import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
  *  [Profil soigné] +2 photo, +1 question de sécurité remplie
  */
 
-/** Nombre de profils par semaine. C'est le nom du produit. */
-const TAILLE_CERCLE = 6;
-
 /**
  * Taille du vivier passé au calcul de score.
  *
@@ -64,28 +62,6 @@ const TAILLE_CERCLE = 6;
  * il porte sur un échantillon qui a du sens.
  */
 const TAILLE_VIVIER = 300;
-
-/** Lundi 00:00 de la semaine en cours, heure serveur. */
-function debutDeSemaine(reference = new Date()): Date {
-  const date = new Date(reference);
-  const jour = date.getDay();
-
-  // getDay() : 0 = dimanche. On recule jusqu'au lundi.
-  const recul = jour === 0 ? 6 : jour - 1;
-
-  date.setDate(date.getDate() - recul);
-  date.setHours(0, 0, 0, 0);
-
-  return date;
-}
-
-/** Lundi 00:00 de la semaine suivante — la date du prochain tirage. */
-function prochainTirage(reference = new Date()): Date {
-  const lundi = debutDeSemaine(reference);
-  const suivant = new Date(lundi);
-  suivant.setDate(suivant.getDate() + 7);
-  return suivant;
-}
 
 type Candidat = Record<string, unknown> & {
   _id: mongoose.Types.ObjectId;

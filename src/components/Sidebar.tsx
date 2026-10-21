@@ -164,6 +164,14 @@ export default function Sidebar() {
                 >
                   <link.icon size={16} />
                   <span className="flex-1 text-left">{link.label}</span>
+
+                  {compteurs.circlePret && !circleOpen && (
+                    <span
+                      aria-label="Nouvelle sélection du Circle cette semaine"
+                      className="h-2 w-2 shrink-0 rounded-full bg-succes"
+                    />
+                  )}
+
                   <ChevronDown
                     size={14}
                     className={`transition-transform ${
@@ -187,13 +195,20 @@ export default function Sidebar() {
                             key={sub.href}
                             href={sub.href}
                             aria-current={pathname === sub.href ? "page" : undefined}
-                            className={`rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+                            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
                               pathname === sub.href
                                 ? "text-cuivre"
                                 : "text-champagne/55 hover:text-champagne"
                             }`}
                           >
                             {sub.label}
+
+                            {sub.href === "/circle" && compteurs.circlePret && (
+                              <span
+                                aria-label="Nouvelle sélection cette semaine"
+                                className="h-2 w-2 shrink-0 rounded-full bg-succes"
+                              />
+                            )}
                           </Link>
                         ))}
                       </div>
