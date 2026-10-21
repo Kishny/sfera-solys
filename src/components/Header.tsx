@@ -64,21 +64,65 @@ type HeaderLink = {
 /**
  * Navigation de premier niveau.
  *
- * La maquette montre quatre entrées sans sous-menu, là où le header
- * portait deux mega-menus de quatre liens chacun. Le gain est réel — plus
- * de panneau à ouvrir, plus de piège clavier — mais il a un coût qu'il
- * faut assumer : /valeurs, /equipe, /faq et /commencer ne sont plus dans
- * la nav principale. Ils restent atteignables depuis le pied de page et
- * depuis les liens en fin de section.
+ * ## Ce que l'audit des liens a montré
  *
- * Le type HeaderLink garde `subItems` : le rendu sait encore dérouler un
- * mega-menu, et le remettre ne demanderait qu'une entrée de ce tableau.
+ * Quatre entrées plates — Concept, Guide, Fonctionnalités, Tarifs —
+ * laissaient /faq hors du menu alors que les neuf maquettes l'y placent
+ * toutes, et reléguaient /valeurs, /equipe et /temoignages au seul pied de
+ * page, où elles recevaient une entrée chacune.
+ *
+ * ## Pourquoi un déroulant plutôt que cinq entrées de plus
+ *
+ * Huit entrées plates ne tiennent pas entre 1024 et 1280 px, la largeur où
+ * se trouve la majorité des écrans de bureau. Les quatre pages qui parlent
+ * du projet — son histoire, ses principes, qui le tient, ce qu'en disent
+ * les membres — forment un groupe naturel ; elles passent sous « À
+ * propos », et le menu garde cinq entrées de premier niveau.
+ *
+ * Le rendu du mega-menu n'a pas eu à être réécrit : il était resté dans le
+ * composant après le passage aux entrées plates, avec sa fermeture à
+ * l'Échap, son clic extérieur, son retour de focus sur le déclencheur et
+ * son accordéon mobile. Il suffisait de lui redonner une entrée.
+ *
+ * « À propos » et non « Découvrir » : ce libellé-là désignait /guide
+ * jusqu'à la semaine dernière, et le reprendre pour autre chose remettrait
+ * l'ambiguïté qu'on venait d'enlever.
  */
 const links: HeaderLink[] = [
-  { label: 'Concept', href: '/histoire' },
-  { label: 'Guide', href: '/guide' },
+  {
+    label: 'À propos',
+    subItems: [
+      {
+        label: 'Notre histoire',
+        href: '/histoire',
+        description: "Pourquoi ce site existe, et ce qu'on a refusé de faire.",
+      },
+      {
+        label: 'Nos valeurs',
+        href: '/valeurs',
+        description:
+          'Six principes, et ce qui rend chacun vérifiable dans le produit.',
+      },
+      {
+        label: 'L’équipe',
+        href: '/equipe',
+        description: 'Quatre pôles, et pourquoi aucun visage sur la page.',
+      },
+      {
+        label: 'Témoignages',
+        href: '/temoignages',
+        description: 'Les parcours des membres, racontés par eux.',
+      },
+    ],
+    panelTitle: 'Vérifier d’abord',
+    panelText:
+      "Une pièce d'identité officielle, comparée à un selfie pris en direct. C'est la règle qui tient tout le reste — et elle est gratuite.",
+    panelCta: { label: 'Constituer mon dossier', href: '/commencer' },
+  },
   { label: 'Fonctionnalités', href: '/fonctionnalites' },
+  { label: 'Guide', href: '/guide' },
   { label: 'Tarifs', href: '/tarifs' },
+  { label: 'FAQ', href: '/faq' },
 ];
 
 /**

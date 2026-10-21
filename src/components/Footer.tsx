@@ -109,6 +109,7 @@ const COLONNES: {
     titre: "Sfera'Solys",
     liens: [
       { label: 'Accueil', href: '/' },
+      { label: 'Tarifs', href: '/tarifs' },
       { label: 'Notre histoire', href: '/histoire' },
       { label: 'Guide', href: '/guide' },
       { label: 'Nos valeurs', href: '/valeurs' },
@@ -142,6 +143,7 @@ const COLONNES: {
       },
       { label: "Centre d'aide", href: '/aide' },
       { label: 'FAQ', href: '/faq' },
+      { label: 'Nous contacter', href: '/contact' },
     ],
   },
   {
