@@ -35,6 +35,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import EnteteEspace from "@/components/espace/EnteteEspace";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -201,17 +202,12 @@ export default function PageVisibilite() {
   return (
     <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
       <div className="mx-auto max-w-3xl">
-        <header className="mb-6">
-          <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
-            Qui te voit
-          </h1>
-
-          <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm">
-            Quatre réglages, modifiables à tout moment. Aucun ne touche à tes
-            conversations en cours : quoi que tu choisisses, tu ne perds aucun
-            échange.
-          </p>
-        </header>
+        <EnteteEspace
+          className="mb-6"
+          surtitre="Confidentialité et visibilité"
+          titre="Qui peut voir ton profil&nbsp;?"
+          sousTitre="Quatre options de visibilité, à ajuster librement sans perdre tes conversations."
+        />
 
         {/* Confirmation */}
         {confirmation && (

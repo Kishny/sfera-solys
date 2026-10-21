@@ -33,6 +33,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import EnteteEspace from "@/components/espace/EnteteEspace";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -226,10 +227,14 @@ export default function PageEvenements() {
     <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
       <div className="mx-auto max-w-4xl">
         {/* En-tête */}
+        <EnteteEspace
+          className="mb-6"
+          surtitre="Cercle & communauté"
+          titre="Événements Solys"
+          action={{ libelle: "Calendrier Solys", icone: CalendarDays }}
+        />
+
         <header className="mb-5">
-          <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
-            Événements Solys
-          </h1>
 
           <p
             className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm"

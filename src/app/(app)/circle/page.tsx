@@ -35,12 +35,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import EnteteEspace from "@/components/espace/EnteteEspace";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   AlertCircle,
   CalendarClock,
+  Crown,
   Flag,
   Heart,
   Loader2,
@@ -263,17 +265,18 @@ export default function PageCircle() {
     <>
       <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-4xl">
-          {/* En-tête */}
-          <header className="mb-5">
-            <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
-              Circle of Six
-            </h1>
-
-            <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm">
-              Six profils choisis pour toi, une fois par semaine. Pas de
-              nouvelle pioche avant lundi — c’est le principe, pas une limite.
-            </p>
-          </header>
+          <EnteteEspace
+            className="mb-6"
+            surtitre={verrouille ? "Aperçu de la fonctionnalité" : "Cercle & communauté"}
+            titre="Circle of Six"
+            sousTitre="Six profils choisis pour toi, une fois par semaine. Pas de défilement infini."
+            action={{
+              libelle: "Accès dès Essentiel",
+              icone: Crown,
+              ton: "cuivre",
+              href: verrouille ? "/tarifs" : undefined,
+            }}
+          />
 
           {/* Accès réservé */}
           {verrouille ? (

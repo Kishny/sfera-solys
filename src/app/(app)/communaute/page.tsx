@@ -33,6 +33,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import EnteteEspace from "@/components/espace/EnteteEspace";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -413,27 +414,21 @@ export default function PageCommunaute() {
       <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-3xl">
           {/* En-tête */}
-          <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
-                Communauté Solys
-              </h1>
-
-              <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm">
-                Un fil public entre membres vérifiés. Accessible dès l’offre
-                gratuite — et modéré comme la messagerie.
-              </p>
-            </div>
-
+          <EnteteEspace
+            className="mb-6"
+            surtitre="Cercle & communauté"
+            titre="Communauté Solys"
+            sousTitre="Échange, partage et découvre un espace de discussion respectueux, ouvert dès l’offre gratuite."
+          >
             <button
               type="button"
               onClick={() => setFormulaire(true)}
               className={`inline-flex shrink-0 items-center gap-2 rounded-xl bg-cuivre px-4 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
             >
               <Plus size={15} aria-hidden="true" />
-              Publier
+              Créer une publication
             </button>
-          </header>
+          </EnteteEspace>
 
           {/* Filtres */}
           <div className="mb-5 flex flex-wrap gap-2">

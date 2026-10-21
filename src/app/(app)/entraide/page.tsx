@@ -40,6 +40,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import EnteteEspace from "@/components/espace/EnteteEspace";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -363,24 +364,12 @@ export default function PageEntraide() {
       <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-3xl">
           {/* En-tête */}
-          <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="font-display flex items-center gap-2.5 text-[26px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[32px]">
-                <HeartHandshake
-                  size={24}
-                  className="shrink-0 text-cuivre"
-                  aria-hidden="true"
-                />
-                Entraide
-              </h1>
-
-              <p className="mt-1.5 max-w-xl text-[13px] leading-relaxed text-champagne/60 sm:text-sm">
-                Poser une question à ceux qui y sont déjà passés. Ce sont des
-                membres qui répondent, pas des professionnels — et c’est ouvert
-                dès l’offre gratuite.
-              </p>
-            </div>
-
+          <EnteteEspace
+            className="mb-6"
+            surtitre="Cercle & communauté"
+            titre="Entraide"
+            sousTitre="Pose une question à ceux qui ont déjà vécu une situation semblable. Ce sont des membres qui répondent, pas des professionnels."
+          >
             <button
               type="button"
               onClick={() => setFormulaire(true)}
@@ -389,7 +378,7 @@ export default function PageEntraide() {
               <Plus size={15} aria-hidden="true" />
               Poser une question
             </button>
-          </header>
+          </EnteteEspace>
 
           {/* Filtres */}
           <div className="mb-5 flex flex-wrap gap-2">

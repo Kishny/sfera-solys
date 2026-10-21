@@ -31,6 +31,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import EnteteEspace from "@/components/espace/EnteteEspace";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Archive,
@@ -183,20 +184,17 @@ export default function PageMessages() {
     // lecture de l'espace connecté sont communes à toutes ses pages.
     <div className="min-h-screen px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
       <div className="mx-auto max-w-3xl">
-        <header className="mb-6">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h1 className="font-display text-[26px] font-bold leading-tight text-champagne">
-                Messages
-              </h1>
-              <p className="mt-1 text-[13px] text-champagne/60">
-                {nonLus > 0
-                  ? `${nonLus} message${nonLus > 1 ? "s" : ""} non lu${nonLus > 1 ? "s" : ""}.`
-                  : "Toutes tes conversations, au même endroit."}
-              </p>
-            </div>
-
-            <button
+        <EnteteEspace
+          className="mb-6"
+          surtitre="Mes échanges"
+          titre="Messages"
+          sousTitre={
+            nonLus > 0
+              ? `${nonLus} message${nonLus > 1 ? "s" : ""} non lu${nonLus > 1 ? "s" : ""}. Toutes tes conversations, dans un espace sobre et confidentiel.`
+              : "Toutes tes conversations, dans un espace sobre et confidentiel."
+          }
+        >
+          <button
               type="button"
               onClick={() => void lire()}
               disabled={chargement}
@@ -209,8 +207,7 @@ export default function PageMessages() {
               />
               Actualiser
             </button>
-          </div>
-        </header>
+        </EnteteEspace>
 
         {/* Recherche + onglets */}
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
