@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 

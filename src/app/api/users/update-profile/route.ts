@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 /**
  * Route de finalisation du profil après inscription.

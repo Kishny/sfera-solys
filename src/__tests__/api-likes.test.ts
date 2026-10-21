@@ -42,7 +42,7 @@ vi.mock("next-auth", () => ({
 }));
 
 // On évite de charger la vraie config NextAuth (providers, JWT Apple, bcrypt…)
-vi.mock("@/app/api/auth/[...nextauth]/route", () => ({
+vi.mock("@/lib/auth", () => ({
   authOptions: {},
 }));
 
