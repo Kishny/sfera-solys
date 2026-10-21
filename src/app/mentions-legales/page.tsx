@@ -3,6 +3,8 @@
 import Link from 'next/link';
 
 import PageLegale, { type SectionLegale } from '@/components/legal/PageLegale';
+import { CartesResume, GrilleNumerotee } from '@/components/legal/blocs';
+import { Server, Settings, MapPin } from 'lucide-react';
 
 /**
  * Mentions légales.
@@ -168,9 +170,114 @@ export default function MentionsLegalesPage() {
   return (
     <PageLegale
       badge="Mentions légales"
-      titre="Qui édite ce site."
+      titre={
+        <>
+          Qui édite Sfera&rsquo;Solys&nbsp;<span className="text-cuivre">?</span>
+        </>
+      }
+      accroche="Toutes les informations utiles pour identifier l’éditeur et le contacter."
       chapeau="L'éditeur, le directeur de la publication, l'hébergeur et les recours. Informations obligatoires pour un site commercial français."
       sections={sections}
+      encartSommaire={{
+        titre: 'Clair et transparent.',
+        texte:
+          'Aucune société, adresse ni immatriculation n’est inventée sur cette page.',
+      }}
+      avant={
+        <>
+          <GrilleNumerotee
+            titre="Identification de l’éditeur"
+            intro="Ces informations doivent être vérifiées avant publication : elles n’existent nulle part dans le code du projet."
+            items={[
+              {
+                titre: 'Dénomination sociale',
+                texte: '[À COMPLÉTER] — nom exact de l’entité éditrice.',
+                ancre: 'editeur',
+              },
+              {
+                titre: 'Forme juridique',
+                texte: '[À COMPLÉTER] — société, association ou autre statut.',
+                ancre: 'editeur',
+              },
+              {
+                titre: 'Siège social',
+                texte: '[À COMPLÉTER] — adresse du siège.',
+                ancre: 'editeur',
+              },
+              {
+                titre: 'Immatriculation',
+                texte: '[À COMPLÉTER] — SIREN et RCS selon la situation.',
+                ancre: 'editeur',
+              },
+              {
+                titre: 'Directeur de publication',
+                texte: '[À COMPLÉTER] — personne légalement désignée.',
+                ancre: 'publication',
+              },
+              {
+                titre: 'Contact',
+                texte:
+                  'contact@sferasolys.com — l’adresse mentionnée sur les pages publiques.',
+                ancre: 'signalement',
+              },
+            ]}
+          />
+
+          <CartesResume
+            titre="Hébergement et technologies"
+            cartes={[
+              {
+                icone: Server,
+                titre: 'Hébergeur',
+                texte:
+                  'Vercel héberge le site. Ses coordonnées légales complètes restent à inscrire.',
+              },
+              {
+                icone: MapPin,
+                titre: 'Coordonnées',
+                texte:
+                  '[À COMPLÉTER] — raison sociale et adresse exactes de l’hébergeur.',
+              },
+              {
+                icone: Settings,
+                titre: 'Prestataires techniques',
+                texte:
+                  'Ils sont détaillés sur la page Confidentialité, avec leur rôle.',
+              },
+            ]}
+          />
+
+          <GrilleNumerotee
+            titre="Propriété intellectuelle et responsabilité"
+            items={[
+              {
+                titre: 'Propriété intellectuelle',
+                texte:
+                  'Marques, visuels, contenus et logiciels : les mentions exactes restent à arrêter.',
+                ancre: 'propriete',
+              },
+              {
+                titre: 'Responsabilité',
+                texte:
+                  'Le texte doit être adapté aux services réellement fournis et au contenu publié.',
+                ancre: 'propriete',
+              },
+              {
+                titre: 'Vie privée',
+                texte:
+                  'Le détail des traitements vit sur les pages Confidentialité et Cookies.',
+                ancre: 'propriete',
+              },
+              {
+                titre: 'Signalement',
+                texte:
+                  'Un moyen simple de joindre l’éditeur et de signaler un contenu.',
+                ancre: 'signalement',
+              },
+            ]}
+          />
+        </>
+      }
       avertissement={
         <p>
           <strong>Ce document est un gabarit incomplet.</strong> Les champs{' '}

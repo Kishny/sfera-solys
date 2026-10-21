@@ -3,6 +3,12 @@
 import { AlertTriangle } from 'lucide-react';
 
 import PageLegale, { type SectionLegale } from '@/components/legal/PageLegale';
+import {
+  CartesResume,
+  GrilleNumerotee,
+  ListeRegles,
+} from '@/components/legal/blocs';
+import { Gem, Heart, UserCheck } from 'lucide-react';
 
 /**
  * Conditions générales d'utilisation.
@@ -159,11 +165,117 @@ export default function ConditionsPage() {
   return (
     <PageLegale
       badge="Conditions"
-      titre="Les règles du jeu."
+      titre={
+        <>
+          Les règles du jeu<span className="text-cuivre">.</span>
+        </>
+      }
+      accroche="Les règles qui protègent les échanges et définissent les engagements de chacun."
       chapeau="Ce que tu acceptes en créant un compte, et ce à quoi la plateforme s'engage en retour."
       miseAJour="27 septembre 2026"
+      encartSommaire={{
+        titre: 'Du respect, avant tout.',
+        texte:
+          'Les neuf articles tiennent en une idée : ce qui protège les échanges.',
+      }}
+      avant={
+        <>
+          <CartesResume
+            titre="L’essentiel en un regard"
+            cartes={[
+              {
+                icone: UserCheck,
+                titre: '28 ans et +',
+                texte:
+                  'Service réservé aux hommes de 28 ans et plus, après vérification d’identité.',
+              },
+              {
+                icone: Heart,
+                titre: 'Respect mutuel',
+                texte:
+                  'Un cadre contre le harcèlement et les contenus trompeurs ou illégaux.',
+              },
+              {
+                icone: Gem,
+                titre: 'Abonnements clairs',
+                texte:
+                  'Paiements Stripe, renouvellement mensuel, résiliation depuis ton compte.',
+              },
+            ]}
+          />
+
+          <GrilleNumerotee
+            titre="Les conditions, article par article"
+            intro="Chaque carte résume un article en une phrase et mène à son texte intégral, plus bas sur cette page."
+            items={[
+              {
+                titre: 'Objet',
+                texte:
+                  'Cadre d’utilisation de la plateforme et acceptation des conditions.',
+                ancre: 'objet',
+              },
+              {
+                titre: 'Accès au service',
+                texte:
+                  'Inscription réservée aux hommes de 28 ans et plus, informations exactes.',
+                ancre: 'acces-au-service',
+              },
+              {
+                titre: 'Comportement attendu',
+                texte:
+                  'Respect des autres, interdiction des abus, signalement des incidents.',
+                ancre: 'comportement-attendu',
+              },
+              {
+                titre: 'Abonnements et paiements',
+                texte:
+                  'Offres Essentiel, Premium et Elite ; gestion et renouvellement via Stripe.',
+                ancre: 'abonnements-et-paiements',
+              },
+              {
+                titre: 'Propriété intellectuelle',
+                texte: 'Logo, graphismes, textes et code sont protégés.',
+                ancre: 'propriete-intellectuelle',
+              },
+              {
+                titre: 'Résiliation',
+                texte:
+                  'Suppression volontaire du compte, ou suspension en cas de non-respect.',
+                ancre: 'resiliation',
+              },
+              {
+                titre: 'Responsabilité',
+                texte:
+                  'Mesures de sécurité raisonnables, sans garantie absolue sur les interactions.',
+                ancre: 'limitation-de-responsabilite',
+              },
+              {
+                titre: 'Droit applicable',
+                texte:
+                  'Droit français, et recherche préalable d’une solution amiable.',
+                ancre: 'droit-applicable',
+              },
+              {
+                titre: 'Contact',
+                texte: 'Les questions relatives aux conditions arrivent au support.',
+                ancre: 'contact',
+              },
+            ]}
+          />
+
+          <ListeRegles
+            titre="Règles de la communauté"
+            regles={[
+              'Respecter les autres membres',
+              'Ne pas harceler ou intimider',
+              'Ne pas publier de contenus illégaux ou trompeurs',
+              'Signaler les comportements inappropriés',
+            ]}
+          />
+        </>
+      }
       avertissement={
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-5 py-4">
+        <div className="flex items-start gap-3 rounded-2xl border border-cuivre/40 bg-cuivre/[0.07] px-5 py-4">
           <AlertTriangle
             size={18}
             className="mt-0.5 shrink-0 text-cuivre"

@@ -4,6 +4,13 @@ import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
 
 import PageLegale, { type SectionLegale } from '@/components/legal/PageLegale';
+import {
+  AvertissementLegal,
+  CartesResume,
+  GrilleNumerotee,
+  ListePrestataires,
+} from '@/components/legal/blocs';
+import { Flag, ScanFace, Target } from 'lucide-react';
 
 /**
  * Politique de confidentialité.
@@ -294,11 +301,128 @@ export default function ConfidentialitePage() {
   return (
     <PageLegale
       badge="Confidentialité"
-      titre="Ce que nous faisons de tes données."
+      titre={
+        <>
+          Tes données, sous ton contrôle<span className="text-cuivre">.</span>
+        </>
+      }
+      accroche="Quelles informations sont collectées, pourquoi, et comment exercer tes droits."
       chapeau="Quelles données sont collectées, pourquoi, par qui elles sont traitées, et comment reprendre la main dessus."
       miseAJour="27 septembre 2026"
+      encartSommaire={{
+        titre: 'Ta vie privée compte.',
+        texte:
+          'Chaque donnée listée ici a une raison d’être, et tu peux revenir dessus.',
+      }}
+      avant={
+        <>
+          <CartesResume
+            titre="Ce que nous faisons de tes données"
+            cartes={[
+              {
+                icone: Target,
+                titre: 'Collecte ciblée',
+                texte:
+                  'Compte, photos, préférences, messages et informations utiles au service.',
+              },
+              {
+                icone: ScanFace,
+                titre: 'Vérification',
+                texte:
+                  'Pièce d’identité et selfie transmis directement à Stripe Identity.',
+              },
+              {
+                icone: Flag,
+                titre: 'Tes droits',
+                texte:
+                  'Accès, rectification, effacement, opposition et portabilité.',
+              },
+            ]}
+          />
+
+          <GrilleNumerotee
+            titre="Les informations traitées"
+            intro="Le détail de chaque catégorie figure dans l’article « Les données que nous collectons », plus bas."
+            items={[
+              {
+                titre: 'Compte et profil',
+                texte:
+                  'E-mail, pseudonyme, âge, photos, description, intentions, centres d’intérêt et localisation.',
+              },
+              {
+                titre: 'Utilisation',
+                texte:
+                  'Likes, messages, visites de profil, signalements, événements et publications.',
+              },
+              {
+                titre: 'Abonnements',
+                texte:
+                  'Identifiants client et abonnement Stripe, offre et statut. La carte bancaire reste chez Stripe.',
+              },
+              {
+                titre: 'Vérification d’identité',
+                texte:
+                  'Nous conservons l’identifiant de session et le résultat — ni le document, ni le selfie.',
+              },
+            ]}
+          />
+
+          <ListePrestataires
+            titre="Nos prestataires"
+            prestataires={[
+              { nom: 'MongoDB Atlas', role: 'base de données' },
+              { nom: 'Stripe', role: 'paiements et vérification d’identité' },
+              { nom: 'Cloudinary', role: 'photos' },
+              { nom: 'Pusher', role: 'messagerie en temps réel' },
+              { nom: 'Resend', role: 'e-mails' },
+              { nom: 'Vercel', role: 'hébergement' },
+              { nom: 'Google', role: 'connexion optionnelle' },
+            ]}
+            note={
+              <>
+                Régions d’hébergement et transferts hors Union européenne&nbsp;:{' '}
+                <span className="font-semibold text-cuivre">[À COMPLÉTER]</span>.
+              </>
+            }
+          />
+
+          <GrilleNumerotee
+            titre="Exercer tes droits"
+            intro="La procédure complète et les délais figurent dans l’article « Tes droits »."
+            items={[
+              {
+                titre: 'Accès et rectification',
+                texte:
+                  'Consulter ou mettre à jour tes données, notamment depuis Mon compte.',
+              },
+              {
+                titre: 'Effacement et opposition',
+                texte:
+                  'Demander la suppression de ton compte, ou t’opposer à certains traitements.',
+              },
+              {
+                titre: 'Retrait du consentement',
+                texte:
+                  'Revenir sur tes choix de cookies et sur l’inscription à la lettre d’information.',
+              },
+              {
+                titre: 'Contact et CNIL',
+                texte:
+                  'Écrire au support, et saisir la CNIL si la réponse ne te convient pas.',
+              },
+            ]}
+          />
+
+          <AvertissementLegal titre="Durées de conservation :">
+            elles ne sont pas encore fixées. L&apos;article « Combien de temps »
+            le dit, et le tableau correspondant reste à écrire — annoncer une
+            durée qui ne serait appliquée nulle part vaudrait moins que de
+            reconnaître qu&apos;elle manque.
+          </AvertissementLegal>
+        </>
+      }
       avertissement={
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-5 py-4">
+        <div className="flex items-start gap-3 rounded-2xl border border-cuivre/40 bg-cuivre/[0.07] px-5 py-4">
           <AlertTriangle
             size={18}
             className="mt-0.5 shrink-0 text-cuivre"

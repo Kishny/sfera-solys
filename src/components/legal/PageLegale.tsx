@@ -75,45 +75,63 @@ export type SectionLegale = {
  */
 const DOCUMENTS: Array<{ href: string; label: string; icone: IconeMarque }> = [
   { href: '/cookies', label: 'Cookies', icone: Cookie },
-  { href: '/confidentialite', label: 'Confidentialité', icone: ShieldCheck },
-  { href: '/conditions', label: "Conditions d'utilisation", icone: FileText },
+  { href: '/conditions', label: 'Conditions', icone: FileText },
   { href: '/mentions-legales', label: 'Mentions légales', icone: Scale },
+  { href: '/confidentialite', label: 'Confidentialité', icone: ShieldCheck },
+];
+
+/**
+ * Les deux documents que les maquettes ne dessinent pas, mais qui
+ * emploient la même coquille. Ils ne figurent pas dans la barre en
+ * permanence — quatre onglets, comme la maquette — mais celui qu'on lit
+ * s'y ajoute : une barre sans onglet actif se lirait comme un défaut.
+ */
+const SECONDAIRES: Array<{ href: string; label: string; icone: IconeMarque }> = [
   { href: '/accessibilite', label: 'Accessibilité', icone: Home },
-  { href: '/gestion-donnees', label: 'Données', icone: ShieldCheck },
+  { href: '/gestion-donnees', label: 'Gestion des données', icone: ShieldCheck },
 ];
 
 export default function PageLegale({
   badge,
   titre,
-  titreAccent,
   chapeau,
   accroche,
   miseAJour,
   sections,
   avertissement,
+  avant,
   apres,
   photo = '/visuels/solys-04.webp',
   photoAlt = 'Une terrasse éclairée à la bougie, l’éclipse au-dessus de la ville.',
   encartSommaire,
 }: {
   badge: string;
-  titre: string;
-  /** Seconde ligne du titre, en italique cuivré. */
-  titreAccent?: string;
+  /**
+   * Le titre, libre : les maquettes y colorent tantôt une ligne entière,
+   * tantôt le seul point final. Une chaîne et un drapeau ne suffisaient
+   * pas, chaque page écrit donc son propre fragment.
+   */
+  titre: React.ReactNode;
   chapeau: string;
   /** Phrase en gras entre le titre et le chapeau. */
   accroche?: string;
   miseAJour?: string;
   sections: SectionLegale[];
   avertissement?: React.ReactNode;
+  /** Blocs de résumé posés entre l'avertissement et les articles. */
+  avant?: React.ReactNode;
   apres?: React.ReactNode;
   photo?: string;
   photoAlt?: string;
   /** Encart illustré sous le sommaire. */
-  encartSommaire?: { image: string; titre: string; texte: string };
+  encartSommaire?: { image?: string; titre: string; texte: string };
 }) {
   const pathname = usePathname();
   const [active, setActive] = useState<string | null>(sections[0]?.id ?? null);
+
+  const courant =
+    SECONDAIRES.find((d) => d.href === pathname) ?? null;
+  const onglets = courant ? [...DOCUMENTS, courant] : DOCUMENTS;
 
   useEffect(() => {
     const cibles = sections
@@ -172,12 +190,6 @@ export default function PageLegale({
 
               <h1 className="font-display mt-6 text-[32px] font-normal leading-[1.08] tracking-tight text-ivoire sm:text-[44px]">
                 {titre}
-                {titreAccent && (
-                  <>
-                    <br />
-                    <span className="italic text-cuivre">{titreAccent}</span>
-                  </>
-                )}
               </h1>
 
               {accroche && (
@@ -213,7 +225,7 @@ export default function PageLegale({
 
                 <ChevronRight size={13} aria-hidden="true" className="text-champagne/45" />
                 <li aria-current="page" className="font-semibold text-cuivre">
-                  {DOCUMENTS.find((d) => d.href === pathname)?.label ?? badge}
+                  {onglets.find((d) => d.href === pathname)?.label ?? badge}
                 </li>
               </ol>
             </nav>
@@ -232,7 +244,7 @@ export default function PageLegale({
           className="px-4 pt-6 sm:px-6 lg:px-16"
         >
           <ul className="mx-auto flex max-w-7xl gap-2 overflow-x-auto pb-1">
-            {DOCUMENTS.map(({ href, label, icone: Icone }) => {
+            {onglets.map(({ href, label, icone: Icone }) => {
               const courant = pathname === href;
 
               return (
@@ -262,31 +274,22 @@ export default function PageLegale({
             <aside className="lg:sticky lg:top-28 lg:self-start xl:top-32">
               <div className="rounded-2xl border border-champagne/12 bg-minuit/70 p-5 sm:p-6">
                 <h2 className="font-display text-[20px] font-normal leading-tight text-ivoire">
-                  Sommaire
+                  Sur cette page
                 </h2>
 
-                <ol className="mt-5 space-y-3">
+                <ol className="mt-5 space-y-1">
                   {sections.map((section) => {
                     const courante = active === section.id;
 
                     return (
-                      <li key={section.id} className="flex items-start gap-3">
-                        <span
-                          aria-hidden="true"
-                          className={`mt-[5px] h-2 w-2 shrink-0 rounded-full border transition-colors ${
-                            courante
-                              ? 'border-cuivre bg-cuivre'
-                              : 'border-champagne/45 bg-transparent'
-                          }`}
-                        />
-
+                      <li key={section.id}>
                         <a
                           href={`#${section.id}`}
                           aria-current={courante ? 'true' : undefined}
-                          className={`text-[13px] leading-snug transition-colors ${focusRing} ${
+                          className={`block border-l-2 py-2 pl-3.5 text-[13px] leading-snug transition-colors ${focusRing} ${
                             courante
-                              ? 'font-semibold text-cuivre'
-                              : 'text-champagne/80 hover:text-champagne'
+                              ? 'border-cuivre bg-champagne/[0.06] font-semibold text-champagne'
+                              : 'border-transparent text-champagne/75 hover:border-champagne/30 hover:text-champagne'
                           }`}
                         >
                           {section.titre}
@@ -298,19 +301,21 @@ export default function PageLegale({
 
                 {encartSommaire && (
                   <div className="mt-6 overflow-hidden rounded-xl border border-champagne/12">
-                    <div className="relative aspect-[16/10] w-full">
-                      <Image
-                        src={encartSommaire.image}
-                        alt=""
-                        fill
-                        sizes="260px"
-                        className="object-cover object-center"
-                      />
-                      <div
-                        aria-hidden="true"
-                        className="absolute inset-0 bg-gradient-to-t from-minuit via-transparent to-transparent"
-                      />
-                    </div>
+                    {encartSommaire.image && (
+                      <div className="relative aspect-[16/10] w-full">
+                        <Image
+                          src={encartSommaire.image}
+                          alt=""
+                          fill
+                          sizes="260px"
+                          className="object-cover object-center"
+                        />
+                        <div
+                          aria-hidden="true"
+                          className="absolute inset-0 bg-gradient-to-t from-minuit via-transparent to-transparent"
+                        />
+                      </div>
+                    )}
 
                     <div className="bg-minuit/80 p-4">
                       <h3 className="font-display text-[15px] font-normal text-ivoire">
@@ -332,6 +337,7 @@ export default function PageLegale({
             {/* Les sections */}
             <div className="space-y-4">
               {avertissement}
+              {avant}
 
               {sections.map((section) => {
                 const Icone = section.icone;
@@ -391,6 +397,56 @@ export default function PageLegale({
               })}
 
               {apres}
+            </div>
+          </div>
+        </section>
+
+        {/*
+          Bandeau de fin, commun aux quatre documents. Le texte reste dans
+          les 42 % de gauche de `solys-08`, où l'image est sombre.
+        */}
+        <section className="px-4 pb-14 sm:px-6 sm:pb-16 lg:px-16">
+          <div className="relative isolate mx-auto max-w-7xl overflow-hidden rounded-3xl border border-champagne/12">
+            <Image
+              src="/visuels/solys-08.webp"
+              alt=""
+              fill
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="-z-10 object-cover object-center"
+            />
+
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(10,13,18,0.92)_0%,rgba(10,13,18,0.88)_45%,rgba(10,13,18,0.55)_70%,rgba(10,13,18,0.15)_100%)]"
+            />
+
+            <div className="flex flex-col gap-6 p-7 sm:p-9 lg:flex-row lg:items-center lg:justify-between lg:gap-12 lg:p-10">
+              <div>
+                <h2 className="font-display text-[24px] font-normal leading-tight text-ivoire sm:text-[30px]">
+                  Une question sur nos engagements&nbsp;?
+                </h2>
+
+                <p className="mt-2.5 max-w-md text-[13.5px] leading-relaxed text-champagne/80">
+                  Notre équipe peut t&apos;orienter vers la bonne information.
+                </p>
+              </div>
+
+              <div className="flex shrink-0 flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+                <Link
+                  href="/contact"
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-6 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                >
+                  Nous contacter
+                  <ChevronRight size={16} aria-hidden="true" />
+                </Link>
+
+                <Link
+                  href="/"
+                  className={`inline-flex items-center justify-center rounded-xl border border-champagne/25 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-champagne/50 ${focusRing}`}
+                >
+                  Retour au site
+                </Link>
+              </div>
             </div>
           </div>
         </section>

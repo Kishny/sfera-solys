@@ -211,8 +211,13 @@ export default function CookiesPage() {
   return (
     <PageLegale
       badge="Centre légal"
-      titre="Ce que nous déposons"
-      titreAccent="sur ton appareil."
+      titre={
+        <>
+          Ce que nous déposons
+          <br />
+          <span className="italic text-cuivre">sur ton appareil.</span>
+        </>
+      }
       accroche="Comprendre et maîtriser tes choix."
       chapeau="Nous utilisons des cookies pour faire fonctionner Sfera’Solys et, si tu l’acceptes, pour mesurer l’audience du site. Tu peux revenir sur ce choix à tout moment depuis cette page."
       miseAJour="27 septembre 2026"
