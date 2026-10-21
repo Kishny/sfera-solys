@@ -42,6 +42,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { clientPusherOuNull } from "@/lib/pusher-client";
+import EclipseMark from "@/components/brand/EclipseMark";
 import { Logo } from "@/components/ui/Logo";
 
 type SidebarSubItem = {
@@ -192,7 +193,12 @@ export default function Sidebar() {
       className="sticky top-0 hidden h-screen w-[232px] shrink-0 flex-col border-r border-champagne/10 bg-nuit px-4 py-6 lg:flex"
     >
       <div className="px-2 pb-7">
-        <Logo size="sm" withMark markId="barre-laterale" />
+        <Logo
+          size="sm"
+          withMark
+          markId="barre-laterale"
+          tagline="Rencontres d’exception"
+        />
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
@@ -291,6 +297,33 @@ export default function Sidebar() {
           <span>Premium</span>
         </Link>
       </nav>
+
+      {/*
+        Signature du bas de barre.
+
+        Purement décorative — `aria-hidden` — mais elle porte du texte, et à
+        ce titre elle reste mesurée : le champagne à 60 % tient 5,52:1 sur
+        `nuit`. L'éclipse déborde à gauche pour qu'on en voie un arc plutôt
+        qu'un cercle complet, comme sur la maquette.
+      */}
+      <div
+        aria-hidden="true"
+        className="relative mt-6 overflow-hidden px-2 pb-6 pt-10"
+      >
+        <EclipseMark
+          id="barre-laterale-signature"
+          attenuation={0}
+          className="pointer-events-none absolute -left-16 -top-8 h-[190px] w-[190px] opacity-30"
+        />
+
+        <p className="relative text-[10px] font-semibold uppercase leading-[1.8] tracking-surtitre text-champagne/60">
+          Des rencontres
+          <br />
+          qui ont du sens
+        </p>
+
+        <span className="relative mt-3 block h-px w-10 bg-cuivre/70" />
+      </div>
 
       {/* chip utilisateur */}
       <div className="relative mt-2">

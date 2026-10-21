@@ -40,14 +40,18 @@
  */
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
+  CalendarDays,
+  ChevronRight,
   Eye,
   Loader2,
+  Mail,
   MapPin,
   Pencil,
   Save,
@@ -433,11 +437,31 @@ function ContenuMonCompte() {
           )}
         </AnimatePresence>
 
-        {/* Identité */}
-        <section className={`${carte} mb-5 p-4 sm:p-6`}>
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        {/*
+          Identité.
+
+          La maquette pose la carte sur une photographie. Voile mesuré sur
+          `solys-11` dans les 45 % de gauche, là où vit tout le texte : le
+          champagne à 70 % y tient 6,41:1 et le surtitre à 60 % 5,09. Au-delà,
+          l'image reprend — c'est la bande de droite, qui ne porte rien.
+        */}
+        <section className="relative isolate mb-5 overflow-hidden rounded-2xl border border-champagne/12">
+          <Image
+            src="/visuels/solys-11.webp"
+            alt=""
+            fill
+            sizes="(max-width: 1024px) 100vw, 1100px"
+            className="-z-10 object-cover object-center"
+          />
+
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(10,13,18,0.92)_0%,rgba(10,13,18,0.88)_45%,rgba(10,13,18,0.55)_70%,rgba(10,13,18,0.15)_100%)]"
+          />
+
+          <div className="flex flex-col gap-5 p-4 sm:flex-row sm:items-center sm:p-6">
             <div className="mx-auto shrink-0 sm:mx-0">
-              <AnneauCompletion completion={completion} taille={88}>
+              <AnneauCompletion completion={completion} taille={104}>
                 <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-champagne/12 bg-nuit">
                   {user.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -447,7 +471,7 @@ function ContenuMonCompte() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="font-display text-[26px] font-extrabold text-champagne/60">
+                    <span className="font-display text-[34px] font-normal text-champagne/70">
                       {user.pseudonyme.charAt(0).toUpperCase()}
                     </span>
                   )}
@@ -457,42 +481,48 @@ function ContenuMonCompte() {
 
             <div className="min-w-0 flex-1 text-center sm:text-left">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                <h1 className="font-display min-w-0 max-w-full truncate text-[22px] font-extrabold tracking-tight text-champagne">
+                <h1 className="font-display min-w-0 max-w-full truncate text-[26px] font-normal tracking-tight text-ivoire sm:text-[30px]">
                   {user.pseudonyme}
                 </h1>
 
                 <span
-                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                  className={`rounded-full px-3 py-1 text-[11.5px] font-semibold ${
                     payante
-                      ? "bg-cuivre text-nuit"
-                      : "border border-champagne/15 text-champagne/70"
+                      ? "bg-degrade-cuivre text-nuit"
+                      : "border border-champagne/25 text-champagne/85"
                   }`}
                 >
                   {payante ? offre : "Offre gratuite"}
                 </span>
 
                 {user.identityVerified && (
-                  <span className="flex items-center gap-1 rounded-full bg-succes/15 px-2.5 py-0.5 text-[11px] font-bold text-succes">
-                    <Shield size={11} aria-hidden="true" />
+                  <span className="flex items-center gap-1.5 rounded-full border border-succes/45 bg-succes/15 px-3 py-1 text-[11.5px] font-semibold text-succes">
+                    <Shield size={12} aria-hidden="true" />
                     Vérifié
                   </span>
                 )}
               </div>
 
-              <p className="mt-1 truncate text-[13px] text-champagne/60">
+              <p className="mt-2.5 flex items-center justify-center gap-2 truncate text-[13px] text-champagne/80 sm:justify-start">
+                <Mail size={13} aria-hidden="true" className="shrink-0 text-champagne/60" />
                 {user.email}
               </p>
 
               {user.localisation && (
-                <p className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-champagne/55 sm:justify-start">
-                  <MapPin size={12} aria-hidden="true" />
+                <p className="mt-1.5 flex items-center justify-center gap-2 text-[13px] text-champagne/80 sm:justify-start">
+                  <MapPin size={13} aria-hidden="true" className="shrink-0 text-champagne/60" />
                   {user.localisation}
                 </p>
               )}
 
-              <p className="mt-2 text-[11px] text-champagne/55">
-                Membre depuis {formaterDate(user.createdAt)} · profil complété à{" "}
-                {completion} %
+              <p className="mt-1.5 flex items-center justify-center gap-2 text-[12.5px] text-champagne/75 sm:justify-start">
+                <CalendarDays
+                  size={13}
+                  aria-hidden="true"
+                  className="shrink-0 text-champagne/60"
+                />
+                Membre depuis le {formaterDate(user.createdAt)} · profil complété
+                à {completion} %
               </p>
             </div>
 
@@ -501,10 +531,11 @@ function ContenuMonCompte() {
                 <Link
                   href={`/profil/${user._id}?preview=1`}
                   target="_blank"
-                  className={`inline-flex items-center gap-1.5 rounded-xl border border-champagne/15 px-3.5 py-2 text-[12px] font-semibold text-champagne/80 transition-colors hover:border-champagne/30 hover:text-champagne ${focusRing}`}
+                  className={`inline-flex items-center gap-2 rounded-xl border border-cuivre/50 bg-nuit/60 px-4 py-2.5 text-[13px] font-semibold text-champagne backdrop-blur-sm transition-colors hover:bg-cuivre/15 ${focusRing}`}
                 >
-                  <Eye size={13} aria-hidden="true" />
+                  <Eye size={14} aria-hidden="true" className="text-cuivre" />
                   Voir mon profil public
+                  <ChevronRight size={14} aria-hidden="true" />
                 </Link>
               )}
 
@@ -539,13 +570,13 @@ function ContenuMonCompte() {
                   setOngletActif(onglet.id);
                   if (edition) annuler();
                 }}
-                className={`relative flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[12px] font-semibold transition-colors ${focusRing} ${
+                className={`relative flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-semibold transition-colors ${focusRing} ${
                   actif
-                    ? "border-cuivre bg-cuivre text-nuit"
-                    : "border-champagne/12 text-champagne/70 hover:border-champagne/25 hover:text-champagne"
+                    ? "border-transparent bg-degrade-cuivre text-nuit"
+                    : "border-champagne/15 bg-minuit/70 text-champagne/85 hover:border-cuivre/45"
                 }`}
               >
-                <Icone size={13} aria-hidden="true" />
+                <Icone size={15} aria-hidden="true" />
                 {onglet.label}
 
                 {pastille && (
