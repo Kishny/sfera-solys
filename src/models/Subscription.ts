@@ -2,7 +2,7 @@
 
 import mongoose, { Schema, models, model } from 'mongoose';
 import type {
-  SubscriptionPlanId,
+  PlanId as SubscriptionPlanId,
   SubscriptionStatus,
 } from '@/lib/subscription/config';
 

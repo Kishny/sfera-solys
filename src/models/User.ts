@@ -2,6 +2,8 @@
 
 import mongoose, { Schema, Document, Model, models } from "mongoose";
 
+import type { SubscriptionStatus } from "@/lib/subscription/config";
+
 /**
  * Providers d'authentification autorisés.
  *
@@ -43,12 +45,7 @@ export type UserPlan =
  * past_due : paiement en retard
  * canceled : abonnement annulé
  */
-export type SubscriptionStatus =
-  | "inactive"
-  | "active"
-  | "trialing"
-  | "past_due"
-  | "canceled";
+export type { SubscriptionStatus };
 
 /**
  * Visibilité du profil.
@@ -119,6 +116,12 @@ export interface IUser extends Document {
   stripeSubscriptionId?: string;
   stripeCheckoutSessionId?: string;
 
+  /** Annulation programmée : l'abonnement s'arrête à `premiumExpiresAt`. */
+  subscriptionCancelAtPeriodEnd?: boolean;
+
+  /** Abonnement en pause (pause_collection Stripe) : accès actif, sans prélèvement. */
+  subscriptionPaused?: boolean;
+
   // Vérification email
   emailVerified: boolean;
   emailVerificationToken?: string | null;
@@ -131,6 +134,15 @@ export interface IUser extends Document {
   // Modération
   banned?: boolean;
 
+  /**
+   * Membres bloqués par celui-ci.
+   *
+   * ⚠️ Écrit par `POST`/`DELETE /api/users/block`, mais **lu nulle part** :
+   * aucune requête d'Explorer, de Matches ou de la messagerie ne filtre
+   * sur ce tableau. Le blocage est donc enregistré sans effet visible.
+   */
+  blockedUsers?: string[];
+
   // Notifications
   lastSeenNotificationsAt?: Date | null;
   /**
@@ -142,6 +154,15 @@ export interface IUser extends Document {
    * page ne touchait le curseur. Chaque compteur a maintenant le sien.
    */
   lastSeenMatchesAt?: Date | null;
+
+  /**
+   * Jeton Expo Push de l'application mobile, enregistré par
+   * `PUT /api/users/push-token`. Lu par le digest du matin et par
+   * `lib/push.ts`, qui devait jusqu'ici le retyper à la main faute de
+   * le trouver dans cette interface.
+   */
+  expoPushToken?: string | null;
+  expoPushTokenUpdatedAt?: Date | null;
 
   // Vérification d'identité Stripe Identity
   identityVerified: boolean;
@@ -175,6 +196,35 @@ export interface IUser extends Document {
  * - les champs Stripe sont intégrés directement pour éviter que Mongoose les ignore.
  * - les valeurs de plan doivent rester identiques entre frontend, API Stripe et webhook.
  */
+/**
+ * Champs qui ne sortent jamais du serveur.
+ *
+ * Les deux transformations, `toJSON` et `toObject`, en tenaient chacune sa
+ * copie : ajouter un secret obligeait à penser à deux endroits, et en
+ * oublier un l'exposait sans bruit. Une seule liste, lue par les deux.
+ */
+const CHAMPS_PRIVES = [
+  "password",
+  "reponse",
+  "emailVerificationToken",
+  "emailVerificationExpiry",
+  "resetPasswordToken",
+  "resetPasswordExpiry",
+  "__v",
+] as const;
+
+/**
+ * Retire les champs privés du document transformé.
+ *
+ * Le cast est nécessaire : mongoose type `ret` d'après le document, et ces
+ * clés y sont déclarées `select: false` ou absentes de l'interface.
+ */
+function retirerLesChampsPrives<T>(ret: T): T {
+  const enregistrement = ret as Record<string, unknown>;
+  for (const champ of CHAMPS_PRIVES) delete enregistrement[champ];
+  return ret;
+}
+
 const UserSchema = new Schema<IUser>(
   {
     /**
@@ -689,30 +739,12 @@ const UserSchema = new Schema<IUser>(
      */
     toJSON: {
       virtuals: true,
-      transform(_doc, ret) {
-        delete ret.password;
-        delete ret.reponse;
-        delete ret.emailVerificationToken;
-        delete ret.emailVerificationExpiry;
-        delete ret.resetPasswordToken;
-        delete ret.resetPasswordExpiry;
-        delete (ret as Record<string, unknown>).__v;
-        return ret;
-      },
+      transform: (_doc, ret) => retirerLesChampsPrives(ret),
     },
 
     toObject: {
       virtuals: true,
-      transform(_doc, ret) {
-        delete ret.password;
-        delete ret.reponse;
-        delete ret.emailVerificationToken;
-        delete ret.emailVerificationExpiry;
-        delete ret.resetPasswordToken;
-        delete ret.resetPasswordExpiry;
-        delete (ret as Record<string, unknown>).__v;
-        return ret;
-      },
+      transform: (_doc, ret) => retirerLesChampsPrives(ret),
     },
   }
 );

@@ -124,6 +124,26 @@ export const SUBSCRIPTION_PLANS = {
   },
 } as const;
 
+/**
+ * Statuts d'abonnement Stripe.
+ *
+ * inactive : aucun abonnement actif
+ * active   : abonnement payé et actif
+ * trialing : période d'essai
+ * past_due : paiement en retard
+ * canceled : abonnement annulé
+ *
+ * Ces valeurs sont celles de l'enum du schéma `User`, qui fait foi en base.
+ * Le type vit ici plutôt que dans un modèle : `User` et `Subscription` le
+ * lisent tous les deux, et chacun avait fini par en écrire sa version.
+ */
+export type SubscriptionStatus =
+  | "inactive"
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "canceled";
+
 export type PlanId = keyof typeof SUBSCRIPTION_PLANS;
 
 export type SubscriptionPlan = (typeof SUBSCRIPTION_PLANS)[PlanId];

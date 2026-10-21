@@ -19,8 +19,29 @@ const nextConfig: NextConfig = {
    */
   distDir: process.env.NEXT_DIST_DIR || ".next",
 
+  /**
+   * ESLint reste désactivé au build, faute de pouvoir faire autrement.
+   *
+   * `eslint.config.mjs` existe et étend `next/core-web-vitals`, mais ni
+   * `eslint`, ni `eslint-config-next`, ni `@eslint/eslintrc` ne figurent
+   * dans les dépendances : retirer ce drapeau ferait échouer le build sur
+   * un module introuvable. Il faut d'abord installer les trois.
+   */
   eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
+
+  /**
+   * La vérification des types est rétablie.
+   *
+   * Elle avait été coupée sur seize erreurs, dont quatre n'étaient pas du
+   * bruit : deux types importés qui n'existaient pas dans
+   * `subscription/config`, et quatre champs présents au schéma `User` mais
+   * absents de `IUser` — `subscriptionCancelAtPeriodEnd` et
+   * `subscriptionPaused`, que les routes Stripe pilotent, `expoPushToken`,
+   * que le digest du matin interroge, et `blockedUsers`.
+   *
+   * Toutes corrigées : `tsc --noEmit` ne renvoie plus rien, et le build
+   * redevient un filet au lieu d'un passe-plat.
+   */
   images: {
     remotePatterns: [
       // Avatars Google OAuth

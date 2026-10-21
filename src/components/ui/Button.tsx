@@ -56,10 +56,16 @@ const sizeStyles: Record<ButtonSize, string> = {
 const baseStyles =
   "inline-flex items-center justify-center rounded-full font-display tracking-wide transition-colors duration-200 motion-reduce:transition-none disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-nuit";
 
+/**
+ * `Record<string, unknown>` ne pouvait pas porter ce prédicat : les types
+ * d'attributs React n'ont pas de signature d'index, donc la cible n'était
+ * pas assignable au paramètre. `object` l'accepte, et la lecture de `href`
+ * se fait par un cast local.
+ */
 function isLinkProps(
-  rest: Record<string, unknown>
+  rest: object
 ): rest is AnchorHTMLAttributes<HTMLAnchorElement> & { href: string } {
-  return typeof rest.href === "string";
+  return typeof (rest as { href?: unknown }).href === "string";
 }
 
 /**
