@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { blocagesDe } from "@/lib/blocages";
 import { CommunityPost } from "@/models/CommunityPost";
 import { Report } from "@/models/Report";
 import { rateLimit } from "@/lib/rate-limiter";
@@ -86,6 +87,22 @@ export async function GET(req: NextRequest) {
     );
 
     const page = Math.max(1, Number.parseInt(searchParams.get("page") ?? "", 10) || 1);
+
+    /**
+     * Les publications d'un membre bloqué ne s'affichent pas.
+     *
+     * Le filtre porte sur `userId`, la clé que `populate` va résoudre :
+     * l'écarter ici évite de charger des auteurs pour les jeter ensuite,
+     * et surtout garde la pagination juste — filtrer après coup renverrait
+     * des pages incomplètes sans que le compte total en tienne compte.
+     * C'est aussi pourquoi il entre dans `query`, que `countDocuments`
+     * relit : le total resterait faux sinon.
+     */
+    const blocages = await blocagesDe(currentUser._id);
+
+    if (blocages.ids.length) {
+      query.userId = { $nin: blocages.ids };
+    }
 
     const [posts, total] = await Promise.all([
       CommunityPost.find(query)

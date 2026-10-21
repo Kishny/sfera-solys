@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { blocagesDe } from "@/lib/blocages";
 import { ProfileVisit, getVisitDay } from "@/models/ProfileVisit";
 import { checkSubscriptionAccess, SubscriptionChecker } from "@/lib/subscription/subscription-check";
 import { sendProfileVisitPush } from "@/lib/push";
@@ -141,9 +142,19 @@ export async function GET(req: NextRequest) {
      *
      * On ne renvoie que les champs publics utiles.
      */
+    /**
+     * La visite d'un membre bloqué ne s'affiche pas.
+     *
+     * Le profil ne remonte pas, et la ligne tombe au mapping juste en
+     * dessous, qui écarte déjà les visiteurs introuvables — le même
+     * chemin que pour un compte supprimé entre-temps.
+     */
+    const blocages = await blocagesDe(currentUserId);
+
     const users = await User.find({
       _id: {
         $in: visitorIds,
+        ...(blocages.ids.length ? { $nin: blocages.ids } : {}),
       },
     })
       .select("_id pseudonyme age localisation departement image interets identityVerified")

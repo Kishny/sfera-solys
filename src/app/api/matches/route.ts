@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { blocagesDe } from "@/lib/blocages";
 import { Match } from "@/models/Match";
 import { Message } from "@/models/Message";
 import {
@@ -123,9 +124,29 @@ export async function GET() {
      * - lastMessageAt en premier si conversation déjà active ;
      * - createdAt ensuite pour les nouveaux matches sans message.
      */
+    /**
+     * Blocages, écartés dès la requête plutôt qu'à l'affichage.
+     *
+     * Filtrer plus tard laisserait la conversation peser sur le compteur
+     * de messages non lus : la pastille s'allumerait pour quelqu'un dont
+     * la carte n'apparaît nulle part, et rien ne permettrait de
+     * l'éteindre.
+     *
+     * Les deux clauses s'ajoutent au `$or` par un ET implicite : le match
+     * concerne bien le membre connecté, et aucun de ses deux participants
+     * n'est bloqué.
+     */
+    const blocages = await blocagesDe(currentUserId);
+
     const matches = await Match.find({
       $or: [{ user1Id: currentUserId }, { user2Id: currentUserId }],
       isActive: true,
+      ...(blocages.ids.length
+        ? {
+            user1Id: { $nin: blocages.ids },
+            user2Id: { $nin: blocages.ids },
+          }
+        : {}),
     })
       .sort({
         lastMessageAt: -1,

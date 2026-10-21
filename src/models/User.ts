@@ -845,6 +845,14 @@ UserSchema.index({ createdAt: -1 });
 UserSchema.index({ updatedAt: -1 });
 
 /**
+ * Recherche inverse des blocages : « qui m'a bloqué ? ».
+ *
+ * Sans cet index, chaque chargement d'Explorer, du Circle ou de la liste
+ * des matchs ferait un parcours complet de la collection.
+ */
+UserSchema.index({ blockedUsers: 1 });
+
+/**
  * Méthode statique pratique pour retrouver un utilisateur par email.
  *
  * Exemple :

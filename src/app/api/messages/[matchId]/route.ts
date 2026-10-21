@@ -8,6 +8,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Match } from "@/models/Match";
+import { blocageEntre } from "@/lib/blocages";
 import { Message } from "@/models/Message";
 import { Report } from "@/models/Report";
 import { envoyerPusher } from "@/lib/pusher";
@@ -109,6 +110,21 @@ async function authorizeMatchAccess(matchId: string, sessionEmail: string) {
   });
 
   if (!match) return null;
+
+  /**
+   * Blocage entre les deux participants.
+   *
+   * Cette garde sert à la fois la lecture et l'envoi : la conversation
+   * devient inaccessible des deux côtés, et personne ne peut plus écrire à
+   * quelqu'un qui l'a bloqué. C'était le trou le plus grave — un membre
+   * bloqué continuait d'envoyer des messages, et ils arrivaient.
+   *
+   * Même retour que pour un match inexistant : la réponse ne distingue pas
+   * les deux cas, pour ne pas confirmer l'existence d'un blocage.
+   */
+  if (await blocageEntre(currentUserId, getOtherUserId(match, currentUserId))) {
+    return null;
+  }
 
   return {
     currentUserId,

@@ -92,19 +92,55 @@ export async function GET(req: NextRequest) {
     );
 
     const users = await User.find({ _id: { $in: userIds } })
-      .select("_id pseudonyme")
+      .select("_id pseudonyme blockedUsers")
       .lean();
 
     const pseudonymeById = new Map(
       users.map((u: any) => [u._id.toString(), u.pseudonyme as string | undefined])
     );
 
+    /**
+     * Blocages parmi les membres concernés.
+     *
+     * `blockedUsers` est lu dans la même requête que les pseudonymes,
+     * plutôt qu'en interrogeant la base une fois par match : la relance
+     * porte sur deux cents paires au plus, mais deux cents allers-retours
+     * pour une vérification booléenne seraient deux cents de trop.
+     *
+     * Une relance qui nomme quelqu'un qu'on a bloqué est exactement ce
+     * dont le blocage est censé protéger — et elle arriverait en
+     * notification, hors de l'application, là où on ne l'a pas demandée.
+     */
+    const bloquesPar = new Map<string, Set<string>>(
+      users.map((u: any) => [
+        u._id.toString(),
+        new Set<string>((u.blockedUsers ?? []).map((x: unknown) => String(x))),
+      ])
+    );
+
+    const blocageEntre = (a: string, b: string) =>
+      Boolean(bloquesPar.get(a)?.has(b)) || Boolean(bloquesPar.get(b)?.has(a));
+
     let sent = 0;
+    let ignores = 0;
 
     for (const match of matches) {
       const matchId = (match._id as mongoose.Types.ObjectId).toString();
       const user1Id = match.user1Id.toString();
       const user2Id = match.user2Id.toString();
+
+      if (blocageEntre(user1Id, user2Id)) {
+        /*
+         * Le match est marqué comme relancé sans qu'aucun push ne parte :
+         * sans ça, la paire reviendrait à chaque exécution tant qu'elle
+         * reste dans la fenêtre de 24 à 72 heures.
+         */
+        ignores += 1;
+        await Match.findByIdAndUpdate(match._id, {
+          firstMessageReminderSentAt: new Date(),
+        });
+        continue;
+      }
 
       const user1Name = pseudonymeById.get(user1Id) ?? "Quelqu'un";
       const user2Name = pseudonymeById.get(user2Id) ?? "Quelqu'un";
@@ -128,7 +164,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, processed: matches.length, sent },
+      { success: true, processed: matches.length, sent, ignores },
       { status: 200, headers: { "Cache-Control": "no-store" } }
     );
   } catch (error: unknown) {

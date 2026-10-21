@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { blocageEntre } from "@/lib/blocages";
 import { Like } from "@/models/Like";
 import { Match } from "@/models/Match";
 
@@ -123,6 +124,23 @@ export async function GET(
       return NextResponse.json(
         { success: false, error: "Profil introuvable.", code: "PROFILE_NOT_FOUND" },
         { status: 404 }
+      );
+    }
+
+    /**
+     * Blocage, dans un sens ou dans l'autre.
+     *
+     * Même réponse que pour un profil banni : rien dans le message ne dit
+     * qu'il s'agit d'un blocage, ni qui l'a posé.
+     */
+    if (!isOwnProfile && (await blocageEntre(currentUser._id, profileId))) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Profil non disponible.",
+          code: "PROFILE_UNAVAILABLE",
+        },
+        { status: 403 }
       );
     }
 

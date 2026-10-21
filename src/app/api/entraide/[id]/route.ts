@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { blocageEntre } from "@/lib/blocages";
 import { MentorPost } from "@/models/MentorPost";
 import { Report } from "@/models/Report";
 import { rateLimit } from "@/lib/rate-limiter";
@@ -58,6 +59,21 @@ export async function POST(
     const post = await MentorPost.findById(id);
     if (!post) {
       return NextResponse.json({ success: false, error: "Question introuvable." }, { status: 404 });
+    }
+
+    /**
+     * Blocage entre l'auteur de la publication et celui qui agit.
+     *
+     * Le fil masque déjà les publications d'un membre bloqué, mais
+     * l'identifiant d'une publication circule — un lien partagé suffit à
+     * l'atteindre. Sans cette garde, le blocage se contournerait en
+     * commentaire ou en « j'aime ».
+     */
+    if (await blocageEntre(currentUser._id, post.userId)) {
+      return NextResponse.json(
+        { success: false, error: "Question indisponible." },
+        { status: 403 }
+      );
     }
 
     const body = await req.json();

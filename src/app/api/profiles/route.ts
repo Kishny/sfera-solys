@@ -9,6 +9,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Like } from "@/models/Like";
 import { classementBoosts, pipelineProfilsClasses } from "@/lib/boosts";
+import { blocagesDe } from "@/lib/blocages";
 import { planEffectif } from "@/lib/quotas";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
 
@@ -118,6 +119,18 @@ export async function GET(req: NextRequest) {
 
     const likedIds = alreadyLiked.map((like) => like.toUserId);
 
+    /**
+     * Blocages, dans les deux sens.
+     *
+     * Ils rejoignent le même `$nin` que les profils déjà likés : Mongo
+     * n'accepte qu'un opérateur par clé, et deux `$nin` sur `_id` se
+     * seraient écrasés — le second aurait gagné, et l'autre filtre aurait
+     * disparu sans bruit.
+     */
+    const blocages = await blocagesDe(currentUserId);
+
+    const exclus = [...likedIds, ...blocages.ids];
+
     const { searchParams } = new URL(req.url);
 
     /**
@@ -167,7 +180,7 @@ export async function GET(req: NextRequest) {
     const query: Record<string, unknown> = {
       _id: {
         $ne: currentUserId,
-        ...(likedIds.length > 0 ? { $nin: likedIds } : {}),
+        ...(exclus.length > 0 ? { $nin: exclus } : {}),
       },
 
       hasCompletedProfile: true,

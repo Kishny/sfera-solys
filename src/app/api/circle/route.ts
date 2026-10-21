@@ -12,6 +12,7 @@ import { CircleWeek } from "@/models/CircleWeek";
 import { planEffectif } from "@/lib/quotas";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
 import { TAILLE_CERCLE, debutDeSemaine, prochainTirage } from "@/lib/circle";
+import { blocagesDe, type Blocages } from "@/lib/blocages";
 
 /**
  * GET /api/circle
@@ -156,6 +157,7 @@ export async function GET() {
     if (!selection) {
       const tirage = await tirerSelection(
         currentUserId,
+        await blocagesDe(currentUserId),
         {
           interets: currentUser.interets,
           intentions: currentUser.intentions,
@@ -196,9 +198,24 @@ export async function GET() {
      * n'est pas remplacé. On renvoie le nombre de disparus pour que la page
      * puisse l'expliquer, au lieu d'afficher quatre cartes sans un mot.
      */
-    const profils = ids.length
+    /**
+     * Blocages, relus à chaque affichage.
+     *
+     * La sélection est figée pour la semaine, mais un blocage décidé après
+     * le tirage doit prendre effet tout de suite : la semaine ne gèle pas
+     * le droit de ne plus voir quelqu'un. Le profil disparaît alors comme
+     * n'importe quel profil devenu indisponible, sans être remplacé, et il
+     * est compté dans `disparus`.
+     */
+    const blocages = await blocagesDe(currentUserId);
+
+    const idsVisibles = blocages.chaines.size
+      ? ids.filter((id) => !blocages.chaines.has(String(id)))
+      : ids;
+
+    const profils = idsVisibles.length
       ? await User.find({
-          _id: { $in: ids },
+          _id: { $in: idsVisibles },
           banned: { $ne: true },
           hasCompletedProfile: true,
           visibilite: estPayant
@@ -250,6 +267,7 @@ export async function GET() {
  */
 async function tirerSelection(
   currentUserId: mongoose.Types.ObjectId,
+  blocages: Blocages,
   moi: {
     interets?: unknown;
     intentions?: unknown;
@@ -278,8 +296,14 @@ async function tirerSelection(
     )
   );
 
+  /**
+   * Un seul `$nin` : Mongo n'accepte qu'un opérateur par clé, et deux
+   * s'écraseraient l'un l'autre sans erreur.
+   */
+  const exclus = [...idsAimes, ...blocages.ids];
+
   const filtre: Record<string, unknown> = {
-    _id: { $ne: currentUserId, ...(idsAimes.length ? { $nin: idsAimes } : {}) },
+    _id: { $ne: currentUserId, ...(exclus.length ? { $nin: exclus } : {}) },
     hasCompletedProfile: true,
     banned: { $ne: true },
     role: { $ne: "admin" },

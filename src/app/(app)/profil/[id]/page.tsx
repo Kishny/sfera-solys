@@ -46,6 +46,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   AlertCircle,
   ArrowLeft,
+  Ban,
   Eye,
   Flag,
   Heart,
@@ -148,6 +149,55 @@ function ContenuProfil() {
   const [likeEnCours, setLikeEnCours] = useState(false);
   const [erreurLike, setErreurLike] = useState("");
   const [signalementOuvert, setSignalementOuvert] = useState(false);
+
+  /**
+   * Blocage.
+   *
+   * La route `/api/users/block` existait depuis l'origine, mais aucune
+   * interface ne l'appelait : le blocage était une fonction annoncée sur
+   * la page d'aide et introuvable dans le produit.
+   *
+   * La confirmation est délibérée. L'action est conséquente — elle retire
+   * la personne de l'annuaire, du Circle, des matchs et de la messagerie,
+   * dans les deux sens — et la route ne demande rien, elle exécute.
+   */
+  const [blocageOuvert, setBlocageOuvert] = useState(false);
+  const [blocageEnCours, setBlocageEnCours] = useState(false);
+  const [erreurBlocage, setErreurBlocage] = useState<string | null>(null);
+
+  const bloquer = async () => {
+    if (!profil || blocageEnCours) return;
+
+    setBlocageEnCours(true);
+    setErreurBlocage(null);
+
+    try {
+      const reponse = await fetch("/api/users/block", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetUserId: profil._id }),
+      });
+
+      if (!reponse.ok) {
+        const donnees = await reponse.json().catch(() => null);
+        setErreurBlocage(
+          donnees?.error ?? "Le blocage n’a pas pu être enregistré."
+        );
+        setBlocageEnCours(false);
+        return;
+      }
+
+      /*
+       * La fiche devient inaccessible dans la foulée — l'API répond
+       * désormais 403 sur un profil bloqué — donc rester dessus
+       * afficherait une erreur. On repart sur l'annuaire.
+       */
+      router.push("/explorer");
+    } catch {
+      setErreurBlocage("Le blocage n’a pas pu être enregistré.");
+      setBlocageEnCours(false);
+    }
+  };
 
   const revenir = useCallback(() => {
     const destination = RETOURS[depuis];
@@ -309,6 +359,88 @@ function ContenuProfil() {
                 Signaler
               </button>
             )}
+
+            {profil && relation && !relation.estMonProfil && (
+              <button
+                type="button"
+                onClick={() => {
+                  setBlocageOuvert((ouvert) => !ouvert);
+                  setErreurBlocage(null);
+                }}
+                aria-expanded={blocageOuvert}
+                aria-controls="panneau-blocage"
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[12px] font-semibold transition-colors ${focusRing} ${
+                  blocageOuvert
+                    ? "border-erreur/45 text-erreur"
+                    : "border-champagne/12 text-champagne/60 hover:border-erreur/40 hover:text-champagne"
+                }`}
+              >
+                <Ban size={13} aria-hidden="true" />
+                Bloquer
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Confirmation du blocage */}
+        {blocageOuvert && profil && (
+          <div
+            id="panneau-blocage"
+            className="mb-6 rounded-2xl border border-erreur/30 bg-erreur/[0.06] p-5"
+          >
+            <h2 className="font-display text-[18px] font-normal text-ivoire">
+              Bloquer {profil.pseudonyme}&nbsp;?
+            </h2>
+
+            <p className="mt-2 text-[13px] leading-relaxed text-champagne/80">
+              Vous ne vous verrez plus : ni dans l’annuaire, ni dans le Circle,
+              ni dans les matchs, ni dans la messagerie, ni dans la Communauté
+              et l’Entraide. Le blocage vaut dans les deux sens, et{" "}
+              {profil.pseudonyme} ne pourra plus t’écrire.
+            </p>
+
+            <p className="mt-2 text-[12px] leading-relaxed text-champagne/60">
+              Si le comportement te paraît grave, signale-le aussi : un blocage
+              te protège, un signalement prévient la modération.
+            </p>
+
+            {erreurBlocage && (
+              <p
+                role="alert"
+                className="mt-3 flex items-start gap-2 text-[12.5px] text-erreur"
+              >
+                <AlertCircle
+                  size={14}
+                  className="mt-0.5 shrink-0"
+                  aria-hidden="true"
+                />
+                {erreurBlocage}
+              </p>
+            )}
+
+            <div className="mt-5 flex flex-col gap-2.5 sm:flex-row">
+              <button
+                type="button"
+                onClick={bloquer}
+                disabled={blocageEnCours}
+                className={`inline-flex items-center justify-center gap-2 rounded-xl bg-erreur px-5 py-2.5 text-[13px] font-bold text-nuit transition-opacity hover:opacity-90 disabled:opacity-60 ${focusRing}`}
+              >
+                {blocageEnCours ? (
+                  <Loader2 size={14} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Ban size={14} aria-hidden="true" />
+                )}
+                {blocageEnCours ? "Blocage…" : "Confirmer le blocage"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBlocageOuvert(false)}
+                className={`inline-flex items-center justify-center rounded-xl border border-champagne/20 px-5 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/40 ${focusRing}`}
+              >
+                Annuler
+              </button>
+            </div>
           </div>
         )}
 

@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { blocagesDe } from "@/lib/blocages";
 import { MentorPost } from "@/models/MentorPost";
 import { Report } from "@/models/Report";
 import { rateLimit } from "@/lib/rate-limiter";
@@ -82,15 +83,34 @@ export async function GET(req: NextRequest) {
       if (!Number.isNaN(date.getTime())) query.createdAt = { $lt: date };
     }
 
+    const currentUser = await User.findOne({ email: session.user.email.toLowerCase() }).select("_id").lean();
+    const currentUserId = currentUser?._id?.toString();
+
+    /**
+     * Les publications d'un membre bloqué ne s'affichent pas.
+     *
+     * Le filtre porte sur `userId`, la clé que `populate` résout ensuite :
+     * l'écarter ici évite de charger des auteurs pour les jeter après, et
+     * surtout garde la pagination juste — filtrer le tableau renvoyé
+     * donnerait des pages plus courtes que `limit`, et `hasMore` se
+     * tromperait.
+     *
+     * Le chargement du membre connecté est remonté au-dessus de la requête
+     * pour cette raison : ses blocages conditionnent désormais ce qu'on
+     * demande, et non plus seulement ce qu'on en fait.
+     */
+    const blocages = await blocagesDe(currentUser?._id);
+
+    if (blocages.ids.length) {
+      query.userId = { $nin: blocages.ids };
+    }
+
     const posts = await MentorPost.find(query)
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate("userId", "pseudonyme image")
       .populate("answers.userId", "pseudonyme image")
       .lean();
-
-    const currentUser = await User.findOne({ email: session.user.email.toLowerCase() }).select("_id").lean();
-    const currentUserId = currentUser?._id?.toString();
 
     const enriched = posts.map((p) => ({
       ...p,

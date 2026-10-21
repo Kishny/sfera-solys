@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { blocageEntre } from "@/lib/blocages";
 import { Like } from "@/models/Like";
 import { Match } from "@/models/Match";
 import { envoyerPusher } from "@/lib/pusher";
@@ -282,8 +283,16 @@ export async function POST(req: NextRequest) {
       "_id hasCompletedProfile banned visibilite role plan isPremium subscriptionStatus"
     );
 
+    /**
+     * Un blocage interdit le like, donc la mise en relation qui pourrait
+     * en découler. Sans cette garde, un membre bloqué pouvait encore
+     * déclencher un match et rouvrir une conversation par ce biais.
+     */
+    const bloque = await blocageEntre(currentUserId, targetId);
+
     if (
       !targetUser ||
+      bloque ||
       !targetUser.hasCompletedProfile ||
       targetUser.banned ||
       targetUser.visibilite === "invisible" ||
