@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
       role: { $ne: "admin" },
       visibilite: { $in: ["public", "premium"] },
     })
-      .select("_id visibilite")
+      .select("_id visibilite blockedUsers")
       .lean();
 
     if (newProfiles.length === 0) {
@@ -97,7 +97,7 @@ export async function GET(req: NextRequest) {
       consentement: true,
       banned: { $ne: true },
     })
-      .select("_id isPremium subscriptionStatus")
+      .select("_id isPremium subscriptionStatus blockedUsers")
       .limit(RECIPIENT_BATCH_LIMIT)
       .lean();
 
@@ -139,11 +139,35 @@ export async function GET(req: NextRequest) {
 
         const alreadyLiked = likedByRecipient.get(recipientId);
 
+        /*
+         * Blocages du destinataire. La vérification inverse — un nouveau
+         * profil qui aurait bloqué ce destinataire — se fait dans la
+         * boucle, sur le `blockedUsers` du profil, déjà chargé.
+         */
+        const bloquesParMoi = new Set<string>(
+          ((recipient as { blockedUsers?: unknown[] }).blockedUsers ?? []).map(
+            (x) => String(x)
+          )
+        );
+
         let compatible = 0;
         for (const profile of newProfiles) {
           const profileId = (profile._id as mongoose.Types.ObjectId).toString();
           if (profileId === recipientId) continue;
           if (alreadyLiked?.has(profileId)) continue;
+
+          /*
+           * Un profil bloqué ne gonfle pas le décompte : annoncer « 4
+           * profils compatibles » pour en montrer trois ensuite revient à
+           * faire sortir le blocage par la notification.
+           */
+          if (bloquesParMoi.has(profileId)) continue;
+
+          const mABloque = (
+            (profile as { blockedUsers?: unknown[] }).blockedUsers ?? []
+          ).some((x) => String(x) === recipientId);
+
+          if (mABloque) continue;
           if (profile.visibilite === "public") {
             compatible += 1;
           } else if (profile.visibilite === "premium" && isPremiumActive) {

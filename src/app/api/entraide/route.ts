@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
-import { blocagesDe } from "@/lib/blocages";
+import { blocagesDe, sansAuteursBloques } from "@/lib/blocages";
 import { MentorPost } from "@/models/MentorPost";
 import { Report } from "@/models/Report";
 import { rateLimit } from "@/lib/rate-limiter";
@@ -112,12 +112,22 @@ export async function GET(req: NextRequest) {
       .populate("answers.userId", "pseudonyme image")
       .lean();
 
-    const enriched = posts.map((p) => ({
-      ...p,
-      likesCount: p.likes.length,
-      likedByMe: currentUserId ? p.likes.some((id) => id.toString() === currentUserId) : false,
-      answersCount: p.answers.length,
-    }));
+    const enriched = posts.map((p) => {
+      /*
+       * Ce fil résout les pseudonymes des réponses — `populate` sur
+       * `answers.userId` — donc un membre bloqué y apparaissait nommément
+       * sous la question d'un tiers. C'était la fuite la plus visible.
+       */
+      const answers = sansAuteursBloques(p.answers, blocages);
+
+      return {
+        ...p,
+        answers,
+        likesCount: p.likes.length,
+        likedByMe: currentUserId ? p.likes.some((id) => id.toString() === currentUserId) : false,
+        answersCount: answers.length,
+      };
+    });
 
     return NextResponse.json({
       success: true,

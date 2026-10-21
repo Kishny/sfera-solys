@@ -5,7 +5,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
-import { blocageEntre } from "@/lib/blocages";
+import {
+  blocageEntre,
+  blocagesDe,
+  sansAuteursBloques,
+  type Blocages,
+} from "@/lib/blocages";
 import { CommunityPost } from "@/models/CommunityPost";
 import { Report } from "@/models/Report";
 import { rateLimit } from "@/lib/rate-limiter";
@@ -20,6 +25,25 @@ import mongoose from "mongoose";
  * (contrairement aux messages privés, pourtant moins exposés), et un membre
  * banni pouvait commenter et liker.
  */
+
+/**
+ * La publication renvoyée, expurgée de ce qui vient d'un membre bloqué.
+ *
+ * L'auteur de la publication est déjà écarté plus haut par une réponse
+ * 403 ; il reste le tableau imbriqué, qui part tel quel avec le document
+ * et dont les pseudonymes sont résolus par `populate`.
+ */
+function expurger<T>(publication: T, blocages: Blocages, champ: string): T {
+  if (!publication || typeof publication !== "object") return publication;
+
+  const brut = publication as Record<string, unknown>;
+
+  return {
+    ...brut,
+    [champ]: sansAuteursBloques(brut[champ] as unknown[], blocages),
+  } as T;
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -71,6 +95,8 @@ export async function POST(
       );
     }
 
+    const blocages = await blocagesDe(currentUser._id);
+
     const body = await req.json();
     const { action, content } = body;
 
@@ -91,7 +117,10 @@ export async function POST(
         .populate("comments.userId", "pseudonyme image")
         .lean();
 
-      return NextResponse.json({ success: true, post: updated });
+      return NextResponse.json({
+        success: true,
+        post: expurger(updated, blocages, "comments"),
+      });
     }
 
     if (action === "comment") {
@@ -167,7 +196,10 @@ export async function POST(
         .populate("comments.userId", "pseudonyme image")
         .lean();
 
-      return NextResponse.json({ success: true, post: updated });
+      return NextResponse.json({
+        success: true,
+        post: expurger(updated, blocages, "comments"),
+      });
     }
 
     return NextResponse.json({ success: false, error: "Action invalide. Utilisez 'like' ou 'comment'." }, { status: 400 });

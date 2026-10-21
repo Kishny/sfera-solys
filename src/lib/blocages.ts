@@ -126,6 +126,45 @@ export async function blocageEntre(
   }
 }
 
+/**
+ * Identifiant de l'auteur d'un élément, que `populate` soit passé ou non.
+ *
+ * Un fil renvoie ses réponses avec les pseudonymes résolus — `userId` est
+ * alors un objet — tandis qu'ailleurs le même champ reste un `ObjectId`
+ * brut. Comparer sans tenir compte des deux formes produirait un filtre
+ * qui ne rejette rien, exactement là où personne ne regarde.
+ */
+function auteurDe(element: unknown): string {
+  const champ = (element as { userId?: unknown } | null)?.userId;
+
+  if (champ && typeof champ === "object" && "_id" in champ) {
+    return String((champ as { _id: unknown })._id);
+  }
+
+  return String(champ ?? "");
+}
+
+/**
+ * Retire d'un tableau imbriqué — commentaires, réponses — ce qui vient
+ * d'un membre bloqué.
+ *
+ * Ces tableaux vivent dans le document de la publication et ne sont pas
+ * paginés : les filtrer après lecture ne fausse aucun décompte de page.
+ * En revanche le décompte propre à la publication, lui, doit être calculé
+ * **sur le tableau filtré** — afficher « 3 réponses » au-dessus de deux
+ * est le genre de détail qui fait douter de tout le reste.
+ */
+export function sansAuteursBloques<T>(
+  elements: T[] | undefined | null,
+  blocages: Blocages
+): T[] {
+  const liste = Array.isArray(elements) ? elements : [];
+
+  if (!blocages.chaines.size) return liste;
+
+  return liste.filter((element) => !blocages.chaines.has(auteurDe(element)));
+}
+
 /** Le filtre Mongo à fusionner dans une requête sur `_id`. */
 export function exclusion(blocages: Blocages): Record<string, unknown> {
   return blocages.ids.length ? { $nin: blocages.ids } : {};

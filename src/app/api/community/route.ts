@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
-import { blocagesDe } from "@/lib/blocages";
+import { blocagesDe, sansAuteursBloques } from "@/lib/blocages";
 import { CommunityPost } from "@/models/CommunityPost";
 import { Report } from "@/models/Report";
 import { rateLimit } from "@/lib/rate-limiter";
@@ -126,12 +126,22 @@ export async function GET(req: NextRequest) {
         const auteur = post.userId as unknown as { banned?: boolean } | null;
         return !auteur?.banned;
       })
-      .map((post) => ({
-        ...post,
-        likesCount: post.likes.length,
-        commentsCount: post.comments.length,
-        likedByMe: post.likes.some((uid) => uid.equals(currentUserId)),
-      }));
+      .map((post) => {
+        /*
+         * La décomposition emporte le tableau `comments` avec elle. Sans
+         * ce filtre, les commentaires d'un membre bloqué repartaient dans
+         * la réponse alors que sa publication, elle, était écartée.
+         */
+        const comments = sansAuteursBloques(post.comments, blocages);
+
+        return {
+          ...post,
+          comments,
+          likesCount: post.likes.length,
+          commentsCount: comments.length,
+          likedByMe: post.likes.some((uid) => uid.equals(currentUserId)),
+        };
+      });
 
     return NextResponse.json({
       success: true,

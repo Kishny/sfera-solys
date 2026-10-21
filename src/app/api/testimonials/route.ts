@@ -6,9 +6,22 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/db";
 import { Testimonial } from "@/models/Testimonial";
 import { User } from "@/models/User";
+import { blocagesDe } from "@/lib/blocages";
 
-// Cache 5 minutes — se remet à jour quand un témoignage est approuvé
-export const revalidate = 300;
+/**
+ * Plus de cache de route.
+ *
+ * La page était rendue toutes les cinq minutes et servie telle quelle à
+ * tout le monde. Un témoignage étant signé d'un membre, il doit disparaître
+ * pour qui l'a bloqué — et cela dépend du lecteur, donc d'une session, ce
+ * qui rend la réponse dynamique par nature.
+ *
+ * Le coût est réel et assumé : /temoignages est une page publique qui perd
+ * son cache partagé, y compris pour les visiteurs non connectés. La requête
+ * reste petite — trente documents, triés sur index — mais si le compromis
+ * ne convient pas, c'est ici qu'il se rediscute.
+ */
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/testimonials
@@ -21,7 +34,23 @@ export async function GET() {
   try {
     await connectDB();
 
-    const docs = await Testimonial.find({ status: "approved" })
+    /**
+     * Un témoignage signé d'un membre bloqué ne s'affiche pas.
+     *
+     * `Testimonial.userId` porte un index unique : un témoignage par
+     * membre, donc le filtre est à la fois exact et peu coûteux. Pour un
+     * visiteur non connecté, `blocagesDe` renvoie un ensemble vide sans
+     * toucher la base.
+     */
+    const session = await getServerSession(authOptions);
+    const blocages = await blocagesDe(
+      (session?.user as { id?: string } | undefined)?.id
+    );
+
+    const docs = await Testimonial.find({
+      status: "approved",
+      ...(blocages.ids.length ? { userId: { $nin: blocages.ids } } : {}),
+    })
       .sort({ featured: -1, createdAt: -1 })
       .limit(30)
       .select(
