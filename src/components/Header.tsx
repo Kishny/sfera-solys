@@ -14,6 +14,7 @@ import {
   Crown,
   Bell,
   Compass,
+  Orbit,
   Heart,
   Users2,
   ShieldCheck,
@@ -23,7 +24,7 @@ import { clientPusherOuNull } from '@/lib/pusher-client';
 import { Logo } from '@/components/ui/Logo';
 
 /**
- * Header Sfera'Solys — nav publique, direction A (« sphère vérifiée »).
+ * Header Sfera'Solys — nav publique, direction A (« Sphère vérifiée »).
  *
  * Restructuration (voir CLAUDE.md § Restructuration de l'architecture) :
  * cette nav ne sert plus qu'aux pages publiques (marketing). Une fois
@@ -117,7 +118,7 @@ const links: HeaderLink[] = [
     panelTitle: 'Vérifier d’abord',
     panelText:
       "Une pièce d'identité officielle, comparée à un selfie pris en direct. C'est la règle qui tient tout le reste — et elle est gratuite.",
-    panelCta: { label: 'Ouvrir ma sphère', href: '/commencer' },
+    panelCta: { label: 'Ouvrir Ma Sphère', href: '/commencer' },
   },
   { label: 'Fonctionnalités', href: '/fonctionnalites' },
   { label: 'Guide', href: '/guide' },
@@ -477,11 +478,11 @@ export default function Header() {
               {isLoggedIn ? (
                 <>
                   <Link
-                    href="/explorer"
+                    href="/mon-compte"
                     className={`flex items-center gap-1.5 text-[13px] font-medium text-champagne/75 transition-colors hover:text-champagne ${focusRing}`}
                   >
-                    <Compass size={15} className="text-cuivre" />
-                    mon espace
+                    <Orbit size={15} className="text-cuivre" />
+                    Ma Sphère
                   </Link>
 
                   <div className="relative">
@@ -493,7 +494,7 @@ export default function Header() {
                       }}
                       aria-expanded={showUserDropdown}
                       className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-champagne/15 text-champagne/80 transition-colors hover:border-cuivre/40 hover:text-champagne ${focusRing}`}
-                      aria-label="Ma sphère"
+                      aria-label="Ma Sphère"
                     >
                       {session?.user?.image ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -527,15 +528,6 @@ export default function Header() {
                               {session?.user?.email}
                             </p>
                           </div>
-
-                          <Link
-                            href="/mon-compte"
-                            onClick={() => setShowUserDropdown(false)}
-                            className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-champagne/75 transition-colors hover:bg-champagne/5 hover:text-champagne ${focusRing}`}
-                          >
-                            <User size={15} />
-                            ma sphère
-                          </Link>
 
                           <Link
                             href="/mon-compte?tab=premium"
@@ -594,7 +586,7 @@ export default function Header() {
                   router.push(isLoggedIn ? '/mon-compte' : '/auth?mode=login')
                 }
                 className={`relative flex h-10 w-10 items-center justify-center rounded-full border border-champagne/15 text-champagne/80 transition-colors hover:border-cuivre/40 ${focusRing}`}
-                aria-label={isLoggedIn ? 'Ma sphère' : 'Se connecter'}
+                aria-label={isLoggedIn ? 'Ma Sphère' : 'Se connecter'}
               >
                 {isLoggedIn && session?.user?.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -783,7 +775,7 @@ export default function Header() {
                       <p className="truncate text-xs text-champagne/55">
                         {isLoggedIn
                           ? session?.user?.email
-                          : 'une communauté vérifiée, sphère par sphère'}
+                          : 'une communauté vérifiée, Sphère par Sphère'}
                       </p>
                     </div>
 
@@ -916,7 +908,7 @@ export default function Header() {
                         className={`fx-btn flex items-center justify-center gap-2 rounded-2xl bg-cuivre px-4 py-3 text-sm font-bold text-nuit ${focusRing}`}
                       >
                         <User size={16} />
-                        ma sphère
+                        Ma Sphère
                       </button>
 
                       <button

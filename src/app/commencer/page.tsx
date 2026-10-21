@@ -272,7 +272,7 @@ export default function CommencerPage() {
               <h1 className="font-display mt-6 text-[34px] font-normal leading-[1.08] tracking-tight text-ivoire sm:text-[48px]">
                 Quatre étapes,
                 <br />
-                <span className="italic text-cuivre">une sphère vérifiée.</span>
+                <span className="italic text-cuivre">une Sphère vérifiée.</span>
               </h1>
 
               <p className="mt-5 text-[16px] font-semibold leading-snug text-champagne sm:text-[18px]">
@@ -286,7 +286,7 @@ export default function CommencerPage() {
                   href="/auth?mode=register"
                   className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
                 >
-                  Ouvrir ma sphère
+                  Ouvrir Ma Sphère
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
 
@@ -610,7 +610,7 @@ export default function CommencerPage() {
           <section className="px-4 py-14 sm:px-6 sm:py-16 lg:px-16">
             <div className="mx-auto max-w-7xl">
               <h2 className="font-display max-w-lg text-[28px] font-normal leading-[1.15] text-ivoire sm:text-[36px]">
-                Ta sphère
+                Ta Sphère
                 <br />
                 commence <span className="italic text-cuivre">maintenant.</span>
               </h2>

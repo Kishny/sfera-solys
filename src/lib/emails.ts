@@ -49,7 +49,7 @@ function emailWrapper(content: string): string {
         <!-- Footer -->
         <tr>
           <td style="background:#f7f5f2;padding:24px 40px;text-align:center;border-top:1px solid #ebe8e3;">
-            <p style="color:#999;font-size:12px;margin:0;">© ${new Date().getFullYear()} Sfera'Solys · Chaque rencontre commence par une sphère vérifiée.</p>
+            <p style="color:#999;font-size:12px;margin:0;">© ${new Date().getFullYear()} Sfera'Solys · Chaque rencontre commence par une Sphère vérifiée.</p>
             <p style="color:#bbb;font-size:11px;margin:8px 0 0;">Si tu n'es pas à l'origine de cette action, ignore cet email.</p>
           </td>
         </tr>

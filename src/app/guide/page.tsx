@@ -36,7 +36,7 @@ import {
 } from '@/components/brand/mise-en-page';
 
 /**
- * Page Guide du débutant Sfera'Solys — direction A (« sphère vérifiée »).
+ * Page Guide du débutant Sfera'Solys — direction A (« Sphère vérifiée »).
  *
  * Restructuration + rebranding (voir CLAUDE.md § Restructuration) :
  * cette page était restée sur l'habillage d'origine — dégradés violets
@@ -116,7 +116,7 @@ const steps: Step[] = [
       'Profil public, réservé à tes correspondances, priorisé ou discret',
       'Rayon de recherche adapté à ton département',
       'Mode Fantôme pour rester présent sans apparaître',
-      'Chaque réglage se modifie depuis Ma sphère',
+      'Chaque réglage se modifie depuis Ma Sphère',
     ],
   },
   {

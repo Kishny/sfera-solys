@@ -66,7 +66,7 @@ const ADRESSE_SUPPORT = 'contact@sferasolys.com';
  * les demandes arrivent déjà triées selon les mêmes catégories.
  */
 const SUJETS = [
-  'Ma sphère',
+  'Ma Sphère',
   "Vérification d'identité",
   'Abonnement et paiement',
   'Signalement ou sécurité',

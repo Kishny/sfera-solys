@@ -558,7 +558,7 @@ export default function Home() {
         {/* ═══════════════ Comment ça marche ═══════════════ */}
         {/*
           Pas de photographie derrière cette section, ni derrière la
-          suivante : les deux portent une interface — la sphère qui se
+          suivante : les deux portent une interface — la Sphère qui se
           compose, les deux aperçus d'écran. Une image sous un cadre
           d'interface donne deux profondeurs qui se disputent la même place,
           et c'est l'interface qui perd. La photo revient au témoignage,
@@ -568,7 +568,7 @@ export default function Home() {
           {/*
             Le titre passe en argument au lieu d'être posé au-dessus : il
             appartient à la colonne de gauche, sous laquelle les étapes se
-            rangent. Laissé ici, il poussait la carte de la sphère sous son
+            rangent. Laissé ici, il poussait la carte de la Sphère sous son
             propre niveau, et la maquette la veut à hauteur du surtitre.
           */}
           <div className="mx-auto max-w-7xl">
@@ -587,9 +587,9 @@ export default function Home() {
                   </h2>
 
                   <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
-                    Quatre étapes, et une sphère qui se compose à mesure.{' '}
+                    Quatre étapes, et une Sphère qui se compose à mesure.{' '}
                     <span className="text-champagne/80">Clique une étape</span>{' '}
-                    pour voir l&apos;état de ta sphère à ce moment-là.
+                    pour voir l&apos;état de Ta Sphère à ce moment-là.
                   </p>
                 </>
               }

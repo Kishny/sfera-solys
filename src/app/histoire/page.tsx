@@ -522,7 +522,7 @@ export default function HistoirePage() {
                   href="/commencer"
                   className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
                 >
-                  Ouvrir ma sphère
+                  Ouvrir Ma Sphère
                   <ArrowRight size={16} aria-hidden="true" />
                 </Link>
 

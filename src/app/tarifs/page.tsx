@@ -372,13 +372,13 @@ const faqs: Array<{ icon: IconeMarque; question: string; answer: string }> = [
     icon: ArrowUpDown,
     question: 'Puis-je changer d’offre plus tard ?',
     answer:
-      "Pas encore depuis le site. Pour l'instant, résilie ton offre actuelle depuis Ma sphère, puis souscris la nouvelle une fois la période en cours terminée. Le changement en un clic, avec ajustement au prorata, n'est pas encore en place : nous préférons te le dire ici plutôt que de te le laisser découvrir au moment où tu en auras besoin.",
+      "Pas encore depuis le site. Pour l'instant, résilie ton offre actuelle depuis Ma Sphère, puis souscris la nouvelle une fois la période en cours terminée. Le changement en un clic, avec ajustement au prorata, n'est pas encore en place : nous préférons te le dire ici plutôt que de te le laisser découvrir au moment où tu en auras besoin.",
   },
   {
     icon: CalendarCheck,
     question: 'Comment fonctionne la résiliation ?',
     answer:
-      "En un clic depuis Ma sphère, sans justification ni préavis. Ton accès reste ouvert jusqu'à la fin de la période déjà payée, puis ton compte revient automatiquement à l'offre gratuite. Tu ne perds ni tes matchs ni tes conversations.",
+      "En un clic depuis Ma Sphère, sans justification ni préavis. Ton accès reste ouvert jusqu'à la fin de la période déjà payée, puis ton compte revient automatiquement à l'offre gratuite. Tu ne perds ni tes matchs ni tes conversations.",
   },
   {
     icon: CreditCard,
@@ -735,7 +735,7 @@ export default function TarifsPage() {
             </ul>
 
             <p className="mt-5 text-center text-[12.5px] leading-relaxed text-champagne/60">
-              Résiliation depuis Ma sphère, à tout moment. TVA non applicable,
+              Résiliation depuis Ma Sphère, à tout moment. TVA non applicable,
               article 293 B du CGI.
             </p>
           </div>
@@ -1107,7 +1107,7 @@ export default function TarifsPage() {
           <section className="px-4 py-14 sm:px-6 sm:py-16 lg:px-16">
             <div className="mx-auto max-w-7xl">
               <h2 className="font-display max-w-xl text-[28px] font-normal leading-[1.15] text-ivoire sm:text-[36px]">
-                Commence par ta sphère,
+                Commence par Ta Sphère,
                 <br />
                 pas par la{' '}
                 <span className="italic text-cuivre">carte bancaire.</span>
@@ -1122,7 +1122,7 @@ export default function TarifsPage() {
                 href="/commencer"
                 className={`mt-7 inline-flex items-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
               >
-                Ouvrir ma sphère
+                Ouvrir Ma Sphère
                 <ArrowRight size={16} aria-hidden="true" />
               </Link>
             </div>

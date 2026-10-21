@@ -228,7 +228,7 @@ const sections: SectionLegale[] = [
         </p>
         <p>
           La plupart de ces actions se font directement depuis ton espace
-          Ma sphère. Pour les autres, écris-nous via la{' '}
+          Ma Sphère. Pour les autres, écris-nous via la{' '}
           <Link href="/contact">page de contact</Link> : nous répondons sous
           un mois, comme le prévoit le règlement.
         </p>
@@ -393,7 +393,7 @@ export default function ConfidentialitePage() {
               {
                 titre: 'Accès et rectification',
                 texte:
-                  'Consulter ou mettre à jour tes données, notamment depuis Ma sphère.',
+                  'Consulter ou mettre à jour tes données, notamment depuis Ma Sphère.',
               },
               {
                 titre: 'Effacement et opposition',

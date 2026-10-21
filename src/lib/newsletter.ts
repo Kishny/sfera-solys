@@ -69,7 +69,7 @@ export function newsletterWrapper(title: string, bodyHtml: string): string {
         <tr><td style="padding:40px;color:#444;line-height:1.7;font-size:15px;">${bodyHtml}</td></tr>
         <tr>
           <td style="background:#f7f5f2;padding:24px 40px;text-align:center;border-top:1px solid #ebe8e3;">
-            <p style="color:#999;font-size:12px;margin:0 0 8px;">© ${new Date().getFullYear()} Sfera'Solys · Chaque rencontre commence par une sphère vérifiée.</p>
+            <p style="color:#999;font-size:12px;margin:0 0 8px;">© ${new Date().getFullYear()} Sfera'Solys · Chaque rencontre commence par une Sphère vérifiée.</p>
             <p style="color:#bbb;font-size:11px;margin:0;">
               <a href="${APP_URL}" style="color:#CB7871;text-decoration:none;">sferasolys.com</a> ·
               <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#bbb;text-decoration:underline;">Se désabonner</a>

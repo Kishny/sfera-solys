@@ -12,11 +12,11 @@ import {
 } from 'lucide-react';
 
 /**
- * Le parcours en 4 étapes, version « la sphère se compose ».
+ * Le parcours en 4 étapes, version « la Sphère se compose ».
  *
  * Les quatre étapes se suivent sur une ligne, reliées par un trait, et un
- * panneau montre à droite l'état de la sphère à l'étape sélectionnée. La
- * métaphore de la marque — « une sphère vérifiée » — est montrée au lieu
+ * panneau montre à droite l'état de la Sphère à l'étape sélectionnée. La
+ * métaphore de la marque — « une Sphère vérifiée » — est montrée au lieu
  * d'être racontée.
  *
  * Les étapes ont d'abord été empilées, chacune dans sa carte avec un rail
@@ -104,7 +104,7 @@ function EnteteSphere({ etape }: { etape: Etape }) {
   return (
     <div className="mb-5 flex items-center justify-between gap-3 border-b border-champagne/8 pb-4">
       <span className="font-display text-[13px] font-extrabold text-champagne">
-        sphère · étape {etape.numero} sur 4
+        Sphère · étape {etape.numero} sur 4
       </span>
       <span
         className={
@@ -123,7 +123,7 @@ function PanneauProfil() {
   return (
     <>
       {/*
-        Ce panneau montre la sphère de la personne qui lit, pas celle d'un
+        Ce panneau montre la Sphère de la personne qui lit, pas celle d'un
         membre : les libellés sont donc à la deuxième personne. Deux traits
         gris tenaient cette place avant — ils ressemblaient à un écran en
         cours de chargement et ne disaient pas ce que l'étape demande.
@@ -133,7 +133,7 @@ function PanneauProfil() {
           Une photographie, là où un pictogramme d'appareil photo sur un
           aplat tenait la place. Le pictogramme se lisait comme un bouton
           « ajouter une photo » resté vide, c'est-à-dire comme un défaut
-          d'affichage plutôt que comme une sphère qui se compose.
+          d'affichage plutôt que comme une Sphère qui se compose.
 
           C'est le septième portrait, découpé dans la même scène de groupe
           que `profil-05` mais sur un autre homme : les six autres sont
@@ -493,7 +493,7 @@ export default function SphereParcours({
       </div>
 
       {/*
-        La sphère.
+        La Sphère.
 
         Deux réglages tiennent l'équilibre de la colonne de droite, une fois
         le défilement retiré :

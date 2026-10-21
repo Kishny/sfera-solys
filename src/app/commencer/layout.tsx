@@ -1,6 +1,6 @@
 import { buildMeta } from "@/app/layout-meta";
 export const metadata = buildMeta(
-  "Commencer sur Sfera'Solys — Ouvrez votre sphère",
+  "Commencer sur Sfera'Solys — Ouvrez Votre Sphère",
   "Crée ton profil Sfera'Solys en quelques minutes : vérification d'identité immédiate par Stripe Identity, gratuite, réservée aux hommes de 28 ans et plus.",
   "/commencer"
 );

@@ -375,7 +375,7 @@ export default function Sidebar() {
           </div>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[13px] font-semibold text-champagne">
-              {session?.user?.name || "ma sphère"}
+              {session?.user?.name || "Ma Sphère"}
             </div>
             <div className="flex items-center gap-1 text-[11px] text-succes">
               <ShieldCheck size={11} /> vérifié
@@ -396,7 +396,7 @@ export default function Sidebar() {
                 onClick={() => setUserMenuOpen(false)}
                 className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-champagne/70 transition-colors hover:bg-champagne/5 hover:text-champagne"
               >
-                <User size={15} /> ma sphère
+                <User size={15} /> Ma Sphère
               </Link>
               <button
                 type="button"

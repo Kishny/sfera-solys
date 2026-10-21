@@ -41,7 +41,7 @@ import {
 } from '@/components/brand/mise-en-page';
 
 /**
- * Page Fonctionnalités Sfera'Solys — direction A (« sphère vérifiée »).
+ * Page Fonctionnalités Sfera'Solys — direction A (« Sphère vérifiée »).
  *
  * Restructuration + rebranding (voir CLAUDE.md § Restructuration) :
  * cette page était restée intégralement celle du site d'origine — un
@@ -244,7 +244,7 @@ const notes = [
   {
     question: 'Le Mode Fantôme gêne-t-il la vérification ?',
     answer:
-      "Non. La vérification a lieu une seule fois, à l'inscription, et elle porte sur ta sphère. Le Mode Fantôme agit ensuite sur ce que voient les autres membres, pas sur ton statut de profil vérifié.",
+      "Non. La vérification a lieu une seule fois, à l'inscription, et elle porte sur Ta Sphère. Le Mode Fantôme agit ensuite sur ce que voient les autres membres, pas sur ton statut de profil vérifié.",
   },
   {
     question: 'Puis-je rester sur la communauté sans chercher de rencontre ?',
@@ -423,7 +423,7 @@ export default function FonctionnalitesPage() {
                   href="/commencer"
                   className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
                 >
-                  Ouvrir ma sphère
+                  Ouvrir Ma Sphère
                   <ArrowRight size={16} />
                 </Link>
 
@@ -815,7 +815,7 @@ export default function FonctionnalitesPage() {
                   Les fonctionnalités s&apos;ouvrent après la vérification.
                 </h2>
                 <p className="mt-3 max-w-md text-[14px] leading-relaxed text-champagne/70">
-                  Ouverture de ta sphère gratuite, sans engagement.
+                  Ouverture de Ta Sphère gratuite, sans engagement.
                   <br className="hidden sm:block" /> Tu choisiras une offre
                   ensuite, si tu en as envie.
                 </p>
@@ -826,7 +826,7 @@ export default function FonctionnalitesPage() {
                   href="/commencer"
                   className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-7 py-3.5 text-sm font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
                 >
-                  Ouvrir ma sphère
+                  Ouvrir Ma Sphère
                   <ArrowRight size={16} />
                 </Link>
 

@@ -629,7 +629,7 @@ function InscriptionPageContent() {
   /**
    * Accès au compte gratuit — uniquement possible une fois l'identité
    * vérifiée. Le paiement reste optionnel et accessible plus tard depuis
-   * Ma sphère.
+   * Ma Sphère.
    */
   const handleAccessFreeAccount = () => {
     if (identityStatus !== "verified") return;
@@ -1071,7 +1071,7 @@ function InscriptionPageContent() {
                         Une fois ton identité vérifiée, tu peux accéder
                         gratuitement à ton compte avec les fonctionnalités
                         de base. Tu pourras choisir une offre Essentiel,
-                        Premium ou Elite à tout moment depuis Ma sphère.
+                        Premium ou Elite à tout moment depuis Ma Sphère.
                       </p>
                     </div>
 

@@ -34,7 +34,7 @@ import {
 } from '@/components/brand/mise-en-page';
 
 /**
- * Page FAQ Sfera'Solys — direction A (« sphère vérifiée »).
+ * Page FAQ Sfera'Solys — direction A (« Sphère vérifiée »).
  *
  * Refonte visuelle uniquement (voir CLAUDE.md § Restructuration) : la page
  * avait encore l'habillage d'origine du fork — dégradés violets codés en
@@ -100,7 +100,7 @@ const allFAQs: Faq[] = [
 
     La formulation ne promet pas une réponse immédiate dans tous les cas :
     `identityVerificationStatus` connaît un état « pending », et
-    l'onglet Sécurité de Ma sphère l'affiche. Annoncer l'instantané pour
+    l'onglet Sécurité de Ma Sphère l'affiche. Annoncer l'instantané pour
     tout le monde serait faux pour ceux qui attendent.
   */
   {
@@ -668,7 +668,7 @@ export default function FAQPage() {
 
             <div className="p-8 sm:p-10">
               <h2 className="font-display text-[26px] font-normal leading-tight text-ivoire sm:text-[32px]">
-                Prêt à ouvrir ta sphère&nbsp;?
+                Prêt à ouvrir Ta Sphère&nbsp;?
               </h2>
 
               <p className="mt-2.5 max-w-md text-[14px] leading-relaxed text-champagne/70">

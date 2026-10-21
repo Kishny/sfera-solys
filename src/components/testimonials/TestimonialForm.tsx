@@ -17,12 +17,12 @@ export interface TestimonialFormInitial {
  * Formulaire de témoignage partagé Sfera'Solys.
  *
  * Rendu depuis TestimonialSubmitSection (/temoignages) et depuis la modale
- * de l'onglet Interactions de Ma sphère.
+ * de l'onglet Interactions de Ma Sphère.
  *
  * Gère : contenu, note en étoiles, ville, âge, consentement photo.
  *
  * Il portait une prop `variant` dont la valeur par défaut était "light" —
- * le formulaire blanc et lavande de SferaLuna. Ma sphère le montait sans
+ * le formulaire blanc et lavande de SferaLuna. Ma Sphère le montait sans
  * passer la prop : la modale sombre s'ouvrait donc sur un formulaire clair.
  * La variante claire n'avait plus aucun appelant légitime ; elle a été
  * retirée plutôt que corrigée appel par appel.
