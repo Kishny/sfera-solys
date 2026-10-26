@@ -71,7 +71,11 @@ import {
 import { getPusherClient } from "@/lib/pusher-client";
 import ReportModal from "@/components/ReportModal";
 import VisionneusePhotos from "@/components/VisionneusePhotos";
+import CarteEvenementPartage from "@/components/messagerie/CarteEvenementPartage";
+import CarteFichier from "@/components/messagerie/CarteFichier";
 import CarteLieu from "@/components/messagerie/CarteLieu";
+import MenuTrombone from "@/components/messagerie/MenuTrombone";
+import SelecteurEvenement from "@/components/messagerie/SelecteurEvenement";
 import CarteRendezVous, {
   type StatutRendezVous,
 } from "@/components/messagerie/CarteRendezVous";
@@ -101,6 +105,16 @@ interface Message {
     note: string;
     statut: StatutRendezVous;
   } | null;
+  evenementPartage: boolean;
+  evenement: {
+    _id: string;
+    titre: string;
+    date: string;
+    lieu: string;
+    emoji: string;
+    enLigne: boolean;
+  } | null;
+  fichier: { url: string; nom: string; poids: number } | null;
   readAt: string | null;
   createdAt: string;
 }
@@ -197,6 +211,14 @@ export default function PageConversation() {
   const [photoEnAttente, setPhotoEnAttente] = useState<string | null>(null);
   const [envoiPhoto, setEnvoiPhoto] = useState(false);
 
+  /** Le menu du trombone, et ce qu'il permet d'attacher. */
+  const [trombone, setTrombone] = useState(false);
+  const [envoiFichier, setEnvoiFichier] = useState(false);
+
+  /** Le sélecteur d'événement Solys. */
+  const [evenementOuvert, setEvenementOuvert] = useState(false);
+  const [envoiEvenement, setEnvoiEvenement] = useState(false);
+
   /** Le formulaire de proposition, et la réponse en cours s'il y en a une. */
   const [rdvOuvert, setRdvOuvert] = useState(false);
   const [envoiRdv, setEnvoiRdv] = useState(false);
@@ -213,6 +235,8 @@ export default function PageConversation() {
   const [photoAgrandie, setPhotoAgrandie] = useState<number | null>(null);
 
   const ancrePlus = useRef<HTMLDivElement>(null);
+  const ancreTrombone = useRef<HTMLDivElement>(null);
+  const champFichier = useRef<HTMLInputElement>(null);
   const ancreEmojis = useRef<HTMLDivElement>(null);
   const champPhoto = useRef<HTMLInputElement>(null);
   const champCamera = useRef<HTMLInputElement>(null);
@@ -472,15 +496,19 @@ export default function PageConversation() {
   const envoyer = async (
     vocal?: { url: string; duree: number },
     lieu?: { libelle: string; lat: number; lng: number },
-    rendezVous?: { quand: string; ou: string; note: string }
+    rendezVous?: { quand: string; ou: string; note: string },
+    piece?: {
+      evenementId?: string;
+      fichier?: { url: string; nom: string; poids: number };
+    }
   ) => {
-    const seul = Boolean(vocal || lieu || rendezVous);
+    const seul = Boolean(vocal || lieu || rendezVous || piece?.evenementId);
     const contenu = seul ? "" : saisie.trim();
     const photo = seul ? null : photoEnAttente;
 
     // Un mot, une photo, un vocal, un lieu. Pas rien.
     if (
-      (!contenu && !photo && !vocal && !lieu && !rendezVous) ||
+      (!contenu && !photo && !vocal && !lieu && !rendezVous && !piece) ||
       envoi ||
       envoiPhoto ||
       messagesRestants === 0
@@ -503,6 +531,11 @@ export default function PageConversation() {
       rendezVous: rendezVous
         ? { ...rendezVous, statut: "propose" as const }
         : null,
+      evenementPartage: Boolean(piece?.evenementId),
+      // L'événement arrive avec la réponse du serveur, qui le lit à la
+      // source : on n'en garde pas de copie ici.
+      evenement: null,
+      fichier: piece?.fichier ?? null,
       readAt: null,
       createdAt: new Date().toISOString(),
     };
@@ -526,6 +559,8 @@ export default function PageConversation() {
           audioDuree: vocal?.duree ?? null,
           lieu: lieu ?? null,
           rendezVous: rendezVous ?? null,
+          evenementId: piece?.evenementId ?? null,
+          fichier: piece?.fichier ?? null,
         }),
       });
 
@@ -652,6 +687,64 @@ export default function PageConversation() {
       setErreur("Connexion interrompue. Le vocal n’est pas parti.");
     } finally {
       setEnvoiVocal(false);
+    }
+  };
+
+  /**
+   * Dépose un fichier, puis l'envoie.
+   *
+   * Même marche que la photo et le vocal : l'upload d'abord, le message
+   * ensuite. Le format est vérifié côté serveur sur les octets du
+   * fichier — ici on ne fait que filtrer le sélecteur.
+   */
+  const televerserFichier = async (fichier: File | null | undefined) => {
+    if (!fichier) return;
+
+    setEnvoiFichier(true);
+    setErreur("");
+
+    try {
+      const formulaire = new FormData();
+      formulaire.append("file", fichier);
+
+      const reponse = await fetch("/api/upload/chat-fichier", {
+        method: "POST",
+        body: formulaire,
+      });
+
+      const donnees = await reponse.json().catch(() => null);
+
+      if (!reponse.ok || donnees?.success !== true || !donnees?.url) {
+        setErreur(donnees?.error || "Ce fichier n’a pas pu être envoyé.");
+        return;
+      }
+
+      setTrombone(false);
+
+      await envoyer(undefined, undefined, undefined, {
+        fichier: {
+          url: donnees.url as string,
+          nom: donnees.nom as string,
+          poids: Number(donnees.poids) || 0,
+        },
+      });
+    } catch {
+      setErreur("Connexion interrompue. Le fichier n’est pas parti.");
+    } finally {
+      setEnvoiFichier(false);
+    }
+  };
+
+  /** Partage un événement Solys : une référence, pas une copie. */
+  const partagerEvenement = async (evenementId: string) => {
+    setEnvoiEvenement(true);
+    setErreur("");
+
+    try {
+      await envoyer(undefined, undefined, undefined, { evenementId });
+      setEvenementOuvert(false);
+    } finally {
+      setEnvoiEvenement(false);
     }
   };
 
@@ -1342,6 +1435,28 @@ export default function PageConversation() {
                                     </div>
                                   )}
 
+                                  {message.evenementPartage && (
+                                    <div
+                                      className={message.content ? "mb-1" : ""}
+                                    >
+                                      <CarteEvenementPartage
+                                        evenement={message.evenement}
+                                        surFondClair={deMoi}
+                                      />
+                                    </div>
+                                  )}
+
+                                  {message.fichier && (
+                                    <div
+                                      className={message.content ? "mb-1" : ""}
+                                    >
+                                      <CarteFichier
+                                        fichier={message.fichier}
+                                        surFondClair={deMoi}
+                                      />
+                                    </div>
+                                  )}
+
                                   {message.rendezVous && (
                                     <div
                                       className={message.content ? "mb-1" : ""}
@@ -1566,6 +1681,10 @@ export default function PageConversation() {
                           setMenuPlus(false);
                           setRdvOuvert(true);
                         }}
+                        onEvenement={() => {
+                          setMenuPlus(false);
+                          setEvenementOuvert(true);
+                        }}
                         onLieu={partagerLeLieu}
                         rechercheLieu={rechercheLieu}
                       />
@@ -1638,29 +1757,50 @@ export default function PageConversation() {
                       </div>
 
                       {/*
-                        Le trombone est un raccourci direct vers la
-                        photothèque, pas un second menu : il mènerait
-                        exactement où mène déjà « Photo ». Il ouvrira un
-                        menu le jour où les fichiers et les liens
-                        existeront.
+                        Le trombone est devenu un menu : il a désormais
+                        trois destinations. Tant qu'il n'en avait qu'une,
+                        il doublait l'entrée « Photo » du « + ».
                       */}
-                      <button
-                        type="button"
-                        onClick={() => champPhoto.current?.click()}
-                        disabled={envoiPhoto}
-                        aria-label="Joindre une photo"
-                        className={`shrink-0 rounded-full p-2 text-champagne/65 transition hover:text-champagne disabled:opacity-40 ${focusRing}`}
-                      >
-                        {envoiPhoto ? (
-                          <Loader2
-                            size={17}
-                            className="animate-spin"
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <Paperclip size={17} aria-hidden="true" />
-                        )}
-                      </button>
+                      <div ref={ancreTrombone} className="relative shrink-0">
+                        <MenuTrombone
+                          ancre={ancreTrombone}
+                          ouvert={trombone}
+                          envoiFichier={envoiFichier}
+                          onFermer={() => setTrombone(false)}
+                          onGalerie={() => {
+                            setTrombone(false);
+                            champPhoto.current?.click();
+                          }}
+                          onFichier={() => champFichier.current?.click()}
+                          onLien={(lien) => {
+                            setTrombone(false);
+                            inserer(`${lien} `);
+                          }}
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMenuPlus(false);
+                            setEmojis(false);
+                            setTrombone((ouvert) => !ouvert);
+                          }}
+                          disabled={envoiPhoto}
+                          aria-label="Joindre au message"
+                          aria-expanded={trombone}
+                          className={`rounded-full p-2 text-champagne/65 transition hover:text-champagne disabled:opacity-40 ${focusRing}`}
+                        >
+                          {envoiPhoto || envoiFichier ? (
+                            <Loader2
+                              size={17}
+                              className="animate-spin"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <Paperclip size={17} aria-hidden="true" />
+                          )}
+                        </button>
+                      </div>
                     </div>
 
                     {/*
@@ -1745,6 +1885,17 @@ export default function PageConversation() {
                   />
 
                   <input
+                    ref={champFichier}
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    className="hidden"
+                    onChange={(evenement) => {
+                      void televerserFichier(evenement.target.files?.[0]);
+                      evenement.target.value = "";
+                    }}
+                  />
+
+                  <input
                     ref={champCamera}
                     type="file"
                     accept="image/*"
@@ -1767,6 +1918,13 @@ export default function PageConversation() {
         targetId={signale?.id ?? ""}
         targetType={signale?.type ?? "user"}
         onClose={() => setSignale(null)}
+      />
+
+      <SelecteurEvenement
+        ouvert={evenementOuvert}
+        envoiEnCours={envoiEvenement}
+        onFermer={() => setEvenementOuvert(false)}
+        onChoisir={partagerEvenement}
       />
 
       <ProposerRendezVous

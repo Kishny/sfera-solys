@@ -10,6 +10,7 @@ import { User } from "@/models/User";
 import { Match } from "@/models/Match";
 import { blocageEntre } from "@/lib/blocages";
 import { Message } from "@/models/Message";
+import { SolysEvent } from "@/models/SolysEvent";
 import { Report } from "@/models/Report";
 import { envoyerPusher } from "@/lib/pusher";
 import { sendNewMessagePush } from "@/lib/push";
@@ -187,6 +188,36 @@ function serializeMessage(message: any) {
           lng: message.lieu.lng,
         }
       : null,
+    /**
+     * L'événement est servi depuis sa source, pas depuis une copie
+     * figée : une date qui bouge doit bouger dans la conversation aussi.
+     * `evenement: null` avec `evenementPartage: true` dit « cet
+     * événement n'existe plus », ce que l'affichage traduit.
+     */
+    evenementPartage: Boolean(message.evenementId),
+    evenement:
+      message.evenementId &&
+      typeof message.evenementId === "object" &&
+      "title" in message.evenementId &&
+      // Un événement dépublié après coup redevient indisponible : la
+      // carte doit le dire plutôt que d'annoncer une soirée annulée.
+      (message.evenementId as any).isPublished !== false
+        ? {
+            _id: (message.evenementId as any)._id?.toString(),
+            titre: (message.evenementId as any).title,
+            date: (message.evenementId as any).date,
+            lieu: (message.evenementId as any).location,
+            emoji: (message.evenementId as any).emoji ?? "",
+            enLigne: Boolean((message.evenementId as any).isOnline),
+          }
+        : null,
+    fichier: message.fichier
+      ? {
+          url: message.fichier.url,
+          nom: message.fichier.nom,
+          poids: message.fichier.poids,
+        }
+      : null,
     rendezVous: message.rendezVous
       ? {
           quand: message.rendezVous.quand,
@@ -289,6 +320,7 @@ export async function GET(
     const messages = await Message.find(query)
       .sort({ createdAt: -1 })
       .limit(limit)
+      .populate("evenementId", "title date location emoji isOnline isPublished")
       .lean();
 
     const orderedMessages = messages.reverse().map(serializeMessage);
@@ -418,6 +450,8 @@ export async function POST(
       audioDuree?: unknown;
       lieu?: unknown;
       rendezVous?: unknown;
+      evenementId?: unknown;
+      fichier?: unknown;
     } | null = null;
 
     try {
@@ -615,7 +649,94 @@ export async function POST(
       rendezVous = { quand, ou, note, statut: "propose" };
     }
 
-    if (!content && !imageUrl && !audioUrl && !lieu && !rendezVous) {
+    /**
+     * L'événement partagé.
+     *
+     * On vérifie qu'il existe et qu'il est publié : partager un
+     * brouillon ou un événement retiré reviendrait à donner rendez-vous
+     * à un lieu qui n'ouvre pas.
+     */
+    let evenementId: mongoose.Types.ObjectId | null = null;
+
+    if (typeof body?.evenementId === "string" && body.evenementId) {
+      if (!isValidObjectId(body.evenementId)) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Cet événement est introuvable.",
+            code: "INVALID_EVENT",
+          },
+          { status: 400 }
+        );
+      }
+
+      const evenement = await SolysEvent.findOne({
+        _id: body.evenementId,
+        isPublished: true,
+      }).select("_id");
+
+      if (!evenement) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Cet événement n'est plus proposé.",
+            code: "EVENT_NOT_FOUND",
+          },
+          { status: 404 }
+        );
+      }
+
+      evenementId = evenement._id;
+    }
+
+    /**
+     * Le fichier joint.
+     *
+     * Même contrôle d'origine que pour l'image et le vocal. Le format
+     * est vérifié à l'upload, sur les octets du fichier et non sur son
+     * nom — voir `/api/upload/chat-fichier`.
+     */
+    let fichier: { url: string; nom: string; poids: number } | null = null;
+
+    if (body?.fichier && typeof body.fichier === "object") {
+      const brut = body.fichier as {
+        url?: unknown;
+        nom?: unknown;
+        poids?: unknown;
+      };
+
+      const url = typeof brut.url === "string" ? brut.url.trim() : "";
+      const nom =
+        typeof brut.nom === "string" ? brut.nom.trim().slice(0, 200) : "";
+      const poids = Number(brut.poids);
+
+      if (!estUnMediaCloudinary(url, "sferasolys/chat-fichiers")) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Ce fichier n'a pas été déposé par Sfera'Solys.",
+            code: "INVALID_FILE_URL",
+          },
+          { status: 400 }
+        );
+      }
+
+      fichier = {
+        url,
+        nom: nom || "document.pdf",
+        poids: Number.isFinite(poids) && poids >= 0 ? poids : 0,
+      };
+    }
+
+    if (
+      !content &&
+      !imageUrl &&
+      !audioUrl &&
+      !lieu &&
+      !rendezVous &&
+      !evenementId &&
+      !fichier
+    ) {
       return NextResponse.json(
         {
           success: false,
@@ -727,6 +848,8 @@ export async function POST(
       audioDuree,
       lieu,
       rendezVous,
+      evenementId,
+      fichier,
     });
 
     /**
@@ -739,6 +862,19 @@ export async function POST(
         lastMessageAt: message.createdAt,
       },
     });
+
+    /**
+     * L'événement est chargé avant d'être renvoyé.
+     *
+     * Sans ça, l'expéditeur verrait sa propre carte se vider à la
+     * seconde où la réponse du serveur remplace son message provisoire.
+     */
+    if (evenementId) {
+      await message.populate(
+        "evenementId",
+        "title date location emoji isOnline isPublished"
+      );
+    }
 
     const serializedMessage = serializeMessage(message);
 
@@ -792,7 +928,11 @@ export async function POST(
                 ? "Position partagée"
                 : rendezVous
                   ? "Proposition de rendez-vous"
-                  : "Photo"),
+                  : evenementId
+                    ? "Un événement Solys"
+                    : fichier
+                      ? "Un document"
+                      : "Photo"),
           matchId: match._id.toString(),
         });
       }

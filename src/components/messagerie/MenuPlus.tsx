@@ -23,6 +23,7 @@ import {
   Loader2,
   MapPin,
   MessageCircleQuestion,
+  Ticket,
 } from "lucide-react";
 
 import { BRISE_GLACE } from "./briseGlace";
@@ -38,6 +39,8 @@ interface MenuPlusProps {
   onQuestion: (question: string) => void;
   /** Ouvre le formulaire de proposition de rendez-vous. */
   onRendezVous: () => void;
+  /** Ouvre le choix d'un événement Solys à partager. */
+  onEvenement: () => void;
   /** Demande la position au navigateur, puis la partage. */
   onLieu: () => void;
   /** Vrai pendant que le navigateur cherche la position. */
@@ -58,6 +61,7 @@ export default function MenuPlus({
   onCamera,
   onQuestion,
   onRendezVous,
+  onEvenement,
   onLieu,
   rechercheLieu,
   ancre,
@@ -136,6 +140,13 @@ export default function MenuPlus({
         : "Ton quartier, pas ton adresse",
       icone: rechercheLieu ? Loader2 : MapPin,
       action: onLieu,
+    },
+    {
+      cle: "evenement",
+      libelle: "Partager un événement",
+      detail: "Une date Solys à venir",
+      icone: Ticket,
+      action: onEvenement,
     },
     {
       cle: "question",

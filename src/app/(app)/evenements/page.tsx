@@ -514,7 +514,14 @@ function CarteEvenement({
 
   return (
     <li
-      className={`rounded-2xl border border-champagne/10 bg-minuit p-4 sm:p-5 ${
+      /*
+        L'ancre sert les liens venus de la messagerie : partager un
+        événement dans une conversation doit mener à cet événement-là, pas
+        au haut de la liste. Le navigateur fait le défilement lui-même, et
+        `scroll-mt` évite que l'en-tête vienne le recouvrir.
+      */
+      id={`evenement-${evenement._id}`}
+      className={`scroll-mt-24 rounded-2xl border border-champagne/10 bg-minuit p-4 sm:p-5 ${
         evenement.isPast ? "opacity-70" : ""
       }`}
     >

@@ -73,6 +73,29 @@ export interface IMessage extends Document {
    * Qui peut quoi : seul le destinataire accepte ou décline, seul
    * l'auteur annule. La route de réponse est le gardien de cette règle.
    */
+  /**
+   * Événement Solys partagé.
+   *
+   * On ne garde que la référence, pas une copie des informations. Un
+   * événement dont la date bouge doit bouger partout : une copie figée
+   * dans une conversation donnerait rendez-vous au mauvais moment. La
+   * contrepartie est qu'un événement retiré laisse une carte vide, ce
+   * que l'affichage dit explicitement.
+   */
+  evenementId: mongoose.Types.ObjectId | null;
+
+  /**
+   * Fichier joint.
+   *
+   * Restreint au PDF par la route d'envoi — voir le commentaire qui y
+   * explique pourquoi.
+   */
+  fichier: {
+    url: string;
+    nom: string;
+    poids: number;
+  } | null;
+
   rendezVous: {
     quand: Date;
     ou: string;
@@ -163,6 +186,30 @@ const MessageSchema = new Schema<IMessage>(
      * `_id: false` : c'est une donnée, pas un sous-document à adresser.
      */
     /**
+     * Événement Solys partagé : une référence, jamais une copie.
+     */
+    evenementId: {
+      type: Schema.Types.ObjectId,
+      ref: "SolysEvent",
+      default: null,
+    },
+
+    /**
+     * Fichier joint.
+     */
+    fichier: {
+      type: new Schema(
+        {
+          url: { type: String, required: true },
+          nom: { type: String, required: true, trim: true, maxlength: 200 },
+          poids: { type: Number, required: true, min: 0 },
+        },
+        { _id: false }
+      ),
+      default: null,
+    },
+
+    /**
      * Proposition de rendez-vous.
      */
     rendezVous: {
@@ -225,12 +272,11 @@ MessageSchema.pre("validate", function (this: IMessage) {
     !this.imageUrl &&
     !this.audioUrl &&
     !this.lieu &&
-    !this.rendezVous
+    !this.rendezVous &&
+    !this.evenementId &&
+    !this.fichier
   ) {
-    this.invalidate(
-      "content",
-      "Un message doit contenir du texte, une photo, un vocal, un lieu ou une proposition."
-    );
+    this.invalidate("content", "Un message doit avoir un contenu.");
   }
 });
 
