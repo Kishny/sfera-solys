@@ -931,60 +931,71 @@ export default function PageConversation() {
                   evenement.preventDefault();
                   void envoyer();
                 }}
-                className="flex items-end gap-2.5"
               >
-                <div className="min-w-0 flex-1">
-                  <label htmlFor="message" className="sr-only">
-                    Ton message
-                  </label>
+                {/*
+                  La légende est sortie de la colonne de saisie.
 
-                  <textarea
-                    id="message"
-                    value={saisie}
-                    onChange={(evenement) =>
-                      setSaisie(evenement.target.value.slice(0, LONGUEUR_MAX))
-                    }
-                    onKeyDown={(evenement) => {
-                      if (evenement.key === "Enter" && !evenement.shiftKey) {
-                        evenement.preventDefault();
-                        void envoyer();
+                  Elle y était, et le bouton — aligné sur `items-end` —
+                  prenait donc le bas de l'ensemble « zone de saisie +
+                  légende » : il se retrouvait au niveau de la ligne d'aide
+                  au lieu du bord de l'input. La rangée ne contient plus que
+                  les deux éléments à aligner ; la légende passe dessous, sur
+                  toute la largeur.
+                */}
+                <div className="flex items-end gap-2.5">
+                  <div className="min-w-0 flex-1">
+                    <label htmlFor="message" className="sr-only">
+                      Ton message
+                    </label>
+
+                    <textarea
+                      id="message"
+                      value={saisie}
+                      onChange={(evenement) =>
+                        setSaisie(evenement.target.value.slice(0, LONGUEUR_MAX))
                       }
-                    }}
-                    rows={1}
-                    placeholder="Écris ton message…"
-                    className={`max-h-32 w-full resize-y rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[14px] text-champagne placeholder:text-champagne/55 ${focusRing}`}
-                  />
+                      onKeyDown={(evenement) => {
+                        if (evenement.key === "Enter" && !evenement.shiftKey) {
+                          evenement.preventDefault();
+                          void envoyer();
+                        }
+                      }}
+                      rows={1}
+                      placeholder="Écris ton message…"
+                      className={`max-h-32 w-full resize-y rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[14px] text-champagne placeholder:text-champagne/55 ${focusRing}`}
+                    />
+                  </div>
 
-                  <p className="mt-1.5 flex flex-wrap items-center gap-x-3 text-[11px] text-champagne/55">
-                    <span>Entrée pour envoyer, Maj+Entrée pour aller à la ligne.</span>
-
-                    {messagesRestants !== null && (
-                      <span>
-                        {messagesRestants} message
-                        {messagesRestants > 1 ? "s" : ""} aujourd’hui
-                      </span>
+                  <button
+                    type="submit"
+                    disabled={!saisie.trim() || envoi}
+                    aria-label="Envoyer"
+                    className={`shrink-0 rounded-xl bg-cuivre p-3 text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+                  >
+                    {envoi ? (
+                      <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                    ) : (
+                      <Send size={16} aria-hidden="true" />
                     )}
-
-                    {saisie.length > LONGUEUR_MAX - 100 && (
-                      <span>
-                        {saisie.length} / {LONGUEUR_MAX}
-                      </span>
-                    )}
-                  </p>
+                  </button>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={!saisie.trim() || envoi}
-                  aria-label="Envoyer"
-                  className={`shrink-0 rounded-xl bg-cuivre p-3 text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
-                >
-                  {envoi ? (
-                    <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-                  ) : (
-                    <Send size={16} aria-hidden="true" />
+                <p className="mt-1.5 flex flex-wrap items-center gap-x-3 text-[11px] text-champagne/55">
+                  <span>Entrée pour envoyer, Maj+Entrée pour aller à la ligne.</span>
+
+                  {messagesRestants !== null && (
+                    <span>
+                      {messagesRestants} message
+                      {messagesRestants > 1 ? "s" : ""} aujourd’hui
+                    </span>
                   )}
-                </button>
+
+                  {saisie.length > LONGUEUR_MAX - 100 && (
+                    <span>
+                      {saisie.length} / {LONGUEUR_MAX}
+                    </span>
+                  )}
+                </p>
               </form>
             )}
           </div>
