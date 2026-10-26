@@ -62,6 +62,26 @@ export interface IMessage extends Document {
   } | null;
 
   /**
+   * Proposition de rendez-vous.
+   *
+   * C'est le seul contenu de message dont l'état change après l'envoi :
+   * l'autre répond, et la bulle se met à jour. Elle vit dans le message
+   * plutôt que dans sa propre collection parce qu'une proposition *est*
+   * un message — elle a sa place dans le fil, à sa date, et se signale
+   * comme les autres.
+   *
+   * Qui peut quoi : seul le destinataire accepte ou décline, seul
+   * l'auteur annule. La route de réponse est le gardien de cette règle.
+   */
+  rendezVous: {
+    quand: Date;
+    ou: string;
+    note: string;
+    statut: "propose" | "accepte" | "decline" | "annule";
+    reponduLe: Date | null;
+  } | null;
+
+  /**
    * Date de lecture.
    *
    * null = pas encore lu.
@@ -142,6 +162,27 @@ const MessageSchema = new Schema<IMessage>(
      *
      * `_id: false` : c'est une donnée, pas un sous-document à adresser.
      */
+    /**
+     * Proposition de rendez-vous.
+     */
+    rendezVous: {
+      type: new Schema(
+        {
+          quand: { type: Date, required: true },
+          ou: { type: String, required: true, trim: true, maxlength: 160 },
+          note: { type: String, default: "", trim: true, maxlength: 300 },
+          statut: {
+            type: String,
+            enum: ["propose", "accepte", "decline", "annule"],
+            default: "propose",
+          },
+          reponduLe: { type: Date, default: null },
+        },
+        { _id: false }
+      ),
+      default: null,
+    },
+
     lieu: {
       type: new Schema(
         {
@@ -179,10 +220,16 @@ const MessageSchema = new Schema<IMessage>(
 MessageSchema.pre("validate", function (this: IMessage) {
   const texte = typeof this.content === "string" ? this.content.trim() : "";
 
-  if (!texte && !this.imageUrl && !this.audioUrl && !this.lieu) {
+  if (
+    !texte &&
+    !this.imageUrl &&
+    !this.audioUrl &&
+    !this.lieu &&
+    !this.rendezVous
+  ) {
     this.invalidate(
       "content",
-      "Un message doit contenir du texte, une photo, un vocal ou un lieu."
+      "Un message doit contenir du texte, une photo, un vocal, un lieu ou une proposition."
     );
   }
 });

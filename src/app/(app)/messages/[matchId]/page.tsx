@@ -72,6 +72,10 @@ import { getPusherClient } from "@/lib/pusher-client";
 import ReportModal from "@/components/ReportModal";
 import VisionneusePhotos from "@/components/VisionneusePhotos";
 import CarteLieu from "@/components/messagerie/CarteLieu";
+import CarteRendezVous, {
+  type StatutRendezVous,
+} from "@/components/messagerie/CarteRendezVous";
+import ProposerRendezVous from "@/components/messagerie/ProposerRendezVous";
 import EnregistreurVocal from "@/components/messagerie/EnregistreurVocal";
 import LecteurVocal from "@/components/messagerie/LecteurVocal";
 import MenuPlus from "@/components/messagerie/MenuPlus";
@@ -91,6 +95,12 @@ interface Message {
   audioUrl: string | null;
   audioDuree: number | null;
   lieu: { libelle: string; lat: number; lng: number } | null;
+  rendezVous: {
+    quand: string;
+    ou: string;
+    note: string;
+    statut: StatutRendezVous;
+  } | null;
   readAt: string | null;
   createdAt: string;
 }
@@ -186,6 +196,11 @@ export default function PageConversation() {
   const [emojis, setEmojis] = useState(false);
   const [photoEnAttente, setPhotoEnAttente] = useState<string | null>(null);
   const [envoiPhoto, setEnvoiPhoto] = useState(false);
+
+  /** Le formulaire de proposition, et la réponse en cours s'il y en a une. */
+  const [rdvOuvert, setRdvOuvert] = useState(false);
+  const [envoiRdv, setEnvoiRdv] = useState(false);
+  const [reponseRdv, setReponseRdv] = useState<string | null>(null);
 
   /** Vrai pendant que le navigateur cherche la position. */
   const [rechercheLieu, setRechercheLieu] = useState(false);
@@ -380,6 +395,30 @@ export default function PageConversation() {
       client = getPusherClient();
       const abonnement = client.subscribe(canal);
 
+      /**
+       * Une réponse à une proposition arrive comme un événement à part :
+       * ce n'est pas un nouveau message, c'est un message existant dont
+       * l'état change.
+       */
+      abonnement.bind(
+        "rendez-vous-repondu",
+        (charge: { messageId: string; statut: StatutRendezVous }) => {
+          setMessages((actuels) =>
+            actuels.map((message) =>
+              message._id === charge.messageId && message.rendezVous
+                ? {
+                    ...message,
+                    rendezVous: {
+                      ...message.rendezVous,
+                      statut: charge.statut,
+                    },
+                  }
+                : message
+            )
+          );
+        }
+      );
+
       abonnement.bind("new-message", (message: Message) => {
         setMessages((actuels) => fusionner(actuels, [message]));
 
@@ -432,15 +471,16 @@ export default function PageConversation() {
    */
   const envoyer = async (
     vocal?: { url: string; duree: number },
-    lieu?: { libelle: string; lat: number; lng: number }
+    lieu?: { libelle: string; lat: number; lng: number },
+    rendezVous?: { quand: string; ou: string; note: string }
   ) => {
-    const seul = Boolean(vocal || lieu);
+    const seul = Boolean(vocal || lieu || rendezVous);
     const contenu = seul ? "" : saisie.trim();
     const photo = seul ? null : photoEnAttente;
 
     // Un mot, une photo, un vocal, un lieu. Pas rien.
     if (
-      (!contenu && !photo && !vocal && !lieu) ||
+      (!contenu && !photo && !vocal && !lieu && !rendezVous) ||
       envoi ||
       envoiPhoto ||
       messagesRestants === 0
@@ -460,6 +500,9 @@ export default function PageConversation() {
       audioUrl: vocal?.url ?? null,
       audioDuree: vocal?.duree ?? null,
       lieu: lieu ?? null,
+      rendezVous: rendezVous
+        ? { ...rendezVous, statut: "propose" as const }
+        : null,
       readAt: null,
       createdAt: new Date().toISOString(),
     };
@@ -482,6 +525,7 @@ export default function PageConversation() {
           audioUrl: vocal?.url ?? null,
           audioDuree: vocal?.duree ?? null,
           lieu: lieu ?? null,
+          rendezVous: rendezVous ?? null,
         }),
       });
 
@@ -608,6 +652,94 @@ export default function PageConversation() {
       setErreur("Connexion interrompue. Le vocal n’est pas parti.");
     } finally {
       setEnvoiVocal(false);
+    }
+  };
+
+  /**
+   * Envoie la proposition de rendez-vous.
+   */
+  const proposerRendezVous = async (proposition: {
+    quand: string;
+    ou: string;
+    note: string;
+  }) => {
+    setEnvoiRdv(true);
+    setErreur("");
+
+    try {
+      await envoyer(undefined, undefined, proposition);
+      setRdvOuvert(false);
+    } finally {
+      setEnvoiRdv(false);
+    }
+  };
+
+  /**
+   * Répond à une proposition — ou la retire.
+   *
+   * La réponse est écrite avant d'être confirmée, puis remise en place si
+   * le serveur refuse : accepter un rendez-vous doit se voir tout de
+   * suite. Le serveur reste seul juge de qui a le droit de répondre.
+   */
+  const repondreRendezVous = async (
+    messageId: string,
+    reponse: "accepte" | "decline" | "annule"
+  ) => {
+    const avant = messages.find((message) => message._id === messageId);
+
+    if (!avant?.rendezVous || reponseRdv) return;
+
+    setReponseRdv(messageId);
+    setErreur("");
+
+    const statutPrecedent = avant.rendezVous.statut;
+
+    setMessages((actuels) =>
+      actuels.map((message) =>
+        message._id === messageId && message.rendezVous
+          ? { ...message, rendezVous: { ...message.rendezVous, statut: reponse } }
+          : message
+      )
+    );
+
+    try {
+      const requete = await fetch(`/api/messages/${matchId}/rendez-vous`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messageId, reponse }),
+      });
+
+      const donnees = await requete.json().catch(() => null);
+
+      if (!requete.ok || donnees?.success !== true) {
+        setMessages((actuels) =>
+          actuels.map((message) =>
+            message._id === messageId && message.rendezVous
+              ? {
+                  ...message,
+                  rendezVous: { ...message.rendezVous, statut: statutPrecedent },
+                }
+              : message
+          )
+        );
+
+        setErreur(donnees?.error || "Cette réponse n’a pas pu être envoyée.");
+      }
+    } catch {
+      setMessages((actuels) =>
+        actuels.map((message) =>
+          message._id === messageId && message.rendezVous
+            ? {
+                ...message,
+                rendezVous: { ...message.rendezVous, statut: statutPrecedent },
+              }
+            : message
+        )
+      );
+
+      setErreur("Connexion interrompue. Ta réponse n’est pas partie.");
+    } finally {
+      setReponseRdv(null);
     }
   };
 
@@ -1210,6 +1342,25 @@ export default function PageConversation() {
                                     </div>
                                   )}
 
+                                  {message.rendezVous && (
+                                    <div
+                                      className={message.content ? "mb-1" : ""}
+                                    >
+                                      <CarteRendezVous
+                                        rendezVous={message.rendezVous}
+                                        jeSuisLAuteur={deMoi}
+                                        surFondClair={deMoi}
+                                        enCours={reponseRdv === message._id}
+                                        onRepondre={(reponse) => {
+                                          void repondreRendezVous(
+                                            message._id,
+                                            reponse
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+
                                   {message.lieu && (
                                     <div
                                       className={message.content ? "mb-1" : ""}
@@ -1410,6 +1561,10 @@ export default function PageConversation() {
                         onQuestion={(question) => {
                           setMenuPlus(false);
                           inserer(question);
+                        }}
+                        onRendezVous={() => {
+                          setMenuPlus(false);
+                          setRdvOuvert(true);
                         }}
                         onLieu={partagerLeLieu}
                         rechercheLieu={rechercheLieu}
@@ -1612,6 +1767,13 @@ export default function PageConversation() {
         targetId={signale?.id ?? ""}
         targetType={signale?.type ?? "user"}
         onClose={() => setSignale(null)}
+      />
+
+      <ProposerRendezVous
+        ouvert={rdvOuvert}
+        envoiEnCours={envoiRdv}
+        onFermer={() => setRdvOuvert(false)}
+        onProposer={proposerRendezVous}
       />
 
       <VisionneusePhotos

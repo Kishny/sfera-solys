@@ -187,6 +187,15 @@ function serializeMessage(message: any) {
           lng: message.lieu.lng,
         }
       : null,
+    rendezVous: message.rendezVous
+      ? {
+          quand: message.rendezVous.quand,
+          ou: message.rendezVous.ou,
+          note: message.rendezVous.note ?? "",
+          statut: message.rendezVous.statut,
+          reponduLe: message.rendezVous.reponduLe ?? null,
+        }
+      : null,
     readAt: message.readAt || null,
     createdAt: message.createdAt,
     updatedAt: message.updatedAt,
@@ -408,6 +417,7 @@ export async function POST(
       audioUrl?: unknown;
       audioDuree?: unknown;
       lieu?: unknown;
+      rendezVous?: unknown;
     } | null = null;
 
     try {
@@ -538,7 +548,74 @@ export async function POST(
       };
     }
 
-    if (!content && !imageUrl && !audioUrl && !lieu) {
+    /**
+     * La proposition de rendez-vous.
+     *
+     * Une proposition part toujours au statut « propose » : le client ne
+     * décide pas de l'état de sa propre proposition, sans quoi il
+     * pourrait l'envoyer déjà acceptée.
+     */
+    let rendezVous:
+      | { quand: Date; ou: string; note: string; statut: "propose" }
+      | null = null;
+
+    if (body?.rendezVous && typeof body.rendezVous === "object") {
+      const brut = body.rendezVous as {
+        quand?: unknown;
+        ou?: unknown;
+        note?: unknown;
+      };
+
+      const quand = new Date(String(brut.quand ?? ""));
+      const ou = typeof brut.ou === "string" ? brut.ou.trim().slice(0, 160) : "";
+      const note =
+        typeof brut.note === "string" ? brut.note.trim().slice(0, 300) : "";
+
+      if (Number.isNaN(quand.getTime()) || !ou) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Il manque la date ou le lieu du rendez-vous.",
+            code: "INVALID_MEETUP",
+          },
+          { status: 400 }
+        );
+      }
+
+      /**
+       * Une proposition dans le passé n'a pas de sens, et une à dix ans
+       * d'ici non plus. La borne haute évite surtout les dates saisies de
+       * travers (« 2206 » pour « 2026 »).
+       */
+      const maintenant = Date.now();
+      const unAn = 365 * 24 * 60 * 60 * 1000;
+
+      if (quand.getTime() < maintenant - 60 * 60 * 1000) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Cette date est déjà passée.",
+            code: "MEETUP_IN_PAST",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (quand.getTime() > maintenant + unAn) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Cette date est trop lointaine.",
+            code: "MEETUP_TOO_FAR",
+          },
+          { status: 400 }
+        );
+      }
+
+      rendezVous = { quand, ou, note, statut: "propose" };
+    }
+
+    if (!content && !imageUrl && !audioUrl && !lieu && !rendezVous) {
       return NextResponse.json(
         {
           success: false,
@@ -649,6 +726,7 @@ export async function POST(
       audioUrl,
       audioDuree,
       lieu,
+      rendezVous,
     });
 
     /**
@@ -712,7 +790,9 @@ export async function POST(
               ? "Message vocal"
               : lieu
                 ? "Position partagée"
-                : "Photo"),
+                : rendezVous
+                  ? "Proposition de rendez-vous"
+                  : "Photo"),
           matchId: match._id.toString(),
         });
       }

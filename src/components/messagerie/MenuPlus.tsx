@@ -19,6 +19,7 @@ import {
   ArrowLeft,
   Camera,
   Image as IconeImage,
+  CalendarPlus,
   Loader2,
   MapPin,
   MessageCircleQuestion,
@@ -35,6 +36,8 @@ interface MenuPlusProps {
   onCamera: () => void;
   /** Place la question choisie dans la saisie. */
   onQuestion: (question: string) => void;
+  /** Ouvre le formulaire de proposition de rendez-vous. */
+  onRendezVous: () => void;
   /** Demande la position au navigateur, puis la partage. */
   onLieu: () => void;
   /** Vrai pendant que le navigateur cherche la position. */
@@ -54,6 +57,7 @@ export default function MenuPlus({
   onPhoto,
   onCamera,
   onQuestion,
+  onRendezVous,
   onLieu,
   rechercheLieu,
   ancre,
@@ -116,6 +120,13 @@ export default function MenuPlus({
       detail: "Prendre une photo maintenant",
       icone: Camera,
       action: onCamera,
+    },
+    {
+      cle: "rendez-vous",
+      libelle: "Proposer un rendez-vous",
+      detail: "Une date, un lieu, il répond",
+      icone: CalendarPlus,
+      action: onRendezVous,
     },
     {
       cle: "lieu",
