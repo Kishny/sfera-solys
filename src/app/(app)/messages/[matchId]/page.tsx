@@ -58,7 +58,10 @@ import {
   Flag,
   Loader2,
   MapPin,
+  Paperclip,
+  Plus,
   Send,
+  Smile,
   ShieldCheck,
   UserRound,
   X,
@@ -66,6 +69,9 @@ import {
 
 import { getPusherClient } from "@/lib/pusher-client";
 import ReportModal from "@/components/ReportModal";
+import VisionneusePhotos from "@/components/VisionneusePhotos";
+import MenuPlus from "@/components/messagerie/MenuPlus";
+import SelecteurEmojis from "@/components/messagerie/SelecteurEmojis";
 import { usePremium } from "@/hooks/usePremium";
 
 // ─────────────────────────────────────────────
@@ -77,6 +83,7 @@ interface Message {
   matchId: string;
   senderId: string;
   content: string;
+  imageUrl: string | null;
   readAt: string | null;
   createdAt: string;
 }
@@ -160,6 +167,27 @@ export default function PageConversation() {
 
   const [saisie, setSaisie] = useState("");
   const [envoi, setEnvoi] = useState(false);
+
+  /**
+   * Le composeur.
+   *
+   * `photoEnAttente` tient l'URL d'une photo déjà déposée sur Cloudinary
+   * mais pas encore envoyée : on la voit en aperçu, on peut la retirer, et
+   * on peut lui joindre un mot avant de partir.
+   */
+  const [menuPlus, setMenuPlus] = useState(false);
+  const [emojis, setEmojis] = useState(false);
+  const [photoEnAttente, setPhotoEnAttente] = useState<string | null>(null);
+  const [envoiPhoto, setEnvoiPhoto] = useState(false);
+
+  /** Index de la photo du fil ouverte en grand, `null` si aucune. */
+  const [photoAgrandie, setPhotoAgrandie] = useState<number | null>(null);
+
+  const ancrePlus = useRef<HTMLDivElement>(null);
+  const ancreEmojis = useRef<HTMLDivElement>(null);
+  const champPhoto = useRef<HTMLInputElement>(null);
+  const champCamera = useRef<HTMLInputElement>(null);
+  const champSaisie = useRef<HTMLTextAreaElement>(null);
 
   const [chargement, setChargement] = useState(true);
   const [chargementAnciens, setChargementAnciens] = useState(false);
@@ -383,8 +411,12 @@ export default function PageConversation() {
   /** Envoi, avec affichage optimiste. */
   const envoyer = async () => {
     const contenu = saisie.trim();
+    const photo = photoEnAttente;
 
-    if (!contenu || envoi || messagesRestants === 0) return;
+    // Un mot, une photo, ou les deux. Pas rien.
+    if ((!contenu && !photo) || envoi || envoiPhoto || messagesRestants === 0) {
+      return;
+    }
 
     setEnvoi(true);
     setErreur("");
@@ -394,19 +426,21 @@ export default function PageConversation() {
       matchId: String(matchId),
       senderId: monId,
       content: contenu,
+      imageUrl: photo,
       readAt: null,
       createdAt: new Date().toISOString(),
     };
 
     setMessages((actuels) => [...actuels, provisoire]);
     setSaisie("");
+    setPhotoEnAttente(null);
     window.setTimeout(() => versLeBas(), 40);
 
     try {
       const reponse = await fetch(`/api/messages/${matchId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: contenu }),
+        body: JSON.stringify({ content: contenu, imageUrl: photo }),
       });
 
       const donnees = await reponse.json().catch(() => null);
@@ -421,6 +455,7 @@ export default function PageConversation() {
           actuels.filter((message) => message._id !== provisoire._id)
         );
         setSaisie(contenu);
+        setPhotoEnAttente(photo);
         setErreur(donnees?.error || "Ce message n’a pas été envoyé.");
         return;
       }
@@ -436,10 +471,84 @@ export default function PageConversation() {
         actuels.filter((message) => message._id !== provisoire._id)
       );
       setSaisie(contenu);
+      setPhotoEnAttente(photo);
       setErreur("Connexion interrompue. Ton message n’est pas parti.");
     } finally {
       setEnvoi(false);
     }
+  };
+
+  /**
+   * Dépose une photo sur Cloudinary.
+   *
+   * L'envoi du message est une seconde étape : on voit d'abord ce qu'on
+   * s'apprête à montrer, et on peut encore se raviser. La modération
+   * automatique se fait côté serveur, dans `/api/upload/chat-image` —
+   * une image refusée ne revient jamais jusqu'ici.
+   */
+  const televerserPhoto = async (fichier: File | null | undefined) => {
+    if (!fichier) return;
+
+    setEnvoiPhoto(true);
+    setErreur("");
+    setMenuPlus(false);
+
+    try {
+      const formulaire = new FormData();
+      formulaire.append("file", fichier);
+
+      const reponse = await fetch("/api/upload/chat-image", {
+        method: "POST",
+        body: formulaire,
+      });
+
+      const donnees = await reponse.json().catch(() => null);
+
+      if (!reponse.ok || donnees?.success !== true || !donnees?.url) {
+        setErreur(donnees?.error || "Cette photo n’a pas pu être envoyée.");
+        return;
+      }
+
+      setPhotoEnAttente(donnees.url as string);
+      champSaisie.current?.focus();
+    } catch {
+      setErreur("Connexion interrompue. La photo n’est pas partie.");
+    } finally {
+      setEnvoiPhoto(false);
+    }
+  };
+
+  /**
+   * Insère un texte à la position du curseur.
+   *
+   * Un émoji ajouté au bout d'une phrase déjà écrite serait une surprise
+   * désagréable ; il se pose là où on écrivait.
+   */
+  const inserer = (texte: string) => {
+    const champ = champSaisie.current;
+
+    if (!champ) {
+      setSaisie((actuelle) => (actuelle + texte).slice(0, LONGUEUR_MAX));
+      return;
+    }
+
+    const debut = champ.selectionStart ?? champ.value.length;
+    const fin = champ.selectionEnd ?? debut;
+
+    const nouvelle = (
+      champ.value.slice(0, debut) +
+      texte +
+      champ.value.slice(fin)
+    ).slice(0, LONGUEUR_MAX);
+
+    setSaisie(nouvelle);
+
+    // Le curseur se replace après ce qu'on vient d'insérer.
+    window.requestAnimationFrame(() => {
+      champ.focus();
+      const position = Math.min(debut + texte.length, nouvelle.length);
+      champ.setSelectionRange(position, position);
+    });
   };
 
   /** Sourdine : `minutes: 0` la lève. */
@@ -507,6 +616,24 @@ export default function PageConversation() {
 
     return groupes;
   }, [messages]);
+
+  /**
+   * Les photos du fil, dans l'ordre.
+   *
+   * La visionneuse navigue d'une photo à l'autre : elle a besoin de la
+   * liste complète, pas seulement de celle sur laquelle on a cliqué.
+   * Les messages provisoires en sont exclus — leur photo est déjà en
+   * ligne, mais tant que le message n'est pas confirmé, l'index
+   * changerait sous les doigts.
+   */
+  const photosDuFil = useMemo(
+    () =>
+      messages
+        .filter((message) => !message._id.startsWith("provisoire-"))
+        .map((message) => message.imageUrl)
+        .filter((url): url is string => Boolean(url)),
+    [messages]
+  );
 
   const nom = interlocuteur?.pseudonyme ?? "Ce membre";
   const quotaAtteint = messagesRestants === 0;
@@ -728,276 +855,537 @@ export default function PageConversation() {
         {/* ─────────────────────────────
             Messages
         ───────────────────────────── */}
-        <div
-          ref={conteneurRef}
-          className="flex-1 overflow-y-auto px-4 py-5 sm:px-6"
-        >
-          <div className="mx-auto max-w-3xl">
-            {chargement ? (
-              <div className="flex flex-col items-center gap-3 py-24">
-                <Loader2
-                  className="h-7 w-7 animate-spin text-cuivre"
-                  aria-hidden="true"
-                />
-                <p className="text-[13px] text-champagne/55">
-                  Chargement de la conversation…
-                </p>
-              </div>
-            ) : erreur && messages.length === 0 ? (
-              <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
-                <AlertCircle
-                  size={22}
-                  className="mx-auto mb-4 text-cuivre"
-                  aria-hidden="true"
-                />
+        {/* ─────────────────────────────
+            La conversation, posée sur un décor
 
-                <p className="font-display text-[17px] font-bold text-champagne">
-                  Conversation inaccessible
-                </p>
+            Le fond uni laissait la messagerie plus froide que le reste
+            du site. L'image passe dessous, et un voile la retient.
 
-                <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
-                  {erreur}
-                </p>
+            Le voile est à 70 %, et ce chiffre est mesuré, pas choisi à
+            l'œil : `solys-02` est déjà une photo de nuit, dont seules
+            les bougies et l'éclipse sont claires. À 70 %, le pixel le
+            plus clair de l'image laisse encore 5,3:1 au champagne — au
+            -dessus du seuil AA — alors qu'un voile plus épais effacerait
+            le décor sans rien gagner de lisible.
+        ───────────────────────────── */}
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/visuels/solys-02.webp"
+              alt=""
+              className="h-full w-full object-cover"
+            />
 
-                <Link
-                  href="/matches"
-                  className={`mt-6 inline-flex items-center gap-2 rounded-xl border border-champagne/15 px-5 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
+            <div className="absolute inset-0 bg-nuit/70" />
+
+            {/* Les deux extrémités s'enfoncent dans le noir, pour que
+                l'en-tête et le composeur ne flottent pas sur une
+                découpe nette. */}
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-nuit to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-nuit/85 to-transparent" />
+          </div>
+
+          <div
+            ref={conteneurRef}
+            className="relative flex-1 overflow-y-auto px-4 py-5 sm:px-6"
+          >
+            <div className="mx-auto max-w-3xl">
+              {chargement ? (
+                <div className="flex flex-col items-center gap-3 py-24">
+                  <Loader2
+                    className="h-7 w-7 animate-spin text-cuivre"
+                    aria-hidden="true"
+                  />
+                  <p className="text-[13px] text-champagne/55">
+                    Chargement de la conversation…
+                  </p>
+                </div>
+              ) : erreur && messages.length === 0 ? (
+                <div className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-16 text-center">
+                  <AlertCircle
+                    size={22}
+                    className="mx-auto mb-4 text-cuivre"
+                    aria-hidden="true"
+                  />
+
+                  <p className="font-display text-[17px] font-bold text-champagne">
+                    Conversation inaccessible
+                  </p>
+
+                  <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
+                    {erreur}
+                  </p>
+
+                  <Link
+                    href="/matches"
+                    className={`mt-6 inline-flex items-center gap-2 rounded-xl border border-champagne/15 px-5 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/30 ${focusRing}`}
+                  >
+                    <ArrowLeft size={14} aria-hidden="true" />
+                    Mes relations
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {resteDesAnciens && (
+                    <div className="mb-5 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={chargerAnciens}
+                        disabled={chargementAnciens}
+                        className={`inline-flex items-center gap-2 rounded-xl border border-champagne/12 px-4 py-2 text-[12px] font-semibold text-champagne/75 transition-colors hover:border-champagne/25 hover:text-champagne disabled:opacity-50 ${focusRing}`}
+                      >
+                        {chargementAnciens ? (
+                          <Loader2
+                            size={13}
+                            className="animate-spin"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <ArrowUp size={13} aria-hidden="true" />
+                        )}
+                        Messages plus anciens
+                      </button>
+                    </div>
+                  )}
+
+                  {messages.length === 0 ? (
+                    <div className="py-20 text-center">
+                      <p className="font-display text-[17px] font-bold text-champagne">
+                        Rien encore
+                      </p>
+
+                      <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
+                        Vous êtes en relation, personne n’a écrit. Une question
+                        précise marche mieux qu’un salut.
+                      </p>
+                    </div>
+                  ) : (
+                    parJour.map((groupe) => (
+                      <section key={groupe.jour} className="mb-5">
+                        {/*
+                          Une pastille, et non un texte nu : posé
+                          directement sur la photo, le libellé du jour
+                          se perdait dans le décor.
+                        */}
+                        <p className="mb-3 text-center">
+                          <span className="inline-block rounded-full border border-champagne/10 bg-nuit/70 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-champagne/60 backdrop-blur-sm">
+                            {groupe.jour}
+                          </span>
+                        </p>
+
+                        <ul className="space-y-2">
+                          {groupe.messages.map((message) => {
+                            const deMoi = message.senderId === monId;
+                            const provisoire =
+                              message._id.startsWith("provisoire-");
+
+                            // Rang de la photo dans le fil, pour que la
+                            // visionneuse s'ouvre sur la bonne.
+                            const rangPhoto = message.imageUrl
+                              ? photosDuFil.indexOf(message.imageUrl)
+                              : -1;
+
+                            /**
+                             * Une photo sans légende se passe de bulle.
+                             *
+                             * Entourée de cuivre, elle devenait un cadre
+                             * autour d'une image — lourd, et la couleur
+                             * tirait l'œil avant la photo. Nue, avec
+                             * l'heure posée dessus dans une pastille
+                             * sombre, c'est la photo qu'on regarde.
+                             */
+                            const photoSeule = Boolean(
+                              message.imageUrl && !message.content
+                            );
+
+                            return (
+                              <li
+                                key={message._id}
+                                className={`flex ${deMoi ? "justify-end" : "justify-start"}`}
+                              >
+                                <div
+                                  className={`group relative max-w-[85%] overflow-hidden rounded-2xl sm:max-w-[70%] ${
+                                    photoSeule
+                                      ? ""
+                                      : message.imageUrl
+                                        ? "p-1.5"
+                                        : "px-3.5 py-2.5"
+                                  } ${
+                                    photoSeule
+                                      ? "border border-champagne/10"
+                                      : deMoi
+                                        ? "bg-cuivre text-nuit"
+                                        : "border border-champagne/10 bg-minuit text-champagne"
+                                  } ${provisoire ? "opacity-60" : ""}`}
+                                >
+                                  {message.imageUrl && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        rangPhoto >= 0 &&
+                                        setPhotoAgrandie(rangPhoto)
+                                      }
+                                      disabled={rangPhoto < 0}
+                                      aria-label="Voir la photo en grand"
+                                      className={`block w-full overflow-hidden disabled:cursor-default ${
+                                        photoSeule ? "" : "rounded-xl"
+                                      } ${focusRing}`}
+                                    >
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img
+                                        src={message.imageUrl}
+                                        alt="Photo envoyée dans la conversation"
+                                        className="max-h-80 w-full object-cover"
+                                      />
+                                    </button>
+                                  )}
+
+                                  {message.content && (
+                                    <p
+                                      className={`whitespace-pre-wrap break-words text-[14px] leading-relaxed ${
+                                        message.imageUrl ? "px-2 pt-2" : ""
+                                      }`}
+                                    >
+                                      {message.content}
+                                    </p>
+                                  )}
+
+                                  <p
+                                    className={`flex items-center justify-end gap-1 text-[10px] ${
+                                      photoSeule
+                                        ? // Posée sur la photo : la pastille
+                                          // sombre garantit la lecture quelle
+                                          // que soit l'image dessous.
+                                          "absolute bottom-2 right-2 rounded-full bg-nuit/75 px-2 py-1 text-champagne/90 backdrop-blur-sm"
+                                        : message.imageUrl
+                                          ? "mt-1 px-2 pb-0.5"
+                                          : "mt-1"
+                                    } ${
+                                      photoSeule
+                                        ? ""
+                                        : // abyss/70 sur orange plein = 3,80:1.
+                                          // abyss/90 = 4,93:1, au-dessus du seuil.
+                                          deMoi
+                                          ? "text-nuit/90"
+                                          : "text-champagne/55"
+                                    }`}
+                                  >
+                                    {formaterHeure(message.createdAt)}
+
+                                    {deMoi &&
+                                      !provisoire &&
+                                      (message.readAt ? (
+                                        <CheckCheck
+                                          size={12}
+                                          aria-label="Lu"
+                                        />
+                                      ) : (
+                                        <Check size={12} aria-label="Envoyé" />
+                                      ))}
+
+                                    {!deMoi && (
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setSignale({
+                                            id: message._id,
+                                            type: "message",
+                                          })
+                                        }
+                                        aria-label="Signaler ce message"
+                                        className={`ml-1 text-champagne/60 opacity-0 transition-opacity hover:text-cuivre focus-visible:opacity-100 group-hover:opacity-100 ${focusRing}`}
+                                      >
+                                        <Flag size={11} aria-hidden="true" />
+                                      </button>
+                                    )}
+                                  </p>
+                                </div>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </section>
+                    ))
+                  )}
+
+                  <div ref={basRef} />
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ─────────────────────────────
+              Saisie
+          ───────────────────────────── */}
+          {/*
+            Le composeur flotte sur le décor au lieu de le trancher par
+            un bandeau opaque. Le voile propre à la barre (`bg-minuit/85`
+            et un flou) garde la saisie lisible quoi qu'il y ait derrière.
+          */}
+          <div className="relative px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-1 sm:px-6 sm:pb-4">
+            <div className="mx-auto max-w-3xl">
+              {erreur && messages.length > 0 && (
+                <div
+                  role="alert"
+                  className="mb-3 flex items-start gap-2.5 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5"
                 >
-                  <ArrowLeft size={14} aria-hidden="true" />
-                  Mes relations
-                </Link>
-              </div>
-            ) : (
-              <>
-                {resteDesAnciens && (
-                  <div className="mb-5 flex justify-center">
-                    <button
-                      type="button"
-                      onClick={chargerAnciens}
-                      disabled={chargementAnciens}
-                      className={`inline-flex items-center gap-2 rounded-xl border border-champagne/12 px-4 py-2 text-[12px] font-semibold text-champagne/75 transition-colors hover:border-champagne/25 hover:text-champagne disabled:opacity-50 ${focusRing}`}
+                  <AlertCircle
+                    size={14}
+                    className="mt-0.5 shrink-0 text-cuivre"
+                    aria-hidden="true"
+                  />
+                  <p className="flex-1 text-[12px] leading-relaxed text-champagne/85">
+                    {erreur}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setErreur("")}
+                    aria-label="Fermer le message"
+                    className={`shrink-0 text-champagne/55 hover:text-champagne ${focusRing}`}
+                  >
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                </div>
+              )}
+
+              {quotaAtteint ? (
+                <div className="rounded-xl border border-cuivre/30 bg-cuivre/10 px-4 py-3">
+                  <p className="text-[13px] leading-relaxed text-champagne/85">
+                    Tu as envoyé tous tes messages du jour. Le compteur repart à
+                    minuit, ou{" "}
+                    <Link
+                      href="/tarifs"
+                      className={`font-semibold text-champagne underline underline-offset-2 hover:text-cuivre ${focusRing}`}
                     >
-                      {chargementAnciens ? (
+                      vois les offres sans limite
+                    </Link>
+                    .
+                  </p>
+                </div>
+              ) : (
+                <form
+                  onSubmit={(evenement) => {
+                    evenement.preventDefault();
+                    void envoyer();
+                  }}
+                  className="rounded-[26px] border border-champagne/12 bg-minuit/90 p-2 shadow-[0_18px_50px_-22px_rgba(0,0,0,0.95)] backdrop-blur-xl"
+                >
+                  {/*
+                    L'aperçu de la photo en attente.
+
+                    Une photo est déjà en ligne quand elle apparaît ici,
+                    mais pas encore envoyée : on la voit, on peut lui
+                    joindre un mot, et on peut la retirer.
+                  */}
+                  {photoEnAttente && (
+                    <div className="mb-2 flex items-center gap-3 rounded-2xl border border-champagne/10 bg-nuit/60 p-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photoEnAttente}
+                        alt="Photo à envoyer"
+                        className="h-14 w-14 shrink-0 rounded-xl object-cover"
+                      />
+
+                      <p className="min-w-0 flex-1 text-[12px] leading-relaxed text-champagne/70">
+                        Photo prête. Ajoute un mot si tu veux, puis envoie.
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => setPhotoEnAttente(null)}
+                        aria-label="Retirer la photo"
+                        className={`shrink-0 rounded-full p-2 text-champagne/60 transition hover:text-champagne ${focusRing}`}
+                      >
+                        <X size={15} aria-hidden="true" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="flex items-end gap-2">
+                    {/* ─── Le « + » ──────────────────────────────── */}
+                    <div ref={ancrePlus} className="relative shrink-0">
+                      <MenuPlus
+                        ancre={ancrePlus}
+                        ouvert={menuPlus}
+                        onFermer={() => setMenuPlus(false)}
+                        onPhoto={() => champPhoto.current?.click()}
+                        onCamera={() => champCamera.current?.click()}
+                        onQuestion={(question) => {
+                          setMenuPlus(false);
+                          inserer(question);
+                        }}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmojis(false);
+                          setMenuPlus((ouvert) => !ouvert);
+                        }}
+                        aria-label="Ajouter au message"
+                        aria-expanded={menuPlus}
+                        className={`rounded-full border border-champagne/15 p-2.5 text-champagne/75 transition hover:border-champagne/30 hover:text-champagne ${focusRing}`}
+                      >
+                        <Plus
+                          size={18}
+                          aria-hidden="true"
+                          className={`transition-transform duration-200 motion-reduce:transition-none ${
+                            menuPlus ? "rotate-45" : ""
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* ─── La saisie ─────────────────────────────── */}
+                    <div className="flex min-w-0 flex-1 items-end gap-1 rounded-[20px] border border-champagne/12 bg-nuit/65 pl-3.5 pr-1.5">
+                      <label htmlFor="message" className="sr-only">
+                        Ton message
+                      </label>
+
+                      <textarea
+                        id="message"
+                        ref={champSaisie}
+                        value={saisie}
+                        onChange={(evenement) =>
+                          setSaisie(evenement.target.value.slice(0, LONGUEUR_MAX))
+                        }
+                        onKeyDown={(evenement) => {
+                          if (evenement.key === "Enter" && !evenement.shiftKey) {
+                            evenement.preventDefault();
+                            void envoyer();
+                          }
+                        }}
+                        rows={1}
+                        placeholder="Écris ton message…"
+                        className="max-h-32 min-w-0 flex-1 resize-y border-0 bg-transparent py-2.5 text-[14px] text-champagne placeholder:text-champagne/55 focus:outline-none"
+                      />
+
+                      {/* ─── Les émojis ──────────────────────────── */}
+                      <div ref={ancreEmojis} className="relative shrink-0">
+                        <SelecteurEmojis
+                          ancre={ancreEmojis}
+                          ouvert={emojis}
+                          onFermer={() => setEmojis(false)}
+                          onChoisir={(emoji) => inserer(emoji)}
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMenuPlus(false);
+                            setEmojis((ouvert) => !ouvert);
+                          }}
+                          aria-label="Choisir un émoji"
+                          aria-expanded={emojis}
+                          className={`rounded-full p-2 text-champagne/65 transition hover:text-champagne ${focusRing}`}
+                        >
+                          <Smile size={17} aria-hidden="true" />
+                        </button>
+                      </div>
+
+                      {/*
+                        Le trombone est un raccourci direct vers la
+                        photothèque, pas un second menu : il mènerait
+                        exactement où mène déjà « Photo ». Il ouvrira un
+                        menu le jour où les fichiers et les liens
+                        existeront.
+                      */}
+                      <button
+                        type="button"
+                        onClick={() => champPhoto.current?.click()}
+                        disabled={envoiPhoto}
+                        aria-label="Joindre une photo"
+                        className={`shrink-0 rounded-full p-2 text-champagne/65 transition hover:text-champagne disabled:opacity-40 ${focusRing}`}
+                      >
+                        {envoiPhoto ? (
+                          <Loader2
+                            size={17}
+                            className="animate-spin"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <Paperclip size={17} aria-hidden="true" />
+                        )}
+                      </button>
+                    </div>
+
+                    {/* ─── Envoyer ───────────────────────────────── */}
+                    <button
+                      type="submit"
+                      disabled={
+                        (!saisie.trim() && !photoEnAttente) || envoi || envoiPhoto
+                      }
+                      aria-label="Envoyer"
+                      className={`shrink-0 rounded-full bg-degrade-cuivre p-3 text-nuit transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+                    >
+                      {envoi ? (
                         <Loader2
-                          size={13}
+                          size={18}
                           className="animate-spin"
                           aria-hidden="true"
                         />
                       ) : (
-                        <ArrowUp size={13} aria-hidden="true" />
+                        <Send size={18} aria-hidden="true" />
                       )}
-                      Messages plus anciens
                     </button>
                   </div>
-                )}
 
-                {messages.length === 0 ? (
-                  <div className="py-20 text-center">
-                    <p className="font-display text-[17px] font-bold text-champagne">
-                      Rien encore
-                    </p>
+                  <p className="mt-1.5 flex flex-wrap items-center gap-x-3 px-2 text-[11px] text-champagne/65">
+                    <span className="hidden sm:inline">
+                      Entrée pour envoyer, Maj+Entrée pour aller à la ligne.
+                    </span>
 
-                    <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-champagne/60">
-                      Vous êtes en relation, personne n’a écrit. Une question
-                      précise marche mieux qu’un salut.
-                    </p>
-                  </div>
-                ) : (
-                  parJour.map((groupe) => (
-                    <section key={groupe.jour} className="mb-5">
-                      <p className="mb-3 text-center text-[11px] font-bold uppercase tracking-wide text-champagne/55">
-                        {groupe.jour}
-                      </p>
-
-                      <ul className="space-y-2">
-                        {groupe.messages.map((message) => {
-                          const deMoi = message.senderId === monId;
-                          const provisoire =
-                            message._id.startsWith("provisoire-");
-
-                          return (
-                            <li
-                              key={message._id}
-                              className={`flex ${deMoi ? "justify-end" : "justify-start"}`}
-                            >
-                              <div
-                                className={`group max-w-[85%] rounded-2xl px-3.5 py-2.5 sm:max-w-[70%] ${
-                                  deMoi
-                                    ? "bg-cuivre text-nuit"
-                                    : "border border-champagne/10 bg-minuit text-champagne"
-                                } ${provisoire ? "opacity-60" : ""}`}
-                              >
-                                <p className="whitespace-pre-wrap break-words text-[14px] leading-relaxed">
-                                  {message.content}
-                                </p>
-
-                                <p
-                                  className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${
-                                    // abyss/70 sur orange plein = 3,80:1.
-                                    // abyss/90 = 4,93:1, au-dessus du seuil.
-                                    deMoi ? "text-nuit/90" : "text-champagne/55"
-                                  }`}
-                                >
-                                  {formaterHeure(message.createdAt)}
-
-                                  {deMoi &&
-                                    !provisoire &&
-                                    (message.readAt ? (
-                                      <CheckCheck
-                                        size={12}
-                                        aria-label="Lu"
-                                      />
-                                    ) : (
-                                      <Check size={12} aria-label="Envoyé" />
-                                    ))}
-
-                                  {!deMoi && (
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        setSignale({
-                                          id: message._id,
-                                          type: "message",
-                                        })
-                                      }
-                                      aria-label="Signaler ce message"
-                                      className={`ml-1 text-champagne/60 opacity-0 transition-opacity hover:text-cuivre focus-visible:opacity-100 group-hover:opacity-100 ${focusRing}`}
-                                    >
-                                      <Flag size={11} aria-hidden="true" />
-                                    </button>
-                                  )}
-                                </p>
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </section>
-                  ))
-                )}
-
-                <div ref={basRef} />
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* ─────────────────────────────
-            Saisie
-        ───────────────────────────── */}
-        <div className="border-t border-champagne/10 bg-minuit px-4 py-3 sm:px-6">
-          <div className="mx-auto max-w-3xl">
-            {erreur && messages.length > 0 && (
-              <div
-                role="alert"
-                className="mb-3 flex items-start gap-2.5 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5"
-              >
-                <AlertCircle
-                  size={14}
-                  className="mt-0.5 shrink-0 text-cuivre"
-                  aria-hidden="true"
-                />
-                <p className="flex-1 text-[12px] leading-relaxed text-champagne/85">
-                  {erreur}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setErreur("")}
-                  aria-label="Fermer le message"
-                  className={`shrink-0 text-champagne/55 hover:text-champagne ${focusRing}`}
-                >
-                  <X size={14} aria-hidden="true" />
-                </button>
-              </div>
-            )}
-
-            {quotaAtteint ? (
-              <div className="rounded-xl border border-cuivre/30 bg-cuivre/10 px-4 py-3">
-                <p className="text-[13px] leading-relaxed text-champagne/85">
-                  Tu as envoyé tous tes messages du jour. Le compteur repart à
-                  minuit, ou{" "}
-                  <Link
-                    href="/tarifs"
-                    className={`font-semibold text-champagne underline underline-offset-2 hover:text-cuivre ${focusRing}`}
-                  >
-                    vois les offres sans limite
-                  </Link>
-                  .
-                </p>
-              </div>
-            ) : (
-              <form
-                onSubmit={(evenement) => {
-                  evenement.preventDefault();
-                  void envoyer();
-                }}
-              >
-                {/*
-                  La légende est sortie de la colonne de saisie.
-
-                  Elle y était, et le bouton — aligné sur `items-end` —
-                  prenait donc le bas de l'ensemble « zone de saisie +
-                  légende » : il se retrouvait au niveau de la ligne d'aide
-                  au lieu du bord de l'input. La rangée ne contient plus que
-                  les deux éléments à aligner ; la légende passe dessous, sur
-                  toute la largeur.
-                */}
-                <div className="flex items-end gap-2.5">
-                  <div className="min-w-0 flex-1">
-                    <label htmlFor="message" className="sr-only">
-                      Ton message
-                    </label>
-
-                    <textarea
-                      id="message"
-                      value={saisie}
-                      onChange={(evenement) =>
-                        setSaisie(evenement.target.value.slice(0, LONGUEUR_MAX))
-                      }
-                      onKeyDown={(evenement) => {
-                        if (evenement.key === "Enter" && !evenement.shiftKey) {
-                          evenement.preventDefault();
-                          void envoyer();
-                        }
-                      }}
-                      rows={1}
-                      placeholder="Écris ton message…"
-                      className={`max-h-32 w-full resize-y rounded-xl border border-champagne/12 bg-nuit px-3.5 py-2.5 text-[14px] text-champagne placeholder:text-champagne/55 ${focusRing}`}
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={!saisie.trim() || envoi}
-                    aria-label="Envoyer"
-                    className={`shrink-0 rounded-xl bg-cuivre p-3 text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
-                  >
-                    {envoi ? (
-                      <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-                    ) : (
-                      <Send size={16} aria-hidden="true" />
+                    {messagesRestants !== null && (
+                      <span>
+                        {messagesRestants} message
+                        {messagesRestants > 1 ? "s" : ""} aujourd’hui
+                      </span>
                     )}
-                  </button>
-                </div>
 
-                <p className="mt-1.5 flex flex-wrap items-center gap-x-3 text-[11px] text-champagne/55">
-                  <span>Entrée pour envoyer, Maj+Entrée pour aller à la ligne.</span>
+                    {saisie.length > LONGUEUR_MAX - 100 && (
+                      <span>
+                        {saisie.length} / {LONGUEUR_MAX}
+                      </span>
+                    )}
+                  </p>
 
-                  {messagesRestants !== null && (
-                    <span>
-                      {messagesRestants} message
-                      {messagesRestants > 1 ? "s" : ""} aujourd’hui
-                    </span>
-                  )}
+                  {/*
+                    Les deux champs de fichier, invisibles.
 
-                  {saisie.length > LONGUEUR_MAX - 100 && (
-                    <span>
-                      {saisie.length} / {LONGUEUR_MAX}
-                    </span>
-                  )}
-                </p>
-              </form>
-            )}
+                    `capture` fait ouvrir l'appareil photo sur mobile ; sur
+                    un ordinateur l'attribut est ignoré et c'est la
+                    photothèque qui s'ouvre, ce qui reste un comportement
+                    acceptable.
+                  */}
+                  <input
+                    ref={champPhoto}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(evenement) => {
+                      void televerserPhoto(evenement.target.files?.[0]);
+                      evenement.target.value = "";
+                    }}
+                  />
+
+                  <input
+                    ref={champCamera}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(evenement) => {
+                      void televerserPhoto(evenement.target.files?.[0]);
+                      evenement.target.value = "";
+                    }}
+                  />
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -1007,6 +1395,14 @@ export default function PageConversation() {
         targetId={signale?.id ?? ""}
         targetType={signale?.type ?? "user"}
         onClose={() => setSignale(null)}
+      />
+
+      <VisionneusePhotos
+        photos={photosDuFil}
+        indexOuvert={photoAgrandie}
+        onFermer={() => setPhotoAgrandie(null)}
+        onChanger={setPhotoAgrandie}
+        nom={nom}
       />
     </>
   );

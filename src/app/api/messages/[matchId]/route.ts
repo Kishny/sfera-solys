@@ -134,6 +134,34 @@ async function authorizeMatchAccess(matchId: string, sessionEmail: string) {
 }
 
 /**
+ * Une URL d'image est-elle bien l'une des nôtres ?
+ *
+ * Le fil n'affiche que des images déposées sur notre compte Cloudinary,
+ * dans le dossier `sferasolys/chat`. Tout le reste est refusé : un champ
+ * libre pointant vers une image distante serait un traceur offert à
+ * l'expéditeur, qui saurait quand le destinataire ouvre la conversation.
+ */
+function estUneImageCloudinary(url: string): boolean {
+  const nomDuCompte = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+
+  if (!nomDuCompte) return false;
+
+  let adresse: URL;
+
+  try {
+    adresse = new URL(url);
+  } catch {
+    return false;
+  }
+
+  if (adresse.protocol !== "https:") return false;
+  if (adresse.hostname !== "res.cloudinary.com") return false;
+
+  return adresse.pathname.startsWith(`/${nomDuCompte}/`)
+    && adresse.pathname.includes("/sferasolys/chat/");
+}
+
+/**
  * Construit un message propre à renvoyer au frontend.
  */
 function serializeMessage(message: any) {
@@ -141,7 +169,8 @@ function serializeMessage(message: any) {
     _id: message._id?.toString(),
     matchId: message.matchId?.toString(),
     senderId: message.senderId?.toString(),
-    content: message.content,
+    content: message.content ?? "",
+    imageUrl: message.imageUrl || null,
     readAt: message.readAt || null,
     createdAt: message.createdAt,
     updatedAt: message.updatedAt,
@@ -357,7 +386,7 @@ export async function POST(
 
     const { currentUserId, currentUser, match } = access;
 
-    let body: { content?: unknown } | null = null;
+    let body: { content?: unknown; imageUrl?: unknown } | null = null;
 
     try {
       body = await req.json();
@@ -375,7 +404,36 @@ export async function POST(
     const content =
       typeof body?.content === "string" ? body.content.trim() : "";
 
-    if (!content) {
+    /**
+     * La photo jointe.
+     *
+     * Seule une URL produite par notre propre compte Cloudinary est
+     * acceptée. Sans ce contrôle, le champ laisserait afficher dans le fil
+     * n'importe quelle image du web — un traceur, ou pire — sous couvert
+     * d'un message. L'upload réel, lui, se fait en amont par
+     * `POST /api/upload/chat-image`, qui applique la modération.
+     */
+    const imageBrute =
+      typeof body?.imageUrl === "string" ? body.imageUrl.trim() : "";
+
+    let imageUrl: string | null = null;
+
+    if (imageBrute) {
+      if (!estUneImageCloudinary(imageBrute)) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Cette image n'a pas été déposée par Sfera'Solys.",
+            code: "INVALID_IMAGE_URL",
+          },
+          { status: 400 }
+        );
+      }
+
+      imageUrl = imageBrute;
+    }
+
+    if (!content && !imageUrl) {
       return NextResponse.json(
         {
           success: false,
@@ -405,7 +463,10 @@ export async function POST(
      * On upsert pour respecter l'index unique (reporterId, targetType,
      * targetId) et éviter un crash sur récidive.
      */
-    const moderation = moderateText(content);
+    const moderation = content
+      ? moderateText(content)
+      : { blocked: false as const, category: undefined };
+
     if (moderation.blocked) {
       try {
         await Report.findOneAndUpdate(
@@ -479,6 +540,7 @@ export async function POST(
       matchId: match._id,
       senderId: currentUserId,
       content,
+      imageUrl,
     });
 
     /**
@@ -535,7 +597,8 @@ export async function POST(
         await sendNewMessagePush({
           recipientUserId: otherUserId,
           senderName: sender?.pseudonyme ?? "Quelqu'un",
-          preview: content,
+          // Une photo seule n'a pas de texte à montrer en notification.
+          preview: content || "Photo",
           matchId: match._id.toString(),
         });
       }

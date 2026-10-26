@@ -17,13 +17,21 @@ export interface IMessage extends Document {
   /**
    * Contenu texte du message.
    *
-   * Pour le moment, on gère uniquement du texte.
-   * Plus tard, tu pourras ajouter :
-   * - type: "text" | "image" | "audio" | "file"
-   * - mediaUrl
-   * - metadata
+   * Facultatif depuis l'arrivée des photos : une photo seule est un
+   * message légitime. Un message doit en revanche porter au moins l'un
+   * des deux — texte ou image —, ce que vérifie le validateur plus bas.
    */
   content: string;
+
+  /**
+   * Photo jointe, hébergée sur Cloudinary.
+   *
+   * `null` pour un message en texte seul. L'URL est produite par
+   * `POST /api/upload/chat-image`, qui passe l'image à la modération
+   * automatique avant de la rendre : rien n'arrive ici sans être passé
+   * par là.
+   */
+  imageUrl: string | null;
 
   /**
    * Date de lecture.
@@ -66,10 +74,22 @@ const MessageSchema = new Schema<IMessage>(
      */
     content: {
       type: String,
-      required: [true, "Le contenu du message est obligatoire."],
+      required: false,
+      default: "",
       trim: true,
-      minlength: [1, "Le message ne peut pas être vide."],
       maxlength: [1000, "Le message ne peut pas dépasser 1000 caractères."],
+    },
+
+    /**
+     * Photo jointe.
+     *
+     * Rien d'autre qu'une URL Cloudinary n'est accepté : la route
+     * d'envoi refuse toute autre provenance, pour que le fil ne puisse
+     * pas servir à afficher une image arbitraire du web.
+     */
+    imageUrl: {
+      type: String,
+      default: null,
     },
 
     /**
@@ -85,6 +105,24 @@ const MessageSchema = new Schema<IMessage>(
     timestamps: true,
   }
 );
+
+/**
+ * Un message vide n'existe pas.
+ *
+ * `content` n'est plus obligatoire en lui-même — une photo seule suffit —
+ * mais les deux ne peuvent pas manquer en même temps. La règle vit ici
+ * plutôt que dans la route : elle tient quel que soit le chemin d'écriture.
+ */
+MessageSchema.pre("validate", function (this: IMessage) {
+  const texte = typeof this.content === "string" ? this.content.trim() : "";
+
+  if (!texte && !this.imageUrl) {
+    this.invalidate(
+      "content",
+      "Un message doit contenir du texte ou une photo."
+    );
+  }
+});
 
 /**
  * Index principal pour récupérer rapidement les messages d'un match
