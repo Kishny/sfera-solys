@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ShieldCheck,
+  Bookmark,
   ChevronRight,
   Eye,
   Flag,
@@ -52,6 +54,16 @@ import {
  * Les visiteurs sont réservés à Premium et Elite — et c'est bien la route
  * `/api/visitors` qui le vérifie (403 sinon), pas seulement cet écran.
  */
+/** Un profil mis de côté. Mêmes champs publics que la carte d'un visiteur. */
+type Favori = {
+  _id: string;
+  pseudonyme?: string;
+  image?: string;
+  localisation?: string;
+  departement?: string;
+  identityVerified?: boolean;
+};
+
 export default function OngletInteractions({ user }: { user: MembreSolys }) {
   const router = useRouter();
 
@@ -63,9 +75,43 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
   const [chargeRelations, setChargeRelations] = useState(true);
   const [chargeVisiteurs, setChargeVisiteurs] = useState(true);
 
-  const [section, setSection] = useState<"relations" | "visiteurs">(
-    "relations"
-  );
+  const [section, setSection] = useState<
+    "relations" | "visiteurs" | "favoris"
+  >("relations");
+
+  /**
+   * Favoris.
+   *
+   * Liste privée : personne n'est informé d'y figurer. Elle vit ici plutôt
+   * que derrière une entrée de navigation à elle, parce qu'elle appartient
+   * à la même famille que les mises en relation et les visiteurs — ce que
+   * tu as mis de côté, qui t'a vu, qui t'a répondu.
+   */
+  const [favoris, setFavoris] = useState<Favori[]>([]);
+  const [chargeFavoris, setChargeFavoris] = useState(true);
+
+  useEffect(() => {
+    setChargeFavoris(true);
+
+    fetch("/api/users/favoris", { cache: "no-store" })
+      .then((reponse) => reponse.json())
+      .then((donnees) => {
+        setFavoris(donnees?.success ? (donnees.favoris ?? []) : []);
+      })
+      .catch(() => setFavoris([]))
+      .finally(() => setChargeFavoris(false));
+  }, []);
+
+  const retirerFavori = async (id: string) => {
+    // Optimiste : la carte part tout de suite, le serveur suit.
+    setFavoris((actuels) => actuels.filter((f) => f._id !== id));
+
+    await fetch("/api/users/favoris", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetUserId: id }),
+    }).catch(() => {});
+  };
 
   const [aTemoigne, setATemoigne] = useState<boolean | null>(null);
   const [modaleTemoignage, setModaleTemoignage] = useState(false);
@@ -211,7 +257,7 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
       </AnimatePresence>
 
       {/* Bascule */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <button
           type="button"
           onClick={() => setSection("relations")}
@@ -292,6 +338,41 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
               }`}
             >
               {payante ? visiteurs.length : "—"}
+            </span>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setSection("favoris")}
+          aria-pressed={section === "favoris"}
+          className={`col-span-2 rounded-2xl border p-4 text-left transition-colors sm:col-span-1 ${focusRing} ${
+            section === "favoris"
+              ? "border-cuivre/40 bg-cuivre/[0.08]"
+              : "border-champagne/10 bg-minuit hover:border-champagne/25"
+          }`}
+        >
+          <span className="mb-1 flex items-center gap-2">
+            <Bookmark
+              size={14}
+              className={
+                section === "favoris" ? "text-cuivre" : "text-champagne/60"
+              }
+              aria-hidden="true"
+            />
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-champagne/55">
+              Favoris
+            </span>
+          </span>
+
+          {chargeFavoris ? (
+            <Loader2
+              size={19}
+              className="animate-spin text-champagne/60"
+              aria-hidden="true"
+            />
+          ) : (
+            <span className="font-display text-[26px] font-bold leading-none text-champagne">
+              {favoris.length}
             </span>
           )}
         </button>
@@ -584,6 +665,93 @@ export default function OngletInteractions({ user }: { user: MembreSolys }) {
                       aria-hidden="true"
                     />
                   </motion.div>
+                );
+              })
+            )}
+          </motion.div>
+        )}
+
+        {section === "favoris" && (
+          <motion.div
+            key="favoris"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-2.5"
+          >
+            {chargeFavoris ? (
+              <div className="flex justify-center py-10">
+                <Loader2 size={22} className="animate-spin text-cuivre" aria-hidden="true" />
+              </div>
+            ) : favoris.length === 0 ? (
+              <div className="rounded-2xl border border-champagne/10 bg-minuit px-5 py-12 text-center">
+                <Bookmark size={22} className="mx-auto mb-3 text-champagne/40" aria-hidden="true" />
+                <p className="mx-auto max-w-sm text-[13px] leading-relaxed text-champagne/65">
+                  Aucun favori pour l’instant. Depuis une fiche de profil,
+                  « Ajouter aux favoris » met quelqu’un de côté sans rien lui
+                  signaler — contrairement au like.
+                </p>
+              </div>
+            ) : (
+              favoris.map((favori) => {
+                const lieu = [favori.localisation, favori.departement]
+                  .filter(Boolean)
+                  .join(" · ");
+
+                return (
+                  <div
+                    key={favori._id}
+                    className="flex items-center gap-3 rounded-2xl border border-champagne/10 bg-minuit p-3"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => router.push(`/profil/${favori._id}`)}
+                      className={`flex min-w-0 flex-1 items-center gap-3 text-left ${focusRing}`}
+                    >
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-champagne/12 bg-nuit">
+                        {favori.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={favori.image} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="font-display text-[15px] text-champagne/55">
+                            {(favori.pseudonyme ?? "?").charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </span>
+
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-1.5">
+                          <span className="truncate text-[13.5px] font-semibold text-champagne">
+                            {favori.pseudonyme ?? "Membre"}
+                          </span>
+                          {favori.identityVerified && (
+                            <ShieldCheck
+                              size={12}
+                              className="shrink-0 text-succes"
+                              aria-label="Identité vérifiée"
+                            />
+                          )}
+                        </span>
+
+                        {lieu && (
+                          <span className="mt-0.5 flex items-center gap-1 text-[12px] text-champagne/60">
+                            <MapPin size={11} aria-hidden="true" />
+                            {lieu}
+                          </span>
+                        )}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => retirerFavori(favori._id)}
+                      aria-label={`Retirer ${favori.pseudonyme ?? "ce membre"} des favoris`}
+                      className={`shrink-0 rounded-xl border border-champagne/15 px-3 py-2 text-[12px] font-semibold text-champagne/65 transition-colors hover:border-erreur/40 hover:text-erreur ${focusRing}`}
+                    >
+                      Retirer
+                    </button>
+                  </div>
                 );
               })
             )}
