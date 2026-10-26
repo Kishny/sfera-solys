@@ -105,6 +105,7 @@ export async function POST(req: NextRequest) {
       secure_url: string;
       public_id: string;
       duration?: number;
+      eager?: { secure_url?: string }[];
     }>(
       (resolve, reject) => {
         cloudinary.uploader
@@ -114,12 +115,28 @@ export async function POST(req: NextRequest) {
               // Cloudinary range l'audio sous `video` : c'est le même
               // pipeline, il n'existe pas de `resource_type: "audio"`.
               resource_type: 'video',
+              /**
+               * Le MP3 est produit maintenant, pas à la première écoute.
+               *
+               * Sans ça, le premier lecteur à demander l'adresse
+               * déclenche le transcodage et peut recevoir une erreur
+               * pendant qu'il s'exécute — et c'est précisément
+               * l'expéditeur, au moment où il réécoute son propre
+               * enregistrement.
+               */
+              eager: [{ format: 'mp3' }],
+              eager_async: false,
             },
             (err, res) => {
               if (err || !res) reject(err ?? new Error('Cloudinary upload failed'));
               else
                 resolve(
-                  res as { secure_url: string; public_id: string; duration?: number }
+                  res as {
+                    secure_url: string;
+                    public_id: string;
+                    duration?: number;
+                    eager?: { secure_url?: string }[];
+                  }
                 );
             }
           )
@@ -149,14 +166,19 @@ export async function POST(req: NextRequest) {
      * Le MP3 est le seul format audio que tous les navigateurs lisent.
      * Le fichier d'origine reste déposé, intact, au cas où.
      */
-    const urlDeLecture = cloudinary.url(resultat.public_id, {
-      resource_type: 'video',
-      format: 'mp3',
-      secure: true,
-      // Sans ça, Cloudinary accroche un paramètre de suivi à l'URL.
-      // Une adresse de média n'a pas à porter ça.
-      analytics: false,
-    });
+    const urlDeLecture =
+      resultat.eager?.[0]?.secure_url ??
+      // Si le transcodage demandé à l'envoi n'a rien renvoyé, l'adresse
+      // construite à la main reste valable : Cloudinary produira le MP3
+      // à la première demande.
+      cloudinary.url(resultat.public_id, {
+        resource_type: 'video',
+        format: 'mp3',
+        secure: true,
+        // Sans ça, Cloudinary accroche un paramètre de suivi à l'URL.
+        // Une adresse de média n'a pas à porter ça.
+        analytics: false,
+      });
 
     return NextResponse.json({
       success: true,

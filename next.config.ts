@@ -69,7 +69,25 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          /*
+            Caméra, micro et position : autorisés pour notre propre
+            origine, et pour elle seule.
+
+            Les trois étaient refusés à tout le monde, y compris à nous.
+            C'était juste tant que le site n'en demandait aucun ; depuis
+            que la messagerie enregistre des vocaux, prend des photos et
+            partage un quartier, l'en-tête les coupait — et seulement sur
+            les navigateurs qui le respectent. Chrome refusait le micro
+            là où Safari, qui ignore cet en-tête, l'accordait : la panne
+            n'apparaissait donc qu'à moitié.
+
+            `self` et rien d'autre : aucun cadre tiers n'hérite de ces
+            autorisations.
+          */
+          {
+            key: "Permissions-Policy",
+            value: "camera=(self), microphone=(self), geolocation=(self)",
+          },
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",

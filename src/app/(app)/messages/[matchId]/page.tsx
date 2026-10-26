@@ -646,13 +646,17 @@ export default function PageConversation() {
   };
 
   /**
-   * Dépose l'enregistrement, puis l'envoie.
+   * Dépose l'enregistrement et renvoie son adresse de lecture.
    *
-   * Deux temps, comme pour la photo : l'upload d'abord, le message
-   * ensuite. Si l'upload échoue, rien n'est parti et l'enregistreur
-   * reste ouvert — on ne perd pas ce qu'on vient de dire.
+   * Le dépôt est séparé de l'envoi : c'est sur le fichier déposé que
+   * l'enregistreur fait réécouter, parce que Safari ne sait lire ni une
+   * URL `blob:` ni une URL `data:` dans un élément `<audio>`. Le message,
+   * lui, n'est envoyé qu'à la validation.
    */
-  const envoyerVocal = async (fichier: Blob, duree: number) => {
+  const deposerVocal = async (
+    fichier: Blob,
+    duree: number
+  ): Promise<{ url: string; duree: number } | null> => {
     setEnvoiVocal(true);
     setErreur("");
 
@@ -673,18 +677,29 @@ export default function PageConversation() {
       const donnees = await reponse.json().catch(() => null);
 
       if (!reponse.ok || donnees?.success !== true || !donnees?.url) {
-        setErreur(donnees?.error || "Ce vocal n’a pas pu être envoyé.");
-        return;
+        setErreur(donnees?.error || "Ce vocal n’a pas pu être déposé.");
+        return null;
       }
 
-      setVocalOuvert(false);
-
-      await envoyer({
+      return {
         url: donnees.url as string,
         duree: typeof donnees.duree === "number" ? donnees.duree : duree,
-      });
+      };
     } catch {
       setErreur("Connexion interrompue. Le vocal n’est pas parti.");
+      return null;
+    } finally {
+      setEnvoiVocal(false);
+    }
+  };
+
+  /** Envoie un vocal déjà déposé. */
+  const envoyerVocal = async (url: string, duree: number) => {
+    setEnvoiVocal(true);
+
+    try {
+      setVocalOuvert(false);
+      await envoyer({ url, duree });
     } finally {
       setEnvoiVocal(false);
     }
@@ -1659,8 +1674,9 @@ export default function PageConversation() {
                       envoiEnCours={envoiVocal}
                       onErreur={(message) => setErreur(message)}
                       onAnnuler={() => setVocalOuvert(false)}
-                      onEnvoyer={(fichier, duree) => {
-                        void envoyerVocal(fichier, duree);
+                      onDeposer={deposerVocal}
+                      onEnvoyer={(url, duree) => {
+                        void envoyerVocal(url, duree);
                       }}
                     />
                   ) : (

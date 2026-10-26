@@ -7,22 +7,42 @@
  *
  * On appuie pour démarrer, on appuie pour arrêter — et non « maintenir
  * pour parler ». Maintenir est pénible au clavier, impossible à une main
- * sur un long message, et relâcher par accident efface tout. Ici, rien
- * ne part tant qu'on n'a pas validé : l'enregistrement s'écoute avant
- * d'être envoyé, et « Annuler » le jette pour de bon.
+ * sur un long message, et relâcher par accident efface tout.
  *
  * Deux minutes maximum, arrêt automatique au bout.
+ *
+ * LA RELECTURE SE FAIT SUR LE FICHIER DÉJÀ DÉPOSÉ
+ * Safari ne sait lire ni une URL `blob:` ni une URL `data:` dans un
+ * élément `<audio>` : son lecteur réclame des requêtes par plage, que
+ * ni l'une ni l'autre ne savent servir. Il affiche « Erreur », ou rien.
+ *
+ * L'enregistrement est donc déposé dès l'arrêt, et c'est l'adresse
+ * renvoyée — un MP3 servi en HTTPS, lisible partout — qu'on réécoute.
+ * Le message, lui, ne part qu'à la validation : rien n'est encore
+ * arrivé dans la conversation.
+ *
+ * La contrepartie est qu'un enregistrement abandonné laisse un fichier
+ * sur Cloudinary. C'est déjà le cas des photos, et c'est le prix d'une
+ * relecture qui fonctionne sur tous les navigateurs.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Pause, Play, Send, Square, Trash2 } from "lucide-react";
 
 interface EnregistreurVocalProps {
-  /** Rend l'enregistrement terminé : le fichier et sa durée. */
-  onEnvoyer: (fichier: Blob, duree: number) => void;
+  /**
+   * Dépose l'enregistrement et renvoie son adresse de lecture,
+   * ou `null` si le dépôt a échoué.
+   */
+  onDeposer: (
+    fichier: Blob,
+    duree: number
+  ) => Promise<{ url: string; duree: number } | null>;
+  /** Envoie le vocal déjà déposé dans la conversation. */
+  onEnvoyer: (url: string, duree: number) => void;
   /** Ferme l'enregistreur et rend la main au composeur texte. */
   onAnnuler: () => void;
-  /** Vrai pendant que le composeur dépose le fichier. */
+  /** Vrai pendant que le composeur envoie le message. */
   envoiEnCours: boolean;
   /** Remonte une erreur à afficher dans le bandeau du composeur. */
   onErreur: (message: string) => void;
@@ -58,28 +78,36 @@ function choisirLeFormat(): string | undefined {
 }
 
 export default function EnregistreurVocal({
+  onDeposer,
   onEnvoyer,
   onAnnuler,
   envoiEnCours,
   onErreur,
 }: EnregistreurVocalProps) {
-  const [etat, setEtat] = useState<"demarrage" | "enregistre" | "relecture">(
-    "demarrage"
-  );
-  const [secondes, setSecondes] = useState(0);
-  const [apercu, setApercu] = useState<string | null>(null);
-  const [relectureImpossible, setRelectureImpossible] = useState(false);
-  /** Vrai quand le navigateur n'a rien capté du tout : il n'y a rien à envoyer. */
-  const [enregistrementVide, setEnregistrementVide] = useState(false);
-  const [enLecture, setEnLecture] = useState(false);
+  const [etat, setEtat] = useState<
+    "demarrage" | "enregistre" | "depot" | "relecture"
+  >("demarrage");
 
-  const lecteur = useRef<HTMLAudioElement>(null);
+  const [secondes, setSecondes] = useState(0);
+  const [depose, setDepose] = useState<{ url: string; duree: number } | null>(
+    null
+  );
+  const [enLecture, setEnLecture] = useState(false);
+  const [relectureImpossible, setRelectureImpossible] = useState(false);
 
   const enregistreur = useRef<MediaRecorder | null>(null);
   const flux = useRef<MediaStream | null>(null);
   const morceaux = useRef<Blob[]>([]);
-  const resultat = useRef<Blob | null>(null);
   const compteur = useRef<number | null>(null);
+  const lecteur = useRef<HTMLAudioElement>(null);
+
+  /**
+   * La durée, lue hors du cycle de rendu.
+   *
+   * `onstop` est posé une fois pour toutes et ne verrait sinon que la
+   * valeur initiale de `secondes` : zéro.
+   */
+  const dureeAtteinte = useRef(0);
 
   /**
    * Coupe le micro.
@@ -104,13 +132,6 @@ export default function EnregistreurVocal({
     }
   }, []);
 
-  /**
-   * Démarrage : on demande le micro dès l'ouverture.
-   *
-   * L'enregistreur n'apparaît que parce qu'on a cliqué sur le micro ;
-   * faire cliquer une seconde fois pour « vraiment » démarrer serait un
-   * pas de trop.
-   */
   useEffect(() => {
     let annule = false;
 
@@ -125,13 +146,23 @@ export default function EnregistreurVocal({
 
       try {
         piste = await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch {
-        // Refus de la permission, ou aucun micro branché. Les deux se
-        // disent de la même façon : ce n'est pas à l'utilisateur de
-        // deviner laquelle des deux.
+      } catch (erreur) {
+        /**
+         * Trois causes possibles, et il vaut la peine de les distinguer :
+         * un refus se règle dans les réglages du site, une absence de
+         * micro ne se règle pas du tout, et un blocage par la politique
+         * de permissions du serveur ne vient pas de l'utilisateur.
+         */
+        const nom = (erreur as DOMException)?.name ?? "";
+
         onErreur(
-          "Le micro n’est pas accessible. Vérifie l’autorisation du navigateur."
+          nom === "NotAllowedError"
+            ? "Le micro a été refusé. Autorise-le dans les réglages du site, puis réessaie."
+            : nom === "NotFoundError"
+              ? "Aucun micro n’a été trouvé sur cet appareil."
+              : "Le micro n’a pas pu être ouvert."
         );
+
         onAnnuler();
         return;
       }
@@ -162,37 +193,28 @@ export default function EnregistreurVocal({
           type: machine.mimeType || "audio/webm",
         });
 
-        resultat.current = bloc;
-        setEtat("relecture");
-
         if (bloc.size === 0) {
-          // Rien n'a été capté. Envoyer un fichier vide donnerait un
-          // vocal muet dans le fil, ce qui est pire que pas de vocal.
-          setEnregistrementVide(true);
-          setRelectureImpossible(true);
-          resultat.current = null;
+          // Rien n'a été capté : il n'y a rien à déposer, et envoyer un
+          // fichier vide donnerait un vocal muet dans le fil.
+          onErreur("Rien n’a été enregistré. Réessaie.");
+          onAnnuler();
           return;
         }
 
-        /**
-         * L'aperçu passe par une URL de données, pas par `createObjectURL`.
-         *
-         * Safari refuse de lire une `blob:` dans un élément `<audio>` — il
-         * affiche « Erreur » sans rien dire de plus. Une URL de données
-         * fonctionne partout. Un vocal de deux minutes pèse moins d'un
-         * mégaoctet, ce qui reste raisonnable en mémoire le temps d'une
-         * relecture.
-         */
-        const lecture = new FileReader();
+        setEtat("depot");
 
-        lecture.onload = () => {
-          if (typeof lecture.result === "string") setApercu(lecture.result);
-          else setRelectureImpossible(true);
-        };
+        void (async () => {
+          const resultat = await onDeposer(bloc, dureeAtteinte.current);
 
-        lecture.onerror = () => setRelectureImpossible(true);
+          if (!resultat) {
+            // Le message d'erreur a déjà été posé par le composeur.
+            onAnnuler();
+            return;
+          }
 
-        lecture.readAsDataURL(bloc);
+          setDepose(resultat);
+          setEtat("relecture");
+        })();
       };
 
       enregistreur.current = machine;
@@ -203,6 +225,7 @@ export default function EnregistreurVocal({
       compteur.current = window.setInterval(() => {
         setSecondes((valeur) => {
           const suivante = valeur + 1;
+          dureeAtteinte.current = suivante;
 
           // Arrêt automatique : on ne laisse pas filer.
           if (suivante >= DUREE_MAX) {
@@ -232,47 +255,37 @@ export default function EnregistreurVocal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-
   const jeter = () => {
     relacherLeMicro();
-    resultat.current = null;
     onAnnuler();
   };
+
+  const dureeAffichee = depose?.duree ?? secondes;
 
   return (
     <div className="flex items-center gap-2.5 rounded-[20px] border border-champagne/12 bg-nuit/65 px-3 py-2">
       <button
         type="button"
         onClick={jeter}
-        disabled={envoiEnCours}
+        disabled={envoiEnCours || etat === "depot"}
         aria-label="Annuler l’enregistrement"
         className="shrink-0 rounded-full p-2 text-champagne/65 transition hover:text-erreur disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cuivre"
       >
         <Trash2 size={17} aria-hidden="true" />
       </button>
 
-      {etat === "relecture" ? (
+      {etat === "relecture" && depose ? (
         <>
-          {/*
-            La relecture avant envoi.
-
-            Lecteur maison plutôt que les contrôles natifs : ces derniers
-            affichaient « Erreur » sans rien expliquer quand Safari
-            butait sur l'aperçu, et prenaient la moitié de la barre.
-          */}
-          {apercu && (
-            <audio
-              ref={lecteur}
-              src={apercu}
-              preload="auto"
-              onPlay={() => setEnLecture(true)}
-              onPause={() => setEnLecture(false)}
-              onEnded={() => setEnLecture(false)}
-              onError={() => setRelectureImpossible(true)}
-              className="hidden"
-            />
-          )}
+          <audio
+            ref={lecteur}
+            src={depose.url}
+            preload="metadata"
+            onPlay={() => setEnLecture(true)}
+            onPause={() => setEnLecture(false)}
+            onEnded={() => setEnLecture(false)}
+            onError={() => setRelectureImpossible(true)}
+            className="hidden"
+          />
 
           <button
             type="button"
@@ -286,7 +299,7 @@ export default function EnregistreurVocal({
                 element.pause();
               }
             }}
-            disabled={!apercu || relectureImpossible}
+            disabled={relectureImpossible}
             aria-label={enLecture ? "Mettre en pause" : "Réécouter"}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cuivre/20 text-champagne transition hover:bg-cuivre/30 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cuivre"
           >
@@ -298,34 +311,24 @@ export default function EnregistreurVocal({
           </button>
 
           <p className="min-w-0 flex-1 text-[12.5px] text-champagne/75">
-            {enregistrementVide ? (
-              <span className="text-erreur">
-                Rien n’a été enregistré. Réessaie.
-              </span>
-            ) : relectureImpossible ? (
-              /*
-                La relecture peut échouer sans que l'enregistrement soit
-                perdu : le fichier part quand même, et le fil le sert
-                dans un format que tous les navigateurs lisent. Le dire
-                vaut mieux que de laisser un bouton muet.
-              */
+            {relectureImpossible ? (
               <span className="text-champagne/60">
                 Relecture indisponible ici. L’envoi reste possible.
               </span>
             ) : (
               <>
-                <span className="tabular-nums">{formaterDuree(secondes)}</span>
-                <span className="text-champagne/50"> enregistré</span>
+                <span className="tabular-nums">
+                  {formaterDuree(dureeAffichee)}
+                </span>
+                <span className="text-champagne/50"> — réécoute avant d’envoyer</span>
               </>
             )}
           </p>
 
           <button
             type="button"
-            onClick={() => {
-              if (resultat.current) onEnvoyer(resultat.current, secondes);
-            }}
-            disabled={envoiEnCours || !resultat.current || enregistrementVide}
+            onClick={() => onEnvoyer(depose.url, depose.duree)}
+            disabled={envoiEnCours}
             aria-label="Envoyer le vocal"
             className="shrink-0 rounded-full bg-degrade-cuivre p-2.5 text-nuit transition hover:opacity-90 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cuivre"
           >
@@ -338,10 +341,12 @@ export default function EnregistreurVocal({
         </>
       ) : (
         <>
-          <span
-            aria-hidden="true"
-            className="h-2.5 w-2.5 shrink-0 rounded-full bg-erreur motion-safe:animate-pulse"
-          />
+          {etat === "enregistre" && (
+            <span
+              aria-hidden="true"
+              className="h-2.5 w-2.5 shrink-0 rounded-full bg-erreur motion-safe:animate-pulse"
+            />
+          )}
 
           <p
             className="min-w-0 flex-1 text-[13px] text-champagne/80"
@@ -349,6 +354,8 @@ export default function EnregistreurVocal({
           >
             {etat === "demarrage" ? (
               "Ouverture du micro…"
+            ) : etat === "depot" ? (
+              "Préparation de l’enregistrement…"
             ) : (
               <>
                 <span className="tabular-nums">{formaterDuree(secondes)}</span>
@@ -367,10 +374,10 @@ export default function EnregistreurVocal({
             aria-label="Arrêter l’enregistrement"
             className="shrink-0 rounded-full bg-champagne/15 p-2.5 text-champagne transition hover:bg-champagne/25 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cuivre"
           >
-            {etat === "demarrage" ? (
-              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-            ) : (
+            {etat === "enregistre" ? (
               <Square size={16} aria-hidden="true" />
+            ) : (
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
             )}
           </button>
         </>
