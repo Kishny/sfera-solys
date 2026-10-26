@@ -734,7 +734,20 @@ function InscriptionPageContent() {
         </div>
       </div>
 
-      <div className="relative mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-8 lg:ml-[42%] lg:mr-0 lg:max-w-none lg:px-10 xl:px-16">
+      {/*
+        `lg:w-auto` n'est pas décoratif : il supprime un débordement.
+
+        La colonne photographique est `fixed w-[42%]`, et cette colonne-ci
+        se décale d'autant par `lg:ml-[42%]`. Mais `w-full` vaut
+        `width: 100%` de la page, et une marge gauche s'ajoute à la largeur
+        au lieu de la réduire : le bloc occupait donc 142 % de l'écran, d'où
+        42 % de défilement horizontal à partir de `lg`.
+
+        `width: auto` sur un bloc fait exactement ce qu'on veut — il remplit
+        ce que la marge laisse, ni plus ni moins. En dessous de `lg`,
+        `w-full` reste nécessaire pour que `max-w-2xl` s'applique.
+      */}
+      <div className="relative mx-auto w-full max-w-2xl px-4 py-6 sm:px-6 sm:py-8 lg:ml-[42%] lg:mr-0 lg:w-auto lg:max-w-none lg:px-10 xl:px-16">
         {/*
           Le logo n'apparaît ici qu'en dessous de `lg` : au-delà, il est
           posé sur la colonne photographique, et deux logos sur un même
