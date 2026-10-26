@@ -47,6 +47,21 @@ export interface IMessage extends Document {
   audioDuree: number | null;
 
   /**
+   * Lieu partagé.
+   *
+   * Volontairement imprécis : les coordonnées sont arrondies à deux
+   * décimales avant d'arriver ici, soit environ un kilomètre. Sur un
+   * site de rencontre, une position au mètre près est une adresse de
+   * domicile, et on ne confie pas son adresse en appuyant sur un bouton.
+   * Ce qu'on partage, c'est un quartier.
+   */
+  lieu: {
+    libelle: string;
+    lat: number;
+    lng: number;
+  } | null;
+
+  /**
    * Date de lecture.
    *
    * null = pas encore lu.
@@ -123,6 +138,23 @@ const MessageSchema = new Schema<IMessage>(
     },
 
     /**
+     * Lieu partagé, à l'échelle du quartier.
+     *
+     * `_id: false` : c'est une donnée, pas un sous-document à adresser.
+     */
+    lieu: {
+      type: new Schema(
+        {
+          libelle: { type: String, required: true, trim: true, maxlength: 160 },
+          lat: { type: Number, required: true, min: -90, max: 90 },
+          lng: { type: Number, required: true, min: -180, max: 180 },
+        },
+        { _id: false }
+      ),
+      default: null,
+    },
+
+    /**
      * Date de lecture du message.
      */
     readAt: {
@@ -147,10 +179,10 @@ const MessageSchema = new Schema<IMessage>(
 MessageSchema.pre("validate", function (this: IMessage) {
   const texte = typeof this.content === "string" ? this.content.trim() : "";
 
-  if (!texte && !this.imageUrl && !this.audioUrl) {
+  if (!texte && !this.imageUrl && !this.audioUrl && !this.lieu) {
     this.invalidate(
       "content",
-      "Un message doit contenir du texte, une photo ou un vocal."
+      "Un message doit contenir du texte, une photo, un vocal ou un lieu."
     );
   }
 });

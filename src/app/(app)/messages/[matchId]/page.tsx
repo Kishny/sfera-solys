@@ -71,6 +71,7 @@ import {
 import { getPusherClient } from "@/lib/pusher-client";
 import ReportModal from "@/components/ReportModal";
 import VisionneusePhotos from "@/components/VisionneusePhotos";
+import CarteLieu from "@/components/messagerie/CarteLieu";
 import EnregistreurVocal from "@/components/messagerie/EnregistreurVocal";
 import LecteurVocal from "@/components/messagerie/LecteurVocal";
 import MenuPlus from "@/components/messagerie/MenuPlus";
@@ -89,6 +90,7 @@ interface Message {
   imageUrl: string | null;
   audioUrl: string | null;
   audioDuree: number | null;
+  lieu: { libelle: string; lat: number; lng: number } | null;
   readAt: string | null;
   createdAt: string;
 }
@@ -184,6 +186,9 @@ export default function PageConversation() {
   const [emojis, setEmojis] = useState(false);
   const [photoEnAttente, setPhotoEnAttente] = useState<string | null>(null);
   const [envoiPhoto, setEnvoiPhoto] = useState(false);
+
+  /** Vrai pendant que le navigateur cherche la position. */
+  const [rechercheLieu, setRechercheLieu] = useState(false);
 
   /** L'enregistreur est ouvert : il remplace la saisie texte. */
   const [vocalOuvert, setVocalOuvert] = useState(false);
@@ -425,13 +430,17 @@ export default function PageConversation() {
    * fichier : un vocal part seul, sans texte ni photo, et ne lit donc pas
    * la saisie.
    */
-  const envoyer = async (vocal?: { url: string; duree: number }) => {
-    const contenu = vocal ? "" : saisie.trim();
-    const photo = vocal ? null : photoEnAttente;
+  const envoyer = async (
+    vocal?: { url: string; duree: number },
+    lieu?: { libelle: string; lat: number; lng: number }
+  ) => {
+    const seul = Boolean(vocal || lieu);
+    const contenu = seul ? "" : saisie.trim();
+    const photo = seul ? null : photoEnAttente;
 
-    // Un mot, une photo, un vocal. Pas rien.
+    // Un mot, une photo, un vocal, un lieu. Pas rien.
     if (
-      (!contenu && !photo && !vocal) ||
+      (!contenu && !photo && !vocal && !lieu) ||
       envoi ||
       envoiPhoto ||
       messagesRestants === 0
@@ -450,13 +459,14 @@ export default function PageConversation() {
       imageUrl: photo,
       audioUrl: vocal?.url ?? null,
       audioDuree: vocal?.duree ?? null,
+      lieu: lieu ?? null,
       readAt: null,
       createdAt: new Date().toISOString(),
     };
 
     setMessages((actuels) => [...actuels, provisoire]);
 
-    if (!vocal) {
+    if (!seul) {
       setSaisie("");
       setPhotoEnAttente(null);
     }
@@ -471,6 +481,7 @@ export default function PageConversation() {
           imageUrl: photo,
           audioUrl: vocal?.url ?? null,
           audioDuree: vocal?.duree ?? null,
+          lieu: lieu ?? null,
         }),
       });
 
@@ -485,7 +496,7 @@ export default function PageConversation() {
         setMessages((actuels) =>
           actuels.filter((message) => message._id !== provisoire._id)
         );
-        if (!vocal) {
+        if (!seul) {
           setSaisie(contenu);
           setPhotoEnAttente(photo);
         }
@@ -504,7 +515,7 @@ export default function PageConversation() {
       setMessages((actuels) =>
         actuels.filter((message) => message._id !== provisoire._id)
       );
-      if (!vocal) {
+      if (!seul) {
         setSaisie(contenu);
         setPhotoEnAttente(photo);
       }
@@ -598,6 +609,67 @@ export default function PageConversation() {
     } finally {
       setEnvoiVocal(false);
     }
+  };
+
+  /**
+   * Partage la position, à l'échelle du quartier.
+   *
+   * Le navigateur demande lui-même l'autorisation ; rien ne part avant
+   * qu'elle soit donnée. La position brute ne quitte jamais cette
+   * fonction : elle est envoyée à `/api/geo/inverse`, qui l'arrondit à
+   * environ un kilomètre et renvoie un nom de quartier. C'est ce
+   * quartier, et lui seul, qui part dans la conversation.
+   *
+   * `enableHighAccuracy` est volontairement laissé à faux : on ne
+   * réveille pas le GPS pour une précision qu'on s'apprête à jeter.
+   */
+  const partagerLeLieu = () => {
+    setMenuPlus(false);
+    setErreur("");
+
+    if (!navigator.geolocation) {
+      setErreur("Ce navigateur ne sait pas donner ta position.");
+      return;
+    }
+
+    setRechercheLieu(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const reponse = await fetch("/api/geo/inverse", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            }),
+          });
+
+          const donnees = await reponse.json().catch(() => null);
+
+          if (!reponse.ok || donnees?.success !== true || !donnees?.lieu) {
+            setErreur(donnees?.error || "Ta position n’a pas pu être lue.");
+            return;
+          }
+
+          await envoyer(undefined, donnees.lieu);
+        } catch {
+          setErreur("Connexion interrompue. La position n’est pas partie.");
+        } finally {
+          setRechercheLieu(false);
+        }
+      },
+      () => {
+        // Refus, position indisponible, délai dépassé : dans les trois
+        // cas, il n'y a rien à faire de plus que le dire.
+        setRechercheLieu(false);
+        setErreur(
+          "La position n’est pas accessible. Vérifie l’autorisation du navigateur."
+        );
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+    );
   };
 
   /**
@@ -1138,6 +1210,17 @@ export default function PageConversation() {
                                     </div>
                                   )}
 
+                                  {message.lieu && (
+                                    <div
+                                      className={message.content ? "mb-1" : ""}
+                                    >
+                                      <CarteLieu
+                                        lieu={message.lieu}
+                                        surFondClair={deMoi}
+                                      />
+                                    </div>
+                                  )}
+
                                   {message.content && (
                                     <p
                                       className={`whitespace-pre-wrap break-words text-[14px] leading-relaxed ${
@@ -1328,6 +1411,8 @@ export default function PageConversation() {
                           setMenuPlus(false);
                           inserer(question);
                         }}
+                        onLieu={partagerLeLieu}
+                        rechercheLieu={rechercheLieu}
                       />
 
                       <button

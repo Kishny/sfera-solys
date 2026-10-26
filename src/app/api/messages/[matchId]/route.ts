@@ -180,6 +180,13 @@ function serializeMessage(message: any) {
     audioUrl: message.audioUrl || null,
     audioDuree:
       typeof message.audioDuree === "number" ? message.audioDuree : null,
+    lieu: message.lieu
+      ? {
+          libelle: message.lieu.libelle,
+          lat: message.lieu.lat,
+          lng: message.lieu.lng,
+        }
+      : null,
     readAt: message.readAt || null,
     createdAt: message.createdAt,
     updatedAt: message.updatedAt,
@@ -400,6 +407,7 @@ export async function POST(
       imageUrl?: unknown;
       audioUrl?: unknown;
       audioDuree?: unknown;
+      lieu?: unknown;
     } | null = null;
 
     try {
@@ -482,7 +490,55 @@ export async function POST(
           : null;
     }
 
-    if (!content && !imageUrl && !audioUrl) {
+    /**
+     * Le lieu partagé.
+     *
+     * Il vient de `POST /api/geo/inverse`, qui a déjà arrondi les
+     * coordonnées. On ré-arrondit ici : cette route est publique, et ce
+     * qui protège l'utilisateur ne doit pas dépendre du chemin emprunté
+     * pour écrire.
+     */
+    let lieu: { libelle: string; lat: number; lng: number } | null = null;
+
+    if (body?.lieu && typeof body.lieu === "object") {
+      const brut = body.lieu as {
+        libelle?: unknown;
+        lat?: unknown;
+        lng?: unknown;
+      };
+
+      const libelle =
+        typeof brut.libelle === "string" ? brut.libelle.trim().slice(0, 160) : "";
+      const lat = Number(brut.lat);
+      const lng = Number(brut.lng);
+
+      const coordonneesValides =
+        Number.isFinite(lat) &&
+        Number.isFinite(lng) &&
+        lat >= -90 &&
+        lat <= 90 &&
+        lng >= -180 &&
+        lng <= 180;
+
+      if (!libelle || !coordonneesValides) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Ce lieu est incomplet.",
+            code: "INVALID_PLACE",
+          },
+          { status: 400 }
+        );
+      }
+
+      lieu = {
+        libelle,
+        lat: Math.round(lat * 100) / 100,
+        lng: Math.round(lng * 100) / 100,
+      };
+    }
+
+    if (!content && !imageUrl && !audioUrl && !lieu) {
       return NextResponse.json(
         {
           success: false,
@@ -592,6 +648,7 @@ export async function POST(
       imageUrl,
       audioUrl,
       audioDuree,
+      lieu,
     });
 
     /**
@@ -649,7 +706,13 @@ export async function POST(
           recipientUserId: otherUserId,
           senderName: sender?.pseudonyme ?? "Quelqu'un",
           // Une photo ou un vocal n'ont pas de texte à montrer.
-          preview: content || (audioUrl ? "Message vocal" : "Photo"),
+          preview:
+            content ||
+            (audioUrl
+              ? "Message vocal"
+              : lieu
+                ? "Position partagée"
+                : "Photo"),
           matchId: match._id.toString(),
         });
       }

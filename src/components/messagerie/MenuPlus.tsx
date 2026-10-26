@@ -19,6 +19,8 @@ import {
   ArrowLeft,
   Camera,
   Image as IconeImage,
+  Loader2,
+  MapPin,
   MessageCircleQuestion,
 } from "lucide-react";
 
@@ -33,6 +35,10 @@ interface MenuPlusProps {
   onCamera: () => void;
   /** Place la question choisie dans la saisie. */
   onQuestion: (question: string) => void;
+  /** Demande la position au navigateur, puis la partage. */
+  onLieu: () => void;
+  /** Vrai pendant que le navigateur cherche la position. */
+  rechercheLieu: boolean;
   /**
    * L'élément qui contient à la fois le menu et le bouton « + ».
    *
@@ -48,6 +54,8 @@ export default function MenuPlus({
   onPhoto,
   onCamera,
   onQuestion,
+  onLieu,
+  rechercheLieu,
   ancre,
 }: MenuPlusProps) {
   const reduireAnimations = useReducedMotion();
@@ -110,6 +118,15 @@ export default function MenuPlus({
       action: onCamera,
     },
     {
+      cle: "lieu",
+      libelle: "Lieu",
+      detail: rechercheLieu
+        ? "Recherche en cours…"
+        : "Ton quartier, pas ton adresse",
+      icone: rechercheLieu ? Loader2 : MapPin,
+      action: onLieu,
+    },
+    {
       cle: "question",
       libelle: "Question brise-glace",
       detail: "Pour relancer sans forcer",
@@ -144,7 +161,15 @@ export default function MenuPlus({
                       className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-champagne/8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-cuivre"
                     >
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cuivre/15 text-cuivre">
-                        <Icone size={16} aria-hidden="true" />
+                        <Icone
+                          size={16}
+                          aria-hidden="true"
+                          className={
+                            entree.cle === "lieu" && rechercheLieu
+                              ? "animate-spin"
+                              : ""
+                          }
+                        />
                       </span>
 
                       <span className="min-w-0">
