@@ -38,6 +38,9 @@ import { estEnSourdine } from "@/lib/matches";
  */
 
 const MAX_MESSAGE_LENGTH = 1000;
+
+/** Deux minutes, comme le composeur l'impose côté client. */
+const DUREE_VOCAL_MAX = 130;
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 60;
 
@@ -134,14 +137,15 @@ async function authorizeMatchAccess(matchId: string, sessionEmail: string) {
 }
 
 /**
- * Une URL d'image est-elle bien l'une des nôtres ?
+ * Une URL de média est-elle bien l'une des nôtres ?
  *
- * Le fil n'affiche que des images déposées sur notre compte Cloudinary,
- * dans le dossier `sferasolys/chat`. Tout le reste est refusé : un champ
- * libre pointant vers une image distante serait un traceur offert à
- * l'expéditeur, qui saurait quand le destinataire ouvre la conversation.
+ * Le fil n'affiche et ne joue que des fichiers déposés sur notre compte
+ * Cloudinary, dans le dossier attendu. Tout le reste est refusé : un
+ * champ libre pointant vers un fichier distant serait un traceur offert
+ * à l'expéditeur, qui saurait quand le destinataire ouvre la
+ * conversation.
  */
-function estUneImageCloudinary(url: string): boolean {
+function estUnMediaCloudinary(url: string, dossier: string): boolean {
   const nomDuCompte = process.env.CLOUDINARY_CLOUD_NAME?.trim();
 
   if (!nomDuCompte) return false;
@@ -157,8 +161,10 @@ function estUneImageCloudinary(url: string): boolean {
   if (adresse.protocol !== "https:") return false;
   if (adresse.hostname !== "res.cloudinary.com") return false;
 
-  return adresse.pathname.startsWith(`/${nomDuCompte}/`)
-    && adresse.pathname.includes("/sferasolys/chat/");
+  return (
+    adresse.pathname.startsWith(`/${nomDuCompte}/`) &&
+    adresse.pathname.includes(`/${dossier}/`)
+  );
 }
 
 /**
@@ -171,6 +177,9 @@ function serializeMessage(message: any) {
     senderId: message.senderId?.toString(),
     content: message.content ?? "",
     imageUrl: message.imageUrl || null,
+    audioUrl: message.audioUrl || null,
+    audioDuree:
+      typeof message.audioDuree === "number" ? message.audioDuree : null,
     readAt: message.readAt || null,
     createdAt: message.createdAt,
     updatedAt: message.updatedAt,
@@ -386,7 +395,12 @@ export async function POST(
 
     const { currentUserId, currentUser, match } = access;
 
-    let body: { content?: unknown; imageUrl?: unknown } | null = null;
+    let body: {
+      content?: unknown;
+      imageUrl?: unknown;
+      audioUrl?: unknown;
+      audioDuree?: unknown;
+    } | null = null;
 
     try {
       body = await req.json();
@@ -419,7 +433,7 @@ export async function POST(
     let imageUrl: string | null = null;
 
     if (imageBrute) {
-      if (!estUneImageCloudinary(imageBrute)) {
+      if (!estUnMediaCloudinary(imageBrute, "sferasolys/chat")) {
         return NextResponse.json(
           {
             success: false,
@@ -433,7 +447,42 @@ export async function POST(
       imageUrl = imageBrute;
     }
 
-    if (!content && !imageUrl) {
+    /**
+     * Le message vocal.
+     *
+     * Même contrôle d'origine que pour l'image. La durée n'est qu'un
+     * affichage — elle vient du client — donc elle est bornée ici plutôt
+     * que crue.
+     */
+    const audioBrut =
+      typeof body?.audioUrl === "string" ? body.audioUrl.trim() : "";
+
+    let audioUrl: string | null = null;
+    let audioDuree: number | null = null;
+
+    if (audioBrut) {
+      if (!estUnMediaCloudinary(audioBrut, "sferasolys/chat-audio")) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Cet enregistrement n'a pas été déposé par Sfera'Solys.",
+            code: "INVALID_AUDIO_URL",
+          },
+          { status: 400 }
+        );
+      }
+
+      audioUrl = audioBrut;
+
+      const dureeBrute = Number(body?.audioDuree);
+
+      audioDuree =
+        Number.isFinite(dureeBrute) && dureeBrute > 0
+          ? Math.min(Math.round(dureeBrute), DUREE_VOCAL_MAX)
+          : null;
+    }
+
+    if (!content && !imageUrl && !audioUrl) {
       return NextResponse.json(
         {
           success: false,
@@ -541,6 +590,8 @@ export async function POST(
       senderId: currentUserId,
       content,
       imageUrl,
+      audioUrl,
+      audioDuree,
     });
 
     /**
@@ -597,8 +648,8 @@ export async function POST(
         await sendNewMessagePush({
           recipientUserId: otherUserId,
           senderName: sender?.pseudonyme ?? "Quelqu'un",
-          // Une photo seule n'a pas de texte à montrer en notification.
-          preview: content || "Photo",
+          // Une photo ou un vocal n'ont pas de texte à montrer.
+          preview: content || (audioUrl ? "Message vocal" : "Photo"),
           matchId: match._id.toString(),
         });
       }

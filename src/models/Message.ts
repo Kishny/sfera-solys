@@ -34,6 +34,19 @@ export interface IMessage extends Document {
   imageUrl: string | null;
 
   /**
+   * Message vocal, hébergé sur Cloudinary.
+   *
+   * `null` pour un message sans voix. Contrairement au texte et aux
+   * images, un vocal ne passe par aucun filtre automatique : rien ne sait
+   * écouter. Il reste signalable comme les autres, et c'est le seul
+   * garde-fou — à garder en tête si la modération devient un sujet.
+   */
+  audioUrl: string | null;
+
+  /** Durée du vocal en secondes, pour l'afficher sans charger le fichier. */
+  audioDuree: number | null;
+
+  /**
    * Date de lecture.
    *
    * null = pas encore lu.
@@ -93,6 +106,23 @@ const MessageSchema = new Schema<IMessage>(
     },
 
     /**
+     * Message vocal.
+     *
+     * Même règle que pour l'image : seule une URL de notre propre compte
+     * Cloudinary est acceptée par la route d'envoi.
+     */
+    audioUrl: {
+      type: String,
+      default: null,
+    },
+
+    audioDuree: {
+      type: Number,
+      default: null,
+      min: 0,
+    },
+
+    /**
      * Date de lecture du message.
      */
     readAt: {
@@ -109,17 +139,18 @@ const MessageSchema = new Schema<IMessage>(
 /**
  * Un message vide n'existe pas.
  *
- * `content` n'est plus obligatoire en lui-même — une photo seule suffit —
- * mais les deux ne peuvent pas manquer en même temps. La règle vit ici
- * plutôt que dans la route : elle tient quel que soit le chemin d'écriture.
+ * `content` n'est plus obligatoire en lui-même — une photo ou un vocal
+ * suffisent —, mais tout ne peut pas manquer en même temps. La règle vit
+ * ici plutôt que dans la route : elle tient quel que soit le chemin
+ * d'écriture.
  */
 MessageSchema.pre("validate", function (this: IMessage) {
   const texte = typeof this.content === "string" ? this.content.trim() : "";
 
-  if (!texte && !this.imageUrl) {
+  if (!texte && !this.imageUrl && !this.audioUrl) {
     this.invalidate(
       "content",
-      "Un message doit contenir du texte ou une photo."
+      "Un message doit contenir du texte, une photo ou un vocal."
     );
   }
 });

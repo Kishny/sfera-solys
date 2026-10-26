@@ -58,6 +58,7 @@ import {
   Flag,
   Loader2,
   MapPin,
+  Mic,
   Paperclip,
   Plus,
   Send,
@@ -70,6 +71,8 @@ import {
 import { getPusherClient } from "@/lib/pusher-client";
 import ReportModal from "@/components/ReportModal";
 import VisionneusePhotos from "@/components/VisionneusePhotos";
+import EnregistreurVocal from "@/components/messagerie/EnregistreurVocal";
+import LecteurVocal from "@/components/messagerie/LecteurVocal";
 import MenuPlus from "@/components/messagerie/MenuPlus";
 import SelecteurEmojis from "@/components/messagerie/SelecteurEmojis";
 import { usePremium } from "@/hooks/usePremium";
@@ -84,6 +87,8 @@ interface Message {
   senderId: string;
   content: string;
   imageUrl: string | null;
+  audioUrl: string | null;
+  audioDuree: number | null;
   readAt: string | null;
   createdAt: string;
 }
@@ -179,6 +184,10 @@ export default function PageConversation() {
   const [emojis, setEmojis] = useState(false);
   const [photoEnAttente, setPhotoEnAttente] = useState<string | null>(null);
   const [envoiPhoto, setEnvoiPhoto] = useState(false);
+
+  /** L'enregistreur est ouvert : il remplace la saisie texte. */
+  const [vocalOuvert, setVocalOuvert] = useState(false);
+  const [envoiVocal, setEnvoiVocal] = useState(false);
 
   /** Index de la photo du fil ouverte en grand, `null` si aucune. */
   const [photoAgrandie, setPhotoAgrandie] = useState<number | null>(null);
@@ -409,12 +418,24 @@ export default function PageConversation() {
   }, [matchId, status, monId, versLeBas]);
 
   /** Envoi, avec affichage optimiste. */
-  const envoyer = async () => {
-    const contenu = saisie.trim();
-    const photo = photoEnAttente;
+  /**
+   * Envoie le message.
+   *
+   * `vocal` n'est fourni que par l'enregistreur, qui a déjà déposé son
+   * fichier : un vocal part seul, sans texte ni photo, et ne lit donc pas
+   * la saisie.
+   */
+  const envoyer = async (vocal?: { url: string; duree: number }) => {
+    const contenu = vocal ? "" : saisie.trim();
+    const photo = vocal ? null : photoEnAttente;
 
-    // Un mot, une photo, ou les deux. Pas rien.
-    if ((!contenu && !photo) || envoi || envoiPhoto || messagesRestants === 0) {
+    // Un mot, une photo, un vocal. Pas rien.
+    if (
+      (!contenu && !photo && !vocal) ||
+      envoi ||
+      envoiPhoto ||
+      messagesRestants === 0
+    ) {
       return;
     }
 
@@ -427,20 +448,30 @@ export default function PageConversation() {
       senderId: monId,
       content: contenu,
       imageUrl: photo,
+      audioUrl: vocal?.url ?? null,
+      audioDuree: vocal?.duree ?? null,
       readAt: null,
       createdAt: new Date().toISOString(),
     };
 
     setMessages((actuels) => [...actuels, provisoire]);
-    setSaisie("");
-    setPhotoEnAttente(null);
+
+    if (!vocal) {
+      setSaisie("");
+      setPhotoEnAttente(null);
+    }
     window.setTimeout(() => versLeBas(), 40);
 
     try {
       const reponse = await fetch(`/api/messages/${matchId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: contenu, imageUrl: photo }),
+        body: JSON.stringify({
+          content: contenu,
+          imageUrl: photo,
+          audioUrl: vocal?.url ?? null,
+          audioDuree: vocal?.duree ?? null,
+        }),
       });
 
       const donnees = await reponse.json().catch(() => null);
@@ -454,8 +485,11 @@ export default function PageConversation() {
         setMessages((actuels) =>
           actuels.filter((message) => message._id !== provisoire._id)
         );
-        setSaisie(contenu);
-        setPhotoEnAttente(photo);
+        if (!vocal) {
+          setSaisie(contenu);
+          setPhotoEnAttente(photo);
+        }
+
         setErreur(donnees?.error || "Ce message n’a pas été envoyé.");
         return;
       }
@@ -470,8 +504,11 @@ export default function PageConversation() {
       setMessages((actuels) =>
         actuels.filter((message) => message._id !== provisoire._id)
       );
-      setSaisie(contenu);
-      setPhotoEnAttente(photo);
+      if (!vocal) {
+        setSaisie(contenu);
+        setPhotoEnAttente(photo);
+      }
+
       setErreur("Connexion interrompue. Ton message n’est pas parti.");
     } finally {
       setEnvoi(false);
@@ -515,6 +552,51 @@ export default function PageConversation() {
       setErreur("Connexion interrompue. La photo n’est pas partie.");
     } finally {
       setEnvoiPhoto(false);
+    }
+  };
+
+  /**
+   * Dépose l'enregistrement, puis l'envoie.
+   *
+   * Deux temps, comme pour la photo : l'upload d'abord, le message
+   * ensuite. Si l'upload échoue, rien n'est parti et l'enregistreur
+   * reste ouvert — on ne perd pas ce qu'on vient de dire.
+   */
+  const envoyerVocal = async (fichier: Blob, duree: number) => {
+    setEnvoiVocal(true);
+    setErreur("");
+
+    try {
+      const formulaire = new FormData();
+
+      // Le nom du fichier n'a pas d'importance pour Cloudinary, mais une
+      // extension cohérente évite des surprises de type MIME.
+      const extension = (fichier.type.split("/")[1] ?? "webm").split(";")[0];
+      formulaire.append("file", fichier, `vocal.${extension}`);
+      formulaire.append("duree", String(duree));
+
+      const reponse = await fetch("/api/upload/chat-audio", {
+        method: "POST",
+        body: formulaire,
+      });
+
+      const donnees = await reponse.json().catch(() => null);
+
+      if (!reponse.ok || donnees?.success !== true || !donnees?.url) {
+        setErreur(donnees?.error || "Ce vocal n’a pas pu être envoyé.");
+        return;
+      }
+
+      setVocalOuvert(false);
+
+      await envoyer({
+        url: donnees.url as string,
+        duree: typeof donnees.duree === "number" ? donnees.duree : duree,
+      });
+    } catch {
+      setErreur("Connexion interrompue. Le vocal n’est pas parti.");
+    } finally {
+      setEnvoiVocal(false);
     }
   };
 
@@ -1044,6 +1126,18 @@ export default function PageConversation() {
                                     </button>
                                   )}
 
+                                  {message.audioUrl && (
+                                    <div
+                                      className={message.content ? "mb-1" : ""}
+                                    >
+                                      <LecteurVocal
+                                        url={message.audioUrl}
+                                        duree={message.audioDuree}
+                                        surFondClair={deMoi}
+                                      />
+                                    </div>
+                                  )}
+
                                   {message.content && (
                                     <p
                                       className={`whitespace-pre-wrap break-words text-[14px] leading-relaxed ${
@@ -1205,6 +1299,22 @@ export default function PageConversation() {
                     </div>
                   )}
 
+                  {vocalOuvert ? (
+                    /*
+                      L'enregistreur prend toute la place de la rangée.
+                      Un micro ouvert à côté d'un champ de saisie invite à
+                      faire les deux en même temps, ce que l'envoi ne sait
+                      pas faire : un vocal part seul.
+                    */
+                    <EnregistreurVocal
+                      envoiEnCours={envoiVocal}
+                      onErreur={(message) => setErreur(message)}
+                      onAnnuler={() => setVocalOuvert(false)}
+                      onEnvoyer={(fichier, duree) => {
+                        void envoyerVocal(fichier, duree);
+                      }}
+                    />
+                  ) : (
                   <div className="flex items-end gap-2">
                     {/* ─── Le « + » ──────────────────────────────── */}
                     <div ref={ancrePlus} className="relative shrink-0">
@@ -1313,7 +1423,25 @@ export default function PageConversation() {
                       </button>
                     </div>
 
-                    {/* ─── Envoyer ───────────────────────────────── */}
+                    {/*
+                      Le micro ne remplace le bouton d'envoi que lorsqu'il
+                      n'y a rien à envoyer : dès qu'un mot est écrit, c'est
+                      l'envoi qu'on cherche, pas l'enregistrement.
+                    */}
+                    {!saisie.trim() && !photoEnAttente ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuPlus(false);
+                          setEmojis(false);
+                          setVocalOuvert(true);
+                        }}
+                        aria-label="Enregistrer un message vocal"
+                        className={`shrink-0 rounded-full border border-champagne/15 p-3 text-champagne/80 transition hover:border-champagne/30 hover:text-champagne ${focusRing}`}
+                      >
+                        <Mic size={18} aria-hidden="true" />
+                      </button>
+                    ) : (
                     <button
                       type="submit"
                       disabled={
@@ -1332,12 +1460,16 @@ export default function PageConversation() {
                         <Send size={18} aria-hidden="true" />
                       )}
                     </button>
+                    )}
                   </div>
+                  )}
 
                   <p className="mt-1.5 flex flex-wrap items-center gap-x-3 px-2 text-[11px] text-champagne/65">
-                    <span className="hidden sm:inline">
-                      Entrée pour envoyer, Maj+Entrée pour aller à la ligne.
-                    </span>
+                    {!vocalOuvert && (
+                      <span className="hidden sm:inline">
+                        Entrée pour envoyer, Maj+Entrée pour aller à la ligne.
+                      </span>
+                    )}
 
                     {messagesRestants !== null && (
                       <span>
