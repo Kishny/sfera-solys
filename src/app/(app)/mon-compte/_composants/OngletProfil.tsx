@@ -32,6 +32,7 @@ export default function OngletProfil({
   majBrouillon,
   versTableau,
   onPhotosEnregistrees,
+  onAvatar,
 }: {
   user: MembreSolys;
   edition: boolean;
@@ -41,6 +42,8 @@ export default function OngletProfil({
   ) => void;
   versTableau: (valeur: string) => string[];
   onPhotosEnregistrees: () => void;
+  /** Appelé après un avatar enregistré, avec son URL. */
+  onAvatar: (url: string) => void;
 }) {
   const [apercu, setApercu] = useState<string | null>(null);
   const [envoi, setEnvoi] = useState(false);
@@ -81,11 +84,14 @@ export default function OngletProfil({
         return;
       }
 
-      majBrouillon("image", donnees.imageUrl);
-      setMessage({
-        type: "success",
-        texte: "Photo prête. Elle sera enregistrée quand tu sauvegarderas.",
-      });
+      /*
+       * La route a déjà écrit l'URL en base — `$set: { image }`. Le message
+       * disait pourtant « elle sera enregistrée quand tu sauvegarderas »,
+       * ce qui était faux dans les deux sens : la photo était déjà
+       * enregistrée, et « Annuler » ne la retirait pas.
+       */
+      onAvatar(donnees.imageUrl);
+      setMessage({ type: "success", texte: "Photo de profil mise à jour." });
     } catch {
       setMessage({ type: "error", texte: "Connexion interrompue." });
       setApercu(null);
@@ -117,8 +123,9 @@ export default function OngletProfil({
             className="mt-0.5 shrink-0 text-cuivre"
             aria-hidden="true"
           />
-          Tes modifications restent locales jusqu’à la sauvegarde. « Annuler »
-          les abandonne sans rien envoyer.
+          Les champs ci-dessous restent locaux jusqu’à la sauvegarde, et
+          « Annuler » les abandonne. Les photos font exception : elles
+          s’enregistrent dès l’envoi.
         </p>
       )}
 
@@ -157,6 +164,8 @@ export default function OngletProfil({
 
             <p className="mt-0.5 text-[11px] text-champagne/55">
               JPG, PNG ou WebP · 5 Mo maximum · recadrée en 400 × 400.
+              <br />
+              Enregistrée dès l’envoi, sans passer par « Modifier ».
             </p>
 
             {message && (
@@ -173,12 +182,7 @@ export default function OngletProfil({
             <button
               type="button"
               onClick={() => champFichier.current?.click()}
-              disabled={envoi || !edition}
-              title={
-                !edition
-                  ? "Passe en mode édition pour changer ta photo."
-                  : undefined
-              }
+              disabled={envoi}
               className={`mt-3 rounded-xl border border-champagne/15 px-4 py-2 text-[12px] font-semibold text-champagne transition-colors hover:border-champagne/30 disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
             >
               {envoi ? "Envoi en cours…" : "Changer la photo"}

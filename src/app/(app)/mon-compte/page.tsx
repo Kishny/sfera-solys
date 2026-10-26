@@ -131,6 +131,20 @@ function ContenuMonCompte() {
     if (status === "unauthenticated") router.push("/auth?mode=login");
   }, [status, router]);
 
+  /**
+   * L'avatar vient d'être enregistré par sa propre route.
+   *
+   * On ne relit pas tout le profil : `lireProfil` réécrit le brouillon, et
+   * l'appeler ici effacerait les modifications en cours de quelqu'un qui
+   * change sa photo au milieu d'une édition. Seul le champ `image` bouge,
+   * dans le profil de référence comme dans le brouillon — ainsi « Annuler »
+   * ne fait pas réapparaître l'ancienne photo, qui n'existe plus en base.
+   */
+  const avatarMisAJour = useCallback((url: string) => {
+    setUser((precedent) => ({ ...precedent, image: url }));
+    setBrouillon((precedent) => ({ ...precedent, image: url }));
+  }, []);
+
   const lireProfil = useCallback(async () => {
     setChargement(true);
     setErreur("");
@@ -617,6 +631,7 @@ function ContenuMonCompte() {
                 majBrouillon={majBrouillon}
                 versTableau={versTableau}
                 onPhotosEnregistrees={lireProfil}
+                onAvatar={avatarMisAJour}
               />
             )}
 
