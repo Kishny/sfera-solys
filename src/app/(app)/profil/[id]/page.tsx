@@ -71,6 +71,7 @@ import {
   Heart,
   Loader2,
   MapPin,
+  Maximize2,
   MessageCircle,
   Quote,
   ShieldCheck,
@@ -81,6 +82,7 @@ import {
 } from "lucide-react";
 
 import ReportModal from "@/components/ReportModal";
+import VisionneusePhotos from "@/components/VisionneusePhotos";
 import { getDepartementLabel } from "@/lib/locations";
 
 // ─────────────────────────────────────────────
@@ -200,6 +202,15 @@ function ContenuProfil() {
   const [likeEnCours, setLikeEnCours] = useState(false);
   const [erreurLike, setErreurLike] = useState("");
   const [signalementOuvert, setSignalementOuvert] = useState(false);
+
+  /**
+   * La visionneuse.
+   *
+   * `null` quand elle est fermée, sinon l'index de la photo regardée.
+   * Les vignettes de la grille sont recadrées ; la visionneuse montre la
+   * photo entière.
+   */
+  const [photoOuverte, setPhotoOuverte] = useState<number | null>(null);
 
   /**
    * Blocage.
@@ -809,29 +820,51 @@ function ContenuProfil() {
                   </div>
                 ) : (
                   <div className="grid gap-2.5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-champagne/10 bg-nuit sm:aspect-auto sm:min-h-[320px]">
+                    {/*
+                      Les vignettes ouvrent la visionneuse. Ce sont des
+                      boutons et non des images cliquables : l'agrandissement
+                      est une action, elle doit s'atteindre au clavier et
+                      s'annoncer comme telle.
+                    */}
+                    <button
+                      type="button"
+                      onClick={() => setPhotoOuverte(0)}
+                      aria-label={`Voir la photo de ${nom} en grand`}
+                      className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-champagne/10 bg-nuit transition hover:border-cuivre/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cuivre sm:aspect-auto sm:min-h-[320px]"
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={galerie[0]}
                         alt={`Photo de ${nom}`}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                       />
-                    </div>
+
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full border border-champagne/15 bg-nuit/80 px-3 py-1.5 text-[11.5px] text-champagne/85 opacity-0 backdrop-blur-sm transition group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                      >
+                        <Maximize2 size={13} />
+                        Agrandir
+                      </span>
+                    </button>
 
                     {galerie.length > 1 && (
                       <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-1">
                         {galerie.slice(1, 4).map((url, index) => (
-                          <div
+                          <button
                             key={url}
-                            className="relative aspect-square overflow-hidden rounded-xl border border-champagne/10 bg-nuit sm:aspect-[4/3]"
+                            type="button"
+                            onClick={() => setPhotoOuverte(index + 1)}
+                            aria-label={`Voir la photo ${index + 2} de ${nom} en grand`}
+                            className="group relative aspect-square overflow-hidden rounded-xl border border-champagne/10 bg-nuit transition hover:border-cuivre/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cuivre sm:aspect-[4/3]"
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={url}
                               alt={`Photo ${index + 2} de ${nom}`}
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                             />
-                          </div>
+                          </button>
                         ))}
                       </div>
                     )}
@@ -1027,6 +1060,14 @@ function ContenuProfil() {
           onClose={() => setSignalementOuvert(false)}
         />
       )}
+
+      <VisionneusePhotos
+        photos={galerie}
+        indexOuvert={photoOuverte}
+        onFermer={() => setPhotoOuverte(null)}
+        onChanger={setPhotoOuverte}
+        nom={nom}
+      />
     </div>
   );
 }
