@@ -47,6 +47,25 @@ import {
   AlertCircle,
   ArrowLeft,
   Ban,
+  Bookmark,
+  BookmarkCheck,
+  CalendarDays,
+  Camera,
+  Check,
+  Cpu,
+  Dumbbell,
+  Film,
+  Gamepad2,
+  Images,
+  Info,
+  Leaf,
+  Music,
+  Palette,
+  Plane,
+  Shirt,
+  UtensilsCrossed,
+  Users2,
+  X,
   Eye,
   Flag,
   Heart,
@@ -58,6 +77,7 @@ import {
   Sparkle,
   Target,
   UserRound,
+  type LucideIcon,
 } from "lucide-react";
 
 import ReportModal from "@/components/ReportModal";
@@ -81,6 +101,8 @@ interface Profil {
   orientation?: string;
   identityVerified?: boolean;
   createdAt?: string;
+  /** Calculé par l'API, et tu pour un profil en visibilité restreinte. */
+  vuRecemment?: boolean;
 }
 
 interface Relation {
@@ -88,6 +110,13 @@ interface Relation {
   dejaAime: boolean;
   estUnMatch: boolean;
   matchId: string | null;
+  estFavori?: boolean;
+}
+
+/** Ce que vous avez coché tous les deux. Des intersections, pas un score. */
+interface Affinites {
+  interets: string[];
+  intentions: string[];
 }
 
 // ─────────────────────────────────────────────
@@ -112,6 +141,28 @@ const INTENTIONS: Record<string, string> = {
   aventure: "Aventure",
   reseautage: "Réseautage",
   discussion: "Discussion",
+};
+
+/**
+ * Centres d'intérêt : du code enregistré au libellé affiché.
+ *
+ * La page montrait la valeur brute — « voyage », « cinema » — c'est-à-dire
+ * ce que la base contient, pas ce qu'on écrit à quelqu'un. Les clés sont
+ * celles de l'étape 4 de l'inscription, seule à les produire.
+ */
+const INTERETS: Record<string, { label: string; icone: LucideIcon }> = {
+  voyage: { label: "Voyage", icone: Plane },
+  cuisine: { label: "Cuisine", icone: UtensilsCrossed },
+  sport: { label: "Sport", icone: Dumbbell },
+  musique: { label: "Musique", icone: Music },
+  cinema: { label: "Cinéma", icone: Film },
+  lecture: { label: "Lecture", icone: Quote },
+  art: { label: "Art", icone: Palette },
+  technologie: { label: "Technologie", icone: Cpu },
+  nature: { label: "Nature", icone: Leaf },
+  mode: { label: "Mode", icone: Shirt },
+  gaming: { label: "Jeux vidéo", icone: Gamepad2 },
+  photographie: { label: "Photographie", icone: Camera },
 };
 
 const focusRing =
@@ -161,6 +212,61 @@ function ContenuProfil() {
    * la personne de l'annuaire, du Circle, des matchs et de la messagerie,
    * dans les deux sens — et la route ne demande rien, elle exécute.
    */
+  /**
+   * Favori et écartement.
+   *
+   * Le favori est privé — rien n'est notifié. L'écartement retire le profil
+   * d'Explorer et du Circle, et de là seulement : un match déjà noué et sa
+   * conversation survivent.
+   */
+  const [estFavori, setEstFavori] = useState(false);
+  const [favoriEnCours, setFavoriEnCours] = useState(false);
+  const [ecarteEnCours, setEcarteEnCours] = useState(false);
+  const [affinites, setAffinites] = useState<Affinites>({
+    interets: [],
+    intentions: [],
+  });
+
+  const basculerFavori = async () => {
+    if (!profil || favoriEnCours) return;
+
+    const cible = !estFavori;
+    setFavoriEnCours(true);
+    setEstFavori(cible); // Optimiste : l'étoile répond au clic.
+
+    try {
+      const reponse = await fetch("/api/users/favoris", {
+        method: cible ? "POST" : "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetUserId: profil._id }),
+      });
+
+      if (!reponse.ok) setEstFavori(!cible); // On revient en arrière.
+    } catch {
+      setEstFavori(!cible);
+    } finally {
+      setFavoriEnCours(false);
+    }
+  };
+
+  const ecarter = async () => {
+    if (!profil || ecarteEnCours) return;
+
+    setEcarteEnCours(true);
+
+    try {
+      await fetch("/api/users/ecarter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetUserId: profil._id }),
+      });
+    } catch {
+      // Sans effet visible : on repart quand même, le geste est léger.
+    } finally {
+      revenir();
+    }
+  };
+
   const [blocageOuvert, setBlocageOuvert] = useState(false);
   const [blocageEnCours, setBlocageEnCours] = useState(false);
   const [erreurBlocage, setErreurBlocage] = useState<string | null>(null);
@@ -226,6 +332,10 @@ function ContenuProfil() {
         if (donnees?.success === true && donnees.profile) {
           setProfil(donnees.profile);
           setRelation(donnees.relation ?? null);
+          setEstFavori(donnees.relation?.estFavori === true);
+          setAffinites(
+            donnees.affinites ?? { interets: [], intentions: [] }
+          );
           return;
         }
 
@@ -303,6 +413,17 @@ function ContenuProfil() {
         .join(" · ")
     : "";
 
+  /**
+   * La galerie : la photo de profil en premier, puis les autres.
+   *
+   * L'avatar et le tableau `photos` sont deux champs distincts, et
+   * l'avatar y figure parfois déjà — d'où le dédoublonnage, sans quoi la
+   * première image apparaîtrait deux fois.
+   */
+  const galerie: string[] = profil
+    ? [...new Set([profil.image, ...(profil.photos ?? [])].filter(Boolean))] as string[]
+    : [];
+
   const profilVide =
     profil &&
     !profil.bio &&
@@ -311,7 +432,7 @@ function ContenuProfil() {
 
   return (
     <div className="min-h-screen bg-nuit px-4 py-6 text-champagne sm:px-6 sm:py-8 lg:px-10">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-screen-2xl">
         {/* Mode aperçu */}
         {apercu && (
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cuivre/30 bg-cuivre/10 px-4 py-3">
@@ -487,240 +608,412 @@ function ContenuProfil() {
             initial={{ opacity: 0, y: reduireAnimations ? 0 : 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduireAnimations ? 0 : 0.35 }}
-            className="space-y-4 sm:space-y-5"
+            className="space-y-4"
           >
-            {/* Identité */}
-            <section className="overflow-hidden rounded-[1.75rem] border border-champagne/10 bg-minuit">
-              <div className="flex flex-col items-center gap-5 p-5 text-center sm:flex-row sm:items-center sm:gap-6 sm:p-7 sm:text-left">
-                <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-champagne/12 bg-nuit sm:h-28 sm:w-28">
-                  {profil.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={profil.image}
-                      alt={`Photo de ${nom}`}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span
-                      className="font-display text-[34px] font-extrabold text-champagne/60"
-                      aria-hidden="true"
+            {/* ─── Identité ─────────────────────────────────────────── */}
+            <section className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-start">
+                  <div className="relative shrink-0 self-center sm:self-start">
+                    <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-cuivre/30 bg-nuit">
+                      {profil.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={profil.image}
+                          alt={`Photo de ${nom}`}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span
+                          className="font-display text-[32px] font-extrabold text-champagne/55"
+                          aria-hidden="true"
+                        >
+                          {nom.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+
+                    {/*
+                      La pastille de présence n'apparaît que si l'API l'a
+                      calculée — elle se tait pour un profil en visibilité
+                      restreinte, Mode Fantôme compris.
+                    */}
+                    {profil.vuRecemment && (
+                      <span
+                        aria-label="Vu récemment"
+                        title="Vu récemment"
+                        className="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-minuit bg-succes"
+                      />
+                    )}
+                  </div>
+
+                  <div className="min-w-0 text-center sm:text-left">
+                    <div className="flex flex-wrap items-center justify-center gap-2.5 sm:justify-start">
+                      <h1 className="font-display min-w-0 max-w-full truncate text-[28px] font-normal leading-tight text-ivoire sm:text-[34px]">
+                        {profil.pseudonyme || "Membre"}
+                      </h1>
+
+                      {profil.identityVerified && (
+                        <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-succes/40 bg-succes/12 px-3 py-1 text-[12px] font-semibold text-succes">
+                          <ShieldCheck size={13} aria-hidden="true" />
+                          Vérifié
+                        </span>
+                      )}
+
+                      {relation?.estUnMatch && (
+                        <span className="shrink-0 rounded-full bg-degrade-cuivre px-3 py-1 text-[12px] font-bold text-nuit">
+                          En relation
+                        </span>
+                      )}
+                    </div>
+
+                    <ul className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13px] text-champagne/80 sm:justify-start">
+                      {typeof profil.age === "number" && (
+                        <li className="flex items-center gap-1.5">
+                          <CalendarDays size={14} className="text-cuivre" aria-hidden="true" />
+                          {profil.age} ans
+                        </li>
+                      )}
+
+                      {lieu && (
+                        <li className="flex items-center gap-1.5">
+                          <MapPin size={14} className="text-cuivre" aria-hidden="true" />
+                          {lieu}
+                        </li>
+                      )}
+
+                      {profil.orientation && ORIENTATIONS[profil.orientation] && (
+                        <li className="flex items-center gap-1.5">
+                          <UserRound size={14} className="text-cuivre" aria-hidden="true" />
+                          {ORIENTATIONS[profil.orientation]}
+                        </li>
+                      )}
+
+                      {profil.vuRecemment && (
+                        <li className="flex items-center gap-1.5 text-succes">
+                          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-succes" />
+                          En ligne récemment
+                        </li>
+                      )}
+                    </ul>
+
+                    {profil.bio && (
+                      <p className="mt-4 max-w-2xl text-[14px] leading-relaxed text-champagne/85">
+                        {profil.bio}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions principales */}
+                {!apercu && relation && !relation.estMonProfil && (
+                  <div className="flex w-full shrink-0 flex-col gap-2.5 lg:w-[270px]">
+                    {relation.estUnMatch && relation.matchId ? (
+                      <Link
+                        href={`/messages/${relation.matchId}`}
+                        className={`inline-flex items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-6 py-3.5 text-[14px] font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+                      >
+                        <MessageCircle size={16} aria-hidden="true" />
+                        Ouvrir la conversation
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={aimer}
+                        disabled={likeEnCours || relation.dejaAime}
+                        className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[14px] font-bold transition-opacity ${focusRing} ${
+                          relation.dejaAime
+                            ? "cursor-default border border-cuivre/40 bg-cuivre/10 text-champagne"
+                            : "bg-degrade-cuivre text-nuit hover:opacity-90 disabled:opacity-60"
+                        }`}
+                      >
+                        {likeEnCours ? (
+                          <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                        ) : (
+                          <Heart
+                            size={16}
+                            aria-hidden="true"
+                            className={relation.dejaAime ? "fill-current" : undefined}
+                          />
+                        )}
+                        {relation.dejaAime ? "Profil aimé" : "Aimer ce profil"}
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={basculerFavori}
+                      disabled={favoriEnCours}
+                      aria-pressed={estFavori}
+                      className={`inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-3 text-[13px] font-semibold transition-colors disabled:opacity-60 ${focusRing} ${
+                        estFavori
+                          ? "border-cuivre/50 bg-cuivre/10 text-champagne"
+                          : "border-champagne/20 text-champagne/85 hover:border-cuivre/45"
+                      }`}
                     >
-                      {nom.charAt(0).toUpperCase()}
+                      {estFavori ? (
+                        <BookmarkCheck size={15} className="text-cuivre" aria-hidden="true" />
+                      ) : (
+                        <Bookmark size={15} aria-hidden="true" />
+                      )}
+                      {estFavori ? "Dans tes favoris" : "Ajouter aux favoris"}
+                    </button>
+
+                    <p className="text-center text-[11.5px] leading-relaxed text-champagne/55">
+                      Un favori reste privé&nbsp;: {nom} n’en sera pas informé.
+                    </p>
+
+                    {erreurLike && (
+                      <p
+                        role="alert"
+                        className="flex items-start gap-2 text-[12.5px] leading-relaxed text-erreur"
+                      >
+                        <AlertCircle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+                        {erreurLike}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* ─── Deux colonnes ────────────────────────────────────── */}
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+              {/* Photos */}
+              <section className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h2 className="flex items-center gap-2.5 font-display text-[20px] font-normal text-ivoire">
+                    <Images size={18} className="text-cuivre" aria-hidden="true" />
+                    Photos
+                  </h2>
+
+                  {/*
+                    Le compte annoncé est le compte réel. La maquette en
+                    affichait huit ; le produit en autorise trois au
+                    maximum, et promettre davantage derrière un lien serait
+                    une porte qui s'ouvre sur rien.
+                  */}
+                  {galerie.length > 0 && (
+                    <span className="shrink-0 text-[12px] text-champagne/55">
+                      {galerie.length} photo{galerie.length > 1 ? "s" : ""}
                     </span>
                   )}
                 </div>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                    <h1 className="font-display min-w-0 max-w-full truncate text-[24px] font-extrabold leading-tight tracking-tight text-champagne sm:text-[30px]">
-                      {profil.pseudonyme || "Membre"}
-                    </h1>
-
-                    {profil.identityVerified && (
-                      <span className="flex items-center gap-1 rounded-full bg-succes/15 px-2.5 py-1 text-[11px] font-bold text-succes">
-                        <ShieldCheck size={12} aria-hidden="true" />
-                        Vérifié
-                      </span>
-                    )}
-
-                    {relation?.estUnMatch && (
-                      <span className="rounded-full bg-cuivre px-2.5 py-1 text-[11px] font-bold text-nuit">
-                        En relation
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-2.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px] text-champagne/60 sm:justify-start">
-                    {profil.age && <span>{profil.age} ans</span>}
-
-                    {lieu && (
-                      <span className="flex items-center gap-1.5">
-                        <MapPin size={13} aria-hidden="true" />
-                        {lieu}
-                      </span>
-                    )}
-
-                    {profil.orientation && (
-                      <span>
-                        {ORIENTATIONS[profil.orientation] ?? profil.orientation}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Photos */}
-            {profil.photos && profil.photos.length > 0 && (
-              <section
-                aria-label={`Photos de ${nom}`}
-                className="rounded-2xl border border-champagne/10 bg-minuit p-3 sm:p-4"
-              >
-                <ul className="flex gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {profil.photos.map((url, index) => (
-                    <li
-                      key={url}
-                      className="aspect-[4/5] w-36 shrink-0 overflow-hidden rounded-xl border border-champagne/10 bg-nuit sm:w-44"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={url}
-                        alt={`${nom}, photo ${index + 1} sur ${profil.photos?.length}`}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {/* Bio */}
-            {profil.bio && (
-              <SectionProfil titre="À propos" icone={Quote}>
-                <p className="whitespace-pre-line text-[14px] leading-relaxed text-champagne/80">
-                  {profil.bio}
-                </p>
-              </SectionProfil>
-            )}
-
-            {/* Intentions */}
-            {(profil.intentions?.length ?? 0) > 0 && (
-              <SectionProfil titre="Ce qu’il cherche" icone={Target}>
-                <ul className="flex flex-wrap gap-2">
-                  {profil.intentions?.map((intention) => (
-                    <li
-                      key={intention}
-                      className="rounded-full border border-cuivre/35 bg-cuivre/[0.12] px-3 py-1.5 text-[12px] font-semibold text-champagne"
-                    >
-                      {INTENTIONS[intention] ?? intention}
-                    </li>
-                  ))}
-                </ul>
-              </SectionProfil>
-            )}
-
-            {/* Intérêts */}
-            {(profil.interets?.length ?? 0) > 0 && (
-              <SectionProfil titre="Centres d’intérêt" icone={Sparkle}>
-                <ul className="flex flex-wrap gap-2">
-                  {profil.interets?.map((interet) => (
-                    <li
-                      key={interet}
-                      className="rounded-full border border-champagne/12 px-3 py-1.5 text-[12px] text-champagne/70"
-                    >
-                      {interet}
-                    </li>
-                  ))}
-                </ul>
-              </SectionProfil>
-            )}
-
-            {/* Profil encore vide */}
-            {profilVide && (
-              <section className="rounded-2xl border border-champagne/10 bg-minuit px-6 py-10 text-center">
-                <UserRound
-                  size={24}
-                  className="mx-auto mb-3 text-champagne/60"
-                  aria-hidden="true"
-                />
-
-                <p className="font-display text-[16px] font-bold text-champagne">
-                  Profil encore discret
-                </p>
-
-                <p className="mx-auto mt-1.5 max-w-sm text-[13px] leading-relaxed text-champagne/60">
-                  {relation?.estMonProfil
-                    ? "Ton profil est vérifié, mais vide. Une description et quelques intentions changent tout pour qui te découvre."
-                    : "Ce membre n’a pas encore rempli sa description. L’identité, elle, est vérifiée."}
-                </p>
-              </section>
-            )}
-
-            {/* Action */}
-            {relation && !relation.estMonProfil && (
-              <section className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6">
-                {relation.estUnMatch && relation.matchId ? (
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <p className="font-display text-[15px] font-bold text-champagne">
-                        Vous êtes en relation
-                      </p>
-                      <p className="mt-1 text-[13px] leading-relaxed text-champagne/60">
-                        La conversation est ouverte. Un match n’oblige à rien.
-                      </p>
-                    </div>
-
-                    <Link
-                      href={`/messages/${relation.matchId}`}
-                      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cuivre px-5 py-3 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 ${focusRing}`}
-                    >
-                      <MessageCircle size={15} aria-hidden="true" />
-                      Écrire
-                    </Link>
-                  </div>
-                ) : relation.dejaAime ? (
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <p className="font-display text-[15px] font-bold text-champagne">
-                        Tu as aimé ce profil
-                      </p>
-                      <p className="mt-1 text-[13px] leading-relaxed text-champagne/60">
-                        Si c’est réciproque, la conversation s’ouvrira. Rien
-                        n’est envoyé à {nom} en attendant.
-                      </p>
-                    </div>
-
-                    <span className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-succes/15 px-5 py-3 text-[13px] font-bold text-succes">
-                      <Heart size={15} className="fill-succes" aria-hidden="true" />
-                      Aimé
-                    </span>
+                {galerie.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-champagne/15 px-5 py-12 text-center">
+                    <Camera size={22} className="mx-auto mb-3 text-champagne/40" aria-hidden="true" />
+                    <p className="text-[13px] text-champagne/60">
+                      {nom} n’a pas encore ajouté de photo.
+                    </p>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="min-w-0">
-                      <p className="font-display text-[15px] font-bold text-champagne">
-                        Ce profil t’intéresse ?
-                      </p>
-                      <p className="mt-1 text-[13px] leading-relaxed text-champagne/60">
-                        {nom} ne saura rien tant que ce n’est pas réciproque.
-                      </p>
+                  <div className="grid gap-2.5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-champagne/10 bg-nuit sm:aspect-auto sm:min-h-[320px]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={galerie[0]}
+                        alt={`Photo de ${nom}`}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
 
+                    {galerie.length > 1 && (
+                      <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-1">
+                        {galerie.slice(1, 4).map((url, index) => (
+                          <div
+                            key={url}
+                            className="relative aspect-square overflow-hidden rounded-xl border border-champagne/10 bg-nuit sm:aspect-[4/3]"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={url}
+                              alt={`Photo ${index + 2} de ${nom}`}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </section>
+
+              {/* Colonne de droite */}
+              <div className="space-y-4">
+                {(profil.intentions?.length ?? 0) > 0 && (
+                  <SectionProfil titre="Ce qu’il cherche" icone={Target}>
+                    <ul className="flex flex-wrap gap-2">
+                      {profil.intentions?.map((intention) => (
+                        <li
+                          key={intention}
+                          className="rounded-full border border-champagne/15 bg-nuit/40 px-3.5 py-2 text-[12.5px] text-champagne/85"
+                        >
+                          {INTENTIONS[intention] ?? intention}
+                        </li>
+                      ))}
+                    </ul>
+                  </SectionProfil>
+                )}
+
+                {(profil.interets?.length ?? 0) > 0 && (
+                  <SectionProfil titre="Centres d’intérêt" icone={Sparkle}>
+                    <ul className="flex flex-wrap gap-2">
+                      {profil.interets?.map((interet) => {
+                        const entree = INTERETS[interet];
+                        const Icone = entree?.icone;
+
+                        return (
+                          <li
+                            key={interet}
+                            className="flex items-center gap-2 rounded-full border border-champagne/15 bg-nuit/40 px-3.5 py-2 text-[12.5px] text-champagne/85"
+                          >
+                            {Icone && (
+                              <Icone size={13} className="text-cuivre" aria-hidden="true" />
+                            )}
+                            {entree?.label ?? interet}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </SectionProfil>
+                )}
+
+                {profil.bio && (
+                  <SectionProfil titre="À propos" icone={Quote}>
+                    <p className="whitespace-pre-line text-[13.5px] leading-relaxed text-champagne/80">
+                      {profil.bio}
+                    </p>
+                  </SectionProfil>
+                )}
+
+                {/*
+                  Affinités partagées.
+
+                  Ce sont des intersections calculées par l'API : un centre
+                  d'intérêt ou une intention que vous avez cochés tous les
+                  deux. Pas de pourcentage — un score inventé sur cette
+                  donnée serait présenté comme une mesure alors qu'il n'en
+                  est pas une.
+                */}
+                {!apercu && relation && !relation.estMonProfil && (
+                  <SectionProfil titre="Ce que vous partagez" icone={Users2}>
+                    {affinites.interets.length + affinites.intentions.length === 0 ? (
+                      <p className="text-[13px] leading-relaxed text-champagne/65">
+                        Rien de commun dans vos centres d’intérêt ni dans vos
+                        intentions pour l’instant. Ça ne dit pas grand-chose
+                        d’une rencontre — ça dit seulement ce que deux
+                        formulaires ont en commun.
+                      </p>
+                    ) : (
+                      <>
+                        <ul className="flex flex-wrap gap-2">
+                          {affinites.intentions.map((intention) => (
+                            <li
+                              key={`int-${intention}`}
+                              className="flex items-center gap-2 rounded-full border border-cuivre/35 bg-cuivre/10 px-3.5 py-2 text-[12.5px] text-champagne"
+                            >
+                              <Check size={13} className="text-cuivre" aria-hidden="true" />
+                              {INTENTIONS[intention] ?? intention}
+                            </li>
+                          ))}
+
+                          {affinites.interets.map((interet) => {
+                            const entree = INTERETS[interet];
+                            const Icone = entree?.icone;
+
+                            return (
+                              <li
+                                key={`ins-${interet}`}
+                                className="flex items-center gap-2 rounded-full border border-cuivre/35 bg-cuivre/10 px-3.5 py-2 text-[12.5px] text-champagne"
+                              >
+                                {Icone && (
+                                  <Icone size={13} className="text-cuivre" aria-hidden="true" />
+                                )}
+                                {entree?.label ?? interet}
+                              </li>
+                            );
+                          })}
+                        </ul>
+
+                        <p className="mt-4 flex items-start gap-2 text-[11.5px] leading-relaxed text-champagne/55">
+                          <Info size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
+                          Ce que vous avez coché l’un et l’autre, rien de plus.
+                        </p>
+                      </>
+                    )}
+                  </SectionProfil>
+                )}
+
+                {/* Profil encore vide */}
+                {profilVide && (
+                  <SectionProfil titre="Profil en cours" icone={UserRound}>
+                    <p className="text-[13px] leading-relaxed text-champagne/65">
+                      {nom} n’a pas encore rempli sa description. L’identité,
+                      elle, est vérifiée.
+                    </p>
+                  </SectionProfil>
+                )}
+              </div>
+            </div>
+
+            {/*
+              Barre d'actions basse.
+
+              Elle se décale au-dessus de la barre d'onglets mobile, qui
+              occupe 68 px en bas sous `lg` : collée à zéro, elle lui
+              passerait dessous et deviendrait inatteignable au pouce.
+            */}
+            {!apercu && relation && !relation.estMonProfil && !relation.estUnMatch && (
+              <div className="sticky bottom-[calc(68px+env(safe-area-inset-bottom))] z-30 mt-4 rounded-2xl border border-champagne/12 bg-minuit/95 px-5 py-4 backdrop-blur-md lg:bottom-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="flex items-start gap-3 text-[13px] leading-relaxed text-champagne/85">
+                    <Heart size={18} className="mt-0.5 shrink-0 text-cuivre" aria-hidden="true" />
+                    <span>
+                      <span className="font-semibold text-champagne">
+                        Ce profil t’intéresse&nbsp;?
+                      </span>
+                      <br />
+                      {nom} ne saura rien tant que ce n’est pas réciproque.
+                    </span>
+                  </p>
+
+                  <div className="flex shrink-0 flex-col gap-2.5 sm:flex-row">
                     <button
                       type="button"
                       onClick={aimer}
-                      disabled={likeEnCours}
-                      className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-cuivre px-5 py-3 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:opacity-50 ${focusRing}`}
+                      disabled={likeEnCours || relation.dejaAime}
+                      className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-[13px] font-bold transition-opacity ${focusRing} ${
+                        relation.dejaAime
+                          ? "cursor-default border border-cuivre/40 bg-cuivre/10 text-champagne"
+                          : "bg-degrade-cuivre text-nuit hover:opacity-90 disabled:opacity-60"
+                      }`}
                     >
-                      {likeEnCours ? (
-                        <Loader2
-                          size={15}
-                          className="animate-spin"
-                          aria-hidden="true"
-                        />
+                      <Heart
+                        size={15}
+                        aria-hidden="true"
+                        className={relation.dejaAime ? "fill-current" : undefined}
+                      />
+                      {relation.dejaAime ? "Profil aimé" : "Aimer ce profil"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={ecarter}
+                      disabled={ecarteEnCours}
+                      title="Ce profil ne te sera plus proposé dans Explorer ni dans le Circle."
+                      className={`inline-flex items-center justify-center gap-2 rounded-xl border border-champagne/20 px-6 py-3 text-[13px] font-semibold text-champagne/85 transition-colors hover:border-champagne/40 disabled:opacity-60 ${focusRing}`}
+                    >
+                      {ecarteEnCours ? (
+                        <Loader2 size={15} className="animate-spin" aria-hidden="true" />
                       ) : (
-                        <Heart size={15} aria-hidden="true" />
+                        <X size={15} aria-hidden="true" />
                       )}
-                      Aimer ce profil
+                      Passer
                     </button>
                   </div>
-                )}
-
-                {erreurLike && (
-                  <p
-                    role="alert"
-                    className="mt-4 flex items-start gap-2 rounded-xl border border-cuivre/30 bg-cuivre/10 px-3.5 py-2.5 text-[12px] leading-relaxed text-champagne/85"
-                  >
-                    <AlertCircle
-                      size={14}
-                      className="mt-0.5 shrink-0 text-cuivre"
-                      aria-hidden="true"
-                    />
-                    {erreurLike}
-                  </p>
-                )}
-              </section>
+                </div>
+              </div>
             )}
           </motion.div>
         )}
@@ -753,8 +1046,8 @@ function SectionProfil({
 }) {
   return (
     <section className="rounded-2xl border border-champagne/10 bg-minuit p-5 sm:p-6">
-      <h2 className="mb-3 flex items-center gap-2 text-[12px] font-bold uppercase tracking-wide text-champagne/70">
-        <Icone size={13} className="text-cuivre" aria-hidden="true" />
+      <h2 className="font-display mb-4 flex items-center gap-2.5 text-[20px] font-normal text-ivoire">
+        <Icone size={18} className="text-cuivre" aria-hidden="true" />
         {titre}
       </h2>
 
