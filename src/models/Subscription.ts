@@ -19,7 +19,7 @@ export interface ISubscription {
   _id: mongoose.Types.ObjectId;
 
   /**
-   * Utilisatrice liée à l'abonnement.
+   * Membre lié à l'abonnement.
    */
   userId: mongoose.Types.ObjectId;
 

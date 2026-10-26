@@ -12,10 +12,10 @@ import { sendMorningDigestPush } from "@/lib/push";
  * GET /api/cron/morning-digest
  *
  * Tâche planifiée (Vercel Cron — voir vercel.json à la racine) qui notifie
- * chaque matin les utilisatrices (free + premium) du nombre de nouveaux
+ * chaque matin les membres (free + premium) du nombre de nouveaux
  * profils compatibles inscrits depuis le dernier passage du cron (fenêtre
  * glissante de 24h). Objectif : rétention — donner une raison concrète de
- * rouvrir l'app aux utilisatrices qui ne se connectent pas tous les jours.
+ * rouvrir l'app aux membres qui ne se connectent pas tous les jours.
  *
  * Pas de champ anti-doublon nécessaire : contrairement à match-reminders
  * (fenêtre 24h-72h qui se recoupe d'une exécution à l'autre), ce cron tourne

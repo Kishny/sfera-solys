@@ -489,7 +489,7 @@ export async function PUT(req: NextRequest) {
         );
       }
 
-      // Unicité du nouveau pseudonyme (hors utilisatrice actuelle)
+      // Unicité du nouveau pseudonyme (hors membre actuelle)
       const pseudoRegex = new RegExp(
         `^${data.pseudonyme.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
         "i"

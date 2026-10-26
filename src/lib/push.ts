@@ -1,7 +1,7 @@
 /**
  * Push Notifications — Expo Push API
  *
- * Envoie des notifications push aux utilisatrices de l'app mobile
+ * Envoie des notifications push aux membres de l'app mobile
  * via l'API Expo Push (https://exp.host/--/api/v2/push/send).
  *
  * Usage (depuis une route API) :
@@ -89,7 +89,7 @@ export async function sendNewMatchPush(params: {
   await sendPushNotification({
     to: token,
     title: "✨ Nouveau match !",
-    body: `Vous avez un match avec ${params.matchedWithName} 🌙`,
+    body: `Tu as matché avec ${params.matchedWithName}.`,
     data: { type: "new_match" },
     sound: "default",
     channelId: "matches",
@@ -107,8 +107,8 @@ export async function sendProfileVisitPush(params: {
 
   await sendPushNotification({
     to: token,
-    title: "👀 Quelqu'un a visité votre profil",
-    body: `${params.visitorName} a consulté votre profil.`,
+    title: "👀 Quelqu'un a visité ton profil",
+    body: `${params.visitorName} a consulté ton profil.`,
     data: { type: "profile_visit" },
     sound: "default",
     channelId: "default",
@@ -117,7 +117,7 @@ export async function sendProfileVisitPush(params: {
 
 /**
  * Relance pour un match sans premier message après 24h.
- * Envoyée aux deux utilisatrices (ni l'une ni l'autre n'a encore écrit) —
+ * Envoyée aux deux membres (ni l'une ni l'autre n'a encore écrit) —
  * voir /api/cron/match-reminders.
  */
 export async function sendMatchReminderPush(params: {
@@ -130,7 +130,7 @@ export async function sendMatchReminderPush(params: {
 
   await sendPushNotification({
     to: token,
-    title: "🌙 Ne le laisse pas filer",
+    title: "Ne laisse pas filer ce match",
     body: `Tu as matché avec ${params.matchedWithName}. Dis-lui bonjour !`,
     data: { type: "new_match", matchId: params.matchId },
     sound: "default",
@@ -182,7 +182,7 @@ export async function sendMorningDigestPush(params: {
 
   await sendPushNotification({
     to: token,
-    title: "🌙 De nouvelles arrivantes sur Sfera'Solys",
+    title: "De nouveaux profils sur Sfera'Solys",
     body: `${label} compatible${params.newProfilesCount > 1 ? "s" : ""} avec toi depuis hier.`,
     data: { type: "morning_digest" },
     sound: "default",

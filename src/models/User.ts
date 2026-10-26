@@ -705,7 +705,7 @@ const UserSchema = new Schema<IUser>(
       default: null,
     },
 
-    /** Utilisatrices bloquées — leurs profils sont masqués partout. */
+    /** Membres bloqués — leurs profils sont masqués partout. */
     blockedUsers: {
       type: [{ type: String }],
       default: [],

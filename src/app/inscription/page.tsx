@@ -1031,7 +1031,7 @@ function InscriptionPageContent() {
                       ) : (
                         <>
                           <p className="mb-4 text-sm leading-relaxed text-champagne/70">
-                            Pour la sécurité de toutes les utilisatrices,
+                            Pour la sécurité de tous les membres,
                             Sfera'Solys exige une pièce d&apos;identité officielle
                             et une photo prise en direct correspondant au
                             visage sur la pièce. Sans cette vérification,

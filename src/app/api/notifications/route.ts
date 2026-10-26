@@ -16,7 +16,7 @@ import { circleAVoir } from "@/lib/circle";
 /**
  * GET /api/notifications
  *
- * Retourne les notifications non lues de l'utilisateur connectée.
+ * Retourne les notifications non lues de le membre connecté.
  *
  * Notifications comptabilisées :
  * - nouveaux messages reçus ;

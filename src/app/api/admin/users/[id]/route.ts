@@ -148,7 +148,7 @@ export async function DELETE(
     await User.findByIdAndDelete(userId);
 
     return NextResponse.json(
-      { success: true, message: `${target.email} a été supprimée définitivement.` },
+      { success: true, message: `${target.email} a été supprimé définitivement.` },
       { status: 200 }
     );
   } catch (error: unknown) {

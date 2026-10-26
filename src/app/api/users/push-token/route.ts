@@ -2,7 +2,7 @@
  * PUT /api/users/push-token
  *
  * Enregistre ou met à jour le token Expo Push Notifications
- * de l'utilisateur connectée dans MongoDB.
+ * de le membre connecté dans MongoDB.
  * Appelé par l'app mobile au démarrage (lib/notifications.ts).
  *
  * Body : { pushToken: string }

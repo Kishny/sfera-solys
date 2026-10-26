@@ -15,7 +15,7 @@ import { sendProfileVisitPush } from "@/lib/push";
 /**
  * GET /api/visitors
  *
- * Retourne la liste des utilisatrices qui ont visité le profil connecté.
+ * Retourne la liste des membres qui ont visité le profil connecté.
  *
  * Fonctionnalité premium :
  * - nécessite la feature "profileVisitors"
@@ -169,7 +169,7 @@ export async function GET(req: NextRequest) {
         const user = usersById.get(visit._id.toString());
 
         /**
-         * Si un utilisateur a été supprimée entre-temps,
+         * Si un membre a été supprimé entre-temps,
          * on évite de renvoyer une entrée cassée.
          */
         if (!user) return null;
@@ -310,7 +310,7 @@ export async function POST(req: NextRequest) {
 
     /**
      * Vérifier que le profil visité n'est pas un admin.
-     * Les comptes admin sont invisibles pour toutes les utilisatrices.
+     * Les comptes admin sont invisibles pour tous les membres.
      */
     const visitedUser = await User.findById(visitedId).select("role").lean();
     if (!visitedUser || (visitedUser as any).role === "admin") {

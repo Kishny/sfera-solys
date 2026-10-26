@@ -42,7 +42,7 @@ function extractPublicId(url: string): string | null {
 export async function DELETE() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Non authentifiée' }, { status: 401 });
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
   const userId = session.user.id;

@@ -294,7 +294,7 @@ export async function GET() {
       updatedAt?: Date;
       premiumExpiresAt?: Date | null;
     }[]).map((u) => ({
-      pseudonyme: u.pseudonyme || "Utilisatrice",
+      pseudonyme: u.pseudonyme || "Membre",
       plan: u.plan || "free",
       planLabel: PLAN_LABEL[u.plan || "free"] || "Gratuit",
       date: (u.premiumExpiresAt || u.updatedAt || null),

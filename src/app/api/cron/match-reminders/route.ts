@@ -12,7 +12,7 @@ import { sendMatchReminderPush } from "@/lib/push";
  * GET /api/cron/match-reminders
  *
  * Tâche planifiée (Vercel Cron — voir vercel.json à la racine) qui relance
- * les deux utilisatrices d'un match actif si, 24h après sa création,
+ * les deux membres d'un match actif si, 24h après sa création,
  * aucune des deux n'a encore envoyé de message.
  *
  * Pourquoi lastMessageAt === null suffit :

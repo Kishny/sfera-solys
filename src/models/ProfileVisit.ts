@@ -8,8 +8,8 @@ import mongoose, { Schema, Document, Model, models, model } from "mongoose";
  * Enregistre les visites de profil sur Sfera'Solys.
  *
  * Vocabulaire officiel du projet :
- * - visitorId : utilisatrice qui visite / regarde le profil
- * - visitedId : utilisatrice dont le profil a été visité
+ * - visitorId : membre qui visite / regarde le profil
+ * - visitedId : membre dont le profil a été visité
  *
  * Ce modèle sert à :
  * - afficher "qui a visité mon profil" ;
@@ -28,12 +28,12 @@ import mongoose, { Schema, Document, Model, models, model } from "mongoose";
 
 export interface IProfileVisit extends Document {
   /**
-   * Utilisatrice qui regarde le profil.
+   * Membre qui regarde le profil.
    */
   visitorId: mongoose.Types.ObjectId;
 
   /**
-   * Utilisatrice dont le profil est consulté.
+   * Membre dont le profil est consulté.
    */
   visitedId: mongoose.Types.ObjectId;
 
@@ -117,7 +117,7 @@ ProfileVisitSchema.index({
  * Index unique anti-doublon quotidien.
  *
  * Résultat :
- * une même utilisatrice ne peut compter qu'une seule visite par jour
+ * un même membre ne peut compter qu'une seule visite par jour
  * sur le même profil.
  */
 ProfileVisitSchema.index(

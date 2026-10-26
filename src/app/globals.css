@@ -189,7 +189,7 @@ body {
   solaire, des particules crème et vulcanico en suspension.
 
   Il ne reste plus que /auth à s'en servir, via <div className="stars" />.
-  /paiement a été supprimée avec la refonte des tarifs, et /inscription a
+  La page /paiement a été supprimée avec la refonte des tarifs, et /inscription a
   troqué son décor contre une photographie en écran scindé. Le nom de classe
   est conservé pour ne pas casser la seule page qui l'emploie encore.
 */

@@ -37,7 +37,7 @@ export interface IBoost {
   _id: mongoose.Types.ObjectId;
 
   /**
-   * Utilisatrice qui lance le boost.
+   * Membre qui lance le boost.
    */
   userId: mongoose.Types.ObjectId;
 

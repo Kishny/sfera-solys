@@ -80,7 +80,7 @@ export async function GET() {
 
 /**
  * POST /api/testimonials
- * Soumet un témoignage (auth requise, un seul par utilisatrice).
+ * Soumet un témoignage (auth requise, un seul par membre).
  *
  * Body : { content, authorName?, age?, city?, rating?, showAvatar? }
  */

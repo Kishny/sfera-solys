@@ -2,7 +2,7 @@
  * POST /api/messages/[matchId]/read
  *
  * Marque comme lus tous les messages reçus dans ce match
- * (senderId ≠ utilisatrice connectée, readAt null).
+ * (senderId ≠ membre connecté, readAt null).
  * Émet l'event Pusher `messages-read` sur le canal du match
  * pour que l'expéditrice voie la double-coche bleue en temps réel.
  *
@@ -25,7 +25,7 @@ export async function POST(
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
-    return NextResponse.json({ error: 'Non authentifiée' }, { status: 401 });
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
   const { matchId } = await params;
@@ -39,7 +39,7 @@ export async function POST(
     email: session.user.email.toLowerCase().trim(),
   }).select('_id');
   if (!currentUser) {
-    return NextResponse.json({ error: 'Utilisatrice introuvable' }, { status: 404 });
+    return NextResponse.json({ error: 'Membre introuvable' }, { status: 404 });
   }
   const currentUserId = currentUser._id as mongoose.Types.ObjectId;
 

@@ -4,7 +4,7 @@
  * Guard / helper d'abonnement Sfera'Solys.
  *
  * Ce fichier sert à :
- * - vérifier si un utilisateur est connectée ;
+ * - vérifier si un membre est connecté ;
  * - récupérer son abonnement actif ;
  * - déterminer son plan actuel ;
  * - vérifier ses droits premium ;

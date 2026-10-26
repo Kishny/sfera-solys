@@ -17,14 +17,27 @@ import { Check } from "lucide-react";
 
 /**
  * Liste des orientations proposées.
- * Les values sont celles envoyées dans MongoDB.
+ *
+ * Les `value` sont enregistrées telles quelles dans MongoDB.
+ *
+ * ## Deux reliquats de SferaLuna corrigés ici
+ *
+ * Les libellés étaient au féminin, et « Lesbienne / Homosexuelle » n'avait
+ * évidemment rien à faire sur une plateforme masculine. Explorer, la fiche
+ * de profil et l'espace membre avaient déjà été repris ; cette étape, non.
+ * Elle était pourtant la seule à **écrire** ces valeurs.
+ *
+ * Plus gênant : la valeur stockée était `curieuse`, alors que le filtre
+ * d'Explorer ne propose que `curieux`. Un membre inscrit ainsi restait
+ * introuvable par ce filtre. Les tables d'affichage, elles, acceptaient
+ * déjà les deux formes — elles continuent, pour les comptes existants.
  */
 const orientations = [
-  { value: "hetero", label: "Hétérosexuelle" },
-  { value: "homo", label: "Lesbienne / Homosexuelle" },
-  { value: "bi", label: "Bisexuelle" },
-  { value: "pan", label: "Pansexuelle" },
-  { value: "curieuse", label: "Curieuse — je souhaite découvrir" },
+  { value: "hetero", label: "Hétérosexuel" },
+  { value: "homo", label: "Homosexuel" },
+  { value: "bi", label: "Bisexuel" },
+  { value: "pan", label: "Pansexuel" },
+  { value: "curieux", label: "Curieux — je souhaite découvrir" },
   { value: "other", label: "Autre" },
 ];
 
