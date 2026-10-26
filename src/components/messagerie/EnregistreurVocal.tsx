@@ -15,7 +15,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, Send, Square, Trash2 } from "lucide-react";
+import { Loader2, Pause, Play, Send, Square, Trash2 } from "lucide-react";
 
 interface EnregistreurVocalProps {
   /** Rend l'enregistrement terminé : le fichier et sa durée. */
@@ -68,6 +68,12 @@ export default function EnregistreurVocal({
   );
   const [secondes, setSecondes] = useState(0);
   const [apercu, setApercu] = useState<string | null>(null);
+  const [relectureImpossible, setRelectureImpossible] = useState(false);
+  /** Vrai quand le navigateur n'a rien capté du tout : il n'y a rien à envoyer. */
+  const [enregistrementVide, setEnregistrementVide] = useState(false);
+  const [enLecture, setEnLecture] = useState(false);
+
+  const lecteur = useRef<HTMLAudioElement>(null);
 
   const enregistreur = useRef<MediaRecorder | null>(null);
   const flux = useRef<MediaStream | null>(null);
@@ -157,8 +163,36 @@ export default function EnregistreurVocal({
         });
 
         resultat.current = bloc;
-        setApercu(URL.createObjectURL(bloc));
         setEtat("relecture");
+
+        if (bloc.size === 0) {
+          // Rien n'a été capté. Envoyer un fichier vide donnerait un
+          // vocal muet dans le fil, ce qui est pire que pas de vocal.
+          setEnregistrementVide(true);
+          setRelectureImpossible(true);
+          resultat.current = null;
+          return;
+        }
+
+        /**
+         * L'aperçu passe par une URL de données, pas par `createObjectURL`.
+         *
+         * Safari refuse de lire une `blob:` dans un élément `<audio>` — il
+         * affiche « Erreur » sans rien dire de plus. Une URL de données
+         * fonctionne partout. Un vocal de deux minutes pèse moins d'un
+         * mégaoctet, ce qui reste raisonnable en mémoire le temps d'une
+         * relecture.
+         */
+        const lecture = new FileReader();
+
+        lecture.onload = () => {
+          if (typeof lecture.result === "string") setApercu(lecture.result);
+          else setRelectureImpossible(true);
+        };
+
+        lecture.onerror = () => setRelectureImpossible(true);
+
+        lecture.readAsDataURL(bloc);
       };
 
       enregistreur.current = machine;
@@ -198,12 +232,7 @@ export default function EnregistreurVocal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /** L'aperçu est une URL d'objet : elle se révoque, sinon elle fuit. */
-  useEffect(() => {
-    return () => {
-      if (apercu) URL.revokeObjectURL(apercu);
-    };
-  }, [apercu]);
+
 
   const jeter = () => {
     relacherLeMicro();
@@ -223,31 +252,80 @@ export default function EnregistreurVocal({
         <Trash2 size={17} aria-hidden="true" />
       </button>
 
-      {etat === "relecture" && apercu ? (
+      {etat === "relecture" ? (
         <>
           {/*
             La relecture avant envoi.
 
-            Les contrôles natifs suffisent ici : c'est un écran de
-            passage, et le lecteur maison est fait pour le fil.
+            Lecteur maison plutôt que les contrôles natifs : ces derniers
+            affichaient « Erreur » sans rien expliquer quand Safari
+            butait sur l'aperçu, et prenaient la moitié de la barre.
           */}
-          <audio
-            src={apercu}
-            controls
-            className="min-w-0 flex-1"
-            aria-label="Réécouter avant d’envoyer"
-          />
+          {apercu && (
+            <audio
+              ref={lecteur}
+              src={apercu}
+              preload="auto"
+              onPlay={() => setEnLecture(true)}
+              onPause={() => setEnLecture(false)}
+              onEnded={() => setEnLecture(false)}
+              onError={() => setRelectureImpossible(true)}
+              className="hidden"
+            />
+          )}
 
-          <span className="shrink-0 text-[12px] tabular-nums text-champagne/65">
-            {formaterDuree(secondes)}
-          </span>
+          <button
+            type="button"
+            onClick={() => {
+              const element = lecteur.current;
+              if (!element) return;
+
+              if (element.paused) {
+                void element.play().catch(() => setRelectureImpossible(true));
+              } else {
+                element.pause();
+              }
+            }}
+            disabled={!apercu || relectureImpossible}
+            aria-label={enLecture ? "Mettre en pause" : "Réécouter"}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cuivre/20 text-champagne transition hover:bg-cuivre/30 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cuivre"
+          >
+            {enLecture ? (
+              <Pause size={15} aria-hidden="true" />
+            ) : (
+              <Play size={15} aria-hidden="true" className="ml-0.5" />
+            )}
+          </button>
+
+          <p className="min-w-0 flex-1 text-[12.5px] text-champagne/75">
+            {enregistrementVide ? (
+              <span className="text-erreur">
+                Rien n’a été enregistré. Réessaie.
+              </span>
+            ) : relectureImpossible ? (
+              /*
+                La relecture peut échouer sans que l'enregistrement soit
+                perdu : le fichier part quand même, et le fil le sert
+                dans un format que tous les navigateurs lisent. Le dire
+                vaut mieux que de laisser un bouton muet.
+              */
+              <span className="text-champagne/60">
+                Relecture indisponible ici. L’envoi reste possible.
+              </span>
+            ) : (
+              <>
+                <span className="tabular-nums">{formaterDuree(secondes)}</span>
+                <span className="text-champagne/50"> enregistré</span>
+              </>
+            )}
+          </p>
 
           <button
             type="button"
             onClick={() => {
               if (resultat.current) onEnvoyer(resultat.current, secondes);
             }}
-            disabled={envoiEnCours || !resultat.current}
+            disabled={envoiEnCours || !resultat.current || enregistrementVide}
             aria-label="Envoyer le vocal"
             className="shrink-0 rounded-full bg-degrade-cuivre p-2.5 text-nuit transition hover:opacity-90 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cuivre"
           >

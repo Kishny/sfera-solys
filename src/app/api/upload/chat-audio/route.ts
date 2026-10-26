@@ -101,7 +101,11 @@ export async function POST(req: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   try {
-    const resultat = await new Promise<{ secure_url: string; duration?: number }>(
+    const resultat = await new Promise<{
+      secure_url: string;
+      public_id: string;
+      duration?: number;
+    }>(
       (resolve, reject) => {
         cloudinary.uploader
           .upload_stream(
@@ -113,7 +117,10 @@ export async function POST(req: NextRequest) {
             },
             (err, res) => {
               if (err || !res) reject(err ?? new Error('Cloudinary upload failed'));
-              else resolve(res as { secure_url: string; duration?: number });
+              else
+                resolve(
+                  res as { secure_url: string; public_id: string; duration?: number }
+                );
             }
           )
           .end(buffer);
@@ -129,9 +136,31 @@ export async function POST(req: NextRequest) {
         ? Math.min(Math.round(resultat.duration), DUREE_MAX_SECONDES)
         : duree;
 
+    /**
+     * L'URL de lecture est servie en MP3, pas dans le format d'origine.
+     *
+     * Chaque navigateur enregistre dans le sien : WebM/Opus sur Chrome et
+     * Firefox, MP4/AAC sur Safari. Or Safari ne sait pas lire l'Opus en
+     * WebM — un vocal enregistré sur Chrome serait donc muet pour la
+     * moitié des destinataires, et personne n'y aurait vu autre chose
+     * qu'un lecteur cassé.
+     *
+     * Cloudinary transcode à la première demande et garde le résultat.
+     * Le MP3 est le seul format audio que tous les navigateurs lisent.
+     * Le fichier d'origine reste déposé, intact, au cas où.
+     */
+    const urlDeLecture = cloudinary.url(resultat.public_id, {
+      resource_type: 'video',
+      format: 'mp3',
+      secure: true,
+      // Sans ça, Cloudinary accroche un paramètre de suivi à l'URL.
+      // Une adresse de média n'a pas à porter ça.
+      analytics: false,
+    });
+
     return NextResponse.json({
       success: true,
-      url: resultat.secure_url,
+      url: urlDeLecture,
       duree: dureeReelle,
     });
   } catch (err) {
