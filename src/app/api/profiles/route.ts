@@ -10,6 +10,7 @@ import { User } from "@/models/User";
 import { Like } from "@/models/Like";
 import { classementBoosts, pipelineProfilsClasses } from "@/lib/boosts";
 import { blocagesDe } from "@/lib/blocages";
+import { ecartesDe } from "@/lib/ecartes";
 import { planEffectif } from "@/lib/quotas";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
 
@@ -129,7 +130,14 @@ export async function GET(req: NextRequest) {
      */
     const blocages = await blocagesDe(currentUserId);
 
-    const exclus = [...likedIds, ...blocages.ids];
+    /*
+     * Profils écartés depuis leur fiche. Ils rejoignent le même `$nin` que
+     * les likes et les blocages — un seul opérateur par clé, sans quoi le
+     * dernier écraserait les autres.
+     */
+    const ecartes = await ecartesDe(currentUserId);
+
+    const exclus = [...likedIds, ...blocages.ids, ...ecartes.ids];
 
     const { searchParams } = new URL(req.url);
 

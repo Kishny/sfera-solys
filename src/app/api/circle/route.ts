@@ -13,6 +13,7 @@ import { planEffectif } from "@/lib/quotas";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
 import { TAILLE_CERCLE, debutDeSemaine, prochainTirage } from "@/lib/circle";
 import { blocagesDe, type Blocages } from "@/lib/blocages";
+import { ecartesDe, type Ecartes } from "@/lib/ecartes";
 
 /**
  * GET /api/circle
@@ -158,6 +159,7 @@ export async function GET() {
       const tirage = await tirerSelection(
         currentUserId,
         await blocagesDe(currentUserId),
+        await ecartesDe(currentUserId),
         {
           interets: currentUser.interets,
           intentions: currentUser.intentions,
@@ -208,9 +210,21 @@ export async function GET() {
      * est compté dans `disparus`.
      */
     const blocages = await blocagesDe(currentUserId);
+    const ecartes = await ecartesDe(currentUserId);
 
-    const idsVisibles = blocages.chaines.size
-      ? ids.filter((id) => !blocages.chaines.has(String(id)))
+    /*
+     * Un profil écarté depuis le tirage disparaît lui aussi de la semaine.
+     * La sélection est figée, mais « Passer » dit « ne me propose plus ce
+     * profil » — le laisser jusqu'au lundi suivant répondrait le contraire.
+     * Comme un profil devenu indisponible, il n'est pas remplacé.
+     */
+    const aRetirer = new Set([
+      ...blocages.chaines,
+      ...ecartes.ids.map((id) => String(id)),
+    ]);
+
+    const idsVisibles = aRetirer.size
+      ? ids.filter((id) => !aRetirer.has(String(id)))
       : ids;
 
     const profils = idsVisibles.length
@@ -268,6 +282,7 @@ export async function GET() {
 async function tirerSelection(
   currentUserId: mongoose.Types.ObjectId,
   blocages: Blocages,
+  ecartes: Ecartes,
   moi: {
     interets?: unknown;
     intentions?: unknown;
@@ -300,7 +315,7 @@ async function tirerSelection(
    * Un seul `$nin` : Mongo n'accepte qu'un opérateur par clé, et deux
    * s'écraseraient l'un l'autre sans erreur.
    */
-  const exclus = [...idsAimes, ...blocages.ids];
+  const exclus = [...idsAimes, ...blocages.ids, ...ecartes.ids];
 
   const filtre: Record<string, unknown> = {
     _id: { $ne: currentUserId, ...(exclus.length ? { $nin: exclus } : {}) },

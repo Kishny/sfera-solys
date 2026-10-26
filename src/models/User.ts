@@ -143,6 +143,25 @@ export interface IUser extends Document {
    */
   blockedUsers?: string[];
 
+  /**
+   * Profils mis en favori, pour les retrouver sans les liker.
+   *
+   * Le like est public et peut déclencher une mise en relation ; le favori
+   * est privé et n'informe personne. Deux gestes différents, qui n'ont pas
+   * à partager le même champ.
+   */
+  favoris?: string[];
+
+  /**
+   * Profils écartés depuis la fiche — le bouton « Passer ».
+   *
+   * Unilatéral et limité à la découverte : ces profils sortent d'Explorer
+   * et du Circle, mais un match déjà noué et sa conversation restent
+   * intacts. Écarter n'est pas bloquer, et ne doit pas rompre un lien
+   * existant.
+   */
+  profilsEcartes?: string[];
+
   // Notifications
   lastSeenNotificationsAt?: Date | null;
   /**
@@ -711,6 +730,18 @@ const UserSchema = new Schema<IUser>(
       default: [],
     },
 
+    /** Profils mis en favori. Privé : la personne visée n'en sait rien. */
+    favoris: {
+      type: [{ type: String }],
+      default: [],
+    },
+
+    /** Profils écartés : retirés d'Explorer et du Circle, rien de plus. */
+    profilsEcartes: {
+      type: [{ type: String }],
+      default: [],
+    },
+
     /**
      * Garde temporelle — changement de pseudonyme.
      * Une seule modification autorisée par an.
@@ -851,6 +882,13 @@ UserSchema.index({ updatedAt: -1 });
  * des matchs ferait un parcours complet de la collection.
  */
 UserSchema.index({ blockedUsers: 1 });
+
+/**
+ * Les favoris et les profils écartés ne sont lus que par leur propriétaire,
+ * donc toujours via son `_id` : pas d'index dédié, celui de la clé primaire
+ * suffit. Contrairement à `blockedUsers`, qui demande la recherche inverse
+ * « qui m'a bloqué ? » et ne peut pas s'en passer.
+ */
 
 /**
  * Méthode statique pratique pour retrouver un utilisateur par email.

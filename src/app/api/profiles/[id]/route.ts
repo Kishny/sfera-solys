@@ -50,6 +50,16 @@ function isPremiumActive(user: any) {
   );
 }
 
+/** Au-delà, on n'affiche plus de mention de présence. */
+const SEUIL_PRESENCE_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Les éléments présents des deux côtés, sans doublon. */
+function croiser(miens: unknown, siens: unknown): string[] {
+  const a = Array.isArray(miens) ? miens.map(String) : [];
+  const b = new Set(Array.isArray(siens) ? siens.map(String) : []);
+  return [...new Set(a.filter((item) => b.has(item)))];
+}
+
 export async function GET(
   _req: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -85,8 +95,13 @@ export async function GET(
 
     const sessionEmail = session.user.email.toLowerCase().trim();
 
+    /*
+     * `interets`, `intentions` et `favoris` s'ajoutent : les deux premiers
+     * servent à calculer les affinités avec le profil consulté, le
+     * troisième à savoir si l'étoile est déjà allumée.
+     */
     const currentUser = await User.findOne({ email: sessionEmail }).select(
-      "_id isPremium subscriptionStatus"
+      "_id isPremium subscriptionStatus interets intentions favoris"
     );
 
     if (!currentUser) {
@@ -102,7 +117,7 @@ export async function GET(
 
     const profile = await User.findById(profileId)
       .select(
-        "pseudonyme age localisation departement interets intentions orientation bio image photos identityVerified visibilite hasCompletedProfile banned createdAt role"
+        "pseudonyme age localisation departement interets intentions orientation bio image photos identityVerified visibilite hasCompletedProfile banned createdAt role lastLoginAt"
       )
       .lean();
 
@@ -239,15 +254,58 @@ export async function GET(
       );
     }
 
+    const mesFavoris = new Set(
+      ((currentUser as { favoris?: unknown[] }).favoris ?? []).map((v) =>
+        String(v)
+      )
+    );
+
+    /**
+     * Présence, et le Mode Fantôme qui prime dessus.
+     *
+     * `lastLoginAt` ne sort jamais tel quel : seule une mention « vu
+     * récemment » est calculée ici, et elle est tue pour un profil en
+     * visibilité restreinte. Quelqu'un qui paie pour être discret ne doit
+     * pas voir sa présence annoncée — ce serait vendre le Mode Fantôme et
+     * le contredire sur la même page.
+     */
+    const discret =
+      profile.visibilite === "invisible" || profile.visibilite === "matches";
+
+    const vuRecemment =
+      !discret &&
+      profile.lastLoginAt != null &&
+      Date.now() - new Date(profile.lastLoginAt).getTime() < SEUIL_PRESENCE_MS;
+
+    // `lastLoginAt` est retiré de la charge utile : la page n'a pas à
+    // connaître l'horodatage, seulement le fait.
+    const { lastLoginAt: _horodatage, ...profilPublic } =
+      profile as unknown as Record<string, unknown>;
+
     return NextResponse.json(
       {
         success: true,
-        profile,
+        profile: { ...profilPublic, vuRecemment },
         relation: {
           estMonProfil: isOwnProfile,
           dejaAime: Boolean(dejaAime),
           estUnMatch: Boolean(match),
           matchId: match ? String(match._id) : null,
+          estFavori: mesFavoris.has(String(profile._id)),
+        },
+
+        /**
+         * Affinités réellement partagées, calculées ici plutôt que devinées
+         * par la page.
+         *
+         * Ce sont des intersections, rien d'autre : un centre d'intérêt ou
+         * une intention que vous avez tous les deux cochés. Aucun score,
+         * aucune estimation — afficher « 87 % de compatibilité » sur une
+         * donnée pareille serait une invention présentée comme une mesure.
+         */
+        affinites: {
+          interets: croiser(currentUser.interets, profile.interets),
+          intentions: croiser(currentUser.intentions, profile.intentions),
         },
       },
       {
