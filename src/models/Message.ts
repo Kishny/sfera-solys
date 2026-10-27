@@ -84,18 +84,6 @@ export interface IMessage extends Document {
    */
   evenementId: mongoose.Types.ObjectId | null;
 
-  /**
-   * Fichier joint.
-   *
-   * Restreint au PDF par la route d'envoi — voir le commentaire qui y
-   * explique pourquoi.
-   */
-  fichier: {
-    url: string;
-    nom: string;
-    poids: number;
-  } | null;
-
   rendezVous: {
     quand: Date;
     ou: string;
@@ -195,21 +183,6 @@ const MessageSchema = new Schema<IMessage>(
     },
 
     /**
-     * Fichier joint.
-     */
-    fichier: {
-      type: new Schema(
-        {
-          url: { type: String, required: true },
-          nom: { type: String, required: true, trim: true, maxlength: 200 },
-          poids: { type: Number, required: true, min: 0 },
-        },
-        { _id: false }
-      ),
-      default: null,
-    },
-
-    /**
      * Proposition de rendez-vous.
      */
     rendezVous: {
@@ -273,8 +246,7 @@ MessageSchema.pre("validate", function (this: IMessage) {
     !this.audioUrl &&
     !this.lieu &&
     !this.rendezVous &&
-    !this.evenementId &&
-    !this.fichier
+    !this.evenementId
   ) {
     this.invalidate("content", "Un message doit avoir un contenu.");
   }

@@ -72,10 +72,10 @@ import { getPusherClient } from "@/lib/pusher-client";
 import ReportModal from "@/components/ReportModal";
 import VisionneusePhotos from "@/components/VisionneusePhotos";
 import CarteEvenementPartage from "@/components/messagerie/CarteEvenementPartage";
-import CarteFichier from "@/components/messagerie/CarteFichier";
 import CarteLieu from "@/components/messagerie/CarteLieu";
 import MenuTrombone from "@/components/messagerie/MenuTrombone";
 import SelecteurEvenement from "@/components/messagerie/SelecteurEvenement";
+import TexteAvecLiens from "@/components/messagerie/TexteAvecLiens";
 import CarteRendezVous, {
   type StatutRendezVous,
 } from "@/components/messagerie/CarteRendezVous";
@@ -114,7 +114,6 @@ interface Message {
     emoji: string;
     enLigne: boolean;
   } | null;
-  fichier: { url: string; nom: string; poids: number } | null;
   readAt: string | null;
   createdAt: string;
 }
@@ -213,7 +212,6 @@ export default function PageConversation() {
 
   /** Le menu du trombone, et ce qu'il permet d'attacher. */
   const [trombone, setTrombone] = useState(false);
-  const [envoiFichier, setEnvoiFichier] = useState(false);
 
   /** Le sélecteur d'événement Solys. */
   const [evenementOuvert, setEvenementOuvert] = useState(false);
@@ -236,7 +234,6 @@ export default function PageConversation() {
 
   const ancrePlus = useRef<HTMLDivElement>(null);
   const ancreTrombone = useRef<HTMLDivElement>(null);
-  const champFichier = useRef<HTMLInputElement>(null);
   const ancreEmojis = useRef<HTMLDivElement>(null);
   const champPhoto = useRef<HTMLInputElement>(null);
   const champCamera = useRef<HTMLInputElement>(null);
@@ -497,10 +494,7 @@ export default function PageConversation() {
     vocal?: { url: string; duree: number },
     lieu?: { libelle: string; lat: number; lng: number },
     rendezVous?: { quand: string; ou: string; note: string },
-    piece?: {
-      evenementId?: string;
-      fichier?: { url: string; nom: string; poids: number };
-    }
+    piece?: { evenementId?: string }
   ) => {
     const seul = Boolean(vocal || lieu || rendezVous || piece?.evenementId);
     const contenu = seul ? "" : saisie.trim();
@@ -535,7 +529,6 @@ export default function PageConversation() {
       // L'événement arrive avec la réponse du serveur, qui le lit à la
       // source : on n'en garde pas de copie ici.
       evenement: null,
-      fichier: piece?.fichier ?? null,
       readAt: null,
       createdAt: new Date().toISOString(),
     };
@@ -560,7 +553,6 @@ export default function PageConversation() {
           lieu: lieu ?? null,
           rendezVous: rendezVous ?? null,
           evenementId: piece?.evenementId ?? null,
-          fichier: piece?.fichier ?? null,
         }),
       });
 
@@ -702,51 +694,6 @@ export default function PageConversation() {
       await envoyer({ url, duree });
     } finally {
       setEnvoiVocal(false);
-    }
-  };
-
-  /**
-   * Dépose un fichier, puis l'envoie.
-   *
-   * Même marche que la photo et le vocal : l'upload d'abord, le message
-   * ensuite. Le format est vérifié côté serveur sur les octets du
-   * fichier — ici on ne fait que filtrer le sélecteur.
-   */
-  const televerserFichier = async (fichier: File | null | undefined) => {
-    if (!fichier) return;
-
-    setEnvoiFichier(true);
-    setErreur("");
-
-    try {
-      const formulaire = new FormData();
-      formulaire.append("file", fichier);
-
-      const reponse = await fetch("/api/upload/chat-fichier", {
-        method: "POST",
-        body: formulaire,
-      });
-
-      const donnees = await reponse.json().catch(() => null);
-
-      if (!reponse.ok || donnees?.success !== true || !donnees?.url) {
-        setErreur(donnees?.error || "Ce fichier n’a pas pu être envoyé.");
-        return;
-      }
-
-      setTrombone(false);
-
-      await envoyer(undefined, undefined, undefined, {
-        fichier: {
-          url: donnees.url as string,
-          nom: donnees.nom as string,
-          poids: Number(donnees.poids) || 0,
-        },
-      });
-    } catch {
-      setErreur("Connexion interrompue. Le fichier n’est pas parti.");
-    } finally {
-      setEnvoiFichier(false);
     }
   };
 
@@ -1461,17 +1408,6 @@ export default function PageConversation() {
                                     </div>
                                   )}
 
-                                  {message.fichier && (
-                                    <div
-                                      className={message.content ? "mb-1" : ""}
-                                    >
-                                      <CarteFichier
-                                        fichier={message.fichier}
-                                        surFondClair={deMoi}
-                                      />
-                                    </div>
-                                  )}
-
                                   {message.rendezVous && (
                                     <div
                                       className={message.content ? "mb-1" : ""}
@@ -1508,7 +1444,10 @@ export default function PageConversation() {
                                         message.imageUrl ? "px-2 pt-2" : ""
                                       }`}
                                     >
-                                      {message.content}
+                                      <TexteAvecLiens
+                                        texte={message.content}
+                                        surFondClair={deMoi}
+                                      />
                                     </p>
                                   )}
 
@@ -1781,13 +1720,11 @@ export default function PageConversation() {
                         <MenuTrombone
                           ancre={ancreTrombone}
                           ouvert={trombone}
-                          envoiFichier={envoiFichier}
                           onFermer={() => setTrombone(false)}
                           onGalerie={() => {
                             setTrombone(false);
                             champPhoto.current?.click();
                           }}
-                          onFichier={() => champFichier.current?.click()}
                           onLien={(lien) => {
                             setTrombone(false);
                             inserer(`${lien} `);
@@ -1806,7 +1743,7 @@ export default function PageConversation() {
                           aria-expanded={trombone}
                           className={`rounded-full p-2 text-champagne/65 transition hover:text-champagne disabled:opacity-40 ${focusRing}`}
                         >
-                          {envoiPhoto || envoiFichier ? (
+                          {envoiPhoto ? (
                             <Loader2
                               size={17}
                               className="animate-spin"
@@ -1896,17 +1833,6 @@ export default function PageConversation() {
                     className="hidden"
                     onChange={(evenement) => {
                       void televerserPhoto(evenement.target.files?.[0]);
-                      evenement.target.value = "";
-                    }}
-                  />
-
-                  <input
-                    ref={champFichier}
-                    type="file"
-                    accept="application/pdf,.pdf"
-                    className="hidden"
-                    onChange={(evenement) => {
-                      void televerserFichier(evenement.target.files?.[0]);
                       evenement.target.value = "";
                     }}
                   />

@@ -211,13 +211,6 @@ function serializeMessage(message: any) {
             enLigne: Boolean((message.evenementId as any).isOnline),
           }
         : null,
-    fichier: message.fichier
-      ? {
-          url: message.fichier.url,
-          nom: message.fichier.nom,
-          poids: message.fichier.poids,
-        }
-      : null,
     rendezVous: message.rendezVous
       ? {
           quand: message.rendezVous.quand,
@@ -451,7 +444,6 @@ export async function POST(
       lieu?: unknown;
       rendezVous?: unknown;
       evenementId?: unknown;
-      fichier?: unknown;
     } | null = null;
 
     try {
@@ -689,53 +681,13 @@ export async function POST(
       evenementId = evenement._id;
     }
 
-    /**
-     * Le fichier joint.
-     *
-     * Même contrôle d'origine que pour l'image et le vocal. Le format
-     * est vérifié à l'upload, sur les octets du fichier et non sur son
-     * nom — voir `/api/upload/chat-fichier`.
-     */
-    let fichier: { url: string; nom: string; poids: number } | null = null;
-
-    if (body?.fichier && typeof body.fichier === "object") {
-      const brut = body.fichier as {
-        url?: unknown;
-        nom?: unknown;
-        poids?: unknown;
-      };
-
-      const url = typeof brut.url === "string" ? brut.url.trim() : "";
-      const nom =
-        typeof brut.nom === "string" ? brut.nom.trim().slice(0, 200) : "";
-      const poids = Number(brut.poids);
-
-      if (!estUnMediaCloudinary(url, "sferasolys/chat-fichiers")) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Ce fichier n'a pas été déposé par Sfera'Solys.",
-            code: "INVALID_FILE_URL",
-          },
-          { status: 400 }
-        );
-      }
-
-      fichier = {
-        url,
-        nom: nom || "document.pdf",
-        poids: Number.isFinite(poids) && poids >= 0 ? poids : 0,
-      };
-    }
-
     if (
       !content &&
       !imageUrl &&
       !audioUrl &&
       !lieu &&
       !rendezVous &&
-      !evenementId &&
-      !fichier
+      !evenementId
     ) {
       return NextResponse.json(
         {
@@ -849,7 +801,6 @@ export async function POST(
       lieu,
       rendezVous,
       evenementId,
-      fichier,
     });
 
     /**
@@ -930,9 +881,7 @@ export async function POST(
                   ? "Proposition de rendez-vous"
                   : evenementId
                     ? "Un événement Solys"
-                    : fichier
-                      ? "Un document"
-                      : "Photo"),
+                    : "Photo"),
           matchId: match._id.toString(),
         });
       }

@@ -5,9 +5,16 @@
 /**
  * Le menu du trombone : ce qui s'attache à un message.
  *
- * Il était un raccourci direct vers la photothèque tant qu'il n'avait
- * qu'une destination — un menu à une entrée qui double celle du « + »
- * n'apporte rien. Maintenant qu'il y a trois chemins, il en devient un.
+ * Deux destinations : la photothèque, et un lien à coller.
+ *
+ * L'ENVOI DE PDF A ÉTÉ RETIRÉ
+ * Cloudinary refuse de livrer les PDF tant qu'on ne l'autorise pas dans
+ * les réglages du compte — et cette autorisation rend les documents
+ * joignables par leur seule adresse, sans compte. Pour un échange privé
+ * entre deux inconnus, le besoin ne valait pas la surface d'abus :
+ * fichier malveillant à l'envoi, document lisible par quiconque a le
+ * lien à la réception. La route d'upload et le champ du modèle
+ * disparaissent avec l'entrée.
  *
  * « Lien » ne stocke rien : un lien est du texte, il va dans la saisie
  * comme le reste. Le panneau sert seulement à le coller proprement et à
@@ -18,10 +25,8 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
-  FileText,
   Image as IconeImage,
   Link as IconeLien,
-  Loader2,
 } from "lucide-react";
 
 interface MenuTromboneProps {
@@ -29,12 +34,8 @@ interface MenuTromboneProps {
   onFermer: () => void;
   /** Ouvre le sélecteur de fichiers sur la photothèque. */
   onGalerie: () => void;
-  /** Ouvre le sélecteur de fichiers sur les PDF. */
-  onFichier: () => void;
   /** Insère le lien dans la saisie. */
   onLien: (lien: string) => void;
-  /** Vrai pendant le dépôt d'un fichier. */
-  envoiFichier: boolean;
   ancre: React.RefObject<HTMLElement | null>;
 }
 
@@ -72,9 +73,7 @@ export default function MenuTrombone({
   ouvert,
   onFermer,
   onGalerie,
-  onFichier,
   onLien,
-  envoiFichier,
   ancre,
 }: MenuTromboneProps) {
   const reduireAnimations = useReducedMotion();
@@ -150,13 +149,6 @@ export default function MenuTrombone({
       action: onGalerie,
     },
     {
-      cle: "fichier",
-      libelle: "Fichier",
-      detail: envoiFichier ? "Envoi en cours…" : "Un PDF, 10 Mo au plus",
-      icone: envoiFichier ? Loader2 : FileText,
-      action: onFichier,
-    },
-    {
       cle: "lien",
       libelle: "Lien",
       detail: "Coller une adresse",
@@ -188,19 +180,10 @@ export default function MenuTrombone({
                     <button
                       type="button"
                       onClick={entree.action}
-                      disabled={entree.cle === "fichier" && envoiFichier}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-champagne/8 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-cuivre"
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-champagne/8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-cuivre"
                     >
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cuivre/15 text-cuivre">
-                        <Icone
-                          size={16}
-                          aria-hidden="true"
-                          className={
-                            entree.cle === "fichier" && envoiFichier
-                              ? "animate-spin"
-                              : ""
-                          }
-                        />
+                        <Icone size={16} aria-hidden="true" />
                       </span>
 
                       <span className="min-w-0">
