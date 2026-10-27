@@ -22,22 +22,13 @@ import { CommunityPost } from '@/models/CommunityPost';
 import { MentorPost } from '@/models/MentorPost';
 import { stripe } from '@/lib/stripe';
 import { v2 as cloudinary } from 'cloudinary';
+import { identifiantDeLEntree, modeDeLEntree } from "@/lib/photos-profil";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-/** Extrait le public_id Cloudinary depuis une URL */
-function extractPublicId(url: string): string | null {
-  try {
-    const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.\w+)?$/);
-    return match ? match[1] : null;
-  } catch {
-    return null;
-  }
-}
 
 export async function DELETE() {
   const session = await getServerSession(authOptions);
@@ -71,12 +62,28 @@ export async function DELETE() {
   }
 
   // ── 2. Supprimer les photos Cloudinary ────────────────────────────────────
-  const allPhotos = [user.image, ...(user.photos ?? [])].filter(Boolean) as string[];
+  /**
+   * Avatar et galerie n'ont plus la même forme.
+   *
+   * L'avatar reste une adresse ; la galerie contient des références. Et
+   * une photo authentifiée ne se détruit qu'en précisant son mode, sans
+   * quoi Cloudinary cherche au mauvais endroit et le fichier survit à la
+   * suppression du compte.
+   */
+  const aSupprimer: { publicId: string; mode: "upload" | "authenticated" }[] = [];
+
+  for (const entree of [user.image, ...(user.photos ?? [])]) {
+    if (!entree) continue;
+
+    const publicId = identifiantDeLEntree(entree);
+
+    if (publicId) aSupprimer.push({ publicId, mode: modeDeLEntree(entree) });
+  }
+
   await Promise.allSettled(
-    allPhotos.map((url) => {
-      const publicId = extractPublicId(url);
-      return publicId ? cloudinary.uploader.destroy(publicId) : Promise.resolve();
-    })
+    aSupprimer.map(({ publicId, mode }) =>
+      cloudinary.uploader.destroy(publicId, { type: mode })
+    )
   );
 
   // ── 3. Supprimer toutes les données liées ─────────────────────────────────

@@ -10,6 +10,7 @@ import { User } from "@/models/User";
 import { blocageEntre } from "@/lib/blocages";
 import { Like } from "@/models/Like";
 import { Match } from "@/models/Match";
+import { galeriePubliee } from "@/lib/photos-profil";
 
 /**
  * GET /api/profiles/[id]
@@ -285,7 +286,12 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        profile: { ...profilPublic, vuRecemment },
+        profile: {
+          ...profilPublic,
+          // Références résolues en adresses, signées si authentifiées.
+          photos: galeriePubliee(profilPublic.photos),
+          vuRecemment,
+        },
         relation: {
           estMonProfil: isOwnProfile,
           dejaAime: Boolean(dejaAime),

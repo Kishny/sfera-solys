@@ -17,22 +17,13 @@ import { Boost } from "@/models/Boost";
 import { Testimonial } from "@/models/Testimonial";
 import { SolysEvent } from "@/models/SolysEvent";
 import { stripe } from "@/lib/stripe";
+import { identifiantDeLEntree, modeDeLEntree } from "@/lib/photos-profil";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-/** Extrait le public_id Cloudinary depuis une URL. */
-function extractPublicId(url: string): string | null {
-  try {
-    const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.\w+)?$/);
-    return match ? match[1] : null;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * DELETE /api/admin/users/[id]
@@ -120,15 +111,28 @@ export async function DELETE(
     }
 
     // ── 2. Supprimer les photos Cloudinary ──────────────────────────────────
-    const allPhotos = [target.image, ...(target.photos ?? [])].filter(
-      Boolean
-    ) as string[];
+    /**
+     * Même règle que pour la suppression par le membre lui-même :
+     * l'avatar est une adresse, la galerie des références, et une photo
+     * authentifiée ne se détruit qu'en précisant son mode.
+     */
+    const aSupprimer: {
+      publicId: string;
+      mode: "upload" | "authenticated";
+    }[] = [];
+
+    for (const entree of [target.image, ...(target.photos ?? [])]) {
+      if (!entree) continue;
+
+      const publicId = identifiantDeLEntree(entree);
+
+      if (publicId) aSupprimer.push({ publicId, mode: modeDeLEntree(entree) });
+    }
 
     await Promise.allSettled(
-      allPhotos.map((url) => {
-        const publicId = extractPublicId(url);
-        return publicId ? cloudinary.uploader.destroy(publicId) : Promise.resolve();
-      })
+      aSupprimer.map(({ publicId, mode }) =>
+        cloudinary.uploader.destroy(publicId, { type: mode })
+      )
     );
 
     // ── 3. Supprimer toutes les données liées ───────────────────────────────

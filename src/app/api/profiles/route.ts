@@ -13,6 +13,7 @@ import { blocagesDe } from "@/lib/blocages";
 import { ecartesDe } from "@/lib/ecartes";
 import { planEffectif } from "@/lib/quotas";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
+import { galeriePubliee } from "@/lib/photos-profil";
 
 /**
  * GET /api/profiles
@@ -315,16 +316,28 @@ export async function GET(req: NextRequest) {
       User.countDocuments(query),
     ]);
 
+    /**
+     * La galerie est résolue avant de partir.
+     *
+     * Le tableau stocké contient désormais des références, pas des
+     * adresses : les rendre telles quelles afficherait des images
+     * cassées. L'aggregation ne passe par aucune transformation du
+     * modèle, donc la résolution se fait ici.
+     */
+    const profilsServis = (profiles as Record<string, unknown>[]).map(
+      (profil) => ({ ...profil, photos: galeriePubliee(profil.photos) })
+    );
+
     return NextResponse.json(
       {
         success: true,
-        profiles,
+        profiles: profilsServis,
         pagination: {
           total,
           page,
           limit,
           totalPages: Math.ceil(total / limit),
-          hasMore: skip + profiles.length < total,
+          hasMore: skip + profilsServis.length < total,
         },
         filters: {
           userIsPremium,

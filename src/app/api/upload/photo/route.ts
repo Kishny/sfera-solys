@@ -17,6 +17,14 @@ import { User } from "@/models/User";
 import { ModerationLog } from "@/models/ModerationLog";
 import cloudinary, { verifierCloudinary, CLOUDINARY_INDISPONIBLE } from "@/lib/cloudinary";
 import {
+  deposerPhotoDeGalerie,
+  galeriePubliee,
+  identifiantDeLEntree,
+  identifiantDepuisUrl,
+  modeDeLEntree,
+  referencePhoto,
+} from "@/lib/photos-profil";
+import {
   getModerationUploadOption,
   evaluateModeration,
   MODERATION_REJECTION_MESSAGE,
@@ -73,31 +81,29 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const result = await new Promise<{ secure_url: string; public_id: string; moderation?: unknown }>(
-      (resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream(
-            {
-              folder: "sferasolys/photos",
-              transformation: [
-                { width: 800, height: 1000, crop: "fill", gravity: "face" },
-              ],
-              resource_type: "image",
-              moderation: getModerationUploadOption(),
-            },
-            (err, res) => {
-              if (err || !res) reject(err ?? new Error("Cloudinary upload failed"));
-              else resolve(res as { secure_url: string; public_id: string; moderation?: unknown });
-            }
-          )
-          .end(buffer);
-      }
-    );
+    /**
+     * Déposée en mode authentifié, avec repli si le compte Cloudinary ne
+     * sait pas la livrer ainsi. Le détail est dans `@/lib/photos-profil`.
+     */
+    const depot = await deposerPhotoDeGalerie(buffer, {
+      transformation: [
+        { width: 800, height: 1000, crop: "fill", gravity: "face" },
+      ],
+      moderation: getModerationUploadOption(),
+    });
+
+    const result = depot.brut as {
+      secure_url: string;
+      public_id: string;
+      moderation?: unknown;
+    };
 
     // Modération automatique : rejet → suppression Cloudinary, jamais ajoutée à User.photos.
     const verdict = evaluateModeration(result);
     if (!verdict.approved) {
-      await cloudinary.uploader.destroy(result.public_id).catch(() => {});
+      await cloudinary.uploader
+        .destroy(depot.publicId, { type: depot.mode })
+        .catch(() => {});
       await ModerationLog.create({
         userId: user._id,
         context: "profile_photo",
@@ -109,16 +115,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    /**
+     * C'est la référence qui est stockée, pas l'adresse : l'adresse
+     * signée est recalculée à chaque lecture.
+     */
     const updatedUser = await User.findOneAndUpdate(
       { email },
-      { $push: { photos: result.secure_url } },
+      { $push: { photos: referencePhoto(depot.publicId, depot.mode) } },
       { new: true }
     ).select("photos");
 
     return NextResponse.json({
       success: true,
-      url: result.secure_url,
-      photos: updatedUser?.photos ?? [],
+      url: depot.url,
+      photos: galeriePubliee(updatedUser?.photos),
     });
   } catch (err) {
     console.error("POST /api/upload/photo :", err);
@@ -143,21 +153,50 @@ export async function DELETE(req: NextRequest) {
     await connectDB();
     const email = session.user.email.toLowerCase().trim();
 
-    const updatedUser = await User.findOneAndUpdate(
-      { email },
-      { $pull: { photos: url } },
-      { new: true }
-    ).select("photos");
+    /**
+     * Le client supprime par l'adresse qu'il affiche.
+     *
+     * Or ce n'est plus l'adresse qui est stockée : il faut retrouver
+     * quelle entrée l'a produite. La comparaison se fait sur
+     * l'identifiant Cloudinary, qui est stable, et non sur l'adresse
+     * elle-même, qui porte une signature.
+     */
+    const utilisateur = await User.findOne({ email }).select("photos");
 
-    if (!updatedUser) {
+    if (!utilisateur) {
       return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
     }
 
+    const identifiantVise = identifiantDepuisUrl(url);
+
+    const entree = (utilisateur.photos ?? []).find(
+      (candidate) =>
+        candidate === url ||
+        (identifiantVise !== null &&
+          identifiantDeLEntree(candidate) === identifiantVise)
+    );
+
+    if (!entree) {
+      return NextResponse.json(
+        { success: false, error: "Cette photo n'est pas dans ta galerie." },
+        { status: 404 }
+      );
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { $pull: { photos: entree } },
+      { new: true }
+    ).select("photos");
+
     // Supprimer sur Cloudinary (silencieux si échec)
     try {
-      const publicId = extractCloudinaryPublicId(url);
+      const publicId = identifiantDeLEntree(entree);
+
       if (publicId) {
-        await cloudinary.uploader.destroy(publicId);
+        await cloudinary.uploader.destroy(publicId, {
+          type: modeDeLEntree(entree),
+        });
       }
     } catch (cloudErr) {
       console.warn("Cloudinary delete échoué :", cloudErr);
@@ -165,26 +204,10 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      photos: updatedUser.photos ?? [],
+      photos: galeriePubliee(updatedUser?.photos),
     });
   } catch (err) {
     console.error("DELETE /api/upload/photo :", err);
     return NextResponse.json({ success: false, error: "Erreur lors de la suppression." }, { status: 500 });
-  }
-}
-
-// ── Utilitaire ─────────────────────────────────────────────────────────────
-
-/**
- * Extrait le public_id Cloudinary depuis une secure_url.
- * Ex: https://res.cloudinary.com/demo/image/upload/v123/sferasolys/photos/abc.jpg
- *   → sferasolys/photos/abc
- */
-function extractCloudinaryPublicId(url: string): string | null {
-  try {
-    const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-z]+)?$/i);
-    return match?.[1] ?? null;
-  } catch {
-    return null;
   }
 }

@@ -19,6 +19,7 @@ import { authOptions } from "@/lib/auth";
  * src/lib/subscription/subscription-check.ts
  */
 import { SubscriptionChecker } from "@/lib/subscription/subscription-check";
+import { galeriePubliee } from "@/lib/photos-profil";
 
 /**
  * Route profil connecté.
@@ -136,6 +137,15 @@ function sanitizeUser(user: any) {
   const plainUser = user.toObject ? user.toObject({ virtuals: true }) : { ...user };
 
   plainUser.hasReponse = hasReponse;
+
+  /**
+   * La galerie est résolue avant de partir.
+   *
+   * Le tableau stocké ne contient plus des adresses mais des
+   * références ; les rendre telles quelles afficherait des images
+   * cassées dans la page du compte.
+   */
+  plainUser.photos = galeriePubliee(plainUser.photos);
 
   // Ne jamais renvoyer les champs sensibles
   delete plainUser.password;
