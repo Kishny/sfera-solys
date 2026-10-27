@@ -588,8 +588,8 @@ export default function Home() {
 
                   <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/60 sm:text-base">
                     Quatre étapes, et une Sphère qui se compose à mesure.{' '}
-                    <span className="text-champagne/80">Clique une étape</span>{' '}
-                    pour voir l&apos;état de Ta Sphère à ce moment-là.
+                    <span className="text-champagne/80">Clique sur une étape</span>{' '}
+                    pour voir où en est Ta Sphère à ce moment précis.
                   </p>
                 </>
               }

@@ -165,7 +165,7 @@ const valeurs: Valeur[] = [
     icon: Users,
     titre: 'Choisir, pas consommer',
     resume:
-      'Le Circle of Six : six profils sélectionnés chaque semaine, pour des rencontres plus choisies.',
+      'Le Circle of Six : chaque semaine, six profils sont retenus afin de planifier des rencontres plus élaborées.',
     detail:
       "Le Circle of Six propose six profils le lundi, puis s'arrête. À côté, l'annuaire permet de chercher par soi-même. Aucune des deux vues ne défile à l'infini : ce n'est pas un oubli, c'est le produit.",
     preuve: 'Circle of Six hebdomadaire · vue annuaire',
