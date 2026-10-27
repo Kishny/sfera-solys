@@ -62,3 +62,8 @@ _migrated-out-of-app-router/
 # Build de vérification, lancé en parallèle du serveur de développement
 /.next-verif/
 public/new-visuel/
+
+# Archive de vérification : l'arborescence envoyée dans le conteneur pour
+# y lancer un vrai `next build` avant de pousser. Elle se recrée à chaque
+# fois et n'a rien à faire dans l'historique.
+.verif-build.tgz
