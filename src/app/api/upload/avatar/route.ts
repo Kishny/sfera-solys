@@ -17,6 +17,7 @@ import {
   evaluateModeration,
   MODERATION_REJECTION_MESSAGE,
 } from "@/lib/moderation";
+import { identifiantDeLEntree, modeDeLEntree } from "@/lib/photos-profil";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -114,8 +115,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Sauvegarder l'URL dans MongoDB
+    /**
+     * L'ancien avatar est détruit avant d'être remplacé.
+     *
+     * Il ne l'était pas : la route écrivait la nouvelle adresse et
+     * oubliait la précédente. Tous les avatars jamais déposés restaient
+     * donc chez Cloudinary, à une adresse publique — chaque ancienne
+     * photo de profil de chaque membre restait téléchargeable
+     * indéfiniment. Sur un site de rencontre, ce n'est pas de l'hygiène
+     * de stockage, c'est le droit à l'effacement.
+     *
+     * La destruction est faite après le dépôt réussi et avant
+     * l'écriture : en cas d'échec du dépôt, l'ancienne photo est
+     * toujours là, et le membre n'a rien perdu.
+     *
+     * Les avatars venus de Google ne sont pas chez nous : il n'y a rien
+     * à y détruire, et l'identifiant extrait serait un faux.
+     */
     const email = session.user.email.toLowerCase().trim();
+
+    const precedent = await User.findOne({ email }).select("image");
+    const ancienneAdresse = precedent?.image ?? "";
+
+    if (ancienneAdresse.includes("res.cloudinary.com")) {
+      const ancienIdentifiant = identifiantDeLEntree(ancienneAdresse);
+
+      if (ancienIdentifiant && ancienIdentifiant !== result.public_id) {
+        await cloudinary.uploader
+          .destroy(ancienIdentifiant, { type: modeDeLEntree(ancienneAdresse) })
+          .catch((erreur) => {
+            // Un fichier qui résiste ne doit pas empêcher le changement
+            // de photo, mais il doit se voir.
+            console.warn(
+              "[upload/avatar] L'ancien avatar n'a pas pu être détruit :",
+              erreur
+            );
+          });
+      }
+    }
+
     await User.findOneAndUpdate(
       { email },
       { $set: { image: result.secure_url } }
