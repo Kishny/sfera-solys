@@ -920,6 +920,15 @@ UserSchema.pre("findOneAndUpdate", async function () {
 UserSchema.index({ plan: 1, subscriptionStatus: 1 });
 UserSchema.index({ isPremium: 1, hasCompletedProfile: 1 });
 UserSchema.index({ visibilite: 1, hasCompletedProfile: 1 });
+
+/**
+ * Recherche par centres d'intérêt.
+ *
+ * `interets` est un tableau : l'index multiclé évite qu'un filtre sur
+ * les intérêts balaie toute la collection. Combiné à `visibilite` parce
+ * que la requête d'Explorer porte toujours les deux.
+ */
+UserSchema.index({ interets: 1, visibilite: 1 });
 UserSchema.index({ localisation: 1 });
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ updatedAt: -1 });

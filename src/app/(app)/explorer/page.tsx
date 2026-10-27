@@ -106,6 +106,7 @@ interface Recherche {
   ville: string;
   departement: string;
   /** Filtres réservés aux offres payantes. */
+  interets: string[];
   orientation: string;
   actifRecemment: boolean;
 }
@@ -136,6 +137,28 @@ const INTENTIONS = [
  * SferaLuna. « Curieux » remplace « Curieuse », et l'entrée
  * « Lesbienne / Homosexuelle » n'avait évidemment rien à faire ici.
  */
+/**
+ * Les centres d'intérêt, dans l'ordre de l'inscription.
+ *
+ * Même liste que `Step4` et que la route `/api/profiles`, qui la
+ * revalide de son côté : un filtre ne se fie pas à ce que le client
+ * envoie.
+ */
+const INTERETS = [
+  { value: "voyage", label: "Voyage" },
+  { value: "cuisine", label: "Cuisine" },
+  { value: "sport", label: "Sport" },
+  { value: "musique", label: "Musique" },
+  { value: "cinema", label: "Cinéma" },
+  { value: "lecture", label: "Lecture" },
+  { value: "art", label: "Art" },
+  { value: "technologie", label: "Technologie" },
+  { value: "nature", label: "Nature" },
+  { value: "mode", label: "Mode" },
+  { value: "gaming", label: "Jeux vidéo" },
+  { value: "photographie", label: "Photographie" },
+];
+
 const ORIENTATIONS = [
   { value: "hetero", label: "Hétérosexuel" },
   { value: "homo", label: "Gay" },
@@ -151,6 +174,7 @@ const RECHERCHE_VIDE: Recherche = {
   intentions: [],
   ville: "",
   departement: "",
+  interets: [],
   orientation: "",
   actifRecemment: false,
 };
@@ -248,6 +272,10 @@ export default function AnnuairePage() {
           params.set("intentions", filtres.intentions.join(","));
         }
 
+        if (filtres.interets.length > 0) {
+          params.set("interets", filtres.interets.join(","));
+        }
+
         if (filtres.ville.trim()) params.set("localisation", filtres.ville.trim());
 
         // "" = on laisse l'API appliquer la portée enregistrée par le membre.
@@ -324,6 +352,15 @@ export default function AnnuairePage() {
     }));
   };
 
+  const basculerInteret = (valeur: string) => {
+    setBrouillon((actuel) => ({
+      ...actuel,
+      interets: actuel.interets.includes(valeur)
+        ? actuel.interets.filter((item) => item !== valeur)
+        : [...actuel.interets, valeur],
+    }));
+  };
+
   const allerPage = (numero: number) => {
     const cible = Math.min(Math.max(1, numero), nombreDePages);
     if (cible === page) return;
@@ -394,6 +431,7 @@ export default function AnnuairePage() {
     if (recherche.ageMin !== String(AGE_MINIMUM)) compte += 1;
     if (recherche.ageMax !== String(AGE_MAXIMUM)) compte += 1;
     if (recherche.intentions.length > 0) compte += 1;
+    if (recherche.interets.length > 0) compte += 1;
     if (recherche.ville.trim()) compte += 1;
     if (recherche.departement) compte += 1;
     if (recherche.orientation) compte += 1;
@@ -627,6 +665,42 @@ export default function AnnuairePage() {
                     );
                   })}
                 </div>
+              </fieldset>
+
+              {/* Centres d'intérêt */}
+              <fieldset className="mt-4">
+                <legend className="mb-2 text-[12px] font-semibold text-champagne/70">
+                  Centres d’intérêt
+                </legend>
+
+                <div className="flex flex-wrap gap-2">
+                  {INTERETS.map((interet) => {
+                    const choisi = brouillon.interets.includes(interet.value);
+
+                    return (
+                      <button
+                        key={interet.value}
+                        type="button"
+                        onClick={() => basculerInteret(interet.value)}
+                        aria-pressed={choisi}
+                        className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+                          choisi
+                            ? "border-cuivre bg-cuivre text-nuit"
+                            : "border-champagne/12 text-champagne/60 hover:border-champagne/25"
+                        }`}
+                      >
+                        {interet.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {brouillon.interets.length > 0 && (
+                  <p className="mt-2 text-[11.5px] text-champagne/55">
+                    Les profils affichés partagent au moins un de ces centres
+                    d’intérêt.
+                  </p>
+                )}
               </fieldset>
 
               {/* Filtres payants */}

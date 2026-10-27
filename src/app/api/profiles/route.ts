@@ -71,6 +71,28 @@ function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/**
+ * Les centres d'intérêt proposés à l'inscription.
+ *
+ * Recopiés ici parce que la liste d'origine vit dans un composant
+ * client, qu'une route serveur n'importe pas. À garder en phase avec
+ * `src/app/inscription/steps/Step4.tsx`.
+ */
+const INTERETS_CONNUS = [
+  "voyage",
+  "cuisine",
+  "sport",
+  "musique",
+  "cinema",
+  "lecture",
+  "art",
+  "technologie",
+  "nature",
+  "mode",
+  "gaming",
+  "photographie",
+];
+
 function isPremiumActive(user: any) {
   // Dérivé de l'offre et du statut — voir `@/lib/abonnement`.
   return estAbonnePayant(user);
@@ -151,6 +173,7 @@ export async function GET(req: NextRequest) {
     const safeAgeMax = Math.max(safeAgeMin, Math.min(ageMax, 120));
 
     const intentionsParam = searchParams.get("intentions");
+    const interetsParam = searchParams.get("interets");
     const localisation = searchParams.get("localisation");
 
     const limit = Math.min(parsePositiveInt(searchParams.get("limit"), 20), 50);
@@ -262,6 +285,29 @@ export async function GET(req: NextRequest) {
 
     if (effectiveDepartement) {
       query.departement = effectiveDepartement;
+    }
+
+    /**
+     * Centres d'intérêt.
+     *
+     * « Au moins un en commun », et non « tous » : exiger les cinq
+     * renverrait presque toujours une liste vide, alors que le but est
+     * d'élargir ce qu'on a en partage, pas de le restreindre.
+     *
+     * Les valeurs sont confrontées à la liste connue avant d'entrer dans
+     * la requête. Sans ce tri, le paramètre d'URL deviendrait un champ
+     * libre injecté dans un `$in` — rien de dramatique sur un tableau de
+     * chaînes, mais une porte qu'on ne laisse pas ouverte.
+     */
+    if (interetsParam) {
+      const demandes = interetsParam
+        .split(",")
+        .map((valeur) => valeur.trim())
+        .filter((valeur) => INTERETS_CONNUS.includes(valeur));
+
+      if (demandes.length > 0) {
+        query.interets = { $in: demandes };
+      }
     }
 
     if (orientation && orientation.trim().length > 0) {
