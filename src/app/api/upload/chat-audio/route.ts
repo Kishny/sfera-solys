@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
      * Le MP3 est le seul format audio que tous les navigateurs lisent.
      * Le fichier d'origine reste déposé, intact, au cas où.
      */
-    const urlDeLecture =
+    const urlMp3 =
       resultat.eager?.[0]?.secure_url ??
       // Si le transcodage demandé à l'envoi n'a rien renvoyé, l'adresse
       // construite à la main reste valable : Cloudinary produira le MP3
@@ -179,6 +179,43 @@ export async function POST(req: NextRequest) {
         // Une adresse de média n'a pas à porter ça.
         analytics: false,
       });
+
+    /**
+     * Le MP3 est-il réellement servi ?
+     *
+     * Le transcodage dépend de la configuration du compte Cloudinary —
+     * les transformations strictes, notamment, refusent une dérivée non
+     * signée. Plutôt que de le supposer, on le demande.
+     *
+     * Si le MP3 ne répond pas, on sert le fichier d'origine. Le vocal
+     * reste lisible par le navigateur qui l'a enregistré, ce qui vaut
+     * mieux qu'une adresse morte ; la lecture entre navigateurs
+     * différents, elle, redevient incertaine — d'où l'avertissement
+     * dans les journaux, pour que ça se voie.
+     */
+    let urlDeLecture = urlMp3;
+
+    try {
+      const verification = await fetch(urlMp3, {
+        method: 'HEAD',
+        signal: AbortSignal.timeout(5000),
+      });
+
+      if (!verification.ok) {
+        console.warn(
+          `[upload/chat-audio] MP3 indisponible (${verification.status}) : ` +
+            `le vocal est servi dans son format d'origine, ` +
+            `illisible sur les navigateurs qui ne le gèrent pas.`
+        );
+        urlDeLecture = resultat.secure_url;
+      }
+    } catch {
+      console.warn(
+        "[upload/chat-audio] Le MP3 n'a pas pu être vérifié : " +
+          "le vocal est servi dans son format d'origine."
+      );
+      urlDeLecture = resultat.secure_url;
+    }
 
     return NextResponse.json({
       success: true,

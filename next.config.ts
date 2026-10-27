@@ -107,6 +107,25 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://res.cloudinary.com https://lh3.googleusercontent.com",
+              /*
+                `media-src` manquait, et c'est ce qui cassait les vocaux.
+                Dans toutes les directions.
+
+                Sans directive propre, `<audio>` et `<video>` retombent sur
+                `default-src 'self'` : ni Cloudinary, ni `blob:`, ni `data:`
+                n'étaient autorisés. La relecture échouait donc quelle que
+                soit l'adresse essayée, et les vocaux du fil n'auraient
+                jamais joué non plus, sur aucun navigateur.
+
+                Les images, elles, marchaient : `img-src` les autorise
+                explicitement. C'est ce qui a rendu la panne trompeuse — le
+                reste de la messagerie allait bien.
+
+                `blob:` et `data:` restent utiles pour une relecture locale
+                avant envoi, même si ce n'est plus le chemin pris
+                aujourd'hui.
+              */
+              "media-src 'self' blob: data: https://res.cloudinary.com",
               "connect-src 'self' https://api.stripe.com wss://ws-eu.pusher.com https://sockjs-eu.pusher.com https://va.vercel-scripts.com https://vitals.vercel-insights.com",
               "frame-src https://js.stripe.com https://hooks.stripe.com https://www.youtube.com https://www.youtube-nocookie.com",
             ].join("; "),
