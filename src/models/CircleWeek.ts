@@ -9,8 +9,8 @@ import mongoose, { Schema, models, model } from 'mongoose';
  *
  * Le Circle of Six est la fonctionnalité signature du produit, et sa promesse
  * est précise. `/valeurs` : « Le Circle of Six propose six profils le lundi,
- * puis s'arrête. » `/fonctionnalites` : « Chaque semaine, notre algorithme te
- * présente 6 profils. »
+ * puis s'arrête. » `/fonctionnalites` : « Chaque semaine, six profils sont
+ * retenus. »
  *
  * Or `/api/circle` **recalculait le score à chaque appel** et renvoyait le top 6
  * du moment. Rien n'était figé : un nouveau like, une connexion d'un candidat,

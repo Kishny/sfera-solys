@@ -142,9 +142,9 @@ const contreparties: Array<{ icon: IconeMarque; titre: string; texte: string }> 
 const refus: Array<{ icon: IconeMarque; titre: string; texte: string }> = [
   {
     icon: IconeInfini,
-    titre: 'Le défilement sans fin',
+    titre: 'Le défilement infini',
     texte:
-      "Nous ne proposons pas un défilement illimité de profils. À la place, six profils par semaine avec le Circle of Six, renouvelés le lundi. Assez pour choisir, trop peu pour consommer.",
+      "Nous ne proposons pas de défilement infini. À la place, six profils par semaine avec le Circle of Six, renouvelés chaque lundi. Assez pour choisir, trop peu pour consommer.",
   },
   {
     icon: EyeOff,

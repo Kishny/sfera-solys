@@ -227,7 +227,7 @@ export function CircleOfSixPreview({ className = '' }: { className?: string }) {
 
         <p className="mt-auto border-t border-champagne/8 pt-3 text-[11px] text-champagne/55">
           <span className="block pt-1">
-            6 profils, renouvelés chaque lundi. Aucun défilement infini.
+            Six profils, renouvelés chaque lundi. Pas de défilement infini.
           </span>
         </p>
       </div>

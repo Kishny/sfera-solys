@@ -8,8 +8,8 @@
  * ## La promesse, et ce qu'elle était
  *
  * `/valeurs` : « Le Circle of Six propose six profils le lundi, puis
- * s'arrête. » `/fonctionnalites` : « Chaque semaine, notre algorithme te
- * présente 6 profils. » C'est la fonctionnalité signature du produit, celle qui
+ * s'arrête. » `/fonctionnalites` : « Chaque semaine, six profils sont
+ * retenus. » C'est la fonctionnalité signature du produit, celle qui
  * justifie qu'Explorer ne soit pas un fil infini.
  *
  * En réalité, `/api/circle` recalculait le score à chaque appel et renvoyait le
@@ -272,7 +272,7 @@ export default function PageCircle() {
             className="mb-6"
             surtitre={verrouille ? "Aperçu de la fonctionnalité" : "Cercle & communauté"}
             titre="Circle of Six"
-            sousTitre="Six profils choisis pour toi, une fois par semaine. Pas de défilement infini."
+            sousTitre="Six profils retenus pour toi chaque lundi. Pas de défilement infini."
             action={{
               libelle: "Accès dès Essentiel",
               icone: Crown,
@@ -337,8 +337,8 @@ export default function PageCircle() {
                   </h2>
 
                   <p className="mt-4 max-w-xl text-[13.5px] leading-relaxed text-champagne/85">
-                    Le Circle of Six te présente six profils choisis selon tes
-                    valeurs et tes affinités, sans défilement infini. Il
+                    Le Circle of Six retient six profils selon tes valeurs et
+                    tes affinités, sans défilement infini. Il
                     s’ouvre dès l’offre Essentiel ; la vérification, le profil,
                     l’annuaire et la messagerie restent accessibles sans payer.
                   </p>

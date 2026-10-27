@@ -96,7 +96,7 @@ const garanties = [
   {
     icon: HexagonSix,
     titre: 'Six profils par semaine',
-    texte: 'Un cercle restreint, choisi — pas un défilement sans fin.',
+    texte: 'Un cercle restreint, retenu pour toi — pas de défilement infini.',
   },
 ];
 
@@ -221,7 +221,7 @@ const featureTeasers = [
     icon: HexagonSix,
     title: 'Circle of Six',
     description:
-      'Six profils choisis par semaine, au lieu de milliers de swipes.',
+      'Chaque semaine, six profils retenus pour toi — pas de défilement infini.',
     href: '/fonctionnalites#circle',
     image: '/visuels/solys-06.webp',
     alt: "Épaule et nuque d'un homme, en contre-jour doré.",

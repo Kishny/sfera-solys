@@ -113,7 +113,7 @@ const allFAQs: Faq[] = [
     question: 'Comment fonctionne le Circle of Six ?',
     image: '/visuels/solys-06.webp',
     answer:
-      'Le Circle of Six est notre système de matching unique. Chaque semaine, notre algorithme te présente 6 profils qui correspondent à tes valeurs, intérêts et préférences. Tu peux interagir avec ces 6 personnes toute la semaine, sans la pression des applications de swipe traditionnelles.',
+      'Chaque lundi, six profils vérifiés sont retenus selon tes valeurs et tes centres d’intérêt. Tu as la semaine entière pour échanger avec eux, sans défilement infini ni pression.',
     category: 'matching',
     popular: true,
   },

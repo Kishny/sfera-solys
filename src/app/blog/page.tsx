@@ -72,7 +72,7 @@ export default function BlogPage() {
             <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-champagne/65 sm:text-base">
               Sur la rencontre à partir de 28 ans, la vérification d&apos;
               identité, et ce qu&apos;on apprend en construisant une plateforme
-              qui refuse le défilement sans fin.
+              qui refuse le défilement infini.
             </p>
 
             {articles.length > 0 ? (

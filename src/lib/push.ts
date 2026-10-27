@@ -161,7 +161,7 @@ export async function sendCircleHebdoPush(params: {
   await sendPushNotification({
     to: token,
     title: "Ton Circle of Six t'attend",
-    body: "Six profils choisis pour toi cette semaine. Ils changent lundi prochain.",
+    body: "Six profils retenus pour toi cette semaine. Ils changent lundi prochain.",
     data: { type: "circle_weekly" },
     sound: "default",
     channelId: "matches",

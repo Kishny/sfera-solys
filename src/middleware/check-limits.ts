@@ -440,7 +440,7 @@ export class SubscriptionChecker {
           current,
           count,
           limit,
-          reason: "Limite quotidienne de swipes atteinte.",
+          reason: "Limite quotidienne atteinte.",
         });
       }
 

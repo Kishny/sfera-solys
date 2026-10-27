@@ -96,7 +96,7 @@ const steps: Step[] = [
     icon: Users,
     image: '/visuels/guide/etape-2.webp',
     content:
-      'Chaque semaine, notre algorithme te présente 6 profils vérifiés qui partagent tes valeurs et tes intérêts.',
+      'Chaque semaine, six profils vérifiés sont retenus pour toi, selon tes valeurs et tes centres d’intérêt.',
     details: [
       'Reçois 6 suggestions personnalisées chaque dimanche',
       'Chaque profil est pré-sélectionné selon tes critères',
@@ -260,7 +260,7 @@ const relatedPages = [
   {
     label: 'Circle of Six',
     href: '/fonctionnalites#circle',
-    resume: '6 profils sélectionnés chaque semaine.',
+    resume: 'Six profils retenus chaque semaine.',
     image: '/visuels/solys-06.webp',
   },
   {

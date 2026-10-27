@@ -253,8 +253,8 @@ function PanneauAffinite() {
 
       <p className="mt-5 flex items-start gap-2 text-[12px] leading-relaxed text-champagne/60">
         <Sparkles size={14} className="mt-0.5 shrink-0 text-cuivre" />
-        Six profils par semaine, choisis sur ces critères — pas un défilement
-        sans fin.
+        Six profils par semaine, retenus sur ces critères — pas de défilement
+        infini.
       </p>
     </>
   );

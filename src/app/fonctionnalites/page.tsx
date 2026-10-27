@@ -107,13 +107,13 @@ const features: FeatureItem[] = [
     // est la fonctionnalité signature, elle garde son hexagone.
     icon: HexagonSix,
     title: 'Circle of Six',
-    description: 'Des liens choisis, pas des milliers de swipes.',
+    description: 'Des liens retenus, pas un défilement infini.',
     details:
-      "Chaque semaine, notre algorithme te présente 6 profils qui correspondent à tes valeurs et à tes intérêts. Une approche qualitative pour des rencontres plus authentiques.",
+      "Chaque semaine, six profils sont retenus selon tes valeurs et tes centres d’intérêt, afin de planifier des rencontres plus élaborées.",
     benefits: [
-      '6 profils par semaine',
+      'Six profils par semaine',
       'Compatibilité optimisée',
-      'Moins de fatigue du swipe',
+      'Moins de fatigue',
     ],
     link: '/circle',
     featured: true,

@@ -12,9 +12,9 @@
  * préchargement qui allongeait la liste sans fin. Or le site affirme le
  * contraire à deux endroits. `/valeurs` : « Le Circle of Six propose six
  * profils le lundi, puis s'arrête. À côté, l'annuaire permet de chercher par
- * soi-même. Aucune des deux vues ne défile à l'infini : ce n'est pas un oubli,
- * c'est le produit. » Et `/fonctionnalites` vend « des liens choisis, pas des
- * milliers de swipes » et « moins de fatigue du swipe ».
+ * soi-même. Aucune des deux n'offre de défilement infini : ce n'est pas un
+ * oubli, c'est le produit. » Et `/fonctionnalites` vend « des liens retenus,
+ * pas un défilement infini ».
  *
  * L'annuaire promis n'existait pas : Explorer *était* le swipe. Une promesse
  * tenue par une page qui fait l'inverse n'est pas une promesse.
@@ -431,7 +431,7 @@ export default function AnnuairePage() {
                 {chargement && profils.length === 0
                   ? "Recherche en cours…"
                   : total > 0
-                    ? `${total} profil${total > 1 ? "s" : ""} correspondent à ta recherche. Tu avances page par page — rien ne défile à l’infini.`
+                    ? `${total} profil${total > 1 ? "s" : ""} correspondent à ta recherche. Tu avances page par page — pas de défilement infini.`
                     : "Aucun profil ne correspond à cette recherche."}
               </p>
             </div>

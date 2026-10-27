@@ -114,7 +114,7 @@ const etapes: Etape[] = [
     duree: '6 propositions / semaine',
     dureeIcon: Sparkles,
     description:
-      'Chaque semaine, six profils vérifiés alignés avec tes valeurs et ton rythme de vie.',
+      'Chaque semaine, six profils vérifiés retenus selon tes valeurs et ton rythme de vie.',
     image: '/visuels/guide/etape-5.webp',
     alt: 'Un groupe d’hommes en conversation lors d’une soirée sur un toit.',
   },
@@ -209,7 +209,7 @@ const faqs = [
   {
     question: 'Comment fonctionne le Circle of Six ?',
     answer:
-      "Chaque lundi, six profils vérifiés te sont proposés, choisis selon tes valeurs et tes centres d'intérêt. La sélection est figée jusqu'au lundi suivant : elle ne défile pas à l'infini, et c'est volontaire. À côté, l'annuaire reste accessible pour chercher par toi-même.",
+      "Chaque lundi, six profils vérifiés sont retenus selon tes valeurs et tes centres d'intérêt. La sélection est figée jusqu'au lundi suivant : pas de défilement infini, et c'est volontaire. À côté, l'annuaire reste accessible pour chercher par toi-même.",
   },
   {
     question: 'Puis-je rester discret ?',
