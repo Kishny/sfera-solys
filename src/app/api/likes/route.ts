@@ -14,6 +14,7 @@ import { envoyerPusher } from "@/lib/pusher";
 import { sendNewMatchPush } from "@/lib/push";
 import { quotaLikesDuJour } from "@/lib/quotas";
 import { ouvrirEnAttente, quotaMatchs } from "@/lib/matches";
+import { estFantome } from "@/lib/visibilite";
 
 /**
  * Route Likes Sfera'Solys.
@@ -295,7 +296,7 @@ export async function POST(req: NextRequest) {
       bloque ||
       !targetUser.hasCompletedProfile ||
       targetUser.banned ||
-      targetUser.visibilite === "invisible" ||
+      estFantome(targetUser.visibilite) ||
       (targetUser as any).role === "admin"
     ) {
       return NextResponse.json(

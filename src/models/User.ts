@@ -3,6 +3,7 @@
 import mongoose, { Schema, Document, Model, models } from "mongoose";
 
 import type { SubscriptionStatus } from "@/lib/subscription/config";
+import { estFantome } from "@/lib/visibilite";
 
 /**
  * Providers d'authentification autorisés.
@@ -821,7 +822,7 @@ UserSchema.virtual("subscriptionStatusLabel").get(function (this: IUser) {
  * Pratique pour l'interface.
  */
 UserSchema.virtual("isProfileVisible").get(function (this: IUser) {
-  return this.visibilite !== "invisible" && !this.banned;
+  return !estFantome(this.visibilite) && !this.banned;
 });
 
 /**

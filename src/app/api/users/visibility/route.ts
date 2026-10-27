@@ -7,6 +7,7 @@ import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import type { ProfileVisibility } from "@/models/User";
+import { estFantome, normaliserVisibilite } from "@/lib/visibilite";
 
 const ALLOWED_VISIBILITY: ProfileVisibility[] = ["public", "matches", "premium", "invisible"];
 
@@ -56,8 +57,8 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Le mode invisible est réservé aux membres premium
-    if (visibilite === "invisible") {
+    // Le Mode Fantôme est réservé aux membres premium
+    if (estFantome(visibilite)) {
       const isPremiumActive =
         user.isPremium &&
         (user.subscriptionStatus === "active" || user.subscriptionStatus === "trialing");
@@ -76,7 +77,13 @@ export async function PUT(req: NextRequest) {
 
     const updated = await User.findOneAndUpdate(
       { email },
-      { $set: { visibilite } },
+      /*
+        Normalisée avant écriture : l'ancienne valeur `matches` est
+        convertie en `invisible`. C'est ce qui fait disparaître le
+        quatrième niveau du parc au fil des modifications, sans script de
+        migration — et sans invalider les documents qui la portent encore.
+      */
+      { $set: { visibilite: normaliserVisibilite(visibilite) } },
       { new: true, runValidators: true }
     ).select("visibilite isPremium plan");
 
@@ -84,8 +91,8 @@ export async function PUT(req: NextRequest) {
       {
         success: true,
         visibilite: updated?.visibilite,
-        message: visibilite === "invisible"
-          ? "Mode invisible activé. Votre profil n'apparaît plus dans les recherches."
+        message: estFantome(visibilite)
+          ? "Mode Fantôme activé. Ton profil n'apparaît plus dans l'annuaire ni dans les Circle. Tes mises en relation, elles, te voient toujours."
           : "Visibilité mise à jour.",
       },
       { status: 200 }

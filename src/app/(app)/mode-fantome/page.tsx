@@ -45,7 +45,6 @@ import {
   EyeOff,
   Ghost,
   Globe,
-  Heart,
   Loader2,
   Lock,
   Info,
@@ -59,7 +58,7 @@ import { usePremium } from "@/hooks/usePremium";
 // Types
 // ─────────────────────────────────────────────
 
-type Visibilite = "public" | "matches" | "premium" | "invisible";
+type Visibilite = "public" | "premium" | "invisible";
 
 interface Niveau {
   valeur: Visibilite;
@@ -89,19 +88,11 @@ const NIVEAUX: Niveau[] = [
     icone: Sparkle,
   },
   {
-    valeur: "matches",
-    titre: "Réservé à tes mises en relation",
-    resume: "Seuls tes matchs peuvent ouvrir ton profil.",
-    detail:
-      "Tu sors de l’annuaire et des Circle, et même avec le lien direct, personne ne peut consulter ton profil sans être déjà en relation avec toi.",
-    icone: Heart,
-  },
-  {
     valeur: "invisible",
     titre: "Mode Fantôme",
-    resume: "Tu disparais, sans rien perdre.",
+    resume: "Tu disparais de la découverte, pas de tes relations.",
     detail:
-      "Ton profil sort de l’annuaire et des Circle, et tu consultes les autres profils sans laisser de trace dans leurs visiteurs. Tes conversations et tes mises en relation restent intactes.",
+      "Ton profil sort de l’annuaire et des Circle, et même avec le lien direct personne ne peut l’ouvrir — sauf tes mises en relation, qui continuent de te voir normalement. Tu consultes les autres profils sans laisser de trace dans leurs visiteurs, et tes conversations ne bougent pas.",
     icone: Ghost,
     premium: true,
   },
@@ -142,7 +133,14 @@ export default function PageVisibilite() {
         return;
       }
 
-      setVisibilite((donnees.user?.visibilite as Visibilite) ?? "public");
+      /*
+        L'ancien réglage « réservé à mes mises en relation » a été fusionné
+        dans le Mode Fantôme : il faisait la même chose depuis que celui-ci
+        laisse passer les matchs. Les comptes qui le portent encore voient
+        donc le Mode Fantôme sélectionné, ce qui est exact.
+      */
+      const brute = donnees.user?.visibilite;
+      setVisibilite(brute === "matches" ? "invisible" : ((brute as Visibilite) ?? "public"));
     } catch {
       setErreur("Connexion interrompue.");
     } finally {

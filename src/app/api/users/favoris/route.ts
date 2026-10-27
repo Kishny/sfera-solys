@@ -8,6 +8,7 @@ import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { blocagesDe } from "@/lib/blocages";
+import { Match } from "@/models/Match";
 
 /**
  * GET    /api/users/favoris  → les profils mis en favori
@@ -92,6 +93,26 @@ export async function GET() {
      */
     const blocages = await blocagesDe(moi);
 
+    /*
+     * Le Mode Fantôme sort un profil de la découverte, pas des relations
+     * déjà nouées : une mise en relation continue d'ouvrir sa fiche. La
+     * liste des favoris suit la même règle, sans quoi elle afficherait
+     * une carte qui mène à un refus — ou cacherait quelqu'un avec qui on
+     * échange tous les jours.
+     */
+    const mesMatchs = await Match.find({
+      isActive: true,
+      $or: [{ user1Id: moi }, { user2Id: moi }],
+    })
+      .select("user1Id user2Id")
+      .lean();
+
+    const idsDesMatchs = mesMatchs.map((match) =>
+      String(match.user1Id) === moi
+        ? String(match.user2Id)
+        : String(match.user1Id)
+    );
+
     const profils = await User.find({
       _id: {
         $in: ids,
@@ -99,7 +120,10 @@ export async function GET() {
       },
       banned: { $ne: true },
       hasCompletedProfile: true,
-      visibilite: { $ne: "invisible" },
+      $or: [
+        { visibilite: { $nin: ["invisible", "matches"] } },
+        { _id: { $in: idsDesMatchs } },
+      ],
     })
       .select(
         "_id pseudonyme age localisation departement image identityVerified"

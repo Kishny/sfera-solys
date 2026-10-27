@@ -11,6 +11,7 @@ import { blocageEntre } from "@/lib/blocages";
 import { Like } from "@/models/Like";
 import { Match } from "@/models/Match";
 import { galeriePubliee } from "@/lib/photos-profil";
+import { estFantome } from "@/lib/visibilite";
 
 /**
  * GET /api/profiles/[id]
@@ -182,17 +183,6 @@ export async function GET(
       );
     }
 
-    if (profile.visibilite === "invisible" && !isOwnProfile) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Profil non disponible.",
-          code: "PROFILE_INVISIBLE",
-        },
-        { status: 403 }
-      );
-    }
-
     if (
       profile.visibilite === "premium" &&
       !isPremiumActive(currentUser) &&
@@ -235,16 +225,20 @@ export async function GET(
     ]);
 
     /**
-     * Visibilité « réservé à mes matchs ».
+     * Le Mode Fantôme.
      *
-     * C'est le réglage que le membre a choisi : sans match actif entre les deux,
-     * le profil n'est pas consultable, même avec l'identifiant en main.
+     * Il sort le profil de l'annuaire et des Circle, et ferme la fiche à
+     * tout le monde — sauf aux mises en relation déjà nouées. Le réglage
+     * sert à ne plus être découvert, pas à disparaître de ceux qu'on a
+     * déjà rencontrés : couper l'accès à un match laisserait une
+     * conversation ouverte avec quelqu'un dont on ne peut plus ouvrir le
+     * profil.
+     *
+     * Le test passe par `estFantome` et non par une comparaison à
+     * `"invisible"` : les comptes restés sur l'ancienne valeur `matches`
+     * doivent être traités à l'identique.
      */
-    if (
-      profile.visibilite === "matches" &&
-      !isOwnProfile &&
-      !match
-    ) {
+    if (estFantome(profile.visibilite) && !isOwnProfile && !match) {
       return NextResponse.json(
         {
           success: false,
@@ -271,7 +265,7 @@ export async function GET(
      * le contredire sur la même page.
      */
     const discret =
-      profile.visibilite === "invisible" || profile.visibilite === "matches";
+      estFantome(profile.visibilite);
 
     const vuRecemment =
       !discret &&

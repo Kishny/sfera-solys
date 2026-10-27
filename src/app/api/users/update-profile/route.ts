@@ -8,6 +8,8 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { authOptions } from "@/lib/auth";
+import { estFantome, normaliserVisibilite } from "@/lib/visibilite";
+import { SubscriptionChecker } from "@/lib/subscription/subscription-check";
 
 /**
  * Route de finalisation du profil après inscription.
@@ -237,7 +239,42 @@ export async function POST(req: NextRequest) {
     if (data.question !== undefined) updateData.question = data.question;
     if (data.reponse !== undefined) updateData.reponse = data.reponse;
     if (data.interets !== undefined) updateData.interets = data.interets;
-    if (data.visibilite !== undefined) updateData.visibilite = data.visibilite;
+    /*
+      Normalisée avant écriture : l'ancienne valeur `matches` est
+      convertie en `invisible`. C'est ce qui fait disparaître le
+      quatrième niveau du parc au fil des modifications, sans script de
+      migration — et sans invalider les documents qui la portent encore.
+    */
+    /**
+     * Le Mode Fantôme est une fonctionnalité payante.
+     *
+     * Cette route ne le vérifiait pas, alors que `/api/users/profile` le
+     * fait : un compte gratuit obtenait le Mode Fantôme en passant par
+     * ici — et c'est justement le chemin qu'emprunte l'inscription.
+     *
+     * Le contrôle porte sur `estFantome` et non sur `"invisible"` seul :
+     * l'ancienne valeur `matches` donne le même privilège depuis la
+     * fusion des deux niveaux, et la laisser passer rouvrirait la porte.
+     */
+    if (data.visibilite !== undefined && estFantome(data.visibilite)) {
+      const checker = new SubscriptionChecker(user._id.toString());
+
+      if (!(await checker.hasFeature("ghostMode"))) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Le Mode Fantôme est réservé aux offres payantes.",
+            code: "PREMIUM_REQUIRED",
+            requiredFeature: "ghostMode",
+            upgradeUrl: "/tarifs",
+          },
+          { status: 403 }
+        );
+      }
+    }
+
+    if (data.visibilite !== undefined)
+      updateData.visibilite = normaliserVisibilite(data.visibilite);
     if (data.consentement !== undefined) updateData.consentement = data.consentement;
 
     /**

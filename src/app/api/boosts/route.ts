@@ -17,6 +17,7 @@ import {
   synchroniserStatutsBoosts,
   versPublic,
 } from '@/lib/boosts';
+import { estFantome } from '@/lib/visibilite';
 
 /**
  * API des boosts de visibilité.
@@ -201,7 +202,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (user.visibilite === 'invisible' || user.visibilite === 'matches') {
+    if (estFantome(user.visibilite)) {
       return NextResponse.json(
         {
           success: false,

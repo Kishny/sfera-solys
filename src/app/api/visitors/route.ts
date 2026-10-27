@@ -11,6 +11,7 @@ import { blocagesDe } from "@/lib/blocages";
 import { ProfileVisit, getVisitDay } from "@/models/ProfileVisit";
 import { checkSubscriptionAccess, SubscriptionChecker } from "@/lib/subscription/subscription-check";
 import { sendProfileVisitPush } from "@/lib/push";
+import { estFantome } from "@/lib/visibilite";
 
 /**
  * GET /api/visitors
@@ -325,7 +326,7 @@ export async function POST(req: NextRequest) {
      * - elle navigue discrètement ;
      * - son passage ne doit pas apparaître dans les visiteurs.
      */
-    if (currentUser.visibilite === "invisible") {
+    if (estFantome(currentUser.visibilite)) {
       return NextResponse.json({ success: true, skipped: true, reason: "ghost_mode" }, { status: 200 });
     }
 

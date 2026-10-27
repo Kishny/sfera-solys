@@ -20,6 +20,8 @@ import { authOptions } from "@/lib/auth";
  */
 import { SubscriptionChecker } from "@/lib/subscription/subscription-check";
 import { galeriePubliee } from "@/lib/photos-profil";
+import { normaliserVisibilite } from "@/lib/visibilite";
+import { estFantome } from "@/lib/visibilite";
 
 /**
  * Route profil connecté.
@@ -454,7 +456,7 @@ export async function PUT(req: NextRequest) {
      * - repasser en "public", "matches" ou "premium" reste autorisé ;
      * - cela évite de bloquer un utilisateur qui veut désactiver le mode fantôme.
      */
-    if (data.visibilite === "invisible") {
+    if (estFantome(data.visibilite)) {
       const ghostAccess = await canUseGhostMode(user._id.toString());
 
       if (!ghostAccess.allowed) {
@@ -604,8 +606,14 @@ export async function PUT(req: NextRequest) {
       updateData.interets = data.interets;
     }
 
+    /*
+      Normalisée avant écriture : l'ancienne valeur `matches` est
+      convertie en `invisible`. C'est ce qui fait disparaître le
+      quatrième niveau du parc au fil des modifications, sans script de
+      migration — et sans invalider les documents qui la portent encore.
+    */
     if (data.visibilite !== undefined) {
-      updateData.visibilite = data.visibilite;
+      updateData.visibilite = normaliserVisibilite(data.visibilite);
     }
 
     if (data.consentement !== undefined) {

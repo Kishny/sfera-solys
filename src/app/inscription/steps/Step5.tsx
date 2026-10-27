@@ -20,11 +20,24 @@
  */
 
 import { useFormContext } from "react-hook-form";
-import { Check, Eye, Lock, Crown, Ghost } from "lucide-react";
+import { Check, Eye, Crown, Ghost } from "lucide-react";
 
 /**
  * Options de visibilité du profil.
  */
+/*
+  Deux choix à l'inscription, et pas quatre.
+
+  « Seulement mes matches » a été fusionné dans le Mode Fantôme : les deux
+  faisaient la même chose.
+
+  Le Mode Fantôme, lui, demande une offre payante — et un compte qui vient
+  d'être créé est toujours gratuit. Le proposer ici revenait à offrir un
+  choix que la route d'enregistrement refuse : soit l'inscription
+  échouait, soit, avant que la garde soit posée, le membre obtenait
+  gratuitement une fonctionnalité vendue. Il se règle depuis Ma Sphère,
+  une fois l'offre prise.
+*/
 const optionsVisibilite = [
   {
     value: "public",
@@ -33,22 +46,11 @@ const optionsVisibilite = [
     icon: <Eye className="h-4 w-4" />,
   },
   {
-    value: "matches",
-    label: "Seulement mes matches",
-    description: "Ton profil est visible uniquement par tes correspondances.",
-    icon: <Lock className="h-4 w-4" />,
-  },
-  {
     value: "premium",
-    label: "Membres premium",
-    description: "Ton profil est priorisé auprès des membres premium.",
+    label: "Membres payants seulement",
+    description:
+      "Ton profil n’est visible que par les membres d’une offre payante.",
     icon: <Crown className="h-4 w-4" />,
-  },
-  {
-    value: "invisible",
-    label: "Mode discret",
-    description: "Ton profil reste plus confidentiel.",
-    icon: <Ghost className="h-4 w-4" />,
   },
 ];
 

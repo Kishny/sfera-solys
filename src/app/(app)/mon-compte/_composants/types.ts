@@ -193,7 +193,7 @@ export const membreVide: MembreSolys = {
   question: "",
   reponse: "",
   interets: [],
-  visibilite: "matches",
+  visibilite: "public",
 
   hasCompletedProfile: false,
   profileCompletedAt: null,
@@ -245,12 +245,26 @@ export const intentionLabels: Record<string, string> = {
   discussion: "Discussion",
 };
 
+/**
+ * Les libellés affichés.
+ *
+ * `matches` n'est plus proposé — il a été fusionné dans le Mode Fantôme —
+ * mais il reste ici : des comptes le portent encore, et un libellé
+ * manquant afficherait la valeur brute dans la page du compte.
+ */
 export const visibilityLabels: Record<ProfileVisibility, string> = {
   public: "Visible par tous",
-  matches: "Réservé à mes mises en relation",
+  matches: "Mode Fantôme",
   premium: "Visible par les offres payantes",
   invisible: "Mode Fantôme",
 };
+
+/** Ce que le sélecteur propose réellement. */
+export const VISIBILITES_PROPOSEES: ProfileVisibility[] = [
+  "public",
+  "premium",
+  "invisible",
+];
 
 export const planLabels: Record<PlanSolys, string> = {
   free: "Gratuit",
@@ -417,7 +431,7 @@ export function normaliserMembre(rawUser: any, sessionUser?: any): MembreSolys {
     reponse: "",
     hasReponse: Boolean(rawUser?.hasReponse),
     interets: Array.isArray(rawUser?.interets) ? rawUser.interets : [],
-    visibilite: isValidVisibility(rawVisibility) ? rawVisibility : "matches",
+    visibilite: isValidVisibility(rawVisibility) ? rawVisibility : "public",
 
     hasCompletedProfile: Boolean(rawUser?.hasCompletedProfile),
     profileCompletedAt: rawUser?.profileCompletedAt || null,

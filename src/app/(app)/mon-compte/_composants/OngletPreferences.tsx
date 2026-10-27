@@ -16,6 +16,7 @@ import {
   offreActive,
   orientationLabels,
   visibilityLabels,
+  VISIBILITES_PROPOSEES,
   type MembreSolys,
   type ProfileVisibility,
 } from "./types";
@@ -49,7 +50,10 @@ export default function OngletPreferences({
 }) {
   const [bascule, setBascule] = useState(false);
 
-  const invisible = user.visibilite === "invisible";
+  // L'ancienne valeur `matches` vaut Mode Fantôme : sans ce test, un
+  // compte qui la porte verrait le basculeur éteint alors qu'il est actif.
+  const invisible =
+    user.visibilite === "invisible" || user.visibilite === "matches";
   const payante = offreActive(user);
 
   const basculerFantome = async () => {
@@ -226,7 +230,15 @@ export default function OngletPreferences({
           <Champ label="Qui peut voir mon profil" className="sm:col-span-2">
             <select
               disabled={!edition}
-              value={user.visibilite || "matches"}
+              /*
+                L'ancienne valeur `matches` affiche le Mode Fantôme, dans
+                lequel elle a été fusionnée.
+              */
+              value={
+                user.visibilite === "matches"
+                  ? "invisible"
+                  : user.visibilite || "public"
+              }
               onChange={(evenement) =>
                 majBrouillon(
                   "visibilite",
@@ -235,17 +247,21 @@ export default function OngletPreferences({
               }
               className={champ}
             >
-              {Object.entries(visibilityLabels).map(([cle, valeur]) => (
-                <option
-                  key={cle}
-                  value={cle}
-                  disabled={cle === "invisible" && !payante}
-                >
-                  {cle === "invisible" && !payante
-                    ? `${valeur} (offres Premium et Elite)`
-                    : valeur}
-                </option>
-              ))}
+              {VISIBILITES_PROPOSEES.map((cle) => {
+                const valeur = visibilityLabels[cle];
+
+                return (
+                  <option
+                    key={cle}
+                    value={cle}
+                    disabled={cle === "invisible" && !payante}
+                  >
+                    {cle === "invisible" && !payante
+                      ? `${valeur} (offres Premium et Elite)`
+                      : valeur}
+                  </option>
+                );
+              })}
             </select>
             <span className="mt-1.5 block text-[11px] leading-relaxed text-champagne/55">
               Ce réglage s’enregistre à la sauvegarde. Le basculeur du Mode
