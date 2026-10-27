@@ -11,11 +11,13 @@ import {
   Heart,
   ListChecks,
   MapPin,
+  Rocket,
   ScrollText,
   ShieldCheck,
 } from "lucide-react";
 
 import { getDepartementLabel } from "@/lib/locations";
+import { formuleBoostDe } from "@/lib/boosts-formules";
 
 import {
   carte,
@@ -78,6 +80,17 @@ export default function OngletAccueil({
 }) {
   const payante = offreActive(user);
   const offre = libelleOffre(user);
+
+  /**
+   * Le boost offert, tant qu'il dort.
+   *
+   * Il existait, il était dépensable, et rien ne le disait à l'endroit où un
+   * membre regarde son compte : seul le panneau d'Explorer l'annonçait, c'est
+   * à dire au moment où il faut déjà savoir qu'il faut y aller. La carte
+   * disparaît d'elle-même une fois le boost lancé.
+   */
+  const boostOffert = user.boostDecouverteUtilise !== true;
+  const formuleBoost = formuleBoostDe(user.plan);
   const abonnement = subscriptionLabels[user.subscriptionStatus] || "Inactif";
 
   const tuiles: Array<{
@@ -352,7 +365,7 @@ export default function OngletAccueil({
               <p className="mt-2 max-w-md text-[12.5px] leading-relaxed text-champagne/80">
                 {payante
                   ? "Tu profites des fonctionnalités incluses dans ton abonnement."
-                  : "La vérification, l’annuaire, l’Entraide et la messagerie sont déjà ouverts. Les offres payantes ajoutent le Circle, les boosts et le Mode Fantôme."}
+                  : "La vérification, l’annuaire, la recherche et la messagerie sont déjà ouverts. Les offres payantes ajoutent le Circle, les boosts réguliers et le Mode Fantôme."}
               </p>
             </div>
           </div>
@@ -366,6 +379,52 @@ export default function OngletAccueil({
           </Link>
         </div>
       </section>
+
+      {/* ────────────────────────────
+          Le boost offert
+          Visible tant qu'il n'est pas dépensé, pour tous les comptes — ceux
+          qui s'inscrivent aujourd'hui comme ceux qui existaient avant que le
+          crédit soit créé.
+      ───────────────────────────── */}
+      {boostOffert && user.hasCompletedProfile && (
+        <section className={`${carte} overflow-hidden`}>
+          <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="flex min-w-0 items-start gap-4">
+              <span
+                aria-hidden="true"
+                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 bg-nuit/60 ${ANNEAUX.cuivre}`}
+              >
+                <Rocket size={22} />
+              </span>
+
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-surtitre text-champagne/70">
+                  Offert, une fois
+                </p>
+
+                <p className="font-display mt-1.5 text-[22px] font-normal leading-tight text-ivoire">
+                  Un boost t’attend
+                </p>
+
+                <p className="mt-2 max-w-md text-[12.5px] leading-relaxed text-champagne/80">
+                  Pendant {formuleBoost.dureeMinutes} minutes, ton profil
+                  remonte en tête de l’annuaire pour les membres qui peuvent te
+                  voir, et ta carte le dit. Il ne part que quand tu le décides,
+                  alors garde-le pour un moment où il y a du monde.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/explorer"
+              className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-degrade-cuivre px-5 py-3 text-[13px] font-bold text-nuit transition-opacity hover:opacity-90 ${focusRing}`}
+            >
+              Lancer mon boost
+              <ChevronRight size={15} aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

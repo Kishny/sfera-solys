@@ -45,6 +45,7 @@ import {
   Check,
   Loader2,
   Lock,
+  Rocket,
   ShieldCheck,
   Sparkles,
   Star,
@@ -52,6 +53,18 @@ import {
   Zap,
   AlertCircle,
 } from "lucide-react";
+
+import { FORMULES_PAR_OFFRE } from "@/lib/boosts-formules";
+
+/**
+ * La formule de boost d'un compte qui vient de naître.
+ *
+ * Toujours celle de l'offre gratuite : l'inscription ne vend rien, et c'est
+ * précisément l'intérêt du boost offert — montrer ce que fait un boost avant
+ * d'en avoir payé un. La durée est lue dans le tableau, pas écrite ici : une
+ * promesse faite à l'inscription doit être celle que la route appliquera.
+ */
+const BOOST_OFFERT = FORMULES_PAR_OFFRE.free;
 
 /**
  * Helper pour rendre un champ texte optionnel.
@@ -979,13 +992,43 @@ function InscriptionPageContent() {
                       )}
 
                       {identityStatus === "verified" ? (
-                        <div className="flex items-center gap-2 rounded-lg border border-succes/30 bg-succes/10 px-4 py-3 text-sm text-succes">
-                          <Check className="h-4 w-4 shrink-0" />
-                          <span>
-                            Identité vérifiée. Tu peux maintenant accéder
-                            à ton compte.
-                          </span>
-                        </div>
+                        <>
+                          <div className="flex items-center gap-2 rounded-lg border border-succes/30 bg-succes/10 px-4 py-3 text-sm text-succes">
+                            <Check className="h-4 w-4 shrink-0" />
+                            <span>
+                              Identité vérifiée. Tu peux maintenant accéder
+                              à ton compte.
+                            </span>
+                          </div>
+
+                          {/*
+                            Le boost offert.
+
+                            Il existait et se dépensait déjà, mais rien ne le
+                            disait à quelqu'un qui vient de finir son profil :
+                            seul le panneau d'Explorer l'annonçait, c'est-à-dire
+                            une fois qu'on savait déjà qu'il fallait y aller.
+                            C'est l'endroit où il vaut le plus cher — le membre
+                            n'a encore rien payé et s'apprête à découvrir un
+                            annuaire où personne ne le connaît.
+                          */}
+                          <div className="mt-4 flex items-start gap-3 rounded-lg border border-cuivre/30 bg-cuivre/10 px-4 py-3.5">
+                            <Rocket className="mt-0.5 h-4 w-4 shrink-0 text-cuivre" />
+                            <div className="min-w-0 text-sm">
+                              <p className="font-semibold text-champagne">
+                                Un boost t’est offert
+                              </p>
+                              <p className="mt-1 leading-relaxed text-champagne/75">
+                                Pendant {BOOST_OFFERT.dureeMinutes} minutes, ton
+                                profil remonte en tête de l’annuaire pour les
+                                membres qui peuvent te voir. Il ne part que
+                                quand tu le décides, depuis Explorer — alors
+                                garde-le pour un moment où il y a du monde,
+                                plutôt que de le lancer maintenant.
+                              </p>
+                            </div>
+                          </div>
+                        </>
                       ) : identityStatus === "pending" ? (
                         <>
                           <div className="mb-4 flex items-center gap-2 rounded-lg border border-cuivre/30 bg-cuivre/10 px-4 py-3 text-sm text-champagne/80">

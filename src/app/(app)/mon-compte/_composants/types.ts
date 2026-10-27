@@ -98,6 +98,13 @@ export interface MembreSolys {
   plan: PlanSolys;
   subscriptionStatus: SubscriptionStatus;
   isPremium: boolean;
+  /**
+   * Le boost offert une fois par compte a-t-il été dépensé ?
+   *
+   * Sert à présenter le crédit tant qu'il dort. L'API le renvoie sans
+   * traitement particulier : `sanitizeUser` sérialise le document entier.
+   */
+  boostDecouverteUtilise?: boolean;
   premiumStartedAt?: string | null;
   premiumExpiresAt?: string | null;
   stripeCustomerId?: string;
@@ -203,6 +210,7 @@ export const membreVide: MembreSolys = {
   plan: "free",
   subscriptionStatus: "inactive",
   isPremium: false,
+  boostDecouverteUtilise: false,
   premiumStartedAt: null,
   premiumExpiresAt: null,
   stripeCustomerId: "",
@@ -447,6 +455,7 @@ export function normaliserMembre(rawUser: any, sessionUser?: any): MembreSolys {
     plan,
     subscriptionStatus,
     isPremium: Boolean(rawUser?.isPremium),
+    boostDecouverteUtilise: Boolean(rawUser?.boostDecouverteUtilise),
 
     premiumStartedAt: rawUser?.premiumStartedAt || null,
     premiumExpiresAt: rawUser?.premiumExpiresAt || null,
