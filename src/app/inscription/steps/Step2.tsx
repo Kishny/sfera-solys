@@ -34,7 +34,7 @@ import { Check } from "lucide-react";
  */
 const orientations = [
   { value: "hetero", label: "Hétérosexuel" },
-  { value: "homo", label: "Homosexuel" },
+  { value: "homo", label: "Gay" },
   { value: "bi", label: "Bisexuel" },
   { value: "pan", label: "Pansexuel" },
   { value: "curieux", label: "Curieux — je souhaite découvrir" },

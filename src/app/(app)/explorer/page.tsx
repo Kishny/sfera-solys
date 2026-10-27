@@ -138,7 +138,7 @@ const INTENTIONS = [
  */
 const ORIENTATIONS = [
   { value: "hetero", label: "Hétérosexuel" },
-  { value: "homo", label: "Homosexuel" },
+  { value: "homo", label: "Gay" },
   { value: "bi", label: "Bisexuel" },
   { value: "pan", label: "Pansexuel" },
   { value: "curieux", label: "Curieux" },

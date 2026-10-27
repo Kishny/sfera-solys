@@ -229,7 +229,7 @@ export const membreVide: MembreSolys = {
  */
 export const orientationLabels: Record<string, string> = {
   hetero: "Hétérosexuel",
-  homo: "Homosexuel",
+  homo: "Gay",
   bi: "Bisexuel",
   pan: "Pansexuel",
   curieux: "Curieux — je souhaite découvrir",

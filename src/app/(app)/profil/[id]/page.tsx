@@ -128,7 +128,7 @@ interface Affinites {
 /** Au masculin : Sfera'Solys est la version hommes. */
 const ORIENTATIONS: Record<string, string> = {
   hetero: "Hétérosexuel",
-  homo: "Homosexuel",
+  homo: "Gay",
   bi: "Bisexuel",
   pan: "Pansexuel",
   curieux: "Curieux",
