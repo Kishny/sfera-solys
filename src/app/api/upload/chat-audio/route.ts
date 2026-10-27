@@ -22,6 +22,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import cloudinary, { verifierCloudinary, CLOUDINARY_INDISPONIBLE } from '@/lib/cloudinary';
+import {
+  livraisonFonctionne,
+  urlCloudinary,
+  type ModeDeLivraison,
+} from '@/lib/medias';
 
 /**
  * Les types produits par MediaRecorder.
@@ -100,8 +105,15 @@ export async function POST(req: NextRequest) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  try {
-    const resultat = await new Promise<{
+  /**
+   * Le dépôt, dans un mode donné.
+   *
+   * Rejouable : si la livraison authentifiée ne répond pas sur ce
+   * compte, on redépose en accès libre plutôt que de laisser un vocal
+   * muet dans le fil.
+   */
+  const deposer = (mode: ModeDeLivraison) =>
+    new Promise<{
       secure_url: string;
       public_id: string;
       duration?: number;
@@ -112,6 +124,7 @@ export async function POST(req: NextRequest) {
           .upload_stream(
             {
               folder: 'sferasolys/chat-audio',
+              type: mode,
               // Cloudinary range l'audio sous `video` : c'est le même
               // pipeline, il n'existe pas de `resource_type: "audio"`.
               resource_type: 'video',
@@ -144,6 +157,10 @@ export async function POST(req: NextRequest) {
       }
     );
 
+  try {
+    let mode: ModeDeLivraison = 'authenticated';
+    let resultat = await deposer(mode);
+
     /**
      * Cloudinary sait lire la durée réelle du fichier. Quand il la donne,
      * elle prime sur celle annoncée par le client.
@@ -166,19 +183,19 @@ export async function POST(req: NextRequest) {
      * Le MP3 est le seul format audio que tous les navigateurs lisent.
      * Le fichier d'origine reste déposé, intact, au cas où.
      */
-    const urlMp3 =
-      resultat.eager?.[0]?.secure_url ??
-      // Si le transcodage demandé à l'envoi n'a rien renvoyé, l'adresse
-      // construite à la main reste valable : Cloudinary produira le MP3
-      // à la première demande.
-      cloudinary.url(resultat.public_id, {
-        resource_type: 'video',
-        format: 'mp3',
-        secure: true,
-        // Sans ça, Cloudinary accroche un paramètre de suivi à l'URL.
-        // Une adresse de média n'a pas à porter ça.
-        analytics: false,
-      });
+    /**
+     * L'adresse du MP3, signée quand le fichier est authentifié.
+     *
+     * On ne se sert plus de `eager[0].secure_url` : pour un fichier
+     * authentifié cette adresse n'est pas signée, donc inutilisable. Le
+     * transcodage demandé à l'envoi reste utile — il garantit que le MP3
+     * existe déjà quand on le réclame.
+     */
+    let urlMp3 = urlCloudinary(resultat.public_id, {
+      resourceType: 'video',
+      mode,
+      format: 'mp3',
+    });
 
     /**
      * Le MP3 est-il réellement servi ?
@@ -193,34 +210,60 @@ export async function POST(req: NextRequest) {
      * différents, elle, redevient incertaine — d'où l'avertissement
      * dans les journaux, pour que ça se voie.
      */
-    let urlDeLecture = urlMp3;
-
-    try {
-      const verification = await fetch(urlMp3, {
-        method: 'HEAD',
-        signal: AbortSignal.timeout(5000),
-      });
-
-      if (!verification.ok) {
-        console.warn(
-          `[upload/chat-audio] MP3 indisponible (${verification.status}) : ` +
-            `le vocal est servi dans son format d'origine, ` +
-            `illisible sur les navigateurs qui ne le gèrent pas.`
-        );
-        urlDeLecture = resultat.secure_url;
-      }
-    } catch {
+    /**
+     * Deux choses à vérifier, dans cet ordre.
+     *
+     * D'abord la livraison authentifiée, qui dépend de la configuration
+     * du compte : si elle ne répond pas, on redépose en accès libre et
+     * on recalcule l'adresse.
+     */
+    if (!(await livraisonFonctionne(urlMp3))) {
       console.warn(
-        "[upload/chat-audio] Le MP3 n'a pas pu être vérifié : " +
-          "le vocal est servi dans son format d'origine."
+        '[upload/chat-audio] La livraison authentifiée ou le transcodage MP3 ' +
+          'ne répondent pas : nouvelle tentative en accès libre.'
       );
-      urlDeLecture = resultat.secure_url;
+
+      await cloudinary.uploader
+        .destroy(resultat.public_id, { resource_type: 'video', type: mode })
+        .catch(() => {});
+
+      mode = 'upload';
+      resultat = await deposer(mode);
+
+      urlMp3 = urlCloudinary(resultat.public_id, {
+        resourceType: 'video',
+        mode,
+        format: 'mp3',
+      });
+    }
+
+    /**
+     * Ensuite le MP3 lui-même. S'il manque encore, le fichier d'origine
+     * fait l'affaire pour le navigateur qui l'a enregistré — mais pas
+     * forcément pour l'autre, d'où l'avertissement.
+     */
+    let urlDeLecture = urlMp3;
+    let formatServi: 'mp3' | 'origine' = 'mp3';
+
+    if (!(await livraisonFonctionne(urlMp3))) {
+      console.warn(
+        "[upload/chat-audio] Le MP3 n'est pas servi : le vocal part dans son " +
+          "format d'origine, illisible sur les navigateurs qui ne le gèrent pas."
+      );
+
+      urlDeLecture = urlCloudinary(resultat.public_id, {
+        resourceType: 'video',
+        mode,
+      });
+      formatServi = 'origine';
     }
 
     return NextResponse.json({
       success: true,
       url: urlDeLecture,
       publicId: resultat.public_id,
+      mediaType: mode,
+      formatServi,
       duree: dureeReelle,
     });
   } catch (err) {

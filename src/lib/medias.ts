@@ -21,12 +21,84 @@ import cloudinary from "@/lib/cloudinary";
 /** Les deux sortes de médias qu'un message peut porter. */
 export type GenreDeMedia = "photo" | "vocal";
 
+/**
+ * Le mode de livraison Cloudinary du fichier.
+ *
+ * - `upload` : le fichier est déposé en accès libre. C'est le mode
+ *   d'origine, celui des fichiers déjà en base.
+ * - `authenticated` : le fichier n'est servi que sur présentation d'une
+ *   signature, calculée avec le secret du compte. Même en connaissant
+ *   l'identifiant, on ne peut pas construire l'adresse.
+ *
+ * Le mode est stocké sur le message plutôt que deviné : les deux
+ * générations de fichiers cohabitent, et se tromper de mode rend le
+ * média introuvable.
+ */
+export type ModeDeLivraison = "upload" | "authenticated";
+
+export const MODES: ModeDeLivraison[] = ["upload", "authenticated"];
+
 type MessageAvecMedia = {
   imageUrl?: string | null;
   imagePublicId?: string | null;
+  imageType?: string | null;
   audioUrl?: string | null;
   audioPublicId?: string | null;
+  audioType?: string | null;
 };
+
+/** Ramène une valeur venue du client à un mode connu. */
+export function modeValide(valeur: unknown): ModeDeLivraison {
+  return valeur === "authenticated" ? "authenticated" : "upload";
+}
+
+/**
+ * L'adresse Cloudinary d'un fichier, signée si le mode l'exige.
+ *
+ * Destinée au serveur seul : c'est elle que la route de média va
+ * chercher, jamais celle que le client reçoit.
+ */
+export function urlCloudinary(
+  publicId: string,
+  options: {
+    resourceType: "image" | "video";
+    mode: ModeDeLivraison;
+    format?: string;
+  }
+): string {
+  return cloudinary.url(publicId, {
+    resource_type: options.resourceType,
+    type: options.mode,
+    // La signature n'a de sens que pour un fichier authentifié.
+    sign_url: options.mode === "authenticated",
+    ...(options.format ? { format: options.format } : {}),
+    secure: true,
+    analytics: false,
+  });
+}
+
+/**
+ * Cloudinary sert-il réellement cette adresse ?
+ *
+ * Appelée juste après un dépôt en mode authentifié. La livraison
+ * authentifiée dépend de la configuration du compte, et plutôt que de la
+ * supposer, on la demande : si elle ne répond pas, l'appelant retombe
+ * sur le mode public et le dit dans les journaux. Un réglage de compte
+ * ne doit pas pouvoir rendre les photos et les vocaux muets.
+ */
+export async function livraisonFonctionne(url: string): Promise<boolean> {
+  try {
+    const reponse = await fetch(url, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(5000),
+      cache: "no-store",
+    });
+
+    return reponse.ok;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Les dossiers Cloudinary attendus, par genre.
@@ -58,37 +130,50 @@ export function identifiantValide(
 }
 
 /**
- * L'adresse d'où lire réellement le fichier.
+ * Les adresses où lire réellement le fichier, par ordre de préférence.
  *
- * `null` quand le message ne porte pas ce genre de média.
+ * Plusieurs, et non une seule, à cause du son : le MP3 est le seul
+ * format que tous les navigateurs lisent, mais son transcodage peut ne
+ * pas aboutir. Le fichier d'origine vient alors en second — lisible au
+ * moins par le navigateur qui l'a enregistré.
+ *
+ * Essayer dans l'ordre évite de stocker sur chaque message lequel des
+ * deux existe, information qui se périmerait dès que Cloudinary finit un
+ * transcodage en retard.
+ *
+ * Liste vide quand le message ne porte pas ce genre de média.
  */
-export function urlSourceDuMedia(
+export function sourcesDuMedia(
   message: MessageAvecMedia,
   genre: GenreDeMedia
-): string | null {
+): string[] {
   if (genre === "photo") {
     if (message.imagePublicId) {
-      return cloudinary.url(message.imagePublicId, {
-        resource_type: "image",
-        secure: true,
-        analytics: false,
-      });
+      return [
+        urlCloudinary(message.imagePublicId, {
+          resourceType: "image",
+          mode: modeValide(message.imageType),
+        }),
+      ];
     }
 
-    return message.imageUrl || null;
+    return message.imageUrl ? [message.imageUrl] : [];
   }
 
   if (message.audioPublicId) {
-    return cloudinary.url(message.audioPublicId, {
-      resource_type: "video",
-      // Le MP3 est le seul format audio que tous les navigateurs lisent.
-      format: "mp3",
-      secure: true,
-      analytics: false,
-    });
+    const mode = modeValide(message.audioType);
+
+    return [
+      urlCloudinary(message.audioPublicId, {
+        resourceType: "video",
+        mode,
+        format: "mp3",
+      }),
+      urlCloudinary(message.audioPublicId, { resourceType: "video", mode }),
+    ];
   }
 
-  return message.audioUrl || null;
+  return message.audioUrl ? [message.audioUrl] : [];
 }
 
 /**

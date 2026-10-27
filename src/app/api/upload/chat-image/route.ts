@@ -20,6 +20,11 @@ import { User } from '@/models/User';
 import { ModerationLog } from '@/models/ModerationLog';
 import cloudinary, { verifierCloudinary, CLOUDINARY_INDISPONIBLE } from '@/lib/cloudinary';
 import {
+  livraisonFonctionne,
+  urlCloudinary,
+  type ModeDeLivraison,
+} from '@/lib/medias';
+import {
   getModerationUploadOption,
   evaluateModeration,
   MODERATION_REJECTION_MESSAGE,
@@ -70,8 +75,15 @@ export async function POST(req: NextRequest) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  try {
-    const result = await new Promise<{ secure_url: string; public_id: string; moderation?: unknown }>(
+  /**
+   * Le dépôt, dans un mode donné.
+   *
+   * Isolé dans une fonction parce qu'il peut être rejoué : si la
+   * livraison authentifiée ne répond pas sur ce compte, on redépose en
+   * accès libre plutôt que de laisser une photo muette dans le fil.
+   */
+  const deposer = (mode: ModeDeLivraison) =>
+    new Promise<{ secure_url: string; public_id: string; moderation?: unknown }>(
       (resolve, reject) => {
         cloudinary.uploader
           .upload_stream(
@@ -81,6 +93,7 @@ export async function POST(req: NextRequest) {
                 { width: 1200, height: 1200, crop: 'limit', quality: 80 },
               ],
               resource_type: 'image',
+              type: mode,
               moderation: getModerationUploadOption(),
             },
             (err, res) => {
@@ -92,10 +105,47 @@ export async function POST(req: NextRequest) {
       }
     );
 
+  try {
+    /**
+     * Déposé en mode authentifié : l'adresse ne se devine pas, même en
+     * connaissant l'identifiant. La route de média la signe à chaque
+     * lecture, pour qui a le droit de voir la conversation.
+     */
+    let mode: ModeDeLivraison = 'authenticated';
+    let result = await deposer(mode);
+
+    /**
+     * La livraison authentifiée répond-elle vraiment ?
+     *
+     * Elle dépend de la configuration du compte. Si elle ne répond pas,
+     * on redépose en accès libre : une photo lisible par trop de monde
+     * vaut mieux qu'une photo que personne ne voit, et l'avertissement
+     * dit quoi corriger.
+     */
+    if (!(await livraisonFonctionne(
+      urlCloudinary(result.public_id, { resourceType: 'image', mode })
+    ))) {
+      console.warn(
+        '[upload/chat-image] La livraison authentifiée ne répond pas sur ce ' +
+          'compte Cloudinary : la photo est déposée en accès libre. ' +
+          'Les médias de conversation ne sont alors protégés que par la route ' +
+          'de média, pas par Cloudinary lui-même.'
+      );
+
+      await cloudinary.uploader
+        .destroy(result.public_id, { type: 'authenticated' })
+        .catch(() => {});
+
+      mode = 'upload';
+      result = await deposer(mode);
+    }
+
     // Modération automatique : rejet → suppression Cloudinary, image jamais envoyée dans le chat.
     const verdict = evaluateModeration(result);
     if (!verdict.approved) {
-      await cloudinary.uploader.destroy(result.public_id).catch(() => {});
+      await cloudinary.uploader
+        .destroy(result.public_id, { type: mode })
+        .catch(() => {});
       try {
         await connectDB();
         const user = await User.findOne({ email: session.user.email.toLowerCase().trim() }).select('_id');
@@ -123,8 +173,11 @@ export async function POST(req: NextRequest) {
      */
     return NextResponse.json({
       success: true,
-      url: result.secure_url,
+      // L'aperçu immédiat pour celui qui vient de déposer : signé quand
+      // le fichier est authentifié, sans quoi il ne verrait rien.
+      url: urlCloudinary(result.public_id, { resourceType: 'image', mode }),
       publicId: result.public_id,
+      mediaType: mode,
     });
   } catch (err) {
     console.error('[upload/chat-image]', err);

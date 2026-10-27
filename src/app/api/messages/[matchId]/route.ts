@@ -10,7 +10,11 @@ import { User } from "@/models/User";
 import { Match } from "@/models/Match";
 import { blocageEntre } from "@/lib/blocages";
 import { Message } from "@/models/Message";
-import { identifiantValide, urlPubliqueDuMedia } from "@/lib/medias";
+import {
+  identifiantValide,
+  modeValide,
+  urlPubliqueDuMedia,
+} from "@/lib/medias";
 import { SolysEvent } from "@/models/SolysEvent";
 import { Report } from "@/models/Report";
 import { envoyerPusher } from "@/lib/pusher";
@@ -449,8 +453,10 @@ export async function POST(
       content?: unknown;
       imageUrl?: unknown;
       imagePublicId?: unknown;
+      imageType?: unknown;
       audioUrl?: unknown;
       audioPublicId?: unknown;
+      audioType?: unknown;
       audioDuree?: unknown;
       lieu?: unknown;
       rendezVous?: unknown;
@@ -510,6 +516,7 @@ export async function POST(
      * désigne bien le dossier des photos de conversation.
      */
     let imagePublicId: string | null = null;
+    let imageType: "upload" | "authenticated" = "upload";
 
     if (typeof body?.imagePublicId === "string" && body.imagePublicId) {
       if (!identifiantValide(body.imagePublicId, "photo")) {
@@ -524,6 +531,10 @@ export async function POST(
       }
 
       imagePublicId = body.imagePublicId;
+
+      // Un mode inconnu retombe sur l'accès libre : au pire la photo est
+      // servie sans signature, jamais introuvable.
+      imageType = modeValide(body?.imageType);
     }
 
     /**
@@ -538,6 +549,7 @@ export async function POST(
 
     let audioUrl: string | null = null;
     let audioPublicId: string | null = null;
+    let audioType: "upload" | "authenticated" = "upload";
     let audioDuree: number | null = null;
 
     if (audioBrut) {
@@ -567,6 +579,7 @@ export async function POST(
         }
 
         audioPublicId = body.audioPublicId;
+        audioType = modeValide(body?.audioType);
       }
 
       const dureeBrute = Number(body?.audioDuree);
@@ -848,8 +861,10 @@ export async function POST(
       content,
       imageUrl,
       imagePublicId,
+      imageType,
       audioUrl,
       audioPublicId,
+      audioType,
       audioDuree,
       lieu,
       rendezVous,

@@ -44,6 +44,16 @@ export interface IMessage extends Document {
   imagePublicId: string | null;
 
   /**
+   * Mode de livraison Cloudinary de la photo.
+   *
+   * `upload` pour les fichiers déposés en accès libre — tous ceux
+   * d'avant —, `authenticated` pour ceux qui exigent une signature. Le
+   * mode est écrit plutôt que deviné : se tromper rend le média
+   * introuvable, et les deux générations cohabiteront longtemps.
+   */
+  imageType: string | null;
+
+  /**
    * Message vocal, hébergé sur Cloudinary.
    *
    * `null` pour un message sans voix. Contrairement au texte et aux
@@ -55,6 +65,9 @@ export interface IMessage extends Document {
 
   /** Identifiant Cloudinary du vocal. Même rôle que `imagePublicId`. */
   audioPublicId: string | null;
+
+  /** Mode de livraison du vocal. Même rôle que `imageType`. */
+  audioType: string | null;
 
   /** Durée du vocal en secondes, pour l'afficher sans charger le fichier. */
   audioDuree: number | null;
@@ -169,6 +182,12 @@ const MessageSchema = new Schema<IMessage>(
       default: null,
     },
 
+    imageType: {
+      type: String,
+      enum: ["upload", "authenticated"],
+      default: "upload",
+    },
+
     /**
      * Message vocal.
      *
@@ -183,6 +202,12 @@ const MessageSchema = new Schema<IMessage>(
     audioPublicId: {
       type: String,
       default: null,
+    },
+
+    audioType: {
+      type: String,
+      enum: ["upload", "authenticated"],
+      default: "upload",
     },
 
     audioDuree: {

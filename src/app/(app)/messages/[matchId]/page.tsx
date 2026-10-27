@@ -212,6 +212,7 @@ export default function PageConversation() {
   const [photoEnAttente, setPhotoEnAttente] = useState<{
     url: string;
     publicId: string | null;
+    mediaType: string | null;
   } | null>(null);
   const [envoiPhoto, setEnvoiPhoto] = useState(false);
 
@@ -496,7 +497,7 @@ export default function PageConversation() {
    * la saisie.
    */
   const envoyer = async (
-    vocal?: { url: string; publicId: string | null; duree: number },
+    vocal?: DepotVocal,
     lieu?: { libelle: string; lat: number; lng: number },
     rendezVous?: { quand: string; ou: string; note: string },
     piece?: { evenementId?: string }
@@ -554,8 +555,10 @@ export default function PageConversation() {
           content: contenu,
           imageUrl: photo?.url ?? null,
           imagePublicId: photo?.publicId ?? null,
+          imageType: photo?.mediaType ?? null,
           audioUrl: vocal?.url ?? null,
           audioPublicId: vocal?.publicId ?? null,
+          audioType: vocal?.mediaType ?? null,
           audioDuree: vocal?.duree ?? null,
           lieu: lieu ?? null,
           rendezVous: rendezVous ?? null,
@@ -638,6 +641,7 @@ export default function PageConversation() {
       setPhotoEnAttente({
         url: donnees.url as string,
         publicId: (donnees.publicId as string) ?? null,
+        mediaType: (donnees.mediaType as string) ?? null,
       });
       champSaisie.current?.focus();
     } catch {
@@ -686,6 +690,7 @@ export default function PageConversation() {
       return {
         url: donnees.url as string,
         publicId: (donnees.publicId as string) ?? null,
+        mediaType: (donnees.mediaType as string) ?? null,
         duree: typeof donnees.duree === "number" ? donnees.duree : duree,
       };
     } catch {

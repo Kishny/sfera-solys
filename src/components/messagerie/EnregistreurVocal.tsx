@@ -39,6 +39,8 @@ import { Loader2, Pause, Play, Send, Square, Trash2 } from "lucide-react";
 export interface DepotVocal {
   url: string;
   publicId: string | null;
+  /** Mode de livraison Cloudinary, à reporter sur le message. */
+  mediaType: string | null;
   duree: number;
 }
 

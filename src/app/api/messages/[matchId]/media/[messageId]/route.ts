@@ -10,7 +10,7 @@ import { User } from "@/models/User";
 import { Match } from "@/models/Match";
 import { Message } from "@/models/Message";
 import { blocageEntre } from "@/lib/blocages";
-import { urlSourceDuMedia } from "@/lib/medias";
+import { sourcesDuMedia } from "@/lib/medias";
 
 /**
  * GET /api/messages/[matchId]/media/[messageId]?k=photo|vocal
@@ -116,13 +116,15 @@ export async function GET(
     const message = await Message.findOne({
       _id: messageId,
       matchId: match._id,
-    }).select("imageUrl imagePublicId audioUrl audioPublicId");
+    }).select(
+      "imageUrl imagePublicId imageType audioUrl audioPublicId audioType"
+    );
 
     if (!message) return introuvable();
 
-    const source = urlSourceDuMedia(message, genre);
+    const sources = sourcesDuMedia(message, genre);
 
-    if (!source) return introuvable();
+    if (sources.length === 0) return introuvable();
 
     /**
      * Le relais.
@@ -141,15 +143,30 @@ export async function GET(
      * travers, et introuvable à déboguer. Le navigateur, lui, garde le
      * fichier grâce à l'en-tête posé plus bas.
      */
-    const amont = await fetch(source, {
-      headers: plage ? { Range: plage } : undefined,
-      cache: "no-store",
-    });
+    let amont: Response | null = null;
 
-    if (!amont.ok && amont.status !== 206) {
+    // Les adresses sont essayées dans l'ordre : le MP3 d'abord pour un
+    // vocal, puis le fichier d'origine si le transcodage manque.
+    for (const source of sources) {
+      const essai = await fetch(source, {
+        headers: plage ? { Range: plage } : undefined,
+        cache: "no-store",
+      });
+
+      if (essai.ok || essai.status === 206) {
+        amont = essai;
+        break;
+      }
+
+      // Le corps d'une réponse écartée est refermé : le laisser ouvert
+      // retient une connexion jusqu'au ramasse-miettes.
+      await essai.body?.cancel().catch(() => {});
+    }
+
+    if (!amont) {
       console.warn(
-        `[media] Cloudinary a refusé le fichier (${amont.status}) ` +
-          `pour le message ${messageId}.`
+        `[media] Cloudinary n'a servi aucune des ${sources.length} adresses ` +
+          `essayées pour le message ${messageId}.`
       );
       return introuvable();
     }
