@@ -354,8 +354,13 @@ export function libelleOffre(user: MembreSolys) {
  * choisie, Stripe ne l'a pas confirmée. Les fonctionnalités restent fermées.
  */
 export function offreActive(user: MembreSolys) {
+  /*
+    Dérivé de l'offre et du statut, comme côté serveur. Lire `isPremium`
+    ferait afficher « Premium » à un compte que le serveur traite comme
+    gratuit — c'est exactement la contradiction qu'on a vue en base.
+  */
   return (
-    user.isPremium === true &&
+    user.plan !== "free" &&
     (user.subscriptionStatus === "active" ||
       user.subscriptionStatus === "trialing")
   );

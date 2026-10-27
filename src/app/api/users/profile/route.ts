@@ -22,6 +22,7 @@ import { SubscriptionChecker } from "@/lib/subscription/subscription-check";
 import { galeriePubliee } from "@/lib/photos-profil";
 import { normaliserVisibilite } from "@/lib/visibilite";
 import { estFantome } from "@/lib/visibilite";
+import { estAbonnePayant } from "@/lib/abonnement";
 
 /**
  * Route profil connecté.
@@ -194,9 +195,12 @@ function getSubscriptionStatusLabel(status?: string) {
 function buildPremiumPayload(user: any) {
   const subscriptionStatus = user.subscriptionStatus || "inactive";
 
-  const isPremium =
-    user.isPremium === true &&
-    (subscriptionStatus === "active" || subscriptionStatus === "trialing");
+  /*
+    Recalculé, jamais recopié depuis la base : le champ stocké a divergé
+    une fois de l'offre, et l'interface afficherait alors une offre que
+    le serveur n'accorde pas.
+  */
+  const isPremium = estAbonnePayant(user);
 
   return {
     plan: user.plan || "free",

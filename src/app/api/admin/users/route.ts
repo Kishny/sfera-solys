@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
+import { estAbonnePayant } from "@/lib/abonnement";
 
 /**
  * GET /api/admin/users
@@ -118,7 +119,9 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Paramètres manquants." }, { status: 400 });
     }
 
-    const target = await User.findById(userId).select("_id role isPremium plan email identityVerified");
+    const target = await User.findById(userId).select(
+      "_id role isPremium plan subscriptionStatus email identityVerified"
+    );
 
     if (!target) {
       return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
@@ -136,10 +139,18 @@ export async function PATCH(req: NextRequest) {
     } else if (action === "demote") {
       update = { role: "user" };
     } else if (action === "toggle_premium") {
+      /*
+        La bascule part de l'état réel — offre payante et abonnement en
+        cours — et non du champ `isPremium`, qui a pu diverger. Elle
+        écrit les trois champs ensemble pour qu'ils ne puissent pas se
+        contredire après coup.
+      */
+      const payantAujourdhui = estAbonnePayant(target);
+
       update = {
-        isPremium: !target.isPremium,
-        subscriptionStatus: target.isPremium ? "inactive" : "active",
-        plan: target.isPremium ? "free" : "essential-monthly",
+        isPremium: !payantAujourdhui,
+        subscriptionStatus: payantAujourdhui ? "inactive" : "active",
+        plan: payantAujourdhui ? "free" : "essential-monthly",
       };
     } else if (action === "toggle_identity_verified") {
       // Validation manuelle de l'identité par l'admin (ex: comptes de test).

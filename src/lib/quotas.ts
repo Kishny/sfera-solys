@@ -7,6 +7,7 @@ import {
   normalizePlanId,
   type PlanId,
 } from '@/lib/subscription/config';
+import { estAbonnePayant } from "@/lib/abonnement";
 
 /**
  * Quotas quotidiens — comptés sur les collections, pas sur des compteurs.
@@ -74,10 +75,7 @@ function debutDuJour(): Date {
  * période d'essai. Sinon, retour aux limites gratuites.
  */
 export function planEffectif(user: UtilisateurPourQuota): PlanId {
-  const actif =
-    user.isPremium === true &&
-    (user.subscriptionStatus === 'active' ||
-      user.subscriptionStatus === 'trialing');
+  const actif = estAbonnePayant(user);
 
   if (!actif) return 'free';
 

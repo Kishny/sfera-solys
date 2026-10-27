@@ -1,6 +1,7 @@
 // src/lib/premium.ts
 
 import type { IUser, UserPlan } from "@/models/User";
+import { estAbonnePayant } from "@/lib/abonnement";
 
 /**
  * Fonctionnalités disponibles par plan Sfera'Solys.
@@ -75,8 +76,12 @@ export const PLAN_LIMITS: Record<UserPlan, { likes: number | null; messages: num
  *
  * Utilise user.isPremium + user.plan — jamais user.premium?.level.
  */
-export function canUseFeature(user: Pick<IUser, "isPremium" | "plan">, feature: LunaFeature): boolean {
-  if (!user.isPremium) return false;
+export function canUseFeature(
+  user: Pick<IUser, "plan" | "subscriptionStatus">,
+  feature: LunaFeature
+): boolean {
+  // Le champ `isPremium` n'ouvre plus aucune porte : voir `@/lib/abonnement`.
+  if (!estAbonnePayant(user)) return false;
 
   const plan = user.plan ?? "free";
   return PLAN_FEATURES[plan]?.includes(feature) ?? false;
@@ -85,8 +90,10 @@ export function canUseFeature(user: Pick<IUser, "isPremium" | "plan">, feature: 
 /**
  * Retourne toutes les fonctionnalités disponibles pour un utilisateur.
  */
-export function getAvailableFeatures(user: Pick<IUser, "isPremium" | "plan">): LunaFeature[] {
-  if (!user.isPremium) return [];
+export function getAvailableFeatures(
+  user: Pick<IUser, "plan" | "subscriptionStatus">
+): LunaFeature[] {
+  if (!estAbonnePayant(user)) return [];
 
   const plan = user.plan ?? "free";
   return PLAN_FEATURES[plan] ?? [];
@@ -95,13 +102,13 @@ export function getAvailableFeatures(user: Pick<IUser, "isPremium" | "plan">): L
 /**
  * Vérifie si l'abonnement est réellement actif.
  *
- * Double vérification : isPremium ET subscriptionStatus.
+ * Dérivé de l'offre et du statut, jamais du champ `isPremium` : celui-ci
+ * a divergé une fois et rouvrirait la même faille.
  */
-export function isPremiumActive(user: Pick<IUser, "isPremium" | "subscriptionStatus">): boolean {
-  return (
-    user.isPremium === true &&
-    (user.subscriptionStatus === "active" || user.subscriptionStatus === "trialing")
-  );
+export function isPremiumActive(
+  user: Pick<IUser, "plan" | "subscriptionStatus">
+): boolean {
+  return estAbonnePayant(user);
 }
 
 /**

@@ -14,6 +14,7 @@ import {
   normalizePlanId,
   type PlanId,
 } from "@/lib/subscription/config";
+import { estAbonnePayant } from "@/lib/abonnement";
 
 /**
  * GET /api/subscription/status
@@ -66,11 +67,8 @@ function isSubscriptionActive(user: {
 
   if (plan === "free") return false;
 
-  return (
-    user.isPremium === true &&
-    (user.subscriptionStatus === "active" ||
-      user.subscriptionStatus === "trialing")
-  );
+  // Dérivé de l'offre et du statut — voir `@/lib/abonnement`.
+  return estAbonnePayant(user);
 }
 
 function getFeaturesObject(plan: PlanId) {

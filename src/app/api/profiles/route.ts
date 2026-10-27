@@ -14,6 +14,7 @@ import { ecartesDe } from "@/lib/ecartes";
 import { planEffectif } from "@/lib/quotas";
 import { SUBSCRIPTION_PLANS } from "@/lib/subscription/config";
 import { galeriePubliee } from "@/lib/photos-profil";
+import { estAbonnePayant } from "@/lib/abonnement";
 
 /**
  * GET /api/profiles
@@ -71,11 +72,8 @@ function escapeRegex(value: string) {
 }
 
 function isPremiumActive(user: any) {
-  return (
-    user.isPremium === true &&
-    (user.subscriptionStatus === "active" ||
-      user.subscriptionStatus === "trialing")
-  );
+  // Dérivé de l'offre et du statut — voir `@/lib/abonnement`.
+  return estAbonnePayant(user);
 }
 
 export async function GET(req: NextRequest) {

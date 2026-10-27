@@ -8,6 +8,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import type { ProfileVisibility } from "@/models/User";
 import { estFantome, normaliserVisibilite } from "@/lib/visibilite";
+import { estAbonnePayant } from "@/lib/abonnement";
 
 const ALLOWED_VISIBILITY: ProfileVisibility[] = ["public", "matches", "premium", "invisible"];
 
@@ -48,7 +49,9 @@ export async function PUT(req: NextRequest) {
     await connectDB();
 
     const email = session.user.email.toLowerCase().trim();
-    const user = await User.findOne({ email }).select("_id isPremium subscriptionStatus");
+    const user = await User.findOne({ email }).select(
+      "_id plan isPremium subscriptionStatus"
+    );
 
     if (!user) {
       return NextResponse.json(
@@ -59,11 +62,7 @@ export async function PUT(req: NextRequest) {
 
     // Le Mode Fantôme est réservé aux membres premium
     if (estFantome(visibilite)) {
-      const isPremiumActive =
-        user.isPremium &&
-        (user.subscriptionStatus === "active" || user.subscriptionStatus === "trialing");
-
-      if (!isPremiumActive) {
+      if (!estAbonnePayant(user)) {
         return NextResponse.json(
           {
             success: false,

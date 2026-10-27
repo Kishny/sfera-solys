@@ -7,6 +7,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Like } from "@/models/Like";
 import { sendMorningDigestPush } from "@/lib/push";
+import { estAbonnePayant } from "@/lib/abonnement";
 
 /**
  * GET /api/cron/morning-digest
@@ -97,7 +98,7 @@ export async function GET(req: NextRequest) {
       consentement: true,
       banned: { $ne: true },
     })
-      .select("_id isPremium subscriptionStatus blockedUsers")
+      .select("_id plan isPremium subscriptionStatus blockedUsers")
       .limit(RECIPIENT_BATCH_LIMIT)
       .lean();
 
@@ -132,10 +133,7 @@ export async function GET(req: NextRequest) {
     const results = await Promise.allSettled(
       recipients.map(async (recipient) => {
         const recipientId = (recipient._id as mongoose.Types.ObjectId).toString();
-        const isPremiumActive =
-          recipient.isPremium === true &&
-          (recipient.subscriptionStatus === "active" ||
-            recipient.subscriptionStatus === "trialing");
+        const isPremiumActive = estAbonnePayant(recipient);
 
         const alreadyLiked = likedByRecipient.get(recipientId);
 

@@ -12,6 +12,7 @@ import { Like } from "@/models/Like";
 import { Match } from "@/models/Match";
 import { galeriePubliee } from "@/lib/photos-profil";
 import { estFantome } from "@/lib/visibilite";
+import { estAbonnePayant } from "@/lib/abonnement";
 
 /**
  * GET /api/profiles/[id]
@@ -45,11 +46,8 @@ import { estFantome } from "@/lib/visibilite";
  */
 
 function isPremiumActive(user: any) {
-  return (
-    user.isPremium === true &&
-    (user.subscriptionStatus === "active" ||
-      user.subscriptionStatus === "trialing")
-  );
+  // Dérivé de l'offre et du statut — voir `@/lib/abonnement`.
+  return estAbonnePayant(user);
 }
 
 /** Au-delà, on n'affiche plus de mention de présence. */
@@ -103,7 +101,9 @@ export async function GET(
      * troisième à savoir si l'étoile est déjà allumée.
      */
     const currentUser = await User.findOne({ email: sessionEmail }).select(
-      "_id isPremium subscriptionStatus interets intentions favoris"
+      // `plan` est indispensable : c'est de lui que dépend désormais
+      // le calcul de l'offre payante.
+      "_id plan isPremium subscriptionStatus interets intentions favoris"
     );
 
     if (!currentUser) {

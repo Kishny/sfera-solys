@@ -4,6 +4,7 @@ import mongoose, { Schema, Document, Model, models } from "mongoose";
 
 import type { SubscriptionStatus } from "@/lib/subscription/config";
 import { estFantome } from "@/lib/visibilite";
+import { premiumDerive } from "@/lib/abonnement";
 
 /**
  * Providers d'authentification autorisés.
@@ -838,20 +839,25 @@ UserSchema.virtual("isProfileVisible").get(function (this: IUser) {
  */
 UserSchema.pre<IUser>("save", function () {
   /**
-   * On ne recalcule isPremium QUE si subscriptionStatus est réellement
-   * concerné par cette sauvegarde (création ou modification explicite).
+   * `isPremium` est dérivé, jamais décidé.
    *
-   * Très important : sans cette garde, un .save() sur un document chargé
-   * partiellement (ex. login par identifiants qui ne sélectionne pas
-   * subscriptionStatus) lirait subscriptionStatus comme undefined et
-   * remettrait isPremium à false en base — alors que l'abonnement est
-   * toujours actif. C'était la cause du badge "Gratuit" au retour de
-   * connexion tant qu'on n'avait pas re-synchronisé avec Stripe.
+   * Il l'était déjà, mais à partir de `subscriptionStatus` **seul** : un
+   * compte pouvait donc se retrouver « actif » sans offre payante, et
+   * c'est arrivé — `plan: "free"` avec `isPremium: true`. Le membre
+   * était alors gratuit pour l'interface et payant pour une partie des
+   * contrôles. Le calcul regarde désormais les deux champs.
+   *
+   * La garde reste indispensable : sans elle, un `.save()` sur un
+   * document chargé partiellement — la connexion par identifiants ne
+   * sélectionne ni `plan` ni `subscriptionStatus` — lirait `undefined`
+   * et remettrait `isPremium` à false alors que l'abonnement court.
+   * C'était la cause du badge « Gratuit » au retour de connexion.
    */
-  if (this.isNew || this.isModified("subscriptionStatus")) {
-    this.isPremium =
-      this.subscriptionStatus === "active" ||
-      this.subscriptionStatus === "trialing";
+  if (this.isNew || this.isModified("subscriptionStatus") || this.isModified("plan")) {
+    this.isPremium = premiumDerive({
+      plan: this.plan,
+      subscriptionStatus: this.subscriptionStatus,
+    });
   }
 
   /**
@@ -861,6 +867,48 @@ UserSchema.pre<IUser>("save", function () {
   if (this.hasCompletedProfile && !this.profileCompletedAt) {
     this.profileCompletedAt = new Date();
   }
+});
+
+/**
+ * Le même calcul, pour les écritures qui ne passent pas par `save()`.
+ *
+ * `findOneAndUpdate` ne déclenche pas le crochet ci-dessus. C'est par là
+ * que passent le webhook Stripe, la bascule d'administration et les
+ * routes de profil — autrement dit, presque toutes les écritures
+ * d'abonnement. Chacune posait `isPremium` de son côté, ou l'oubliait :
+ * c'est ainsi que les deux champs ont fini par se contredire.
+ *
+ * Le crochet relit le document pour connaître la valeur que la mise à
+ * jour ne touche pas — changer `plan` seul doit pouvoir recalculer avec
+ * le statut existant. La lecture n'a lieu que si l'un des deux champs
+ * est concerné, donc presque jamais.
+ */
+UserSchema.pre("findOneAndUpdate", async function () {
+  const maj = (this.getUpdate() ?? {}) as Record<string, any>;
+  const set = { ...(maj.$set ?? {}), ...maj };
+
+  const touchePlan = "plan" in set;
+  const toucheStatut = "subscriptionStatus" in set;
+
+  if (!touchePlan && !toucheStatut) return;
+
+  // Une écriture qui pose explicitement `isPremium` est respectée : le
+  // webhook Stripe reste maître de ce qu'il affirme.
+  if ("isPremium" in set) return;
+
+  const actuel = await this.model
+    .findOne(this.getQuery())
+    .select("plan subscriptionStatus")
+    .lean<{ plan?: string; subscriptionStatus?: string } | null>();
+
+  const derive = premiumDerive({
+    plan: touchePlan ? set.plan : actuel?.plan,
+    subscriptionStatus: toucheStatut
+      ? set.subscriptionStatus
+      : actuel?.subscriptionStatus,
+  });
+
+  this.set({ isPremium: derive });
 });
 
 /**

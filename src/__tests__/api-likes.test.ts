@@ -25,12 +25,28 @@ const { getServerSession } = vi.hoisted(() => ({
 const userMocks = vi.hoisted(() => ({
   findOne: vi.fn(),
   findById: vi.fn(),
+  /*
+    `exists` est appelé par `blocageEntre` : un like vers quelqu'un qui
+    vous a bloqué ne doit pas partir. Le mock l'a manqué quand le blocage
+    est arrivé, et la route échouait en 500 au lieu de répondre — deux
+    tests rouges qui ne disaient pas ce qu'ils gardaient.
+
+    `null` veut dire « aucun blocage » : le chemin nominal du test.
+  */
+  exists: vi.fn().mockResolvedValue(null),
+  find: vi.fn().mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      lean: vi.fn().mockResolvedValue([]),
+    }),
+  }),
 }));
 
 const likeMocks = vi.hoisted(() => ({
   findOneAndUpdate: vi.fn(),
   findOne: vi.fn(),
   deleteOne: vi.fn(),
+  // Appelé pour savoir si le like est réciproque.
+  exists: vi.fn().mockResolvedValue(null),
 }));
 
 const matchMocks = vi.hoisted(() => ({
@@ -216,7 +232,13 @@ describe("POST /api/likes", () => {
     const data = await res.json();
 
     expect(res.status).toBe(200);
-    expect(data).toEqual({ success: true, matched: false });
+    /*
+      `toMatchObject` et non `toEqual` : la réponse porte aussi le quota
+      de likes, ajouté après l'écriture de ce test. Ce que ce test garde,
+      c'est « le like est pris, et il n'y a pas de match » — pas la liste
+      exacte des clés, qui bloquerait tout enrichissement de la réponse.
+    */
+    expect(data).toMatchObject({ success: true, matched: false });
     expect(matchMocks.findOneAndUpdate).not.toHaveBeenCalled();
   });
 
