@@ -10,6 +10,7 @@ import { User } from "@/models/User";
 import { Match } from "@/models/Match";
 import { blocageEntre } from "@/lib/blocages";
 import { Message } from "@/models/Message";
+import { identifiantValide, urlPubliqueDuMedia } from "@/lib/medias";
 import { SolysEvent } from "@/models/SolysEvent";
 import { Report } from "@/models/Report";
 import { envoyerPusher } from "@/lib/pusher";
@@ -171,14 +172,22 @@ function estUnMediaCloudinary(url: string, dossier: string): boolean {
 /**
  * Construit un message propre à renvoyer au frontend.
  */
+/**
+ * Construit un message propre à renvoyer au frontend.
+ *
+ * Les médias sont servis par notre route, jamais par Cloudinary : le
+ * client ne reçoit plus d'adresse qu'un inconnu pourrait réutiliser.
+ */
 function serializeMessage(message: any) {
+  const matchId = message.matchId?.toString();
+
   return {
     _id: message._id?.toString(),
-    matchId: message.matchId?.toString(),
+    matchId,
     senderId: message.senderId?.toString(),
     content: message.content ?? "",
-    imageUrl: message.imageUrl || null,
-    audioUrl: message.audioUrl || null,
+    imageUrl: urlPubliqueDuMedia(message, matchId, "photo"),
+    audioUrl: urlPubliqueDuMedia(message, matchId, "vocal"),
     audioDuree:
       typeof message.audioDuree === "number" ? message.audioDuree : null,
     lieu: message.lieu
@@ -439,7 +448,9 @@ export async function POST(
     let body: {
       content?: unknown;
       imageUrl?: unknown;
+      imagePublicId?: unknown;
       audioUrl?: unknown;
+      audioPublicId?: unknown;
       audioDuree?: unknown;
       lieu?: unknown;
       rendezVous?: unknown;
@@ -492,6 +503,30 @@ export async function POST(
     }
 
     /**
+     * L'identifiant Cloudinary de la photo.
+     *
+     * C'est lui qui compte désormais : il permet de reconstruire
+     * l'adresse à la lecture. Il vient du client, donc on vérifie qu'il
+     * désigne bien le dossier des photos de conversation.
+     */
+    let imagePublicId: string | null = null;
+
+    if (typeof body?.imagePublicId === "string" && body.imagePublicId) {
+      if (!identifiantValide(body.imagePublicId, "photo")) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Cette image n'a pas été déposée par Sfera'Solys.",
+            code: "INVALID_IMAGE_ID",
+          },
+          { status: 400 }
+        );
+      }
+
+      imagePublicId = body.imagePublicId;
+    }
+
+    /**
      * Le message vocal.
      *
      * Même contrôle d'origine que pour l'image. La durée n'est qu'un
@@ -502,6 +537,7 @@ export async function POST(
       typeof body?.audioUrl === "string" ? body.audioUrl.trim() : "";
 
     let audioUrl: string | null = null;
+    let audioPublicId: string | null = null;
     let audioDuree: number | null = null;
 
     if (audioBrut) {
@@ -517,6 +553,21 @@ export async function POST(
       }
 
       audioUrl = audioBrut;
+
+      if (typeof body?.audioPublicId === "string" && body.audioPublicId) {
+        if (!identifiantValide(body.audioPublicId, "vocal")) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Cet enregistrement n'a pas été déposé par Sfera'Solys.",
+              code: "INVALID_AUDIO_ID",
+            },
+            { status: 400 }
+          );
+        }
+
+        audioPublicId = body.audioPublicId;
+      }
 
       const dureeBrute = Number(body?.audioDuree);
 
@@ -796,7 +847,9 @@ export async function POST(
       senderId: currentUserId,
       content,
       imageUrl,
+      imagePublicId,
       audioUrl,
+      audioPublicId,
       audioDuree,
       lieu,
       rendezVous,

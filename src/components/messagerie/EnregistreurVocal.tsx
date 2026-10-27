@@ -29,17 +29,27 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Pause, Play, Send, Square, Trash2 } from "lucide-react";
 
+/**
+ * Ce que rend le dépôt.
+ *
+ * L'identifiant Cloudinary accompagne l'adresse : c'est lui qui sera
+ * stocké sur le message, l'adresse ne servant qu'à la relecture
+ * immédiate.
+ */
+export interface DepotVocal {
+  url: string;
+  publicId: string | null;
+  duree: number;
+}
+
 interface EnregistreurVocalProps {
   /**
    * Dépose l'enregistrement et renvoie son adresse de lecture,
    * ou `null` si le dépôt a échoué.
    */
-  onDeposer: (
-    fichier: Blob,
-    duree: number
-  ) => Promise<{ url: string; duree: number } | null>;
+  onDeposer: (fichier: Blob, duree: number) => Promise<DepotVocal | null>;
   /** Envoie le vocal déjà déposé dans la conversation. */
-  onEnvoyer: (url: string, duree: number) => void;
+  onEnvoyer: (depot: DepotVocal) => void;
   /** Ferme l'enregistreur et rend la main au composeur texte. */
   onAnnuler: () => void;
   /** Vrai pendant que le composeur envoie le message. */
@@ -89,9 +99,7 @@ export default function EnregistreurVocal({
   >("demarrage");
 
   const [secondes, setSecondes] = useState(0);
-  const [depose, setDepose] = useState<{ url: string; duree: number } | null>(
-    null
-  );
+  const [depose, setDepose] = useState<DepotVocal | null>(null);
   const [enLecture, setEnLecture] = useState(false);
   const [relectureImpossible, setRelectureImpossible] = useState(false);
 
@@ -327,7 +335,7 @@ export default function EnregistreurVocal({
 
           <button
             type="button"
-            onClick={() => onEnvoyer(depose.url, depose.duree)}
+            onClick={() => onEnvoyer(depose)}
             disabled={envoiEnCours}
             aria-label="Envoyer le vocal"
             className="shrink-0 rounded-full bg-degrade-cuivre p-2.5 text-nuit transition hover:opacity-90 disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cuivre"

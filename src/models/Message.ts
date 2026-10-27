@@ -34,6 +34,16 @@ export interface IMessage extends Document {
   imageUrl: string | null;
 
   /**
+   * Identifiant Cloudinary de la photo.
+   *
+   * Présent sur les messages récents, absent sur les anciens qui n'ont
+   * qu'une URL. Garder l'identifiant plutôt que l'adresse permet de
+   * reconstruire celle-ci à la lecture — et donc de changer le mode de
+   * livraison sans migrer les données déjà écrites.
+   */
+  imagePublicId: string | null;
+
+  /**
    * Message vocal, hébergé sur Cloudinary.
    *
    * `null` pour un message sans voix. Contrairement au texte et aux
@@ -42,6 +52,9 @@ export interface IMessage extends Document {
    * garde-fou — à garder en tête si la modération devient un sujet.
    */
   audioUrl: string | null;
+
+  /** Identifiant Cloudinary du vocal. Même rôle que `imagePublicId`. */
+  audioPublicId: string | null;
 
   /** Durée du vocal en secondes, pour l'afficher sans charger le fichier. */
   audioDuree: number | null;
@@ -151,6 +164,11 @@ const MessageSchema = new Schema<IMessage>(
       default: null,
     },
 
+    imagePublicId: {
+      type: String,
+      default: null,
+    },
+
     /**
      * Message vocal.
      *
@@ -158,6 +176,11 @@ const MessageSchema = new Schema<IMessage>(
      * Cloudinary est acceptée par la route d'envoi.
      */
     audioUrl: {
+      type: String,
+      default: null,
+    },
+
+    audioPublicId: {
       type: String,
       default: null,
     },

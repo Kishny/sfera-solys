@@ -80,7 +80,9 @@ import CarteRendezVous, {
   type StatutRendezVous,
 } from "@/components/messagerie/CarteRendezVous";
 import ProposerRendezVous from "@/components/messagerie/ProposerRendezVous";
-import EnregistreurVocal from "@/components/messagerie/EnregistreurVocal";
+import EnregistreurVocal, {
+  type DepotVocal,
+} from "@/components/messagerie/EnregistreurVocal";
 import LecteurVocal from "@/components/messagerie/LecteurVocal";
 import MenuPlus from "@/components/messagerie/MenuPlus";
 import SelecteurEmojis from "@/components/messagerie/SelecteurEmojis";
@@ -207,7 +209,10 @@ export default function PageConversation() {
    */
   const [menuPlus, setMenuPlus] = useState(false);
   const [emojis, setEmojis] = useState(false);
-  const [photoEnAttente, setPhotoEnAttente] = useState<string | null>(null);
+  const [photoEnAttente, setPhotoEnAttente] = useState<{
+    url: string;
+    publicId: string | null;
+  } | null>(null);
   const [envoiPhoto, setEnvoiPhoto] = useState(false);
 
   /** Le menu du trombone, et ce qu'il permet d'attacher. */
@@ -491,7 +496,7 @@ export default function PageConversation() {
    * la saisie.
    */
   const envoyer = async (
-    vocal?: { url: string; duree: number },
+    vocal?: { url: string; publicId: string | null; duree: number },
     lieu?: { libelle: string; lat: number; lng: number },
     rendezVous?: { quand: string; ou: string; note: string },
     piece?: { evenementId?: string }
@@ -518,7 +523,7 @@ export default function PageConversation() {
       matchId: String(matchId),
       senderId: monId,
       content: contenu,
-      imageUrl: photo,
+      imageUrl: photo?.url ?? null,
       audioUrl: vocal?.url ?? null,
       audioDuree: vocal?.duree ?? null,
       lieu: lieu ?? null,
@@ -547,8 +552,10 @@ export default function PageConversation() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           content: contenu,
-          imageUrl: photo,
+          imageUrl: photo?.url ?? null,
+          imagePublicId: photo?.publicId ?? null,
           audioUrl: vocal?.url ?? null,
+          audioPublicId: vocal?.publicId ?? null,
           audioDuree: vocal?.duree ?? null,
           lieu: lieu ?? null,
           rendezVous: rendezVous ?? null,
@@ -628,7 +635,10 @@ export default function PageConversation() {
         return;
       }
 
-      setPhotoEnAttente(donnees.url as string);
+      setPhotoEnAttente({
+        url: donnees.url as string,
+        publicId: (donnees.publicId as string) ?? null,
+      });
       champSaisie.current?.focus();
     } catch {
       setErreur("Connexion interrompue. La photo n’est pas partie.");
@@ -648,7 +658,7 @@ export default function PageConversation() {
   const deposerVocal = async (
     fichier: Blob,
     duree: number
-  ): Promise<{ url: string; duree: number } | null> => {
+  ): Promise<DepotVocal | null> => {
     setEnvoiVocal(true);
     setErreur("");
 
@@ -675,6 +685,7 @@ export default function PageConversation() {
 
       return {
         url: donnees.url as string,
+        publicId: (donnees.publicId as string) ?? null,
         duree: typeof donnees.duree === "number" ? donnees.duree : duree,
       };
     } catch {
@@ -686,12 +697,12 @@ export default function PageConversation() {
   };
 
   /** Envoie un vocal déjà déposé. */
-  const envoyerVocal = async (url: string, duree: number) => {
+  const envoyerVocal = async (depot: DepotVocal) => {
     setEnvoiVocal(true);
 
     try {
       setVocalOuvert(false);
-      await envoyer({ url, duree });
+      await envoyer(depot);
     } finally {
       setEnvoiVocal(false);
     }
@@ -1582,7 +1593,7 @@ export default function PageConversation() {
                     <div className="mb-2 flex items-center gap-3 rounded-2xl border border-champagne/10 bg-nuit/60 p-2">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={photoEnAttente}
+                        src={photoEnAttente.url}
                         alt="Photo à envoyer"
                         className="h-14 w-14 shrink-0 rounded-xl object-cover"
                       />
@@ -1614,8 +1625,8 @@ export default function PageConversation() {
                       onErreur={(message) => setErreur(message)}
                       onAnnuler={() => setVocalOuvert(false)}
                       onDeposer={deposerVocal}
-                      onEnvoyer={(url, duree) => {
-                        void envoyerVocal(url, duree);
+                      onEnvoyer={(depot) => {
+                        void envoyerVocal(depot);
                       }}
                     />
                   ) : (

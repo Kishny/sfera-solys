@@ -220,6 +220,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       url: urlDeLecture,
+      publicId: resultat.public_id,
       duree: dureeReelle,
     });
   } catch (err) {

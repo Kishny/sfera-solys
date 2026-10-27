@@ -115,7 +115,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, url: result.secure_url });
+    /**
+     * L'identifiant part avec l'adresse.
+     *
+     * C'est lui qui est stocké sur le message : l'adresse n'est plus
+     * qu'un aperçu immédiat pour celui qui vient de déposer la photo.
+     */
+    return NextResponse.json({
+      success: true,
+      url: result.secure_url,
+      publicId: result.public_id,
+    });
   } catch (err) {
     console.error('[upload/chat-image]', err);
     return NextResponse.json(
