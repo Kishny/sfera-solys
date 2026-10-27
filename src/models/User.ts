@@ -113,6 +113,18 @@ export interface IUser extends Document {
   premiumStartedAt?: Date | null;
   premiumExpiresAt?: Date | null;
 
+  /**
+   * Le boost de découverte a-t-il été dépensé ?
+   *
+   * Un crédit à vie, pas un quota : offert une fois par compte pour faire
+   * goûter l'effet d'un boost sans abonnement. Il est **dépensé par le
+   * membre quand il le décide**, et non lancé à l'inscription — un boost qui
+   * partirait sur un profil encore vide se consumerait pour rien, et la
+   * route de boost refuse déjà, à juste titre, de mettre en avant un profil
+   * incomplet.
+   */
+  boostDecouverteUtilise: boolean;
+
   // Stripe
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
@@ -532,6 +544,17 @@ const UserSchema = new Schema<IUser>(
     premiumStartedAt: {
       type: Date,
       default: null,
+    },
+
+    /**
+     * Le boost de découverte, offert une fois par compte.
+     *
+     * Le défaut `false` vaut pour les comptes existants, qui n'ont donc rien
+     * perdu : ils ont tous leur crédit intact à la première lecture.
+     */
+    boostDecouverteUtilise: {
+      type: Boolean,
+      default: false,
     },
 
     /**

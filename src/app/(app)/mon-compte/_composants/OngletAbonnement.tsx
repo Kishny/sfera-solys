@@ -16,6 +16,7 @@ import {
   type MembreSolys,
   type PlanSolys,
 } from "./types";
+import { FORMULES_PAR_OFFRE } from "@/lib/boosts-formules";
 
 /**
  * Onglet Abonnement.
@@ -52,19 +53,19 @@ const contenuParOffre: Record<PlanSolys, string[]> = {
     "Likes et messages illimités",
     "Mises en relation illimitées",
     "Circle of Six hebdomadaire",
-    "1 boost de visibilité par mois",
+      `1 boost de visibilité de ${FORMULES_PAR_OFFRE["essential-monthly"].dureeMinutes} min par mois`,
     "Inscription aux événements",
   ],
   "premium-monthly": [
     "Tout l’Essentiel",
-    "3 boosts de visibilité par mois",
+      `3 boosts de ${FORMULES_PAR_OFFRE["premium-monthly"].dureeMinutes} min, prioritaires et programmables`,
     "Mode Fantôme",
     "Visiteurs de ton profil",
     "Filtres avancés de l’annuaire",
   ],
   "elite-monthly": [
     "Tout le Premium",
-    "10 boosts de visibilité par mois",
+      `10 boosts de ${FORMULES_PAR_OFFRE["elite-monthly"].dureeMinutes} min, affichés « À la une »`,
     "Badge Elite",
   ],
 };

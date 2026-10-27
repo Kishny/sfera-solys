@@ -321,9 +321,14 @@ export async function GET(req: NextRequest) {
 
     /**
      * Profils actuellement mis en avant, tous membres confondus.
-     * Ensemble minuscule par nature : un boost dure trente minutes.
+     * Ensemble minuscule par nature : un boost dure de trente à soixante
+     * minutes selon l'offre, et un membre n'en a qu'un à la fois.
      */
-    const { ids: idsBoostes, scores: scoresBoostes } = await classementBoosts();
+    const {
+      ids: idsBoostes,
+      poids: poidsBoostes,
+      types: typesBoostes,
+    } = await classementBoosts();
 
     const lireProfils = async () => {
       if (idsBoostes.length === 0) {
@@ -334,8 +339,13 @@ export async function GET(req: NextRequest) {
           .limit(limit)
           .lean();
 
-        // Même forme de réponse que le chemin agrégé.
-        return profils.map((profil) => ({ ...profil, miseEnAvant: false }));
+        // Même forme de réponse que le chemin agrégé, `typeMiseEnAvant`
+        // compris : le client ne doit pas avoir à deviner qui a répondu.
+        return profils.map((profil) => ({
+          ...profil,
+          miseEnAvant: false,
+          typeMiseEnAvant: null,
+        }));
       }
 
       /**
@@ -347,7 +357,8 @@ export async function GET(req: NextRequest) {
           filtre: query,
           champs: CHAMPS_PUBLICS,
           ids: idsBoostes,
-          scores: scoresBoostes,
+          poids: poidsBoostes,
+          types: typesBoostes,
           skip,
           limit,
         }),

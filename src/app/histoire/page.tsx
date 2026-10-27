@@ -156,7 +156,7 @@ const refus: Array<{ icon: IconeMarque; titre: string; texte: string }> = [
     icon: CircleSlash,
     titre: 'Les mises en avant cachées',
     texte:
-      "Les boosts de visibilité existent, durent trente minutes et sont plafonnés par l'offre. Ce qu'on refuse, c'est la place achetée en silence : la carte affiche « Mis en avant » pendant toute la durée.",
+      "Les boosts de visibilité existent, leur durée et leur rang dépendent de l'offre, et ils sont plafonnés. Ce qu'on refuse, c'est la place achetée en silence : la carte le dit pendant toute la durée, et elle dit même laquelle des deux mises en avant elle porte.",
   },
   {
     icon: Users,

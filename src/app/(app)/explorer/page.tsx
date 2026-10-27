@@ -77,6 +77,7 @@ import { usePremium } from "@/hooks/usePremium";
 import ReportModal from "@/components/ReportModal";
 import PanneauBoost from "@/components/boost/PanneauBoost";
 import { DEPARTEMENTS, getDepartementLabel } from "@/lib/locations";
+import { libelleTypeBoost } from "@/lib/boosts-formules";
 
 // ─────────────────────────────────────────────
 // Types
@@ -97,6 +98,13 @@ interface Profil {
    * Renseigné par /api/profiles ; affiché tel quel, jamais deviné.
    */
   miseEnAvant?: boolean;
+
+  /**
+   * Le type de boost qui le remonte. `spotlight` est la mise en avant de
+   * l'offre Elite, et elle porte un autre nom sur la carte : deux membres
+   * poussés en même temps ne le sont pas de la même façon, autant le dire.
+   */
+  typeMiseEnAvant?: string | null;
 }
 
 interface Recherche {
@@ -1061,10 +1069,11 @@ function CarteProfil({
         </button>
 
         {/* Un profil remonté par un boost le dit, il ne se déguise pas en
-            résultat naturel du classement. */}
+            résultat naturel du classement. Le libellé suit le type : la mise
+            en avant Elite n'est pas la même chose qu'un boost de profil. */}
         {profil.miseEnAvant && (
           <span className="absolute left-2.5 top-2.5 rounded-full bg-cuivre px-2.5 py-1 text-[11px] font-bold text-nuit">
-            Mis en avant
+            {libelleTypeBoost(profil.typeMiseEnAvant ?? "profile")}
           </span>
         )}
       </div>

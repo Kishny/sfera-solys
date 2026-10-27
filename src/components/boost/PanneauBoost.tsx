@@ -2,19 +2,24 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Rocket, Timer, TriangleAlert } from 'lucide-react';
+import { CalendarClock, Gift, Rocket, Timer, TriangleAlert } from 'lucide-react';
+
+import { libelleTypeBoost } from '@/lib/boosts-formules';
 
 /**
  * Panneau de boost de visibilité.
  *
- * ## Ce qu'il rend enfin visible
+ * ## Ce qu'il rend visible
  *
- * Les boosts étaient vendus dans les offres (1, 3 ou 10 par mois selon la
- * formule) sans qu'aucun écran ne permette d'en lancer un, et sans qu'aucun
- * classement les lise. Ce panneau est le seul endroit du site où un membre
- * déclenche un boost, et il affiche trois choses que l'ancienne interface
- * taisait : combien il en reste ce mois-ci, combien de temps le boost en cours
- * durera encore, et ce que le boost fait exactement.
+ * Les boosts étaient vendus dans les offres sans qu'aucun écran ne permette
+ * d'en lancer un, et sans qu'aucun classement les lise. Ce panneau est le seul
+ * endroit du site où un membre déclenche un boost.
+ *
+ * Il affiche désormais ce que **sa** formule vaut, et non une durée écrite en
+ * dur : les offres ne se distinguaient que par le nombre de boosts, elles se
+ * distinguent maintenant par la durée, la force, le type et la possibilité de
+ * choisir l'heure. Tout cela vient du serveur, dans `formule` — le panneau
+ * n'en décide rien et ne duplique aucun seuil.
  *
  * ## Le décompte
  *
@@ -24,26 +29,45 @@ import { Rocket, Timer, TriangleAlert } from 'lucide-react';
  * reste juste. Quand la fenêtre se termine, on relit l'état au serveur au lieu
  * de supposer.
  *
- * ## Couleurs
+ * Un boost programmé n'a pas encore de fin à décompter : on compte alors vers
+ * son **début**, et l'étiquette le dit, pour qu'un membre ne croie pas que sa
+ * mise en avant est déjà en train de s'écouler.
  *
- * Le panneau est déjà en palette Sfera'Solys (orange pour l'action, lime pour
- * l'état validé) alors qu'Explorer est encore sur l'identité héritée. C'est
- * assumé : cette page est le prochain chantier de migration, et le panneau n'a
- * pas à être repeint deux fois.
+ * ## Pourquoi aucun import de `@/lib/boosts`
+ *
+ * Ce fichier tournerait dans le navigateur avec Mongoose et les modèles dans
+ * son paquet. Les règles arrivent donc en données — `formule`, `prioritaire`,
+ * `horizonJours` — et jamais en constantes recopiées.
+ *
+ * `@/lib/boosts-formules` est la seule exception, et c'est pour cela qu'il
+ * existe : des données et des fonctions pures, sans Mongoose. Le libellé de la
+ * mise en avant en vient, pour qu'il soit le même mot ici, sur la carte du
+ * profil et sur la page des tarifs.
  */
 
 type Quota = {
   limite: number;
   utilises: number;
   restants: number;
+  /** Le boost offert une fois par compte est-il encore disponible ? */
+  decouverteDisponible: boolean;
 };
 
-type BoostActif = {
+type Formule = {
+  type: string;
+  dureeMinutes: number;
+  force: number;
+  programmable: boolean;
+};
+
+type BoostEnVol = {
   id: string;
   type: string;
   multiplier: number;
   startsAt: string;
   endsAt: string;
+  commence: boolean;
+  secondesAvantDebut: number;
   secondesRestantes: number;
 };
 
@@ -59,19 +83,52 @@ function formaterDuree(secondes: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(reste).padStart(2, '0')}`;
 }
 
+/** `YYYY-MM-DDTHH:mm` en heure locale, le format d'un `datetime-local`. */
+function pourChampLocal(date: Date): string {
+  const deuxChiffres = (valeur: number) => String(valeur).padStart(2, '0');
+
+  return (
+    `${date.getFullYear()}-${deuxChiffres(date.getMonth() + 1)}` +
+    `-${deuxChiffres(date.getDate())}T${deuxChiffres(date.getHours())}` +
+    `:${deuxChiffres(date.getMinutes())}`
+  );
+}
+
+/** « vendredi 30 octobre à 20:30 » */
+function formaterMoment(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(iso));
+  } catch {
+    return '';
+  }
+}
+
 export default function PanneauBoost({
   onBoostLance,
 }: {
   /** Appelé après un boost lancé, pour que la page relise son classement. */
   onBoostLance?: () => void;
 }) {
-  const [boost, setBoost] = useState<BoostActif | null>(null);
+  const [boost, setBoost] = useState<BoostEnVol | null>(null);
   const [quota, setQuota] = useState<Quota | null>(null);
-  const [dureeMinutes, setDureeMinutes] = useState(30);
+  const [formule, setFormule] = useState<Formule | null>(null);
+  const [prioritaire, setPrioritaire] = useState(false);
+  const [horizonJours, setHorizonJours] = useState(7);
   const [chargement, setChargement] = useState(true);
   const [envoi, setEnvoi] = useState(false);
+  const [annulation, setAnnulation] = useState(false);
   const [erreur, setErreur] = useState('');
   const [secondes, setSecondes] = useState(0);
+
+  /** Le membre a-t-il ouvert le choix de l'heure ? */
+  const [programmer, setProgrammer] = useState(false);
+  const [heureChoisie, setHeureChoisie] = useState('');
 
   /** Évite un setState après démontage. */
   const monte = useRef(true);
@@ -94,16 +151,20 @@ export default function PanneauBoost({
         // Un membre non connecté ou une erreur serveur : le panneau se retire.
         setQuota(null);
         setBoost(null);
+        setFormule(null);
         return;
       }
 
       setBoost(donnees.boost ?? null);
       setQuota(donnees.quota ?? null);
-      setDureeMinutes(donnees.dureeMinutes ?? 30);
+      setFormule(donnees.formule ?? null);
+      setPrioritaire(donnees.prioritaire === true);
+      setHorizonJours(donnees.horizonJours ?? 7);
     } catch {
       if (monte.current) {
         setQuota(null);
         setBoost(null);
+        setFormule(null);
       }
     } finally {
       if (monte.current) setChargement(false);
@@ -115,8 +176,9 @@ export default function PanneauBoost({
   }, [lireEtat]);
 
   /**
-   * Décompte recalculé depuis `endsAt`, jamais décrémenté à l'aveugle.
-   * À l'échéance, on relit l'état côté serveur.
+   * Décompte recalculé depuis la date du serveur, jamais décrémenté à
+   * l'aveugle. Vers le début quand le boost est programmé, vers la fin quand
+   * il a commencé. À l'échéance de l'un comme de l'autre, on relit l'état.
    */
   useEffect(() => {
     if (!boost) {
@@ -124,10 +186,12 @@ export default function PanneauBoost({
       return;
     }
 
-    const fin = new Date(boost.endsAt).getTime();
+    const cible = new Date(
+      boost.commence ? boost.endsAt : boost.startsAt
+    ).getTime();
 
     const rafraichir = () => {
-      const restant = Math.max(0, Math.round((fin - Date.now()) / 1000));
+      const restant = Math.max(0, Math.round((cible - Date.now()) / 1000));
       setSecondes(restant);
 
       if (restant === 0) void lireEtat();
@@ -144,7 +208,22 @@ export default function PanneauBoost({
     setErreur('');
 
     try {
-      const reponse = await fetch('/api/boosts', { method: 'POST' });
+      /**
+       * Le champ donne une heure locale sans fuseau ; `new Date` la lit dans
+       * le fuseau du navigateur, et on envoie l'instant en ISO. Le serveur
+       * revalide de toute façon : l'offre, l'horizon et le passé.
+       */
+      const startsAt =
+        programmer && heureChoisie
+          ? new Date(heureChoisie).toISOString()
+          : undefined;
+
+      const reponse = await fetch('/api/boosts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(startsAt ? { startsAt } : {}),
+      });
+
       const donnees = await reponse.json();
 
       if (!reponse.ok || donnees?.success !== true) {
@@ -160,6 +239,9 @@ export default function PanneauBoost({
       setBoost(donnees.boost ?? null);
       if (donnees.quota) setQuota(donnees.quota);
 
+      setProgrammer(false);
+      setHeureChoisie('');
+
       onBoostLance?.();
     } catch {
       setErreur('Connexion interrompue. Réessaie dans un instant.');
@@ -168,13 +250,51 @@ export default function PanneauBoost({
     }
   };
 
-  // Rien à afficher tant qu'on ne sait pas, ni si le membre n'est pas lisible.
-  if (chargement || !quota) return null;
+  const annuler = async () => {
+    setAnnulation(true);
+    setErreur('');
 
-  const actif = boost !== null && secondes > 0;
-  const progression = actif
-    ? Math.min(100, Math.max(0, (1 - secondes / (dureeMinutes * 60)) * 100))
+    try {
+      const reponse = await fetch('/api/boosts', { method: 'DELETE' });
+      const donnees = await reponse.json();
+
+      if (!reponse.ok || donnees?.success !== true) {
+        setErreur(donnees?.error || 'Le boost n’a pas pu être annulé.');
+
+        if (donnees?.boost) setBoost(donnees.boost);
+
+        return;
+      }
+
+      setBoost(null);
+      if (donnees.quota) setQuota(donnees.quota);
+    } catch {
+      setErreur('Connexion interrompue. Réessaie dans un instant.');
+    } finally {
+      if (monte.current) setAnnulation(false);
+    }
+  };
+
+  // Rien à afficher tant qu'on ne sait pas, ni si le membre n'est pas lisible.
+  if (chargement || !quota || !formule) return null;
+
+  const enCours = boost !== null && boost.commence && secondes > 0;
+  const programme = boost !== null && !boost.commence;
+
+  const progression = enCours
+    ? Math.min(
+        100,
+        Math.max(0, (1 - secondes / (formule.dureeMinutes * 60)) * 100)
+      )
     : 0;
+
+  const maintenant = new Date();
+  const horizon = new Date(
+    maintenant.getTime() + horizonJours * 24 * 60 * 60 * 1000
+  );
+
+  const surCredit = quota.restants <= 0 && quota.decouverteDisponible;
+  const aUnBoost = quota.restants > 0 || quota.decouverteDisponible;
 
   return (
     <section
@@ -189,21 +309,30 @@ export default function PanneauBoost({
           >
             <Rocket
               size={16}
-              className={actif ? 'text-succes' : 'text-cuivre'}
+              className={enCours ? 'text-succes' : 'text-cuivre'}
               aria-hidden="true"
             />
             Boost de visibilité
           </h2>
 
           <p className="mt-1 max-w-md text-[13px] leading-relaxed text-champagne/60">
-            {actif
-              ? 'Ton profil passe devant les autres dans Explorer pendant toute la durée du boost.'
-              : `Pendant ${dureeMinutes} minutes, ton profil remonte en tête d’Explorer pour les membres qui peuvent te voir.`}
+            {enCours
+              ? `Ton profil passe devant les autres dans Explorer, signalé « ${libelleTypeBoost(formule.type)} », pendant toute la durée du boost.`
+              : programme && boost
+                ? `Ton boost démarre ${formaterMoment(boost.startsAt)}, pour ${formule.dureeMinutes} minutes.`
+                : `Pendant ${formule.dureeMinutes} minutes, ton profil remonte en tête d’Explorer pour les membres qui peuvent te voir, signalé « ${libelleTypeBoost(formule.type)} ».`}
           </p>
+
+          {!enCours && !programme && prioritaire && (
+            <p className="mt-1.5 max-w-md text-[12px] leading-relaxed text-cuivre">
+              Ton offre te place devant les boosts des offres inférieures quand
+              plusieurs membres sont mis en avant en même temps.
+            </p>
+          )}
         </div>
 
-        <div className="shrink-0">
-          {actif ? (
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {enCours ? (
             <p
               className="flex items-center gap-2 rounded-xl bg-succes/15 px-3.5 py-2.5 text-[13px] font-bold text-succes"
               role="timer"
@@ -213,7 +342,23 @@ export default function PanneauBoost({
               <span className="tabular-nums">{formaterDuree(secondes)}</span>
               <span className="sr-only">restantes</span>
             </p>
-          ) : quota.limite <= 0 ? (
+          ) : programme ? (
+            <>
+              <p className="flex items-center gap-2 rounded-xl bg-cuivre/15 px-3.5 py-2.5 text-[13px] font-bold text-cuivre">
+                <CalendarClock size={15} aria-hidden="true" />
+                Programmé
+              </p>
+
+              <button
+                type="button"
+                onClick={annuler}
+                disabled={annulation}
+                className={`inline-flex items-center justify-center rounded-xl border border-champagne/25 px-4 py-2.5 text-[13px] font-bold text-champagne/80 transition-colors hover:bg-champagne/10 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
+              >
+                {annulation ? 'Annulation…' : 'Annuler'}
+              </button>
+            </>
+          ) : !aUnBoost ? (
             <Link
               href="/tarifs"
               className={`inline-flex items-center justify-center rounded-xl border border-cuivre/40 px-4 py-2.5 text-[13px] font-bold text-champagne transition-colors hover:bg-cuivre/10 ${focusRing}`}
@@ -224,16 +369,20 @@ export default function PanneauBoost({
             <button
               type="button"
               onClick={lancer}
-              disabled={envoi || quota.restants <= 0}
+              disabled={envoi || (programmer && !heureChoisie)}
               className={`inline-flex items-center justify-center rounded-xl bg-cuivre px-4 py-2.5 text-[13px] font-bold text-nuit transition-colors hover:bg-cuivre/90 disabled:cursor-not-allowed disabled:opacity-40 ${focusRing}`}
             >
-              {envoi ? 'Lancement…' : 'Lancer un boost'}
+              {envoi
+                ? 'Lancement…'
+                : programmer
+                  ? 'Programmer'
+                  : 'Lancer un boost'}
             </button>
           )}
         </div>
       </div>
 
-      {actif && (
+      {enCours && (
         <div
           className="mt-4 h-1 overflow-hidden rounded-full bg-champagne/10"
           role="presentation"
@@ -245,12 +394,84 @@ export default function PanneauBoost({
         </div>
       )}
 
-      <p className="mt-3 text-[12px] text-champagne/60" aria-live="polite">
-        {quota.limite <= 0
-          ? 'Ton offre actuelle ne comprend pas de boost. Les offres payantes en incluent 1, 3 ou 10 par mois.'
-          : quota.restants > 0
+      {programme && (
+        <p className="mt-3 text-[12px] text-champagne/60" aria-live="polite">
+          Démarrage dans{' '}
+          <span className="tabular-nums font-bold text-champagne/80">
+            {formaterDuree(secondes)}
+          </span>
+          . Tu peux encore l’annuler : rien n’est consommé avant qu’il commence.
+        </p>
+      )}
+
+      {/* ─────────────────────────────
+          Choisir l'heure
+          Réservé aux offres dont la formule le permet. Le serveur revérifie :
+          l'absence du bloc n'est pas une protection.
+      ───────────────────────────── */}
+      {!enCours && !programme && aUnBoost && formule.programmable && (
+        <div className="mt-4 border-t border-champagne/10 pt-4">
+          <label
+            className={`inline-flex cursor-pointer items-center gap-2 text-[13px] text-champagne/80 ${focusRing}`}
+          >
+            <input
+              type="checkbox"
+              checked={programmer}
+              onChange={(evenement) => setProgrammer(evenement.target.checked)}
+              className="h-4 w-4 rounded border-champagne/30 bg-nuit text-cuivre accent-cuivre"
+            />
+            Choisir l’heure plutôt que démarrer maintenant
+          </label>
+
+          {programmer && (
+            <div className="mt-3">
+              <label
+                htmlFor="heure-boost"
+                className="block text-[12px] font-bold text-champagne/70"
+              >
+                Démarrage du boost
+              </label>
+
+              <input
+                id="heure-boost"
+                type="datetime-local"
+                value={heureChoisie}
+                min={pourChampLocal(maintenant)}
+                max={pourChampLocal(horizon)}
+                onChange={(evenement) => setHeureChoisie(evenement.target.value)}
+                className={`mt-1.5 w-full max-w-xs rounded-xl border border-champagne/20 bg-nuit px-3 py-2.5 text-[13px] text-champagne ${focusRing}`}
+              />
+
+              <p className="mt-1.5 text-[12px] text-champagne/50">
+                Jusqu’à {horizonJours} jours à l’avance. Un boost placé à une
+                heure creuse ne vaut pas grand-chose : vise un moment où les
+                membres sont là.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─────────────────────────────
+          Ce qu'il reste
+      ───────────────────────────── */}
+      <p
+        className="mt-3 flex items-start gap-2 text-[12px] text-champagne/60"
+        aria-live="polite"
+      >
+        {surCredit && !enCours && !programme && (
+          <Gift size={14} className="mt-0.5 shrink-0 text-cuivre" aria-hidden="true" />
+        )}
+
+        <span>
+          {quota.restants > 0
             ? `${quota.restants} boost${quota.restants > 1 ? 's' : ''} sur ${quota.limite} restant${quota.restants > 1 ? 's' : ''} ce mois-ci.`
-            : `Tes ${quota.limite} boost${quota.limite > 1 ? 's' : ''} du mois sont utilisés. Le compteur repart le 1er.`}
+            : quota.decouverteDisponible
+              ? 'Ton boost de découverte est disponible : offert une fois, pour voir ce que ça change.'
+              : quota.limite <= 0
+                ? 'Ton offre actuelle ne comprend pas de boost, et ton boost de découverte est utilisé.'
+                : `Tes ${quota.limite} boost${quota.limite > 1 ? 's' : ''} du mois sont utilisés. Le compteur repart le 1er.`}
+        </span>
       </p>
 
       {erreur && (

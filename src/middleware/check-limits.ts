@@ -659,6 +659,8 @@ export class SubscriptionChecker {
           return await Boost.countDocuments({
             userId: this.userId,
             createdAt: { $gte: start, $lte: end },
+            // Le boost de découverte est un crédit à vie, hors quota mensuel.
+            source: { $ne: "discovery" },
           });
         } catch {
           return 0;

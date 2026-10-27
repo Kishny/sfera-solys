@@ -28,6 +28,21 @@ import Image from 'next/image';
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { FORMULES_PAR_OFFRE } from '@/lib/boosts-formules';
+
+/**
+ * Les durées de boost, prises dans le tableau des formules.
+ *
+ * La page annonçait « trente minutes » en dur, ce qui est devenu faux le jour
+ * où chaque offre a eu sa formule. Les bornes sont donc dérivées :
+ * rééquilibrer une durée suffit à corriger cette page, sans que personne ait
+ * à y penser.
+ */
+const DUREES_BOOST = Object.values(FORMULES_PAR_OFFRE).map(
+  (formule) => formule.dureeMinutes
+);
+const BOOST_MIN = Math.min(...DUREES_BOOST);
+const BOOST_MAX = Math.max(...DUREES_BOOST);
 import HexagonSix from '@/components/icons/HexagonSix';
 import GrainOverlay from '@/components/brand/GrainOverlay';
 import {
@@ -178,12 +193,12 @@ const features: FeatureItem[] = [
     id: 'boost',
     icon: Rocket,
     title: 'Boost de visibilité',
-    description: 'Trente minutes en tête d’Explorer, et c’est dit.',
+    description: `De ${BOOST_MIN} à ${BOOST_MAX} minutes en tête d’Explorer, selon ton offre.`,
     details:
-      "Un boost remonte ton profil en tête d'Explorer pendant trente minutes, pour les membres qui peuvent déjà te voir. Le nombre de boosts dépend de l'offre — 1, 3 ou 10 par mois — et ta carte affiche « Mis en avant » pendant toute la durée : un profil poussé le dit, il ne se fait pas passer pour un hasard du classement.",
+      `Un boost remonte ton profil en tête d'Explorer, pour les membres qui peuvent déjà te voir, et ta carte le dit pendant toute la durée : un profil poussé ne se fait pas passer pour un hasard du classement. Ce que vaut ton boost dépend de l'offre — sa durée, de ${BOOST_MIN} à ${BOOST_MAX} minutes, son rang quand plusieurs membres sont mis en avant en même temps, et la possibilité de choisir l'heure de lancement plutôt que de partir tout de suite. Un boost t'est offert à l'inscription, pour voir ce que ça change avant de payer quoi que ce soit.`,
     benefits: [
-      '30 minutes par boost',
-      '1, 3 ou 10 par mois selon l’offre',
+      `De ${BOOST_MIN} à ${BOOST_MAX} minutes selon l’offre`,
+      'Un boost offert à l’inscription',
       'Mise en avant signalée sur la carte',
     ],
     image: '/visuels/solys-01.webp',
@@ -239,7 +254,7 @@ const notes = [
   {
     question: 'Faut-il payer pour accéder aux fonctionnalités ?',
     answer:
-      "La vérification d'identité, le profil, la messagerie de base et la Communauté Solys sont accessibles dès l'offre gratuite. Le Circle of Six hebdomadaire, les boosts de visibilité et le Mode Fantôme dépendent de l'offre choisie : le détail est sur la page Tarifs.",
+      "La vérification d'identité, le profil, la messagerie de base, l'annuaire, la recherche et la Communauté Solys sont accessibles dès l'offre gratuite, ainsi qu'un premier boost offert. Le Circle of Six hebdomadaire, les boosts réguliers et le Mode Fantôme dépendent de l'offre choisie : le détail est sur la page Tarifs.",
   },
   {
     question: 'Le Mode Fantôme gêne-t-il la vérification ?',

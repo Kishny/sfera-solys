@@ -88,14 +88,26 @@ function restant(limite: number, utilise: number): number | null {
   return Math.max(0, limite - utilise);
 }
 
-/** Boosts créés depuis le 1er du mois. */
+/**
+ * Boosts créés depuis le 1er du mois, hors boost de découverte.
+ *
+ * L'exclusion n'est pas cosmétique. Le boost offert une fois par compte est
+ * un crédit à vie, et `canPerformAction("use_boost")` ne le compte pas. Sans
+ * le même filtre ici, un membre qui vient de dépenser son boost offert
+ * verrait « 1 utilisé » sur cet écran et « 0 utilisé » sur l'autre — et pour
+ * une offre gratuite, « 1 utilisé sur 0 ».
+ */
 async function compterBoostsDuMois(userId: string): Promise<number> {
   const debut = new Date();
   debut.setDate(1);
   debut.setHours(0, 0, 0, 0);
 
   try {
-    return await Boost.countDocuments({ userId, createdAt: { $gte: debut } });
+    return await Boost.countDocuments({
+      userId,
+      createdAt: { $gte: debut },
+      source: { $ne: "discovery" },
+    });
   } catch {
     return 0;
   }

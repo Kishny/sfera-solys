@@ -12,6 +12,7 @@ import {
   ArrowUpDown,
   BookOpen,
   CalendarCheck,
+  CalendarClock,
   CalendarDays,
   Check,
   ChevronDown,
@@ -34,6 +35,7 @@ import {
   SlidersHorizontal,
   Sparkles,
   Star,
+  Timer,
   Users,
 } from 'lucide-react';
 
@@ -53,6 +55,12 @@ import {
   PLAN_ORDER,
   type PlanId,
 } from '@/lib/subscription/config';
+import {
+  FORMULES_PAR_OFFRE,
+  HORIZON_PROGRAMMATION_JOURS,
+  libelleTypeBoost,
+  niveauDeForce,
+} from '@/lib/boosts-formules';
 
 /**
  * Page Tarifs — direction « nuit cuivrée », d'après la maquette.
@@ -79,18 +87,20 @@ import {
  *
  * La maquette dessine cinq avantages sur l'offre Elite : dix boosts, le
  * cercle privé VIP, un accès prioritaire aux événements exclusifs, une
- * mise en avant du profil et un support VIP dédié. La configuration n'en
- * connaît que **deux** : `boostsPerMonth: 10` et `vipCommunity: true`.
- * `eventsAccess` et `prioritySupport` valent déjà `true` dès Essentiel —
- * il n'existe ni priorité d'inscription aux événements, ni niveau de
- * support distinct, ni mise en avant automatique du profil.
+ * mise en avant du profil et un support VIP dédié.
  *
- * La carte Elite affiche donc deux lignes là où la maquette en montre
- * cinq. C'est volontaire : les trois autres ne seraient pas des
- * raccourcis d'écriture mais des promesses sans code derrière, à 34,99 €
- * par mois. Soit ces fonctionnalités s'écrivent et la carte se remplit
- * d'elle-même, soit l'offre se repositionne. C'est une décision produit,
- * pas une décision de mise en page.
+ * Trois sont désormais tenus. `boostsPerMonth: 10` et `vipCommunity: true`
+ * l'étaient déjà ; la **mise en avant du profil** l'est depuis que les
+ * boosts ont une formule par offre : celle d'Elite dure une heure, passe
+ * devant toutes les autres et s'affiche « À la une » sur la carte, là où
+ * les offres basses s'affichent « Mis en avant ». Ce n'était pas une
+ * promesse tenable tant que les quatre offres lançaient le même boost.
+ *
+ * Les deux derniers ne le sont toujours pas : `eventsAccess` et
+ * `prioritySupport` valent `true` dès Essentiel, il n'existe ni priorité
+ * d'inscription aux événements ni niveau de support distinct. Ces lignes
+ * restent absentes de la carte. Ce ne seraient pas des raccourcis
+ * d'écriture mais des promesses sans code derrière, à 34,99 € par mois.
  *
  * ## Ce qui reste volontairement absent
  *
@@ -196,10 +206,36 @@ function lignesOffre(id: PlanId): DetailOffre {
     lignes.push('Matchs illimités');
   }
 
+  /**
+   * Les boosts, avec leur durée.
+   *
+   * Annoncer « 3 boosts / mois » sans dire ce que dure un boost cachait la
+   * moitié de ce qui change d'une offre à l'autre : la durée, la force et le
+   * type viennent de `FORMULES_PAR_OFFRE`, pas du nombre.
+   */
+  const formule = FORMULES_PAR_OFFRE[id];
+  const formulePrecedente = FORMULES_PAR_OFFRE[PLAN_ORDER[PLAN_ORDER.indexOf(id) - 1]];
+
   if (limits.boostsPerMonth !== precedente.limits.boostsPerMonth) {
     const n = limits.boostsPerMonth;
     lignes.push(
-      `${nombreOuIllimite(n)} boost${Number.isFinite(n) && n <= 1 ? '' : 's'} / mois`
+      `${nombreOuIllimite(n)} boost${Number.isFinite(n) && n <= 1 ? '' : 's'} de ${formule.dureeMinutes} min / mois`
+    );
+  } else if (formule.dureeMinutes !== formulePrecedente.dureeMinutes) {
+    lignes.push(`Boosts de ${formule.dureeMinutes} min`);
+  }
+
+  if (formule.type !== formulePrecedente.type) {
+    lignes.push(`Mise en avant « ${libelleTypeBoost(formule.type)} »`);
+  }
+
+  if (formule.force > formulePrecedente.force) {
+    lignes.push(`Priorité ${niveauDeForce(formule)} sur les autres boosts`);
+  }
+
+  if (formule.programmable && !formulePrecedente.programmable) {
+    lignes.push(
+      `Boost programmable jusqu’à ${HORIZON_PROGRAMMATION_JOURS} jours à l’avance`
     );
   }
 
@@ -267,6 +303,7 @@ function lignesComparatif(): LigneComparatif[] {
 
   const limite = (p: PlanId) => SUBSCRIPTION_PLANS[p].limits;
   const drapeau = (p: PlanId) => SUBSCRIPTION_PLANS[p].features;
+  const formule = (p: PlanId) => FORMULES_PAR_OFFRE[p];
   const ouiNon = (v: boolean) => (v ? 'oui' : 'non');
   const parJour = (v: number) => (Number.isFinite(v) ? `${v} / jour` : 'Illimités');
 
@@ -303,6 +340,26 @@ function lignesComparatif(): LigneComparatif[] {
           ? 'non'
           : `${nombreOuIllimite(limite(p).boostsPerMonth)} / mois`
       ),
+    },
+    {
+      icon: Timer,
+      feature: 'Durée d’un boost',
+      values: valeur((p) => `${formule(p).dureeMinutes} min`),
+    },
+    {
+      icon: Star,
+      feature: 'Mise en avant affichée',
+      values: valeur((p) => libelleTypeBoost(formule(p).type)),
+    },
+    {
+      icon: ArrowUpDown,
+      feature: 'Priorité entre boosts',
+      values: valeur((p) => niveauDeForce(formule(p))),
+    },
+    {
+      icon: CalendarClock,
+      feature: 'Choisir l’heure de son boost',
+      values: valeur((p) => ouiNon(formule(p).programmable)),
     },
     {
       icon: RefreshCw,

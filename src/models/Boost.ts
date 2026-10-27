@@ -89,10 +89,16 @@ export interface IBoost {
   /**
    * Source du boost :
    * subscription = inclus dans l’abonnement
-   * purchase = acheté séparément
-   * admin = offert / activé manuellement
+   * purchase     = acheté séparément
+   * admin        = offert / activé manuellement
+   * discovery    = le boost de découverte, offert une fois par compte
+   *
+   * `discovery` est à part, et pas seulement pour la statistique : les
+   * compteurs mensuels l'excluent. Sans quoi un membre gratuit qui dépense
+   * son boost offert verrait « 1 boost utilisé sur 0 », et un membre payant
+   * qui l'aurait reçu avant de s'abonner perdrait un boost de son mois.
    */
-  source: 'subscription' | 'purchase' | 'admin';
+  source: 'subscription' | 'purchase' | 'admin' | 'discovery';
 
   /**
    * Métadonnées libres pour évolution future.
@@ -169,7 +175,7 @@ const BoostSchema = new Schema<IBoost>(
 
     source: {
       type: String,
-      enum: ['subscription', 'purchase', 'admin'],
+      enum: ['subscription', 'purchase', 'admin', 'discovery'],
       default: 'subscription',
       required: true,
       index: true,
