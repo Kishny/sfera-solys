@@ -100,7 +100,9 @@ export async function POST(req: NextRequest) {
     // Modération automatique : rejet → suppression immédiate sur Cloudinary, jamais sauvegardé en base.
     const verdict = evaluateModeration(result);
     if (!verdict.approved) {
-      await cloudinary.uploader.destroy(result.public_id).catch(() => {});
+      await cloudinary.uploader
+        .destroy(result.public_id, { invalidate: true })
+        .catch(() => {});
       const rejectedUser = await User.findOne({ email: session.user.email.toLowerCase().trim() }).select("_id");
       if (rejectedUser) {
         await ModerationLog.create({
@@ -142,7 +144,12 @@ export async function POST(req: NextRequest) {
 
       if (ancienIdentifiant && ancienIdentifiant !== result.public_id) {
         await cloudinary.uploader
-          .destroy(ancienIdentifiant, { type: modeDeLEntree(ancienneAdresse) })
+          .destroy(ancienIdentifiant, {
+            type: modeDeLEntree(ancienneAdresse),
+            // Purge du CDN : sans elle, l'ancienne photo reste servie par
+            // les serveurs de bordure après son remplacement.
+            invalidate: true,
+          })
           .catch((erreur) => {
             // Un fichier qui résiste ne doit pas empêcher le changement
             // de photo, mais il doit se voir.

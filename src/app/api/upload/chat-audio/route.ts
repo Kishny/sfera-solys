@@ -224,7 +224,11 @@ export async function POST(req: NextRequest) {
       );
 
       await cloudinary.uploader
-        .destroy(resultat.public_id, { resource_type: 'video', type: mode })
+        .destroy(resultat.public_id, {
+          resource_type: 'video',
+          type: mode,
+          invalidate: true,
+        })
         .catch(() => {});
 
       mode = 'upload';

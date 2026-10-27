@@ -82,7 +82,7 @@ export async function DELETE() {
 
   await Promise.allSettled(
     aSupprimer.map(({ publicId, mode }) =>
-      cloudinary.uploader.destroy(publicId, { type: mode })
+      cloudinary.uploader.destroy(publicId, { type: mode, invalidate: true })
     )
   );
 

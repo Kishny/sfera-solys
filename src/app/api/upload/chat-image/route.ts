@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
       );
 
       await cloudinary.uploader
-        .destroy(result.public_id, { type: 'authenticated' })
+        .destroy(result.public_id, { type: 'authenticated', invalidate: true })
         .catch(() => {});
 
       mode = 'upload';
@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
     const verdict = evaluateModeration(result);
     if (!verdict.approved) {
       await cloudinary.uploader
-        .destroy(result.public_id, { type: mode })
+        .destroy(result.public_id, { type: mode, invalidate: true })
         .catch(() => {});
       try {
         await connectDB();

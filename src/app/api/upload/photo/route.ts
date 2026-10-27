@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
     const verdict = evaluateModeration(result);
     if (!verdict.approved) {
       await cloudinary.uploader
-        .destroy(depot.publicId, { type: depot.mode })
+        .destroy(depot.publicId, { type: depot.mode, invalidate: true })
         .catch(() => {});
       await ModerationLog.create({
         userId: user._id,
@@ -196,6 +196,16 @@ export async function DELETE(req: NextRequest) {
       if (publicId) {
         await cloudinary.uploader.destroy(publicId, {
           type: modeDeLEntree(entree),
+          /**
+           * `invalidate` purge le cache du CDN.
+           *
+           * Sans lui, Cloudinary retire le fichier de son origine mais
+           * les serveurs de bordure continuent de servir la copie qu'ils
+           * ont déjà, jusqu'à expiration. Une photo « supprimée » reste
+           * alors téléchargeable par qui a l'adresse — ce qui vide la
+           * suppression de son sens.
+           */
+          invalidate: true,
         });
       }
     } catch (cloudErr) {

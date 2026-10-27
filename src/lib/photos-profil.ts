@@ -200,7 +200,7 @@ export async function deposerPhotoDeGalerie(
     );
 
     await cloudinary.uploader
-      .destroy(resultat.public_id, { type: mode })
+      .destroy(resultat.public_id, { type: mode, invalidate: true })
       .catch(() => {});
 
     mode = "upload";
