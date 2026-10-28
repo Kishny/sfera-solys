@@ -375,6 +375,7 @@ export default function Header() {
                 withMark
                 markId="entete"
                 tagline="Plus que des rencontres, des horizons partagés."
+                taglineClassName="hidden sm:block"
                 className={focusRing}
               />
 

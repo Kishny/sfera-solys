@@ -417,34 +417,54 @@ export default function Home() {
                   triangle est remplacé par une flèche. Un pictogramme de
                   lecture est une promesse, pas une décoration.
                 */}
+                {/*
+                  Deux boutons pleine largeur l'un sous l'autre prenaient
+                  120 px de haut sur un téléphone pour deux actions qui ne se
+                  valent pas : l'une ouvre l'inscription, l'autre une page de
+                  lecture. Le second redevient ce qu'il est, un lien — et
+                  retrouve son cadre à partir de `sm`, où la place existe.
+                */}
                 <Link
                   href="/guide"
-                  className={`inline-flex items-center justify-center gap-2.5 rounded-xl border border-champagne/20 px-6 py-3.5 text-sm font-semibold text-champagne transition-colors hover:border-cuivre/50 ${focusRing}`}
+                  className={`inline-flex items-center justify-center gap-2.5 self-start rounded-xl px-1 py-1 text-sm font-semibold text-champagne underline underline-offset-4 transition-colors hover:text-cuivre sm:self-auto sm:border sm:border-champagne/20 sm:px-6 sm:py-3.5 sm:no-underline sm:hover:border-cuivre/50 ${focusRing}`}
                 >
                   Découvrir le concept
                   <span
                     aria-hidden="true"
-                    className="flex h-6 w-6 items-center justify-center rounded-full border border-champagne/25"
+                    className="hidden h-6 w-6 items-center justify-center rounded-full border border-champagne/25 sm:flex"
                   >
                     <ArrowRight size={11} />
                   </span>
                 </Link>
               </div>
 
-              {/* Les trois garanties */}
-              <ul className="mt-8 grid gap-5 sm:grid-cols-3 sm:gap-4">
+              {/*
+                Les trois garanties, en bande plutôt qu'empilées.
+
+                Trois lignes l'une sous l'autre prenaient près de 200 px sur
+                un téléphone, juste sous les appels à l'action — c'est
+                autant de poussé hors de l'écran d'accueil. En trois
+                colonnes, la même information tient en une centaine.
+
+                L'icône passe au-dessus du titre en dessous de `sm` : à côté,
+                elle mangeait un tiers d'une colonne déjà étroite.
+              */}
+              <ul className="mt-7 grid grid-cols-3 gap-3 rounded-2xl border border-champagne/10 bg-minuit/40 p-3.5 sm:gap-4 sm:p-4 lg:border-0 lg:bg-transparent lg:p-0">
                 {garanties.map(({ icon: Icon, titre, texte }) => (
-                  <li key={titre} className="flex gap-2.5">
+                  <li
+                    key={titre}
+                    className="flex flex-col gap-1.5 sm:flex-row sm:gap-2.5"
+                  >
                     <Icon
-                      size={18}
-                      className="mt-0.5 shrink-0 text-cuivre"
+                      size={17}
+                      className="shrink-0 text-cuivre sm:mt-0.5"
                       aria-hidden="true"
                     />
                     <div>
-                      <p className="text-[13px] font-semibold text-champagne">
+                      <p className="text-[12px] font-semibold leading-tight text-champagne sm:text-[13px]">
                         {titre}
                       </p>
-                      <p className="mt-0.5 text-[12px] leading-snug text-champagne/55">
+                      <p className="mt-1 text-[11px] leading-snug text-champagne/55 sm:mt-0.5 sm:text-[12px]">
                         {texte}
                       </p>
                     </div>
@@ -474,7 +494,13 @@ export default function Home() {
           </h2>
 
           <div className="mx-auto max-w-7xl">
-            <div className="grid gap-5 lg:grid-cols-3">
+            {/*
+              Deux par ligne sur téléphone. Empilées, les trois cartes
+              faisaient 230 px chacune, soit plus d'un écran à elles seules.
+              La dernière occupe les deux colonnes : un reste orphelin
+              à mi-largeur se lit comme un défaut de grille.
+            */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 lg:gap-5">
               {featureTeasers.map((feature) => {
                 const Icon = feature.icon;
 
@@ -482,7 +508,7 @@ export default function Home() {
                   <Link
                     key={feature.title}
                     href={feature.href}
-                    className={`group relative isolate flex min-h-[230px] overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit transition-colors hover:border-cuivre/45 ${focusRing}`}
+                    className={`group relative isolate flex min-h-[172px] overflow-hidden rounded-2xl border border-cuivre/15 bg-minuit transition-colors last:col-span-2 hover:border-cuivre/45 sm:min-h-[200px] lg:min-h-[230px] lg:last:col-span-1 ${focusRing}`}
                   >
                     {/*
                       La photo couvre toute la carte, et c'est le dégradé qui
@@ -725,20 +751,31 @@ export default function Home() {
               </p>
             </div>
 
-            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            {/*
+              Deux colonnes dès le téléphone.
+
+              Les six cartes empilées faisaient 820 px à elles seules — plus
+              d'un écran pour une liste d'arguments qu'on parcourt du regard.
+              À deux colonnes elles en font la moitié.
+
+              L'icône passe au-dessus du texte en dessous de `sm` : à côté,
+              elle laissait moins de cent points de large au paragraphe, qui
+              se débitait en mots isolés.
+            */}
+            <ul className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-4 lg:grid-cols-3 lg:gap-5">
               {raisons.map(({ icon: Icon, titre, texte }) => (
                 <li
                   key={titre}
-                  className="flex gap-4 rounded-2xl border border-cuivre/15 bg-minuit p-5"
+                  className="flex flex-col gap-3 rounded-2xl border border-cuivre/15 bg-minuit p-4 sm:flex-row sm:gap-4 sm:p-5"
                 >
                   <TuileIcone icon={Icon} />
 
                   <div>
-                    <p className="text-[15px] font-semibold text-champagne">
+                    <p className="text-[13.5px] font-semibold leading-tight text-champagne sm:text-[15px]">
                       {titre}
                     </p>
 
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-champagne/65">
+                    <p className="mt-1.5 text-[12px] leading-relaxed text-champagne/65 sm:text-[13px]">
                       {texte}
                     </p>
                   </div>

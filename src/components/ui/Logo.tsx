@@ -25,6 +25,14 @@ interface LogoProps {
   markSize?: LogoSize;
   /** Accroche en petites capitales sous le mot-symbole. */
   tagline?: string;
+  /**
+   * Classes appliquées à la seule accroche.
+   *
+   * Sert à la masquer selon la largeur sans retirer la prop : l'en-tête
+   * l'efface en dessous de `sm`, où elle passe sur deux lignes et pousse
+   * chaque page vers le bas, tandis que le pied de page la conserve.
+   */
+  taglineClassName?: string;
   className?: string;
   /**
    * Identifiant du dégradé de l'anneau. Deux logos sur une même page — un
@@ -84,6 +92,7 @@ export function Logo({
   markSize,
   withMark = false,
   tagline,
+  taglineClassName,
   className,
   markId = "logo",
 }: LogoProps) {
@@ -133,7 +142,14 @@ export function Logo({
             aria-hidden="true"
             className={cn(
               "mt-1 font-semibold uppercase leading-tight tracking-surtitre text-champagne/55",
-              taglineStyles[size]
+              taglineStyles[size],
+              /*
+                L'appelant peut la masquer selon la largeur. L'en-tête s'en
+                sert : sur un téléphone, l'accroche passe sur deux lignes et
+                pousse tout le contenu de la page vers le bas, à chaque page.
+                Le pied de page, lui, la garde — il a la place.
+              */
+              taglineClassName
             )}
           >
             {tagline}
