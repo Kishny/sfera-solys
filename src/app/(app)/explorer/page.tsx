@@ -432,20 +432,122 @@ export default function AnnuairePage() {
     router.push(`/profil/${profilId}?from=annuaire`);
   };
 
-  /** Nombre de filtres actifs, pour l'indicateur du bouton sur mobile. */
-  const filtresActifs = useMemo(() => {
-    let compte = 0;
+  /**
+   * Retire un filtre et relance la recherche.
+   *
+   * La même modification est appliquée au brouillon et à la recherche en
+   * cours. Ne toucher que la seconde laisserait le panneau afficher, une
+   * fois rouvert, un filtre que les résultats ne respectent plus.
+   */
+  const retirerFiltre = (modifier: (valeur: Recherche) => Recherche) => {
+    setBrouillon((actuel) => modifier(actuel));
+    setPage(1);
+    setRecherche((actuelle) => modifier(actuelle));
+  };
 
-    if (recherche.ageMin !== String(AGE_MINIMUM)) compte += 1;
-    if (recherche.ageMax !== String(AGE_MAXIMUM)) compte += 1;
-    if (recherche.intentions.length > 0) compte += 1;
-    if (recherche.interets.length > 0) compte += 1;
-    if (recherche.ville.trim()) compte += 1;
-    if (recherche.departement) compte += 1;
-    if (recherche.orientation) compte += 1;
-    if (recherche.actifRecemment) compte += 1;
+  /**
+   * Les filtres appliqués, un par pastille.
+   *
+   * Le panneau se replie désormais sur toutes les tailles d'écran, et un
+   * panneau replié cache ce qui restreint les résultats — c'est la façon
+   * la plus sûre de laisser quelqu'un conclure à un annuaire vide alors
+   * qu'il a simplement coché trois centres d'intérêt la veille. Cette
+   * liste reste donc visible, replié ou non, et chaque pastille se retire
+   * d'un clic sans rouvrir quoi que ce soit.
+   *
+   * Les âges comptent pour une seule pastille : ils bornent un même
+   * intervalle, et les retirer séparément n'aurait pas de sens.
+   */
+  const filtresActifs = useMemo<
+    { cle: string; libelle: string; retirer: () => void }[]
+  >(() => {
+    const liste: { cle: string; libelle: string; retirer: () => void }[] = [];
 
-    return compte;
+    if (recherche.ville.trim()) {
+      liste.push({
+        cle: "ville",
+        libelle: recherche.ville.trim(),
+        retirer: () => retirerFiltre((r) => ({ ...r, ville: "" })),
+      });
+    }
+
+    if (recherche.departement) {
+      liste.push({
+        cle: "departement",
+        libelle:
+          recherche.departement === "all"
+            ? "Toute la France"
+            : getDepartementLabel(recherche.departement),
+        retirer: () => retirerFiltre((r) => ({ ...r, departement: "" })),
+      });
+    }
+
+    if (
+      recherche.ageMin !== String(AGE_MINIMUM) ||
+      recherche.ageMax !== String(AGE_MAXIMUM)
+    ) {
+      liste.push({
+        cle: "age",
+        libelle: `${recherche.ageMin}–${recherche.ageMax} ans`,
+        retirer: () =>
+          retirerFiltre((r) => ({
+            ...r,
+            ageMin: String(AGE_MINIMUM),
+            ageMax: String(AGE_MAXIMUM),
+          })),
+      });
+    }
+
+    for (const valeur of recherche.intentions) {
+      const intention = INTENTIONS.find((item) => item.value === valeur);
+
+      liste.push({
+        cle: `intention-${valeur}`,
+        libelle: intention?.label ?? valeur,
+        retirer: () =>
+          retirerFiltre((r) => ({
+            ...r,
+            intentions: r.intentions.filter((item) => item !== valeur),
+          })),
+      });
+    }
+
+    for (const valeur of recherche.interets) {
+      const interet = INTERETS.find((item) => item.value === valeur);
+
+      liste.push({
+        cle: `interet-${valeur}`,
+        libelle: interet?.label ?? valeur,
+        retirer: () =>
+          retirerFiltre((r) => ({
+            ...r,
+            interets: r.interets.filter((item) => item !== valeur),
+          })),
+      });
+    }
+
+    if (recherche.orientation) {
+      const orientation = ORIENTATIONS.find(
+        (item) => item.value === recherche.orientation
+      );
+
+      liste.push({
+        cle: "orientation",
+        libelle: orientation?.label ?? recherche.orientation,
+        retirer: () => retirerFiltre((r) => ({ ...r, orientation: "" })),
+      });
+    }
+
+    if (recherche.actifRecemment) {
+      liste.push({
+        cle: "actif",
+        libelle: "Actif récemment",
+        retirer: () => retirerFiltre((r) => ({ ...r, actifRecemment: false })),
+      });
+    }
+
+    return liste;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recherche]);
 
   if (status === "loading") {
@@ -496,13 +598,13 @@ export default function AnnuairePage() {
                 onClick={() => setFiltresOuverts((ouvert) => !ouvert)}
                 aria-expanded={filtresOuverts}
                 aria-controls="panneau-filtres"
-                className={`inline-flex items-center gap-2 rounded-xl border border-champagne/12 px-3.5 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/25 lg:hidden ${focusRing}`}
+                className={`inline-flex items-center gap-2 rounded-xl border border-champagne/12 px-3.5 py-2.5 text-[13px] font-semibold text-champagne transition-colors hover:border-champagne/25 ${focusRing}`}
               >
                 <Filter size={15} aria-hidden="true" />
-                Filtres
-                {filtresActifs > 0 && (
+                {filtresOuverts ? "Masquer les filtres" : "Filtres"}
+                {filtresActifs.length > 0 && (
                   <span className="rounded-full bg-cuivre px-1.5 text-[11px] font-bold text-nuit">
-                    {filtresActifs}
+                    {filtresActifs.length}
                   </span>
                 )}
               </button>
@@ -515,13 +617,55 @@ export default function AnnuairePage() {
           <PanneauBoost onBoostLance={() => chargerPage(page, recherche)} />
 
           {/* ─────────────────────────────
+              Les filtres appliqués, quand le panneau est replié
+
+              Le panneau restait ouvert en permanence à partir de `lg` et
+              occupait la moitié de l'écran, alors que le contenu de cette
+              page, ce sont les profils. Il se replie maintenant partout, et
+              se ferme de lui-même dès qu'une recherche est lancée.
+
+              Ce qui est appliqué ne disparaît pas pour autant : un panneau
+              replié qui cache ses filtres est la façon la plus sûre de
+              laisser quelqu'un conclure à un annuaire vide alors qu'il a
+              coché trois centres d'intérêt la veille.
+          ───────────────────────────── */}
+          {!filtresOuverts && filtresActifs.length > 0 && (
+            <div className="mb-5 flex flex-wrap items-center gap-2 rounded-2xl border border-champagne/10 bg-minuit px-4 py-3">
+              <span className="text-[12px] font-semibold text-champagne/55">
+                Filtres appliqués
+              </span>
+
+              {filtresActifs.map((filtre) => (
+                <button
+                  key={filtre.cle}
+                  type="button"
+                  onClick={filtre.retirer}
+                  aria-label={`Retirer le filtre ${filtre.libelle}`}
+                  className={`inline-flex items-center gap-1.5 rounded-full border border-cuivre/40 bg-cuivre/10 py-1 pl-3 pr-2 text-[12px] font-semibold text-champagne transition-colors hover:border-cuivre hover:bg-cuivre/20 ${focusRing}`}
+                >
+                  {filtre.libelle}
+                  <X size={12} aria-hidden="true" className="text-champagne/70" />
+                </button>
+              ))}
+
+              <button
+                type="button"
+                onClick={reinitialiser}
+                className={`ml-auto inline-flex items-center gap-1.5 text-[12px] font-semibold text-champagne/55 transition-colors hover:text-champagne ${focusRing}`}
+              >
+                <RotateCcw size={13} aria-hidden="true" />
+                Tout effacer
+              </button>
+            </div>
+          )}
+
+          {/* ─────────────────────────────
               Recherche
-              Dépliée en permanence à partir de lg, repliable en dessous.
           ───────────────────────────── */}
           <section
             id="panneau-filtres"
             className={`mb-5 rounded-2xl border border-champagne/10 bg-minuit p-4 sm:p-5 ${
-              filtresOuverts ? "block" : "hidden lg:block"
+              filtresOuverts ? "block" : "hidden"
             }`}
           >
             <form
@@ -644,75 +788,84 @@ export default function AnnuairePage() {
                 </div>
               </div>
 
-              {/* Intentions */}
-              <fieldset className="mt-4">
-                <legend className="mb-2 text-[12px] font-semibold text-champagne/70">
-                  Intentions
-                </legend>
+              {/*
+                Deux colonnes à partir de `lg`.
 
-                <div className="flex flex-wrap gap-2">
-                  {INTENTIONS.map((intention) => {
-                    const choisie = brouillon.intentions.includes(
-                      intention.value
-                    );
+                Les intentions tiennent sur cinq pastilles et les centres
+                d'intérêt sur douze : empilés, ils prenaient deux bandes
+                pleine largeur pour un contenu qui tient à côté.
+              */}
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                {/* Intentions */}
+                <fieldset>
+                  <legend className="mb-2 text-[12px] font-semibold text-champagne/70">
+                    Intentions
+                  </legend>
 
-                    return (
-                      <button
-                        key={intention.value}
-                        type="button"
-                        onClick={() => basculerIntention(intention.value)}
-                        aria-pressed={choisie}
-                        className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
-                          choisie
-                            ? "border-cuivre bg-cuivre text-nuit"
-                            : "border-champagne/12 text-champagne/60 hover:border-champagne/25"
-                        }`}
-                      >
-                        {intention.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </fieldset>
+                  <div className="flex flex-wrap gap-2">
+                    {INTENTIONS.map((intention) => {
+                      const choisie = brouillon.intentions.includes(
+                        intention.value
+                      );
 
-              {/* Centres d'intérêt */}
-              <fieldset className="mt-4">
-                <legend className="mb-2 text-[12px] font-semibold text-champagne/70">
-                  Centres d’intérêt
-                </legend>
+                      return (
+                        <button
+                          key={intention.value}
+                          type="button"
+                          onClick={() => basculerIntention(intention.value)}
+                          aria-pressed={choisie}
+                          className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+                            choisie
+                              ? "border-cuivre bg-cuivre text-nuit"
+                              : "border-champagne/12 text-champagne/60 hover:border-champagne/25"
+                          }`}
+                        >
+                          {intention.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
 
-                <div className="flex flex-wrap gap-2">
-                  {INTERETS.map((interet) => {
-                    const choisi = brouillon.interets.includes(interet.value);
+                {/* Centres d'intérêt */}
+                <fieldset>
+                  <legend className="mb-2 text-[12px] font-semibold text-champagne/70">
+                    Centres d’intérêt
+                  </legend>
 
-                    return (
-                      <button
-                        key={interet.value}
-                        type="button"
-                        onClick={() => basculerInteret(interet.value)}
-                        aria-pressed={choisi}
-                        className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
-                          choisi
-                            ? "border-cuivre bg-cuivre text-nuit"
-                            : "border-champagne/12 text-champagne/60 hover:border-champagne/25"
-                        }`}
-                      >
-                        {interet.label}
-                      </button>
-                    );
-                  })}
-                </div>
+                  <div className="flex flex-wrap gap-2">
+                    {INTERETS.map((interet) => {
+                      const choisi = brouillon.interets.includes(interet.value);
 
-                {brouillon.interets.length > 0 && (
-                  <p className="mt-2 text-[11.5px] text-champagne/55">
-                    Les profils affichés partagent au moins un de ces centres
-                    d’intérêt.
-                  </p>
-                )}
-              </fieldset>
+                      return (
+                        <button
+                          key={interet.value}
+                          type="button"
+                          onClick={() => basculerInteret(interet.value)}
+                          aria-pressed={choisi}
+                          className={`rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${focusRing} ${
+                            choisi
+                              ? "border-cuivre bg-cuivre text-nuit"
+                              : "border-champagne/12 text-champagne/60 hover:border-champagne/25"
+                          }`}
+                        >
+                          {interet.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {brouillon.interets.length > 0 && (
+                    <p className="mt-2 text-[11.5px] text-champagne/55">
+                      Les profils affichés partagent au moins un de ces centres
+                      d’intérêt.
+                    </p>
+                  )}
+                </fieldset>
+              </div>
 
               {/* Filtres payants */}
-              <div className="mt-4 rounded-xl border border-champagne/10 p-4">
+              <div className="mt-4 rounded-xl border border-champagne/10 p-3.5">
                 <p className="mb-3 flex items-center gap-2 text-[12px] font-semibold text-champagne/70">
                   {filtresAvances ? (
                     <Sparkles size={14} className="text-cuivre" aria-hidden="true" />
