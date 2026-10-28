@@ -22,6 +22,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+
+import { useNotifications } from "@/hooks/useNotifications";
 import { useSession } from "next-auth/react";
 import { clientPusherOuNull } from "@/lib/pusher-client";
 
@@ -61,50 +63,28 @@ export function FournisseurCompteurs({ children }: { children: ReactNode }) {
   const isLoggedIn = !!session?.user;
 
   /**
-   * Sondage régulier.
+   * Les compteurs viennent du sondage partagé.
    *
    * `/api/notifications` renvoie chaque compteur séparément. On lit les
    * deux qui nous intéressent plutôt que le `total`, qui mélange messages
    * non lus, nouveaux matchs et visites de profil — une visite allumait
    * autrefois la pastille de Messages, et on arrivait sur une boîte vide.
+   *
+   * Le sondage lui-même vit dans `useNotifications`, partagé avec le
+   * `Header` : les deux composants interrogeaient la même route toutes les
+   * trente secondes, chacun de son côté. L'écoute de
+   * `solys:notifications`, qui rallume les compteurs dès qu'une page a
+   * marqué quelque chose comme vu, y a été déplacée aussi.
    */
+  const notifications = useNotifications(isLoggedIn);
+
   useEffect(() => {
-    if (!isLoggedIn) return;
-
-    const lire = async () => {
-      try {
-        const reponse = await fetch("/api/notifications", { cache: "no-store" });
-        if (!reponse.ok) return;
-
-        const donnees = await reponse.json();
-
-        setCompteurs({
-          messages: donnees.unreadMessages || 0,
-          matches: donnees.newMatches || 0,
-          circlePret: donnees.circlePret === true,
-        });
-      } catch {
-        // Ignoré volontairement : une barre de navigation ne casse pas
-        // parce qu'un compteur n'a pas pu être relu.
-      }
-    };
-
-    lire();
-    const minuteur = setInterval(lire, 30_000);
-
-    /*
-     * Relecture immédiate quand une page vient de marquer quelque chose
-     * comme vu. Sans ça, la pastille reste allumée jusqu'au prochain
-     * tour — jusqu'à trente secondes à regarder un compteur qu'on vient
-     * justement de vider.
-     */
-    window.addEventListener("solys:notifications", lire);
-
-    return () => {
-      clearInterval(minuteur);
-      window.removeEventListener("solys:notifications", lire);
-    };
-  }, [isLoggedIn]);
+    setCompteurs({
+      messages: notifications.unreadMessages,
+      matches: notifications.newMatches,
+      circlePret: notifications.circlePret,
+    });
+  }, [notifications]);
 
   /**
    * Temps réel pour les nouveaux matchs.

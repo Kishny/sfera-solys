@@ -5,6 +5,12 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+
+import {
+  incrementerNotifications,
+  useNotifications,
+  viderNotifications,
+} from '@/hooks/useNotifications';
 import {
   Menu,
   X,
@@ -144,14 +150,22 @@ export default function Header() {
   const [openDesktopGroup, setOpenDesktopGroup] = useState<string | null>(null);
   const [openMobileGroup, setOpenMobileGroup] = useState<string | null>(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [notifCount, setNotifCount] = useState(0);
-
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
   const shouldReduceMotion = useReducedMotion();
 
   const isLoggedIn = status === 'authenticated' && !!session?.user;
+
+  /**
+   * Le compteur vient du sondage partagé, pas d'un `fetch` à nous.
+   *
+   * Ce composant et `CompteursEspace` interrogeaient la même route
+   * toutes les trente secondes, chacun de son côté : deux fonctions
+   * réveillées pour une seule réponse.
+   */
+  const notifications = useNotifications(isLoggedIn);
+  const notifCount = notifications.total;
 
   /**
    * Références sur les boutons de premier niveau : quand on ferme un
@@ -248,29 +262,10 @@ export default function Header() {
   }, [open]);
 
   /**
-   * Notifications : polling (30s) + temps réel via Pusher sur un
-   * nouveau match. Identique à Sidebar.tsx pour garder un seul compteur
-   * cohérent, que la page utilise le header ou la sidebar.
+   * Temps réel via Pusher sur un nouveau match.
+   *
+   * Le sondage, lui, est partagé : voir `useNotifications`.
    */
-  useEffect(() => {
-    if (!isLoggedIn) return;
-
-    const fetchNotifs = async () => {
-      try {
-        const res = await fetch('/api/notifications', { cache: 'no-store' });
-        if (!res.ok) return;
-        const data = await res.json();
-        setNotifCount(data.total || 0);
-      } catch {
-        // On ignore volontairement l'erreur pour ne pas casser le header.
-      }
-    };
-
-    fetchNotifs();
-    const interval = setInterval(fetchNotifs, 30_000);
-    return () => clearInterval(interval);
-  }, [isLoggedIn]);
-
   useEffect(() => {
     if (!isLoggedIn) return;
 
@@ -285,7 +280,7 @@ export default function Header() {
     const channel = client.subscribe(channelName);
 
     channel.bind('new-match', () => {
-      setNotifCount((prev) => prev + 1);
+      incrementerNotifications();
     });
 
     return () => {
@@ -490,7 +485,7 @@ export default function Header() {
                       type="button"
                       onClick={() => {
                         setShowUserDropdown((current) => !current);
-                        setNotifCount(0);
+                        viderNotifications();
                       }}
                       aria-expanded={showUserDropdown}
                       className={`relative flex h-9 w-9 items-center justify-center rounded-full border border-champagne/15 text-champagne/80 transition-colors hover:border-cuivre/40 hover:text-champagne ${focusRing}`}

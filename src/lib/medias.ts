@@ -64,6 +64,7 @@ export function urlCloudinary(
     resourceType: "image" | "video";
     mode: ModeDeLivraison;
     format?: string;
+    transformation?: Record<string, unknown>[];
   }
 ): string {
   return cloudinary.url(publicId, {
@@ -72,10 +73,38 @@ export function urlCloudinary(
     // La signature n'a de sens que pour un fichier authentifié.
     sign_url: options.mode === "authenticated",
     ...(options.format ? { format: options.format } : {}),
+    ...(options.transformation
+      ? { transformation: options.transformation }
+      : {}),
     secure: true,
     analytics: false,
   });
 }
+
+/**
+ * La dérivée servie pour une photo de conversation.
+ *
+ * ## Le gâchis que cela corrige
+ *
+ * Les photos sont bornées à 1200 px au dépôt, ce qui est raisonnable pour
+ * un stockage. Mais c'est cette taille-là qui partait vers le téléphone,
+ * dans son format d'origine, pour une bulle large d'environ 350 points.
+ * On envoyait trois à cinq fois trop d'octets, à chaque ouverture de
+ * conversation, sur la connexion la plus lente de toutes.
+ *
+ * `f_auto` laisse Cloudinary négocier le format avec le navigateur —
+ * WebP ou AVIF là où c'est accepté, ce qui couvre Safari depuis la
+ * version 14 — et `q_auto` choisit la compression par analyse de l'image
+ * plutôt qu'un palier fixe. `w_800,c_limit` borne sans jamais agrandir
+ * ni recadrer : une photo déjà plus petite est servie telle quelle.
+ *
+ * 800 et non 350 : la bulle double sur écran dense, et la photo s'ouvre
+ * en grand d'un clic. Servir la taille d'affichage donnerait une image
+ * floue au premier agrandissement.
+ */
+const PHOTO_ALLEGEE = [
+  { fetch_format: "auto", quality: "auto", width: 800, crop: "limit" },
+];
 
 /**
  * Cloudinary sert-il réellement cette adresse ?
@@ -149,11 +178,25 @@ export function sourcesDuMedia(
 ): string[] {
   if (genre === "photo") {
     if (message.imagePublicId) {
+      const mode = modeValide(message.imageType);
+
+      /**
+       * L'allégée d'abord, l'originale ensuite.
+       *
+       * Un compte Cloudinary peut refuser les transformations dérivées
+       * non signées — c'est un réglage, « strict transformations », et
+       * nous n'avons aucun moyen de le lire d'ici. Plutôt que de
+       * supposer qu'il est ouvert et de risquer des photos cassées en
+       * production, on demande, et on retombe sur l'originale si la
+       * réponse ne vient pas. Même méthode que pour le MP3 des vocaux.
+       */
       return [
         urlCloudinary(message.imagePublicId, {
           resourceType: "image",
-          mode: modeValide(message.imageType),
+          mode,
+          transformation: PHOTO_ALLEGEE,
         }),
+        urlCloudinary(message.imagePublicId, { resourceType: "image", mode }),
       ];
     }
 

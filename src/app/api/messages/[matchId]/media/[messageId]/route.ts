@@ -46,8 +46,28 @@ import { sourcesDuMedia } from "@/lib/medias";
 
 export const dynamic = "force-dynamic";
 
-/** Une heure dans le cache du navigateur, et du sien seulement. */
-const CACHE = "private, max-age=3600";
+/**
+ * Un an dans le cache du navigateur, et du sien seulement.
+ *
+ * ## Pourquoi un an, et pourquoi `immutable`
+ *
+ * Un `public_id` Cloudinary est unique et son contenu ne change jamais :
+ * modifier une photo veut dire en déposer une autre, donc une autre
+ * adresse. L'heure d'avant faisait re-télécharger les photos d'une
+ * conversation à chaque retour au bout de soixante minutes, pour des
+ * octets identiques. `immutable` dit au navigateur de ne même pas poser
+ * la question — pas de requête de revalidation, pas d'aller-retour.
+ *
+ * ## Ce qui reste volontairement `private`
+ *
+ * Jamais `s-maxage`, jamais `public`. Une réponse mise en cache par le
+ * CDN serait servie à quiconque connaît l'adresse **sans repasser par
+ * cette fonction**, donc sans vérification de session ni d'appartenance
+ * à la conversation : le verrou entier sauterait pour gagner quelques
+ * centaines de millisecondes. Le cache reste celui du navigateur du
+ * membre, où il ne profite qu'à lui.
+ */
+const CACHE = "private, max-age=31536000, immutable";
 
 function estUnIdValide(valeur: string) {
   return mongoose.Types.ObjectId.isValid(valeur);
