@@ -320,6 +320,21 @@ export default function Home() {
               alt="Deux hommes en costume sur un rooftop, au crépuscule, la ville en contrebas."
               fill
               priority
+              /*
+                Soixante et non soixante-quinze.
+
+                Cette photographie est le plus grand élément affiché de la
+                page, donc celui qui décide du LCP — mesuré à 2,9 s sur
+                4G lente. Elle pesait 63 Ko en 1200 px à la qualité par
+                défaut, soit un tiers de seconde de transfert à elle
+                seule ; elle en pèse 48 à 60.
+
+                Le détail perdu ne se voit pas : deux dégradés la
+                recouvrent, opaques à 75 % au centre et complètement en
+                bas de l'écran mobile. On compresse ce que personne ne
+                regarde.
+              */
+              quality={60}
               sizes="(max-width: 1024px) 100vw, 56vw"
               /*
                 Variante recadrée, pas la photo d'origine. Les deux sujets
