@@ -258,6 +258,20 @@ export async function GET() {
         prioritaire: formulePrioritaire(formule),
         quota: quotaPublic(quota),
         horizonJours: HORIZON_PROGRAMMATION_JOURS,
+
+        /**
+         * Le profil est-il hors d'Explorer ?
+         *
+         * `POST` refusait déjà le boost d'un profil fantôme — l'annuaire ne
+         * garde que les visibilités `public` et `premium`, donc la mise en
+         * avant classerait le membre dans une liste où il ne figure pas. Mais
+         * le panneau l'ignorait et proposait un bouton perdant d'avance : on
+         * laissait cliquer pour refuser ensuite.
+         *
+         * Le refus serveur reste : ce champ sert l'affichage, il ne protège
+         * rien.
+         */
+        fantome: estFantome(user.visibilite),
       },
       { status: 200, headers: { 'Cache-Control': 'no-store' } }
     );

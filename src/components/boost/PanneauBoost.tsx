@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { CalendarClock, Gift, Rocket, Timer, TriangleAlert } from 'lucide-react';
+import {
+  CalendarClock,
+  EyeOff,
+  Gift,
+  Rocket,
+  Timer,
+  TriangleAlert,
+} from 'lucide-react';
 
 import { libelleTypeBoost } from '@/lib/boosts-formules';
 
@@ -43,6 +50,17 @@ import { libelleTypeBoost } from '@/lib/boosts-formules';
  * existe : des données et des fonctions pures, sans Mongoose. Le libellé de la
  * mise en avant en vient, pour qu'il soit le même mot ici, sur la carte du
  * profil et sur la page des tarifs.
+ *
+ * ## Le Mode Fantôme
+ *
+ * Un profil fantôme n'est pas dans l'annuaire : la requête n'y garde que les
+ * visibilités `public` et `premium`. Un boost l'y classerait en tête d'une
+ * liste où il ne figure pas — autant dire rien, pour un boost consommé.
+ *
+ * Le serveur refusait déjà. Le panneau, lui, affichait quand même un bouton
+ * « Lancer un boost » et laissait découvrir le refus après le clic. Il montre
+ * maintenant l'état avant, et le chemin pour en sortir : un bouton garanti
+ * perdant ne devrait pas s'offrir.
  */
 
 type Quota = {
@@ -119,6 +137,7 @@ export default function PanneauBoost({
   const [quota, setQuota] = useState<Quota | null>(null);
   const [formule, setFormule] = useState<Formule | null>(null);
   const [prioritaire, setPrioritaire] = useState(false);
+  const [fantome, setFantome] = useState(false);
   const [horizonJours, setHorizonJours] = useState(7);
   const [chargement, setChargement] = useState(true);
   const [envoi, setEnvoi] = useState(false);
@@ -159,6 +178,7 @@ export default function PanneauBoost({
       setQuota(donnees.quota ?? null);
       setFormule(donnees.formule ?? null);
       setPrioritaire(donnees.prioritaire === true);
+      setFantome(donnees.fantome === true);
       setHorizonJours(donnees.horizonJours ?? 7);
     } catch {
       if (monte.current) {
@@ -293,8 +313,85 @@ export default function PanneauBoost({
     maintenant.getTime() + horizonJours * 24 * 60 * 60 * 1000
   );
 
+  /**
+   * Ce que le panneau raconte, selon l'état.
+   *
+   * Sorti du rendu parce que la chaîne de conditions était arrivée à quatre
+   * niveaux de ternaires imbriqués dans le JSX : correcte, et illisible. Une
+   * suite de `if` se relit, et surtout se corrige sans compter les
+   * parenthèses.
+   */
+  const phraseEtat = (() => {
+    if (fantome && !enCours && !programme) {
+      return (
+        'Le Mode Fantôme te retire de l’annuaire. Un boost t’y remonterait en ' +
+        'tête d’une liste où tu n’apparais pas : il serait consommé pour rien, ' +
+        'alors il est mis en pause.'
+      );
+    }
+
+    if (enCours) {
+      return (
+        `Ton profil passe devant les autres dans Explorer, signalé ` +
+        `« ${libelleTypeBoost(formule.type)} », pendant toute la durée du boost.`
+      );
+    }
+
+    if (programme && boost) {
+      return (
+        `Ton boost démarre ${formaterMoment(boost.startsAt)}, ` +
+        `pour ${formule.dureeMinutes} minutes.`
+      );
+    }
+
+    return (
+      `Pendant ${formule.dureeMinutes} minutes, ton profil remonte en tête ` +
+      `d’Explorer pour les membres qui peuvent te voir, signalé ` +
+      `« ${libelleTypeBoost(formule.type)} ».`
+    );
+  })();
+
+  /** Ce qu'il reste, et pourquoi. */
+  const phraseQuota = (() => {
+    if (fantome && !enCours && !programme) {
+      // Le Mode Fantôme ne consomme rien : le dire évite de laisser croire
+      // qu'on perd ses boosts en se rendant invisible.
+      return quota.restants > 0
+        ? `Tes ${quota.restants} boost${quota.restants > 1 ? 's' : ''} restants ` +
+            't’attendent : rien n’est perdu, ils repartent dès que ton profil ' +
+            'est visible.'
+        : 'Tes boosts t’attendent : rien n’est perdu.';
+    }
+
+    if (quota.restants > 0) {
+      const s = quota.restants > 1 ? 's' : '';
+
+      return `${quota.restants} boost${s} sur ${quota.limite} restant${s} ce mois-ci.`;
+    }
+
+    if (quota.decouverteDisponible) {
+      return (
+        'Ton boost de découverte est disponible : offert une fois, pour voir ' +
+        'ce que ça change.'
+      );
+    }
+
+    if (quota.limite <= 0) {
+      return (
+        'Ton offre actuelle ne comprend pas de boost, et ton boost de ' +
+        'découverte est utilisé.'
+      );
+    }
+
+    return (
+      `Tes ${quota.limite} boost${quota.limite > 1 ? 's' : ''} du mois sont ` +
+      'utilisés. Le compteur repart le 1er.'
+    );
+  })();
+
   const surCredit = quota.restants <= 0 && quota.decouverteDisponible;
-  const aUnBoost = quota.restants > 0 || quota.decouverteDisponible;
+  const aUnBoost =
+    !fantome && (quota.restants > 0 || quota.decouverteDisponible);
 
   return (
     <section
@@ -316,14 +413,10 @@ export default function PanneauBoost({
           </h2>
 
           <p className="mt-1 max-w-md text-[13px] leading-relaxed text-champagne/60">
-            {enCours
-              ? `Ton profil passe devant les autres dans Explorer, signalé « ${libelleTypeBoost(formule.type)} », pendant toute la durée du boost.`
-              : programme && boost
-                ? `Ton boost démarre ${formaterMoment(boost.startsAt)}, pour ${formule.dureeMinutes} minutes.`
-                : `Pendant ${formule.dureeMinutes} minutes, ton profil remonte en tête d’Explorer pour les membres qui peuvent te voir, signalé « ${libelleTypeBoost(formule.type)} ».`}
+            {phraseEtat}
           </p>
 
-          {!enCours && !programme && prioritaire && (
+          {!enCours && !programme && !fantome && prioritaire && (
             <p className="mt-1.5 max-w-md text-[12px] leading-relaxed text-cuivre">
               Ton offre te place devant les boosts des offres inférieures quand
               plusieurs membres sont mis en avant en même temps.
@@ -358,6 +451,14 @@ export default function PanneauBoost({
                 {annulation ? 'Annulation…' : 'Annuler'}
               </button>
             </>
+          ) : fantome ? (
+            <Link
+              href="/mon-compte?tab=preferences"
+              className={`inline-flex items-center justify-center gap-2 rounded-xl border border-cuivre/40 px-4 py-2.5 text-[13px] font-bold text-champagne transition-colors hover:bg-cuivre/10 ${focusRing}`}
+            >
+              <EyeOff size={15} aria-hidden="true" />
+              Changer ma visibilité
+            </Link>
           ) : !aUnBoost ? (
             <Link
               href="/tarifs"
@@ -463,15 +564,7 @@ export default function PanneauBoost({
           <Gift size={14} className="mt-0.5 shrink-0 text-cuivre" aria-hidden="true" />
         )}
 
-        <span>
-          {quota.restants > 0
-            ? `${quota.restants} boost${quota.restants > 1 ? 's' : ''} sur ${quota.limite} restant${quota.restants > 1 ? 's' : ''} ce mois-ci.`
-            : quota.decouverteDisponible
-              ? 'Ton boost de découverte est disponible : offert une fois, pour voir ce que ça change.'
-              : quota.limite <= 0
-                ? 'Ton offre actuelle ne comprend pas de boost, et ton boost de découverte est utilisé.'
-                : `Tes ${quota.limite} boost${quota.limite > 1 ? 's' : ''} du mois sont utilisés. Le compteur repart le 1er.`}
-        </span>
+        <span>{phraseQuota}</span>
       </p>
 
       {erreur && (
